@@ -418,7 +418,7 @@ public class AncesTree implements Comparator {
     private int countAliveCellsAtIndex(int k) {
         Vector nuclei;
         try {
-            nuclei = (Vector)iNucleiMgr.getNucleiRecord().elementAt(k - 1);
+            nuclei = iNucleiMgr.getNucleiRecord().elementAt(k - 1);
         } catch(ArrayIndexOutOfBoundsException oob) {
             return -1;
         }
@@ -479,7 +479,7 @@ public class AncesTree implements Comparator {
                 processRootCell(i, n);
             }
         } else {
-            Vector prev = (Vector)iNucleiMgr.getNucleiRecord().elementAt(i - 1);
+            Vector prev = iNucleiMgr.getNucleiRecord().elementAt(i - 1);
             for (int j=0; j < nuclei.size(); j++) {
                 // use info on this cell from this and previous time frames
                 Nucleus n = (Nucleus)nuclei.elementAt(j);

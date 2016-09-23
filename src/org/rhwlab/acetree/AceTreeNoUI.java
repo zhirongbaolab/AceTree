@@ -407,7 +407,7 @@ public class AceTreeNoUI {
         //Vector nuclei = iNucleiMgr.getNucleiRecord()[time - 1];
         Nucleus n = null;
         try {
-            Vector nuclei = (Vector)iNucleiMgr.getNucleiRecord().elementAt(time - 1);
+            Vector nuclei = iNucleiMgr.getNucleiRecord().elementAt(time - 1);
             n = NucUtils.getCurrentCellNucleus(nuclei, iCurrentCell);
         } catch(Exception e) {
             System.out.println("AceTree.getCurrentCellParameters error at time=" + time);

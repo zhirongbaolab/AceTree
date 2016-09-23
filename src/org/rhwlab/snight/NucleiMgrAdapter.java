@@ -4,7 +4,7 @@ import java.util.*;
 
 import org.rhwlab.tree.Cell;
 
-import wormguides.model.LineageData;
+import acetree.lineagedata.LineageData;
 
 /*
  * Adapter to interface AceTree 3D Viewing with WormGUIDES
@@ -13,11 +13,10 @@ import wormguides.model.LineageData;
  * Author: Braden Katzman
  */
 
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class NucleiMgrAdapter implements LineageData {
 	
 		private NucleiMgr nucleiMgr;
-		private ArrayList<ArrayList<Double[]>> allPositions;
+		private ArrayList<ArrayList<double[]>> allPositions;
 		private Hashtable<String, int[]> cellOccurences;
 		private int realTimePoints; /* NucleiMgr's ending index is past last time with cells present */
 		private boolean isSulston;
@@ -28,7 +27,7 @@ public class NucleiMgrAdapter implements LineageData {
 			this.nucleiMgr = nucleiMgr;
 			this.cellOccurences = new Hashtable<String, int[]>();
 			this.realTimePoints = nucleiMgr.iEndingIndex; // initialize to this to avoid errors
-			this.allPositions = new ArrayList<ArrayList<Double[]>>();
+			this.allPositions = new ArrayList<ArrayList<double[]>>();
 			preprocessCellOccurrences();
 			preprocessCellPositions();
 			setIsSulstonModeFlag(nucleiMgr.iAncesTree.sulstonmode);
@@ -38,7 +37,7 @@ public class NucleiMgrAdapter implements LineageData {
 		}
 		
 		private void preprocessCellOccurrences() {
-			int timePoints = getTotalTimePoints();
+			int timePoints = getNumberOfTimePoints();
 			
 			/*
 			 * First occurences
@@ -86,12 +85,12 @@ public class NucleiMgrAdapter implements LineageData {
 		
 		private void preprocessCellPositions() {
 			for (int i = 0; i < realTimePoints; i++) {
-				ArrayList<Double[]> positions_at_time = new ArrayList<Double[]>();
+				ArrayList<double[]> positions_at_time = new ArrayList<double[]>();
 				
-				Double[][] positions = getPositions(i, true);
+				double[][] positions = getPositions(i, true);
 
 				for (int j = 0; j < positions.length; j++) {
-					Double[] coords = positions[j];
+					double[] coords = positions[j];
 					
 					positions_at_time.add(coords);
 				}
@@ -106,7 +105,7 @@ public class NucleiMgrAdapter implements LineageData {
 				ArrayList<String> namesAL = new ArrayList<String>(); //named to distinguish between return String[] array
 				
 				//access vector of nuclei at given time frame
-				Vector v = (Vector) nucleiMgr.nuclei_record.get(time);
+				Vector<Nucleus> v = nucleiMgr.nuclei_record.get(time);
 //				Vector v = (Vector) nucleiMgr.nuclei_record.get(time - 1);
 				
 				//copy nuclei identities to ArrayList names AL
@@ -130,14 +129,14 @@ public class NucleiMgrAdapter implements LineageData {
 		}
 		
 		@Override
-		public Double[][] getPositions(int time) {
+		public double[][] getPositions(int time) {
 			if (allPositions == null) {
 				preprocessCellPositions();
 			}
 			
-			ArrayList<Double[]> positions = allPositions.get(time);
+			ArrayList<double[]> positions = allPositions.get(time);
 			
-			Double[][] positions_array = new Double[positions.size()][3];
+			double[][] positions_array = new double[positions.size()][3];
 			
 			for (int i = 0; i < positions.size(); i++) {
 				positions_array[i] = positions.get(i);
@@ -146,11 +145,11 @@ public class NucleiMgrAdapter implements LineageData {
 			return positions_array;
 		}
 		
-		private Double[][] getPositions(int time, boolean prvte) {
+		private double[][] getPositions(int time, boolean prvte) {
 			ArrayList<ArrayList<Double>> positionsAL = new ArrayList<ArrayList<Double>>();
 			
 			//access vector of nuclei at given time frame
-			Vector v = (Vector) nucleiMgr.nuclei_record.get(time);
+			Vector<Nucleus> v = nucleiMgr.nuclei_record.get(time);
 			
 			//copy nuclei positions to ArrayList positionsAL
 			for (int m = 0; m < v.size(); ++m) {
@@ -164,7 +163,7 @@ public class NucleiMgrAdapter implements LineageData {
 			//convert ArrayList to Integer[][]
 			int size = positionsAL.size(); //numbers of rows i.e. nuclei
 			
-			Double[][] positions = new Double[size][3]; //nuclei x 3 positions coordinates
+			double[][] positions = new double[size][3]; //nuclei x 3 positions coordinates
 			for (int i = 0; i < size; ++i) {
 				ArrayList<Double> row = positionsAL.get(i);
 
@@ -178,12 +177,11 @@ public class NucleiMgrAdapter implements LineageData {
 		}
 
 		@Override
-		public Double[] getDiameters(int time) {
+		public double[] getDiameters(int time) {
 			ArrayList<Double> diametersAL = new ArrayList<Double>();
 			
 			//access vector of nuclei at given time frame
-			Vector v = (Vector) nucleiMgr.nuclei_record.get(time);
-//			Vector v = (Vector) nucleiMgr.nuclei_record.get(time - 1);
+			Vector<Nucleus> v = nucleiMgr.nuclei_record.get(time);
 			
 			for (int m = 0; m < v.size(); ++m) {
 				Nucleus n = (Nucleus) v.get(m);
@@ -194,7 +192,7 @@ public class NucleiMgrAdapter implements LineageData {
 			
 			//convert ArrayList to Integer[]
 			int size = diametersAL.size();
-			Double[] diameters = new Double[size];
+			double[] diameters = new double[size];
 			for (int i = 0; i < size; ++i) {
 				diameters[i] = diametersAL.get(i);
 			}
@@ -202,6 +200,7 @@ public class NucleiMgrAdapter implements LineageData {
 			return diameters;
 		}
 		
+		@SuppressWarnings({ "rawtypes", "unchecked" })
 		@Override
 		public ArrayList<String> getAllCellNames() {
 			Hashtable allCellNamesHash = nucleiMgr.getCellsByName();
@@ -219,13 +218,12 @@ public class NucleiMgrAdapter implements LineageData {
 		}
 		
 		@Override
-		public int getTotalTimePoints() {
+		public int getNumberOfTimePoints() {
 			return this.realTimePoints;
 		}
 		
 		public int getNumberOfCellsAtTime(int time) {
-			return ((Vector) nucleiMgr.nuclei_record.get(time)).size();
-//			return ((Vector) nucleiMgr.nuclei_record.get(time - 1)).size();
+			return ((Vector<Nucleus>) nucleiMgr.nuclei_record.get(time)).size();
 		}
 		
 		
@@ -265,12 +263,12 @@ public class NucleiMgrAdapter implements LineageData {
 		@Override
 		public void shiftAllPositions(int x, int y, int z) {
 			for (int i = 0; i < allPositions.size(); i++) {
-				ArrayList<Double[]> positions_at_frame = allPositions.get(i);
+				ArrayList<double[]> positions_at_frame = allPositions.get(i);
 				
 				for (int j = 0; j < positions_at_frame.size(); j++) {
-					Double[] coords = positions_at_frame.get(j);
+					double[] coords = positions_at_frame.get(j);
 					
-					positions_at_frame.set(j, new Double[] { coords[0] - x, coords[1] - y, coords[2] - z });
+					positions_at_frame.set(j, new double[] { coords[0] - x, coords[1] - y, coords[2] - z });
 				}
 				allPositions.set(i, positions_at_frame);
 			}

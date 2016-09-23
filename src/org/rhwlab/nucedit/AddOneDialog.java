@@ -397,7 +397,7 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
         //System.out.println("addCell: " + x + C.CS + y);
         updateCurrentInfo(false);
         int time = iImageTime + iTimeInc;
-        Vector nuclei = (Vector)ImageWindow.cNucleiMgr.getNucleiRecord().elementAt(time - 1);
+        Vector nuclei = ImageWindow.cNucleiMgr.getNucleiRecord().elementAt(time - 1);
         Nucleus n = new Nucleus();
         n.index = nuclei.size() + 1;
         String hashKey = NucUtils.makeHashKey(time, n);

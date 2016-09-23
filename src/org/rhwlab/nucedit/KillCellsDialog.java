@@ -101,7 +101,7 @@ public class KillCellsDialog extends GenericDialog {
         // put starting cell on the list and then look for more
         // up to the point where the name changes
         //System.out.println("KillCellsDialog: " + iNucleiMgr + CS + iTime);
-        Vector nuclei = (Vector)iNucleiMgr.getNucleiRecord().elementAt(iTime - 1);
+        Vector nuclei = iNucleiMgr.getNucleiRecord().elementAt(iTime - 1);
         iCandidateCells = new Vector();
         iCandidateCells.add(nuclei);
         int nmax; 
@@ -169,7 +169,7 @@ public class KillCellsDialog extends GenericDialog {
     	// for cell name or start time
     	iCellName=iCellToKill.getText();
     	iTime=Integer.parseInt(iKillTime.getText());
-    	Vector nuclei = (Vector)iNucleiMgr.getNucleiRecord().elementAt(iTime - 1);
+    	Vector nuclei = iNucleiMgr.getNucleiRecord().elementAt(iTime - 1);
     	iCandidateCells = new Vector();
     	iCandidateCells.add(nuclei);
        	collectCandidateCells();
@@ -229,7 +229,7 @@ public class KillCellsDialog extends GenericDialog {
         Nucleus predecessorNuc = null;
         if (iTime > 1) {
             Nucleus nc = iNucleiMgr.getCurrentCellData(iCellName, iTime);
-            Vector predNuclei = (Vector)iNucleiMgr.getNucleiRecord().elementAt(iTime - 2);
+            Vector predNuclei = iNucleiMgr.getNucleiRecord().elementAt(iTime - 2);
             if (nc.predecessor > 0) {
                 predecessorNuc = (Nucleus)predNuclei.elementAt(nc.predecessor - 1);
             }

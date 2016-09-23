@@ -169,13 +169,13 @@ public class Orientation extends JDialog implements ActionListener, ListSelectio
     	//Vector v = new Vector();
         iNamesAvailable = false;
         iTest = 1;
-        Vector nucleiNow = (Vector)iNucleiMgr.getNucleiRecord().elementAt(now - 1);
+        Vector nucleiNow = iNucleiMgr.getNucleiRecord().elementAt(now - 1);
         Nucleus nnow = null;
         for (int j=0; j < nucleiNow.size(); j++) {
             nnow = (Nucleus)nucleiNow.elementAt(j);
             if (nnow.status <= 0) continue;
             if (nnow.successor1 > 0  && nnow.successor2 > 0) {
-                Vector nucleiNext = (Vector)iNucleiMgr.getNucleiRecord().elementAt(now);
+                Vector nucleiNext = iNucleiMgr.getNucleiRecord().elementAt(now);
                 Nucleus a = (Nucleus)nucleiNext.elementAt(nnow.successor1 - 1);
                 Nucleus p = (Nucleus)nucleiNext.elementAt(nnow.successor2 - 1);
                 double score1 = evaluateDivision1(nnow, a, p, now);

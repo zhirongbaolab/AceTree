@@ -273,7 +273,7 @@ public class ImageWindowNoUI {
             iImageTime = 1;
             iTimeInc = 0;
         }
-        Vector v = (Vector)cNucleiMgr.getNucleiRecord().elementAt(iImageTime + iTimeInc - 1);
+        Vector v = cNucleiMgr.getNucleiRecord().elementAt(iImageTime + iTimeInc - 1);
         ImageProcessor iproc = getImagePlus().getProcessor();
         iproc.setColor(Color.WHITE);
         iproc.setLineWidth(2);
@@ -327,7 +327,7 @@ public class ImageWindowNoUI {
 	public void showAnnotations(Graphics g) {
         //*
     	//showWhichAnnotations();
-        Vector v = (Vector)cNucleiMgr.getNucleiRecord().elementAt(iImageTime  + iTimeInc - 1);
+        Vector v = cNucleiMgr.getNucleiRecord().elementAt(iImageTime  + iTimeInc - 1);
         int size = v.size();
         int [] x = new int[size];
         int [] y = new int[size];
@@ -365,7 +365,7 @@ public class ImageWindowNoUI {
 	public void showAnnotations() {
         //*
     	//showWhichAnnotations();
-        Vector v = (Vector)cNucleiMgr.getNucleiRecord().elementAt(iImageTime  + iTimeInc - 1);
+        Vector v = cNucleiMgr.getNucleiRecord().elementAt(iImageTime  + iTimeInc - 1);
         int size = v.size();
         int [] x = new int[size];
         int [] y = new int[size];

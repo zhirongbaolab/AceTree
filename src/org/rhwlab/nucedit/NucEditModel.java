@@ -53,7 +53,7 @@ public class NucEditModel {
             if(setSuccessors(i)) return;;
         }
         NucleiTableModel nucleiTableModel = iNucleiTableModel[tableModel];
-        Vector nuclei = (Vector)iNucleiMgr.getNucleiRecord().elementAt(i);
+        Vector nuclei = iNucleiMgr.getNucleiRecord().elementAt(i);
         int m = nuclei.size();
         Nucleus n;
         String s;

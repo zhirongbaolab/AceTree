@@ -224,7 +224,7 @@ public class NucleiMgrHeadless extends NucleiMgr {
         int k = getWeightMethodIndex();
         for (int i = iStartingIndex; i <= iEndingIndex; i++) {
             //println("computeRWeight, " + i);
-            Vector v = (Vector)nuclei_record.get(i - 1);
+            Vector v = nuclei_record.get(i - 1);
             for (int j=0; j < v.size(); j++) {
                 Nucleus n = (Nucleus)v.get(j);
                 //println("computeRWeight, " + n.identity);
@@ -566,7 +566,7 @@ public class NucleiMgrHeadless extends NucleiMgr {
     @Override
 	public String getIndex(String name, int time) {
         int k = 0;
-        Vector nuclei = (Vector)nuclei_record.elementAt(time - 1);
+        Vector nuclei = nuclei_record.elementAt(time - 1);
         Nucleus n = null;
         for (int j=0; j < nuclei.size(); j++) {
             n = (Nucleus)nuclei.elementAt(j);
@@ -583,7 +583,7 @@ public class NucleiMgrHeadless extends NucleiMgr {
 
     @Override
 	public Nucleus findClosestNucleusXYZ(int mx, int my, float mz, int time) {
-        Vector nuclei = (Vector)nuclei_record.elementAt(time - 1);
+        Vector nuclei = nuclei_record.elementAt(time - 1);
         double x, y, z, r;
         boolean g;
         Nucleus candidate = null;
@@ -617,7 +617,7 @@ public class NucleiMgrHeadless extends NucleiMgr {
     @Override
 	public Nucleus findClosestNucleus(int mx, int my, int time) {
         //System.out.println("findClosestNucleus: " + mx + CS + my + CS + time);
-        Vector nuclei = (Vector)nuclei_record.elementAt(time - 1);
+        Vector nuclei = nuclei_record.elementAt(time - 1);
         double x, y, r;
         boolean g;
         Nucleus candidate = null;
@@ -653,7 +653,7 @@ public class NucleiMgrHeadless extends NucleiMgr {
         if (time < 1) time = 1;
         Vector nuclei = null;
         try {
-            nuclei = (Vector)nuclei_record.elementAt(time - 1);
+            nuclei = nuclei_record.elementAt(time - 1);
         } catch(Exception e) {
             return null;
         }
@@ -692,7 +692,7 @@ public class NucleiMgrHeadless extends NucleiMgr {
 
     @Override
 	public Nucleus getCurrentCellData(String cellName, int time) {
-        Vector nucData = (Vector)nuclei_record.elementAt(time - 1);
+        Vector nucData = nuclei_record.elementAt(time - 1);
         return NucUtils.getCurrentCellData(nucData, cellName);
     }
 
@@ -708,7 +708,7 @@ public class NucleiMgrHeadless extends NucleiMgr {
 
     @Override
 	public Vector getNuclei(int time) {
-        return (Vector)nuclei_record.elementAt(time);
+        return nuclei_record.elementAt(time);
     }
 
     @Override
@@ -716,7 +716,7 @@ public class NucleiMgrHeadless extends NucleiMgr {
 	public Nucleus getNucleusFromHashkey(String hashKey, int time) {
         Nucleus r = null;
         boolean found = false;
-        Vector nucData = (Vector)nuclei_record.elementAt(time - 1);
+        Vector nucData = nuclei_record.elementAt(time - 1);
         for (int j = 0; j < nucData.size(); j++) {
             Nucleus n = (Nucleus)nucData.elementAt(j);
             //println("getNucleusFromHashkey: " + n);
@@ -993,7 +993,7 @@ public class NucleiMgrHeadless extends NucleiMgr {
         //System.out.println("clearAllHashkeys: " + nuclei_record);
         Vector v = null;
         for (int i=0; i < nuclei_record.size(); i++) {
-            v = (Vector)nuclei_record.elementAt(i);
+            v = nuclei_record.elementAt(i);
             for (int j=0; j < v.size(); j++) {
                 ((Nucleus)v.elementAt(j)).hashKey = null;
             }
@@ -1032,7 +1032,7 @@ public class NucleiMgrHeadless extends NucleiMgr {
         Nucleus n = null;
         Nucleus nNew = null;
         for (int i=0; i < nuclei_record.size(); i++) {
-            nuclei = (Vector)nuclei_record.elementAt(i);
+            nuclei = nuclei_record.elementAt(i);
             nucleiNew = new Vector();
             for (int j=0; j < nuclei.size(); j++) {
                 n = (Nucleus)nuclei.elementAt(j);
@@ -1106,7 +1106,7 @@ public class NucleiMgrHeadless extends NucleiMgr {
         //    System.out.println("setSuccessors: " + i);
         //}
         if (iConfig.iNamingMethod == Identity3.MANUAL) return 0;
-        Vector now = (Vector)nuclei_record.elementAt(i);
+        Vector now = nuclei_record.elementAt(i);
         Nucleus n = null;
         int m1 = Nucleus.NILLI;
         for (int j=0; j < now.size(); j++) {
@@ -1118,7 +1118,7 @@ public class NucleiMgrHeadless extends NucleiMgr {
         if (i == iEndingIndex - 1) return 1;
         Vector next;
         try {
-            next = (Vector)nuclei_record.elementAt(i + 1);
+            next = nuclei_record.elementAt(i + 1);
         } catch(ArrayIndexOutOfBoundsException oob) {
             return 1;
         }
@@ -1176,7 +1176,7 @@ public class NucleiMgrHeadless extends NucleiMgr {
         for (int i = 0; i< iMovie.tp_number; i++) {
             String name = "t" + EUtils.makePaddedInt(i + 1) + "-nuclei";
             open(name);
-            Vector nuclei = (Vector)nuclei_record.elementAt(i);
+            Vector nuclei = nuclei_record.elementAt(i);
             for (int j=0; j<nuclei.size(); j++) {
                 Nucleus nucleij = (Nucleus)nuclei.elementAt(j);
                 write(nucleij.toString());

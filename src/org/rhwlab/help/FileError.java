@@ -3,7 +3,6 @@ package org.rhwlab.help;
 import java.awt.Dimension;
 
 import javax.swing.BoxLayout;
-import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JFrame;
 import javax.swing.JTextArea;

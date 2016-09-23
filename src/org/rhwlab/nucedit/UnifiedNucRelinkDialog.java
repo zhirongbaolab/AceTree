@@ -222,7 +222,7 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
 
     protected String addCell(int x, int y) {
     	int time = iAceTree.getImageTime()+iAceTree.getTimeInc();
-        Vector nuclei = (Vector)ImageWindow.cNucleiMgr.getNucleiRecord().elementAt(time - 1);
+        Vector nuclei = ImageWindow.cNucleiMgr.getNucleiRecord().elementAt(time - 1);
         Nucleus n = new Nucleus();
         n.index = nuclei.size() + 1;
         String hashKey = NucUtils.makeHashKey(time, n);

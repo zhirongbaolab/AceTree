@@ -14,7 +14,6 @@ import java.awt.event.WindowEvent;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
@@ -118,7 +117,7 @@ public class CellMovementImage extends ImageWindow {
     protected void showCentroids(int increment) {
         int t = iImageTime + iTimeInc - 1 - increment;
         if (t < 0) return;
-        Vector v = (Vector)cNucleiMgr.getNucleiRecord().elementAt(t);
+        Vector v = cNucleiMgr.getNucleiRecord().elementAt(t);
         ImageProcessor iproc = getImagePlus().getProcessor();
         if (increment == 0) {
             iproc.setColor(Color.red);

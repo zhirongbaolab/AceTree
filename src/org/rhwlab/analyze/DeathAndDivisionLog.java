@@ -68,7 +68,7 @@ public class DeathAndDivisionLog extends Log {
         iTimeInc = iAceTree.getTimeInc();
         iEndingIndex = iNucleiMgr.getEndingIndex();
         int now = iImageTime + iTimeInc;
-        Vector nucleiNow = (Vector)iNucleiMgr.getNucleiRecord().elementAt(now - 1);
+        Vector nucleiNow = iNucleiMgr.getNucleiRecord().elementAt(now - 1);
         Nucleus nnow = null;
         //System.out.println("time: " + now);
         this.append("time: " + now);
@@ -84,7 +84,7 @@ public class DeathAndDivisionLog extends Log {
             } else if (nnow.successor1 > 0) {
                 //System.out.println("showDivisions: " + nnow.identity + " division " 
                 //        + nnow.successor1 + CS + nnow.successor2);
-                Vector nucleiNext = (Vector)iNucleiMgr.getNucleiRecord().elementAt(now);
+                Vector nucleiNext = iNucleiMgr.getNucleiRecord().elementAt(now);
                 Nucleus a = (Nucleus)nucleiNext.elementAt(nnow.successor1 - 1);
                 Nucleus p = (Nucleus)nucleiNext.elementAt(nnow.successor2 - 1);
                 //System.out.println("showDivisions: " + nnow.identity + " division " 

@@ -130,7 +130,7 @@ public class AuxImageWindowXZ extends JFrame {
 
     protected void showCentroids(int time, int y, ImageProcessor iproc) {
         //double zPixRes = 11.;
-        Vector v = (Vector)iNucleiMgr.getNucleiRecord().elementAt(time - 1);
+        Vector v = iNucleiMgr.getNucleiRecord().elementAt(time - 1);
         iproc.setColor(NUCCOLOR);
         iproc.setLineWidth(WIDTHS[1]);
         Enumeration e = v.elements();

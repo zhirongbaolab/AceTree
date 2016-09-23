@@ -9,7 +9,7 @@ package org.rhwlab.snight;
  */
 
 import wormguides.MainApp;
-import wormguides.model.NucleiMgrAdapterResource;
+import wormguides.models.NucleiMgrAdapterResource;
 
 public class WormGUIDESWindow extends wormguides.MainApp {
 	private NucleiMgrAdapter nucleiMgrAdapter;
@@ -29,8 +29,9 @@ public class WormGUIDESWindow extends wormguides.MainApp {
 				try {
 					MainApp.startProgramatically(new String[0], nmar);
 				} catch (IllegalStateException ise) {
-					System.out.println("Illegal state exception thrown from starting WormGUIDES programatically.");
+					System.out.println("Illegal state exception thrown from starting WormGUIDES programatically twice on single AceTree thread.");
 					System.out.println("Restart AceTree to use WormGUIDES viewer.");
+					System.out.println("Error documented 08/2016");
 				}
 			}
 		});

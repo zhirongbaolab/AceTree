@@ -150,7 +150,7 @@ public class Image3DGeometryManager {
         NucleiMgr nucleiMgr = iAceTree.getNucleiMgr();
 
         int time = iAceTree.getImageTime() + iAceTree.getTimeInc();
-        Vector nuclei = (Vector)nucleiMgr.getNucleiRecord().elementAt(time - 1);
+        Vector nuclei = nucleiMgr.getNucleiRecord().elementAt(time - 1);
         for (int i=0; i < nuclei.size(); i++) {
             Nucleus n = (Nucleus)nuclei.get(i);
             //println("prepareSortedList, encountered, " + n.identity);
@@ -212,7 +212,7 @@ public class Image3DGeometryManager {
         iTransparent = false;
         NucleiMgr nucleiMgr = iAceTree.getNucleiMgr();
         int time = iAceTree.getImageTime() + iAceTree.getTimeInc();
-        Vector nuclei = (Vector)nucleiMgr.getNucleiRecord().elementAt(time - 1);
+        Vector nuclei = nucleiMgr.getNucleiRecord().elementAt(time - 1);
         nuclei = copyNuclei(nuclei);
         getCenter(nuclei);
         while (iSisterList.size() > 0) {
@@ -494,7 +494,7 @@ public class Image3DGeometryManager {
         int time = iAceTree.getImageTime() + iAceTree.getTimeInc();
 
         // get the nuclei list at the current time
-        newNuclei = (Vector)nucleiMgr.getNucleiRecord().elementAt(time - goBack);
+        newNuclei = nucleiMgr.getNucleiRecord().elementAt(time - goBack);
         getCenter(newNuclei);
 
         while(goBack < viewConfig.getTailTimePoints()) {
@@ -502,7 +502,7 @@ public class Image3DGeometryManager {
 
             try {
                 // get the nuclei list at the next oldest time
-                oldNuclei = (Vector)nucleiMgr.getNucleiRecord().elementAt(time - goBack);
+                oldNuclei = nucleiMgr.getNucleiRecord().elementAt(time - goBack);
             } catch (ArrayIndexOutOfBoundsException e) {
                 return;
             }

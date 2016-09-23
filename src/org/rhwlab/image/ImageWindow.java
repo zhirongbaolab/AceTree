@@ -1521,7 +1521,7 @@ public class ImageWindow extends JFrame implements  KeyListener, Runnable {
     @SuppressWarnings("unused")
 	protected void showAnnotations() {
         //showWhichAnnotations();
-        Vector v = (Vector)cNucleiMgr.getNucleiRecord().elementAt(iImageTime  + iTimeInc - 1);
+        Vector v = cNucleiMgr.getNucleiRecord().elementAt(iImageTime  + iTimeInc - 1);
         int size = v.size();
         int [] x = new int[size];
         int [] y = new int[size];

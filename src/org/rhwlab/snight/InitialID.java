@@ -175,7 +175,7 @@ public class InitialID {
 			System.out.println("> 4 cells");
 			Nucleus nucleij = null;
 			for (int j=0; j < nuc_ct; j++) {
-				nucleij = (Nucleus)nuclei.elementAt(j);
+				nucleij = nuclei.elementAt(j);
 				if (nucleij.status == -1)
 					continue;
 				//lin_ct++;
@@ -211,7 +211,7 @@ public class InitialID {
 				nuc_ct = nuclei.size();
 				Nucleus nucleij = null;
 				for (int j=0; j < nuc_ct; j++) {
-					nucleij = (Nucleus)nuclei.elementAt(j);
+					nucleij = nuclei.elementAt(j);
 					if (nucleij.status == -1)
 						continue;
 					if (nucleij.identity.indexOf(POLAR) > -1)
@@ -247,7 +247,7 @@ public class InitialID {
 		int cell_ct = 0;
 		Nucleus n;
 		for (int i=0; i < nuclei.size(); i++) {
-			n = (Nucleus)nuclei.elementAt(i);
+			n = nuclei.elementAt(i);
 			//if (n.status > -1 && !n.identity.equals(POLAR)) cell_ct++;
 			if (n.status > -1 && n.identity.indexOf(POLAR) == -1) cell_ct++;
 		}
@@ -263,7 +263,7 @@ public class InitialID {
 		int p_ct = 0;
 		Nucleus nucleii;
 		for (i = 0; i < nuc_ct; i++) {
-			nucleii = (Nucleus)nuclei.elementAt(i);
+			nucleii = nuclei.elementAt(i);
 			if (nucleii.status < 0) continue;
 			if (nucleii.size < iParameters.polar_size) {
 				nucleii.identity = POLAR + (p_ct + 1);
@@ -282,7 +282,7 @@ public class InitialID {
 			}
 			Nucleus nucleij = null;
 			for (int j = 0; j < nuc_ct; j++) {
-				nucleij = (Nucleus)nuclei.elementAt(j);
+				nucleij = nuclei.elementAt(j);
 				if (nucleij.identity.indexOf(POLAR) == -1) continue;
 				if (nucleij.successor1 == Nucleus.NILLI) p_ct--;
 				if (p_ct == 0) break;
@@ -294,7 +294,7 @@ public class InitialID {
 							);
 				} else {
 					if (nucleij.successor1 == -1) continue;
-					Nucleus suc = (Nucleus)nuclei_next.elementAt(nucleij.successor1 - 1);
+					Nucleus suc = nuclei_next.elementAt(nucleij.successor1 - 1);
 					suc.identity = nucleij.identity;
 				}
 			}
@@ -335,7 +335,7 @@ public class InitialID {
 		
 		// iterate over the four cell stage
 		for (i=0; i<nuc_ct; i++) {
-			nucleii = (Nucleus)nuclei.elementAt(i);
+			nucleii = nuclei.elementAt(i);
 		
 			// continue on polar bodies
 			if (nucleii.identity.indexOf(POLAR) > -1) continue;
@@ -344,8 +344,8 @@ public class InitialID {
 			if (nucleii.predecessor == Nucleus.NILLI) lin_ct ++;
 			
 			if (nucleii.successor2 != Nucleus.NILLI) {
-				Nucleus d1 = (Nucleus)nuclei_next.elementAt(nucleii.successor1 - 1);
-				Nucleus d2 = (Nucleus)nuclei_next.elementAt(nucleii.successor2 - 1);
+				Nucleus d1 = nuclei_next.elementAt(nucleii.successor1 - 1);
+				Nucleus d2 = nuclei_next.elementAt(nucleii.successor2 - 1);
 				sisterID(d1, d2, nuc_ct);
 			}
 		}
@@ -372,7 +372,7 @@ public class InitialID {
 		ymin = Integer.MAX_VALUE; //Movie.frameheight * Movie.framewidth;
 		ymax = 0;
 		for (i=0; i<nuclei.size(); i++) {
-			Nucleus nucleii = (Nucleus)nuclei.elementAt(i);
+			Nucleus nucleii = nuclei.elementAt(i);
 			if (nucleii.status < 0 || nucleii.identity.indexOf(POLAR) > -1) continue;
 			int [] ia = new int[2];
 			ia[0] = nucleii.x;
@@ -446,9 +446,9 @@ public class InitialID {
 
 		for (i=four_cells-1; i>=0; i--) {
 			//println("backAssignment: " + i);
-			nuclei = (Vector<Nucleus>)nuclei_record.elementAt(i);
+			nuclei = nuclei_record.elementAt(i);
 			nuc_ct = nuclei.size();
-			nuclei_next = (Vector<Nucleus>)nuclei_record.elementAt(i + 1);
+			nuclei_next = nuclei_record.elementAt(i + 1);
 			successor1 = Nucleus.NILLI;
 			successor2 = Nucleus.NILLI;
 			
@@ -458,13 +458,13 @@ public class InitialID {
 			for (j = 0; j < nuc_ct; j++) {
 				suc1 = null;
 				suc2 = null;
-				nucleij = (Nucleus)nuclei.elementAt(j);
+				nucleij = nuclei.elementAt(j);
 				if (nucleij.identity.indexOf(POLAR) > -1) continue;
 				if (nucleij.status == Nucleus.NILLI) continue;
 				successor1 = nucleij.successor1;
 				successor2 = nucleij.successor2;
 				if (successor1 != Nucleus.NILLI) {
-					suc1 = (Nucleus)nuclei_next.elementAt(successor1 - 1);
+					suc1 = nuclei_next.elementAt(successor1 - 1);
 				}
 				
 				if (successor2 == Nucleus.NILLI) {
@@ -474,7 +474,7 @@ public class InitialID {
 						nucleij.identity = NUC + iNucCount++;
 				}
 				else {
-					suc2 = (Nucleus)nuclei_next.elementAt(successor2 - 1);
+					suc2 = nuclei_next.elementAt(successor2 - 1);
 					String s1 = suc1.identity;
 					String s2 = suc2.identity;
 					if (s1.equals("P2") || s1.equals("EMS")) {
@@ -519,7 +519,7 @@ public class InitialID {
 		nuclei = nuclei_record.elementAt(0);
 		nuc_ct = nuclei.size();
 		for (j=0; j < nuc_ct; j++) {
-			nucleij = (Nucleus)nuclei.elementAt(j);
+			nucleij = nuclei.elementAt(j);
 			if (nucleij.identity.indexOf(POLAR) > -1) continue;
 			if (nucleij.identity == null) {
 				nucleij.identity = NUC + iNucCount++;
@@ -533,30 +533,30 @@ public class InitialID {
 			nuclei_next = nuclei_record.elementAt(i + 1);
 			nuclei_prev = nuclei_record.elementAt(i - 1);
 			for (j=0; j<nuc_ct; j++) {
-				nucleij = (Nucleus)nuclei.elementAt(j);
+				nucleij = nuclei.elementAt(j);
 				if (nucleij.identity.indexOf(POLAR) > -1) continue;
 				boolean validId = nucleij.identity != null && !nucleij.identity.equals("");
 				if (!validId && nucleij.predecessor == Nucleus.NILLI) {
 					lin_ct++;
 					nucleij.identity = NUC + iNucCount++;
 				} else if (nucleij.identity == null) {
-					pred = (Nucleus)nuclei_prev.elementAt(nucleij.predecessor - 1);
+					pred = nuclei_prev.elementAt(nucleij.predecessor - 1);
 					successor2 = pred.successor2;
 					if (successor2 == Nucleus.NILLI) {
 						pred.identity = nucleij.identity;
 					} else {
 						newBornID(pred,
-								(Nucleus)nuclei.elementAt(pred.successor1 - 1),
-								(Nucleus)nuclei.elementAt(successor2 - 1)
+								nuclei.elementAt(pred.successor1 - 1),
+								nuclei.elementAt(successor2 - 1)
 								);
 					}
 				}
 				// deliberate change from C code in next line initial reference
 				//                if (nucleij.successor2 != Nucleus.NILLI) {
-				if (((Nucleus)nuclei.elementAt(j)).successor2 != Nucleus.NILLI) {
+				if (nuclei.elementAt(j).successor2 != Nucleus.NILLI) {
 					//iDLog.append("reached deliberate code change");
-					sisterID((Nucleus)nuclei_next.elementAt(nucleij.successor1 - 1)
-							,(Nucleus)nuclei_next.elementAt(nucleij.successor2 - 1)
+					sisterID(nuclei_next.elementAt(nucleij.successor1 - 1)
+							,nuclei_next.elementAt(nucleij.successor2 - 1)
 							, nuc_ct
 							);
 				}
@@ -584,7 +584,7 @@ public class InitialID {
 
 		// iterate over the 4 cells (hopefully 4) and check ID tags to match to N, E, S, W
 		for (i=0; i<nuc_ct; i++) {
-			Nucleus nucleii = (Nucleus)nuclei.elementAt(i);
+			Nucleus nucleii = nuclei.elementAt(i);
 			if (nucleii.id_tag == 'n') north = nucleii;
 			else if (nucleii.id_tag == 's') south = nucleii;
 			else if (nucleii.id_tag == 'e') east = nucleii;

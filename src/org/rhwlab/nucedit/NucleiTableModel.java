@@ -45,7 +45,7 @@ public class NucleiTableModel extends AbstractTableModel {
         Vector va = nucleiMgr.getNucleiRecord();
         //System.out.println("NucleiTableModel.update: " + va.length);
         if (index < va.size()) {
-            Vector nuclei = (Vector)nucleiMgr.getNucleiRecord().elementAt(index);
+            Vector nuclei = nucleiMgr.getNucleiRecord().elementAt(index);
             for (int i=0; i<nuclei.size(); i++) {
                 Nucleus n = (Nucleus)nuclei.elementAt(i);
                 Vector row = new Vector();

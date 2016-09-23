@@ -202,7 +202,7 @@ public class Analysis10 extends Log {
     @SuppressWarnings("unused")
 	protected void showCentroids(int time, int x, ImageProcessor iproc) {
         double zPixRes = 11.;
-        Vector v = (Vector)iNucleiMgr.getNucleiRecord().elementAt(time - 1);
+        Vector v = iNucleiMgr.getNucleiRecord().elementAt(time - 1);
         //ImageProcessor iproc = getImagePlus().getProcessor();
         //iproc.setColor(Color.red);
         iproc.setColor(COLOR[1]);

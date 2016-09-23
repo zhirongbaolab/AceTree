@@ -502,7 +502,7 @@ public class NucleiMgr {
         //int lastNonEmptyIndex = 0;
         while (e.hasMoreElements()) {
         	//System.out.println("More elements...");
-            ZipEntry ze = (ZipEntry)e.nextElement();
+            ZipEntry ze = e.nextElement();
             Vector<Nucleus> v = new Vector<Nucleus>();
             String [] saa = zn.parseZipEntry(ze);
             
@@ -1099,7 +1099,7 @@ public class NucleiMgr {
         for (int i=0; i < nuclei_record.size(); i++) {
             v = nuclei_record.elementAt(i);
             for (int j=0; j < v.size(); j++) {
-                ((Nucleus)v.elementAt(j)).hashKey = null;
+                v.elementAt(j).hashKey = null;
             }
         }
     }
@@ -1208,7 +1208,7 @@ public class NucleiMgr {
         Nucleus n = null;
         int m1 = Nucleus.NILLI;
         for (int j=0; j < now.size(); j++) {
-            n = (Nucleus)now.elementAt(j);
+            n = now.elementAt(j);
             //println("setSuccessors3: " + n.identity);
             n.successor1 = m1;
             n.successor2 = m1;
@@ -1223,7 +1223,7 @@ public class NucleiMgr {
         }
         // first set all successors to -1
         for (int j=0; j < next.size(); j++) {
-            n = (Nucleus)next.elementAt(j);
+            n = next.elementAt(j);
             //println("setSuccessors: " + n.identity);
             if (n.status == Identity3.DEAD) 
             	continue;
@@ -1233,7 +1233,7 @@ public class NucleiMgr {
             //println("setSuccessors2: " + j + CS + pred);
             Nucleus p = null;
             try {
-            	p = (Nucleus)now.elementAt(pred -1);
+            	p = now.elementAt(pred -1);
             } catch(Exception e) {
             	continue;
             }

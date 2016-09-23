@@ -121,16 +121,16 @@ public class Identity3 {
             if (i > 0) nuclei_prev = nuclei_record.elementAt(i - 1);
             Nucleus nucleij = null;
             for (int j = 0; j < nuc_ct; j++) {
-                nucleij = (Nucleus)nuclei.elementAt(j);
+                nucleij = nuclei.elementAt(j);
                 if (nucleij.status == Nucleus.NILLI) continue;
                 if (nuclei_prev != null && nucleij.predecessor != Nucleus.NILLI) {
-                    Nucleus pred = (Nucleus)nuclei_prev.elementAt(nucleij.predecessor - 1);
+                    Nucleus pred = nuclei_prev.elementAt(nucleij.predecessor - 1);
                     if (pred.successor2 == Nucleus.NILLI) {
                      	nucleij.identity = pred.identity;
                        	continue;
                     } else {
                        	// case of dividing pred
-                       	Nucleus sister = (Nucleus)nuclei.get(pred.successor2 - 1);
+                       	Nucleus sister = nuclei.get(pred.successor2 - 1);
                        	
                        	// Nucleus doesn't have forced name
                        	if (!nucleij.assignedID.equals(""))
@@ -179,7 +179,7 @@ public class Identity3 {
         //println("cleaarNames: " + nuclei.size());
         Nucleus n;
         for (int i=0; i < nuclei.size(); i++) {
-            n = (Nucleus)nuclei.elementAt(i);
+            n = nuclei.elementAt(i);
             String id = n.identity;
             if (n.assignedID.length() > 0) {
             	continue;
@@ -268,7 +268,7 @@ public class Identity3 {
                 if (!good) {
                     // not dividing so just extend the name
                     if (parent.successor1 > 0) {
-                        Nucleus n = (Nucleus)nextNuclei.elementAt(parent.successor1 - 1);
+                        Nucleus n = nextNuclei.elementAt(parent.successor1 - 1);
                         if (n.assignedID.length() <= 0) {
                             //println("useCanonicalRules, XXXXXX, " + i + CS + j + CS + parent.identity + CS + parent.status + CS + n.identity);
                         	//println("useCanonicalRules, XXXXXX, "+parent.identity);
@@ -279,8 +279,8 @@ public class Identity3 {
                 }
                 
                 // this canonical parent is dividing
-                Nucleus dau1 = (Nucleus)nextNuclei.elementAt(parent.successor1 - 1);
-                Nucleus dau2 = (Nucleus)nextNuclei.elementAt(parent.successor2 - 1);
+                Nucleus dau1 = nextNuclei.elementAt(parent.successor1 - 1);
+                Nucleus dau2 = nextNuclei.elementAt(parent.successor2 - 1);
                
                 /*
                  * Assign names via DivisionCalled

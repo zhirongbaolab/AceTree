@@ -119,7 +119,7 @@ public class Overlaps extends JPanel implements ActionListener, ListSelectionLis
     public void findOverlaps(int now) {
         iNamesAvailable = false;
         iTest = 1;
-        Vector nuclei = (Vector)iNucleiMgr.getNucleiRecord().elementAt(now - 1);
+        Vector nuclei = iNucleiMgr.getNucleiRecord().elementAt(now - 1);
         nuclei = cleanupAndSort(nuclei);
         for (int i=0; i < nuclei.size(); i++) {
             Nucleus n = ((Nuc)nuclei.get(i)).iNuc;
@@ -208,7 +208,7 @@ public class Overlaps extends JPanel implements ActionListener, ListSelectionLis
     }
 
     private void showNucs(int now) {
-        Vector nuclei = (Vector)iNucleiMgr.getNucleiRecord().elementAt(now - 1);
+        Vector nuclei = iNucleiMgr.getNucleiRecord().elementAt(now - 1);
         nuclei = cleanupAndSort(nuclei);
         for (int i=0; i < nuclei.size(); i++) {
             Nucleus n = ((Nuc)nuclei.get(i)).iNuc;
@@ -230,7 +230,7 @@ public class Overlaps extends JPanel implements ActionListener, ListSelectionLis
             int time = Integer.parseInt(sa[0]);
             String cellName = sa[1];
 
-            Vector nuclei = (Vector)iNucleiMgr.getNucleiRecord().elementAt(time - 1);
+            Vector nuclei = iNucleiMgr.getNucleiRecord().elementAt(time - 1);
             for (int j=0; j < nuclei.size(); j++) {
                 Nucleus n = (Nucleus)nuclei.elementAt(j);
                 if (!n.identity.equals(cellName)) continue;
