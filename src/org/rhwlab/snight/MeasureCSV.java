@@ -23,12 +23,12 @@ public class MeasureCSV {
 
 	private static int AuxInfo_v = 1;
 	
-	/*
+	/**
 	 * Revision added 7/19/16 by @author Braden Katzman
 	 * 
 	 * With addition of second type of AuxInfo, which contains two vectors in any direction
 	 * which define the orientation of the embryo, we need to check which form the AuxInfo
-	 * file is and percolate the flag through the program execution
+	 * file is and percolate the flag through program execution
 	 */
 	public MeasureCSV(String filepath) {
 		newLine();
@@ -65,6 +65,8 @@ public class MeasureCSV {
 	 * @throws IOException
 	 */
 	private void readAuxInfoV2(String filepath) throws IOException {
+		iMeasureHash = new Hashtable<String, String>();
+		
 		iFilePath = filepath;
 		boolean namesRead = false;
 		String [] names = null;
@@ -118,6 +120,12 @@ public class MeasureCSV {
 		iFilePath = filepath;
 		boolean namesRead = false;
 		String [] names = null;
+		
+		if (backup) {
+			iMeasureHash_v1 = new Hashtable<String, String>();
+		} else {
+			iMeasureHash = new Hashtable<String, String>();
+		}
 		
 		
 		String AuxInfo_v1 = filepath + v1_file_ext;
@@ -212,11 +220,17 @@ public class MeasureCSV {
 	}
 
 	public void put(String item, String value) {
-		iMeasureHash.put(item, value);
+		if (item != null && value != null) {
+			iMeasureHash.put(item, value);
+		}
 	}
 
 	public String get(String item) {
-		return iMeasureHash.get(item);
+		if (item != null) {
+			return iMeasureHash.get(item);
+		} else {
+			return "";
+		}
 	}
 
 	@Override
@@ -418,6 +432,6 @@ public class MeasureCSV {
     private static final String V2 = "V2";
     private static final String v1_file_ext = "AuxInfo.csv";
     private static final String v2_file_ext = "AuxInfo_v2.csv";
-    private static final String AuxInfo_v1_header = "name,slope,intercept,xc,yc,maj,min,ang,zc,zslope,time,zpixres,axis";
-    private static final String AuxInfo_v2_header = "name,slope,intercept,xc,yc,maj,min,ang,zc,zslope,time,zpixres,AP_orientation,LR_orientation";
+//    private static final String AuxInfo_v1_header = "name,slope,intercept,xc,yc,maj,min,ang,zc,zslope,time,zpixres,axis";
+//    private static final String AuxInfo_v2_header = "name,slope,intercept,xc,yc,maj,min,ang,zc,zslope,time,zpixres,AP_orientation,LR_orientation";
 }
