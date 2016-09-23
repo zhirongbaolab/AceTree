@@ -283,7 +283,7 @@ public class Identity3 {
                 Nucleus dau2 = nextNuclei.elementAt(parent.successor2 - 1);
                
                 /*
-                 * Assign names via DivisionCalled
+                 * Assign names via DivisionCaller
                  */
                 if (parent != null && dau1 != null && dau2 != null) {
                 	iDivisionCaller.assignNames(parent, dau1, dau2);

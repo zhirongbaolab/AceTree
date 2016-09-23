@@ -697,7 +697,7 @@ public class DivisionCaller {
 	 * 
 	 * @param x
 	 * @param y
-	 * @param ang - in degrees
+	 * @param ang - in radians
 	 * @return
 	 */
 	public static double [] handleRotation_V1(double x, double y, double ang) {

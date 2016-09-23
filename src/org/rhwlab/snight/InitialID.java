@@ -112,6 +112,7 @@ public class InitialID {
 				AP_axis[1] = Double.parseDouble(st.nextToken());
 				AP_axis[2] = Double.parseDouble(st.nextToken());
 
+				// set up the given axis and the normal vector to the xy plane -> the z axis
 				Point3D AP_axis_vec = new Point3D(AP_axis[0], AP_axis[1], AP_axis[2]);
 				Point3D norm_vec_2XYplane = new Point3D(0., 0., -1.);
 
@@ -127,15 +128,21 @@ public class InitialID {
 					System.out.println("Projection of AP axis is not in xy plane");
 					return;
 				}
+			
 
 				// find the angle between the projection vector and the AP canonical vector
 				this.ang = Math.acos(projection.dotProduct(new Point3D(-1., 0., 0.)));
 				
-				System.out.println("ang: " + ang);
 				ang_calculated = true;
 			}
 
-			da = DivisionCaller.handleRotation_V1(x, y, ang);
+			/*
+			 * TODO
+			 * making the angle negative here is what solves the problem of different diamond alignments between AuxInfo 1.0 and 2.0
+			 * AuxInfo v1.0 rotates using a negative angle even when listed as positive in the config
+			 * 
+			 */
+			da = DivisionCaller.handleRotation_V1(x, y, -ang);
 		} else {
 			da = DivisionCaller.handleRotation_V1(x, y, iAng);
 		}
@@ -143,10 +150,6 @@ public class InitialID {
 		ia[0] = iXC + (int)Math.round(da[0]);
 		ia[1] = iYC + (int)Math.round(da[1]);
 	}
-
-
-
-
 
 	int getNucCount() {
 		return iNucCount;
@@ -200,7 +203,9 @@ public class InitialID {
 				if (cell_ct > 4)
 					break;
 				if (cell_ct == 4) {
-					if (first_four < 0) first_four = i;
+					if (first_four < 0) {
+						first_four = i;
+					}
 					last_four = i;
 				}
 			}
@@ -304,7 +309,7 @@ public class InitialID {
 
 
 	private int fourCellID(int four_cells, int [] lineage_ct_p) {
-		println("determing four cell stage ID");
+		println("determing four cell stage ID at time: " + four_cells);
 		Vector<Nucleus> nuclei = null, nuclei_next = null;
 		Nucleus nucleii = null;
 		int nuc_ct;
@@ -585,10 +590,18 @@ public class InitialID {
 		// iterate over the 4 cells (hopefully 4) and check ID tags to match to N, E, S, W
 		for (i=0; i<nuc_ct; i++) {
 			Nucleus nucleii = nuclei.elementAt(i);
-			if (nucleii.id_tag == 'n') north = nucleii;
-			else if (nucleii.id_tag == 's') south = nucleii;
-			else if (nucleii.id_tag == 'e') east = nucleii;
-			else if (nucleii.id_tag == 'w') west = nucleii;
+			if (nucleii.id_tag == N) {
+				north = nucleii;
+			}
+			else if (nucleii.id_tag == S) {
+				south = nucleii;
+			}
+			else if (nucleii.id_tag == E) {
+				east = nucleii;
+			}
+			else if (nucleii.id_tag == W){
+				west = nucleii;
+			}
 		}
 
 		/*
@@ -603,6 +616,8 @@ public class InitialID {
 		if (etime < 0) return 0;
 		wtime = timeToDivide(four_cells, west);
 		if (wtime < 0) return 0;
+		
+		System.out.println("Divisions (N, S, E, W): " + ntime + CS + stime + CS + etime + CS + wtime);
 
 		// set the 4 cells according to division time
 		// known that ABp-ABa divide before P2-EMS
@@ -665,10 +680,11 @@ public class InitialID {
 			if (nuc.successor1 == Nucleus.NILLI) return -1;
 			
 			// increment current time on null second successor
-			if (nuc.successor2 == Nucleus.NILLI) current_time++;
-			
-			// when both are valid, the current_time variable holds the division time point for the supplied Nucleus
-			else break;
+			if (nuc.successor2 == Nucleus.NILLI) {
+				current_time++;
+			} else { // when both are valid, the current_time variable holds the division time point for the supplied Nucleus
+				break;
+			}
 			
 			// access the nucleus (same) at the next time point in the nuclei record
 			nuc = (nuclei_record.elementAt(current_time)).elementAt(nuc.successor1 - 1);
