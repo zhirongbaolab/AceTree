@@ -24,7 +24,7 @@ public class InitialID {
 	int				iYC;
 	int				iX; //transient
 	int				iY;
-	
+
 	private double ang;
 	private boolean ang_calculated;
 
@@ -36,7 +36,7 @@ public class InitialID {
 		iEndingIndex = iNucleiMgr.iEndingIndex;
 		iMeasureCSV = iNucleiMgr.getMeasureCSV();
 		getCoordinateParms();
-		
+
 		this.ang_calculated = false;
 
 		println("InitialID measureCSV: ");
@@ -52,14 +52,16 @@ public class InitialID {
 			sang = iMeasureCSV.iMeasureHash.get("ang");
 		}
 
-		if (sang.length() > 0) {
+
+		if (sang != null && sang.length() > 0) {
 			iAng = Math.toRadians(-Double.parseDouble(sang));
 		} else {
 			iAng = Math.toRadians(-Double.parseDouble(MeasureCSV.defaultAtt_v1[MeasureCSV.EANG_v1]));
 		}
 
+
 		String x = iMeasureCSV.iMeasureHash.get("xc");
-		if (x.length() > 0) {
+		if (x != null && x.length() > 0) {
 			iXC = Integer.parseInt(x);
 		} else {
 			if (MeasureCSV.isAuxInfoV2()) {
@@ -68,8 +70,9 @@ public class InitialID {
 				iXC = Integer.parseInt(MeasureCSV.defaultAtt_v1[MeasureCSV.EXCENTER_v1]);
 			}
 		}
+
 		String y = iMeasureCSV.iMeasureHash.get("yc");
-		if (y.length() > 0) {
+		if (y != null && y.length() > 0) {
 			iYC = Integer.parseInt(x);
 		} else {
 			if (MeasureCSV.isAuxInfoV2()) {
@@ -96,7 +99,7 @@ public class InitialID {
 
 		double[] da = {0., 0., 0.};
 		if (MeasureCSV.isAuxInfoV2()) {
-			
+
 			if (!ang_calculated) {
 				// project the given AP axis onto the xy plane
 				String AP_axis_str = iMeasureCSV.iMeasureHash.get(MeasureCSV.att_v2[MeasureCSV.AP_ORIENTATION]);
@@ -128,11 +131,11 @@ public class InitialID {
 					System.out.println("Projection of AP axis is not in xy plane");
 					return;
 				}
-			
+
 
 				// find the angle between the projection vector and the AP canonical vector
 				this.ang = Math.acos(projection.dotProduct(new Point3D(-1., 0., 0.)));
-				
+
 				ang_calculated = true;
 			}
 
@@ -221,8 +224,8 @@ public class InitialID {
 						continue;
 					if (nucleij.identity.indexOf(POLAR) > -1)
 						continue;  //modification 20050804
-						lin_ct++;
-						nucleij.identity = NUC + iNucCount++;
+					lin_ct++;
+					nucleij.identity = NUC + iNucCount++;
 				}
 				iParameters.axis = 0;
 				start_p[0] = 0;
@@ -337,17 +340,17 @@ public class InitialID {
 		if (four_cells < iEndingIndex) {
 			nuclei_next = nuclei_record.elementAt(four_cells+1);
 		}
-		
+
 		// iterate over the four cell stage
 		for (i=0; i<nuc_ct; i++) {
 			nucleii = nuclei.elementAt(i);
-		
+
 			// continue on polar bodies
 			if (nucleii.identity.indexOf(POLAR) > -1) continue;
-			
+
 			// 20050809 changed sense of the next line -- should now match SN
 			if (nucleii.predecessor == Nucleus.NILLI) lin_ct ++;
-			
+
 			if (nucleii.successor2 != Nucleus.NILLI) {
 				Nucleus d1 = nuclei_next.elementAt(nucleii.successor1 - 1);
 				Nucleus d2 = nuclei_next.elementAt(nucleii.successor2 - 1);
@@ -415,7 +418,7 @@ public class InitialID {
 			return 0;
 		}
 
-//		// if there are nuclei that were tagged as being in two directions, return failure
+		//		// if there are nuclei that were tagged as being in two directions, return failure
 		if (north==south || north==west || north==east || south==west || south==east || west==east) {
 			System.out.println("No diamond four cell stage at time:2 " + iParameters.t);
 			return 0;
@@ -456,7 +459,7 @@ public class InitialID {
 			nuclei_next = nuclei_record.elementAt(i + 1);
 			successor1 = Nucleus.NILLI;
 			successor2 = Nucleus.NILLI;
-			
+
 			// 20050809 key bug fix here to handle the case where
 			// both successors were null implying a NUC cell name
 			// in a backAssignment
@@ -471,7 +474,7 @@ public class InitialID {
 				if (successor1 != Nucleus.NILLI) {
 					suc1 = nuclei_next.elementAt(successor1 - 1);
 				}
-				
+
 				if (successor2 == Nucleus.NILLI) {
 					if (suc1 != null)
 						nucleij.identity = suc1.identity;
@@ -616,7 +619,7 @@ public class InitialID {
 		if (etime < 0) return 0;
 		wtime = timeToDivide(four_cells, west);
 		if (wtime < 0) return 0;
-		
+
 		System.out.println("Divisions (N, S, E, W): " + ntime + CS + stime + CS + etime + CS + wtime);
 
 		// set the 4 cells according to division time
@@ -649,10 +652,10 @@ public class InitialID {
 			System.out.println("putative ABp and EMS divide simutaneously.");
 			return 0;
 		}
-		
+
 		iParameters.lr = iParameters.ap * iParameters.dv;
 		iParameters.lrInit = iParameters.lr;
-		
+
 		// set the identities of the 4 cells
 		ABa.identity = "ABa";
 		ABp.identity = "ABp";
@@ -663,7 +666,7 @@ public class InitialID {
 		//        System.out.println("axis xyz = " + o + C.CS + iParameters.dvInit + C.CS + iParameters.dv);
 		return 1;
 	}
-	
+
 	/**
 	 * Iterate forward over time points to find the point when the given nucleus divides
 	 * 		--> this occurs when both successors are valid cells
@@ -678,18 +681,18 @@ public class InitialID {
 		while (current_time < iEndingIndex) {
 			// if the first successor is null, return failure
 			if (nuc.successor1 == Nucleus.NILLI) return -1;
-			
+
 			// increment current time on null second successor
 			if (nuc.successor2 == Nucleus.NILLI) {
 				current_time++;
 			} else { // when both are valid, the current_time variable holds the division time point for the supplied Nucleus
 				break;
 			}
-			
+
 			// access the nucleus (same) at the next time point in the nuclei record
 			nuc = (nuclei_record.elementAt(current_time)).elementAt(nuc.successor1 - 1);
 		}
-		
+
 		return current_time;
 	}
 
