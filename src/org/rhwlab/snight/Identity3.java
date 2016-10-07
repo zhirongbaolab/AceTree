@@ -23,6 +23,9 @@ public class Identity3 {
 
     PrintWriter					iPrintWriter;
     int							iStartTime;
+    
+    private MeasureCSV measureCSV;
+    private CanonicalTransform canTransform;
 
     public Identity3(NucleiMgr nucleiMgr) {
     	//System.out.println("Identity3 construtor called.");
@@ -38,9 +41,11 @@ public class Identity3 {
     	iPrintWriter = pw;
     }
 
-    /*
-     * TODO
-     * modify this method
+    /**
+     * New code as of 10/16
+     * As AceTree now handles uncompressed embryos in any 3D orientation, in the presence
+     * of such an embryo, we'll start building the CanonicalTransform object here to rotate
+     * the embryo into canonical orientation for spatially informed naming
      */
     // Called by NucleiMgr processNuclei method
     @SuppressWarnings("unused")
@@ -54,6 +59,13 @@ public class Identity3 {
         clearAllNames();
         //System.out.println("identityAssignment iStartingIndex: " + iStartingIndex);
         
+       this.measureCSV = iNucleiMgr.getMeasureCSV();
+       // check for presence of uncompressed embryo --> AuxInfo_v2
+        if (MeasureCSV.isAuxInfoV2()) {
+        	System.out.println("Beginning construction of CanonicalTransform");
+        	canTransform = new CanonicalTransform(measureCSV);
+        }
+        
         
         /*
          * TODO
@@ -65,22 +77,7 @@ public class Identity3 {
         int[] lineage_ct_p = new int[1];
         lineage_ct_p[0] = 1;
         int lin_ct = lineage_ct_p[0];
-        iAxis = tryForAxis(); // sets iParameters.axis to 1 if if finds one
-       
-        
-        /*
-         * Dead code --> iParameters.axis is set to 0 above so this is never reached
-         * date: 9/8/16
-         */
-        // if NEWCANONICAL and an axis was specified we leave this function here
-        // we do not run initialID so the user can specify the initial cell names
-//        if (iParameters.axis == 1 && iNamingMethod == NEWCANONICAL) {
-//        	println("identityAssignment, using specified axis, " + iAxis);
-//            useCanonicalRules(start, lineage_ct_p);
-//            return;
-//
-//        }
-        
+        iAxis = tryForAxis(); // sets iParameters.axis to 1 if if finds one 
         
         // if no axis was specified then the initialID code will be run
         // you could still use NEWCANONICAL here if iStartingIndex is greater than one
@@ -88,7 +85,7 @@ public class Identity3 {
         if (iStartingIndex >= 1) {
             //if (iStartingIndex == 1) {
             //int mm = initialID(start, lineage_ct_p);
-            InitialID initID = new InitialID(iNucleiMgr, iParameters);
+            InitialID initID = new InitialID(iNucleiMgr, iParameters, iMeasureCSV);
             int mm = initID.initialID(start, lineage_ct_p);
         	if (mm > 0) {
         		System.out.println("detected backtrace failure, lineage from start");

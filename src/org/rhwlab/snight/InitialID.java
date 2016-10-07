@@ -28,13 +28,13 @@ public class InitialID {
 	private double ang;
 	private boolean ang_calculated;
 
-	public InitialID(NucleiMgr nucMgr, Parameters parameters) {
+	public InitialID(NucleiMgr nucMgr, Parameters parameters, MeasureCSV measureCSV) {
 		iNucleiMgr = nucMgr;
 		nuclei_record = iNucleiMgr.getNucleiRecord();
 		iParameters = parameters;
 		iNucCount = 1;
 		iEndingIndex = iNucleiMgr.iEndingIndex;
-		iMeasureCSV = iNucleiMgr.getMeasureCSV();
+		iMeasureCSV = measureCSV;
 		getCoordinateParms();
 
 		this.ang_calculated = false;

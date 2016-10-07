@@ -1,9 +1,6 @@
 package org.rhwlab.snight;
 
 import java.util.StringTokenizer;
-
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Point3D;
 import javafx.scene.transform.Rotate;
 
