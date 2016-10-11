@@ -66,7 +66,6 @@ public class Identity3 {
         	canTransform = new CanonicalTransform(measureCSV);
         }
         
-        
         /*
          * TODO
          * figure out what is going on with the axis here
@@ -85,7 +84,7 @@ public class Identity3 {
         if (iStartingIndex >= 1) {
             //if (iStartingIndex == 1) {
             //int mm = initialID(start, lineage_ct_p);
-            InitialID initID = new InitialID(iNucleiMgr, iParameters, iMeasureCSV);
+            InitialID initID = new InitialID(iNucleiMgr, iParameters, iMeasureCSV, canTransform);
             int mm = initID.initialID(start, lineage_ct_p);
         	if (mm > 0) {
         		System.out.println("detected backtrace failure, lineage from start");
@@ -191,8 +190,12 @@ public class Identity3 {
     	String series = iNucleiMgr.getConfig().getShortName();
     	//println("Identity3.useCanonicalRules, series = " + series + ", axis = " + iAxis);
         double zPixRes = iNucleiMgr.getZPixRes();
-//    	iDivisionCaller = new DivisionCaller(iAxis, zPixRes, iMeasureCSV);
-        iDivisionCaller = new DivisionCaller(iMeasureCSV);
+
+        if (MeasureCSV.isAuxInfoV2() && canTransform != null) {
+        	iDivisionCaller = new DivisionCaller(iMeasureCSV, canTransform);
+        } else {
+        	iDivisionCaller = new DivisionCaller(iMeasureCSV);
+        }
         
     	//iNucCount = 1;
         int iEndingIndex = iNucleiMgr.getEndingIndex();

@@ -19,6 +19,7 @@ import javafx.scene.transform.Rotate;
  * This new transform allows complete 3 dimensional rotation of datasets in any initial orientation
  * 
  * @author bradenkatzman
+ * @date 10/2016
  *
  */
 public class CanonicalTransform {
@@ -55,6 +56,7 @@ public class CanonicalTransform {
 	 * @param measureCSV
 	 */
 	public CanonicalTransform(MeasureCSV measureCSV) {
+		System.out.println("Constructing CanonicalTransform");
 		// for safety reasons we'll deactive the transform until we've confirmed their correct construction
 		this.activeTransform = false;
 
@@ -245,6 +247,9 @@ public class CanonicalTransform {
 		}
 
 		System.out.println("Confirmed transforms rotate from initial AP, LR to canonical");
+		System.out.println(rotMatrixAP.toString());
+		System.out.println(rotMatrixLR.toString());
+		System.out.println(" ");
 		return true;
 	}
 
@@ -313,7 +318,7 @@ public class CanonicalTransform {
 	 * 
 	 * @param vec - the vector between daughter cells after division
 	 */
-	public boolean applyTransform(double[] vec) {
+	public boolean applyProductTransform(double[] vec) {
 		if (!this.activeTransform) return false;
 		
 		// make local copy
@@ -322,6 +327,7 @@ public class CanonicalTransform {
 		vec_local[1] = vec[1];
 		vec_local[2] = vec[2];
 
+//		System.out.println("Pre rotation: <" + vec_local[0] + ", " + vec_local[1] + ", " + vec_local[2] + ">");
 		// get Point3D from applying first rotation (AP) to vector
 		Point3D daughterCellsPt3d_firstRot = rotMatrixAP.deltaTransform(vec_local[0], vec_local[1], vec_local[2]);
 
@@ -331,7 +337,10 @@ public class CanonicalTransform {
 		vec_local[0] = daughterCellsPt3d_firstRot.getX();
 		vec_local[1] = daughterCellsPt3d_firstRot.getY();
 		vec_local[2] = daughterCellsPt3d_firstRot.getZ();
+		
+//		System.out.println("Post rotation: <" + vec_local[0] + ", " + vec_local[1] + ", " + vec_local[2] + ">");
 
+//		System.out.println("Pre rotation: <" + vec_local[0] + ", " + vec_local[1] + ", " + vec_local[2] + ">");
 		// get Point3D from applying second rotation (LR) to vector
 		Point3D daughterCellsPt3d_bothRot = rotMatrixLR.deltaTransform(vec_local[0], vec_local[1], vec_local[2]);
 
@@ -341,11 +350,53 @@ public class CanonicalTransform {
 		vec_local[0] = daughterCellsPt3d_bothRot.getX();
 		vec_local[1] = daughterCellsPt3d_bothRot.getY();
 		vec_local[2] = daughterCellsPt3d_bothRot.getZ();
+		
+//		System.out.println("Post rotation: <" + vec_local[0] + ", " + vec_local[1] + ", " + vec_local[2] + ">");
 
 		// error handling
 		if (Double.isNaN(vec_local[0]) || Double.isNaN(vec_local[1]) || Double.isNaN(vec_local[2])) return false;
 
 		//		System.out.println("<" + vec[0] + ", " + vec[1] + ", " + vec[2] + "> to <" + vec_local[0] + ", " + vec_local[1] + ", " + vec_local[2] + ">");
+		// update parameter vector
+		vec[0] = vec_local[0];
+		vec[1] = vec_local[1];
+		vec[1] = vec_local[2];
+		
+		return true;
+	}
+	
+	/**
+	 * Apply a single transform to the given vector specified with either "AP" or "LR"
+	 * 
+	 * @param vec - the vector to be transformed
+	 * @param axis - the axis around which to rotate ("AP" or "LR")
+	 * @return
+	 */
+	public boolean applySingleTransform(double[] vec, String axis) {
+		if (!this.activeTransform || (!axis.equals("AP") && !axis.equals("LR")) || axis == null) return false;
+		
+		// make local copy
+		double[] vec_local = new double[3];
+		vec_local[0] = vec[0];
+		vec_local[1] = vec[1];
+		vec_local[2] = vec[2];
+		
+		Point3D rotatedVec = null;
+		if (axis.equals("AP")) {
+			rotatedVec = rotMatrixAP.deltaTransform(vec_local[0], vec_local[1], vec_local[2]);
+		} else if (axis.equals("LR")) {
+			rotatedVec = rotMatrixLR.deltaTransform(vec_local[0], vec_local[1], vec_local[2]);
+		}
+		
+		// update vec_local
+		if (rotatedVec == null) return false;
+		vec_local[0] = rotatedVec.getX();
+		vec_local[1] = rotatedVec.getY();
+		vec_local[2] = rotatedVec.getZ();
+		
+		// error handling
+		if (Double.isNaN(vec_local[0]) || Double.isNaN(vec_local[1]) || Double.isNaN(vec_local[2])) return false;
+		
 		// update parameter vector
 		vec[0] = vec_local[0];
 		vec[1] = vec_local[1];

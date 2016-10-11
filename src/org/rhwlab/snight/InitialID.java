@@ -1,11 +1,8 @@
 package org.rhwlab.snight;
 
-import java.util.StringTokenizer;
 import java.util.Vector;
-
 import org.rhwlab.utils.C;
 
-import javafx.geometry.Point3D;
 
 public class InitialID {
 
@@ -24,20 +21,20 @@ public class InitialID {
 	int				iYC;
 	int				iX; //transient
 	int				iY;
+	
+	private CanonicalTransform canTrans;
 
-	private double ang;
-	private boolean ang_calculated;
-
-	public InitialID(NucleiMgr nucMgr, Parameters parameters, MeasureCSV measureCSV) {
+	public InitialID(NucleiMgr nucMgr, Parameters parameters, MeasureCSV measureCSV, CanonicalTransform canTrans) {
 		iNucleiMgr = nucMgr;
 		nuclei_record = iNucleiMgr.getNucleiRecord();
 		iParameters = parameters;
 		iNucCount = 1;
 		iEndingIndex = iNucleiMgr.iEndingIndex;
 		iMeasureCSV = measureCSV;
+		this.canTrans = canTrans;
 		getCoordinateParms();
 
-		this.ang_calculated = false;
+//		this.ang_calculated = false;
 
 		println("InitialID measureCSV: ");
 		println("" + iMeasureCSV);
@@ -99,57 +96,20 @@ public class InitialID {
 
 		double[] da = {0., 0., 0.};
 		if (MeasureCSV.isAuxInfoV2()) {
-
-			if (!ang_calculated) {
-				// project the given AP axis onto the xy plane
-				String AP_axis_str = iMeasureCSV.iMeasureHash.get(MeasureCSV.att_v2[MeasureCSV.AP_ORIENTATION]);
-				double[] AP_axis = new double[3];
-
-				StringTokenizer st = new StringTokenizer(AP_axis_str, " ");
-				if (st.countTokens() != 3) {
-					System.err.println("Given AP axis is not formatted correctly in AuxInfo_v2");
+			if (canTrans == null) return;
+			
+				da[0] = x;
+				da[1] = y;
+				da[2] = ia[2];
+				boolean success = canTrans.applyProductTransform(da);
+				if (!success) {
+					System.out.println("Failed to rotate with CanonicalTransform");
 					return;
 				}
-
-				AP_axis[0] = Double.parseDouble(st.nextToken());
-				AP_axis[1] = Double.parseDouble(st.nextToken());
-				AP_axis[2] = Double.parseDouble(st.nextToken());
-
-				// set up the given axis and the normal vector to the xy plane -> the z axis
-				Point3D AP_axis_vec = new Point3D(AP_axis[0], AP_axis[1], AP_axis[2]);
-				Point3D norm_vec_2XYplane = new Point3D(0., 0., -1.);
-
-				double u_dot_n = AP_axis_vec.dotProduct(norm_vec_2XYplane);
-
-				Point3D right_side_eq = new Point3D(norm_vec_2XYplane.getX()*u_dot_n, norm_vec_2XYplane.getY()*u_dot_n, norm_vec_2XYplane.getZ()*u_dot_n);
-				Point3D projection = new Point3D(AP_axis_vec.getX() - right_side_eq.getX(), 
-						AP_axis_vec.getY() - right_side_eq.getY(), 
-						AP_axis_vec.getZ() - right_side_eq.getZ());
-
-				// sanity check --> make sure projection is in xy plane
-				if (projection.getZ() != 0.) {
-					System.out.println("Projection of AP axis is not in xy plane");
-					return;
-				}
-
-
-				// find the angle between the projection vector and the AP canonical vector
-				this.ang = Math.acos(projection.dotProduct(new Point3D(-1., 0., 0.)));
-
-				ang_calculated = true;
-			}
-
-			/*
-			 * TODO
-			 * making the angle negative here is what solves the problem of different diamond alignments between AuxInfo 1.0 and 2.0
-			 * AuxInfo v1.0 rotates using a negative angle even when listed as positive in the config
-			 * 
-			 */
-			da = DivisionCaller.handleRotation_V1(x, y, -ang);
 		} else {
 			da = DivisionCaller.handleRotation_V1(x, y, iAng);
 		}
-
+		
 		ia[0] = iXC + (int)Math.round(da[0]);
 		ia[1] = iYC + (int)Math.round(da[1]);
 	}
@@ -382,12 +342,13 @@ public class InitialID {
 		for (i=0; i<nuclei.size(); i++) {
 			Nucleus nucleii = nuclei.elementAt(i);
 			if (nucleii.status < 0 || nucleii.identity.indexOf(POLAR) > -1) continue;
-			int [] ia = new int[2];
+			int [] ia = new int[3];
 			ia[0] = nucleii.x;
 			ia[1] = nucleii.y;
-			println("alignDiamond, BEFORE, " + ia[0] + CS + ia[1] + CS + xmin + CS + xmax + CS + ymin + CS + ymax);
+			ia[2] = (int) nucleii.z;
+			println("alignDiamond, BEFORE, " + ia[0] + CS + ia[1] + CS + ia[2] + CS + xmin + CS + xmax + CS + ymin + CS + ymax);
 			applyTransformation(ia);
-			println("alignDiamond, AFTER , " + ia[0] + CS + ia[1]);
+			println("alignDiamond, AFTER , " + ia[0] + CS + ia[1] + CS + ia[2]);
 
 			// depending on the orientation of the current nucleus in space, set it as N, E, S, W
 			if (ia[0] < xmin) {
