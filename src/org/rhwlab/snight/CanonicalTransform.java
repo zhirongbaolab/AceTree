@@ -168,7 +168,7 @@ public class CanonicalTransform {
 				System.out.println("Degenerate case of axis angle rotation, rotation only about z axis in xy plane");
 
 				// make the z axis the axis of rotation
-				this.rotationAxisAP = new Point3D(0., 0., -1.);
+				this.rotationAxisAP = new Point3D(0., 0., 1.);
 			}
 		}
 
@@ -190,25 +190,13 @@ public class CanonicalTransform {
 				System.out.println("Degenerate case of axis angle rotation, rotation only about x axis in yz plane");
 
 				// make the x axis the axis of rotation
-				this.rotationAxisLR = new Point3D(-1., 0., 0.);
+				this.rotationAxisLR = new Point3D(1., 0., 0.);
 			}
 		}
 
 		// build rotation matrix for LR
 		this.rotMatrixLR = new Rotate(radiansToDegrees(this.angleOfRotationLR),
 				new Point3D(rotationAxisLR.getX(), rotationAxisLR.getY(), rotationAxisLR.getZ()));
-
-
-		//		System.out.println(" ");
-		//		System.out.println("AP orientation: <" + AP_orientation_vector.getX() + ", " + AP_orientation_vector.getY() + ", " + AP_orientation_vector.getZ() + ">");
-		//		System.out.println("LR orientation: <" + LR_orientation_vector.getX() + ", " + LR_orientation_vector.getY() + ", " + LR_orientation_vector.getZ() + ">");
-		//		System.out.println("DV orientation: <" + DV_orientation_vector.getX() + ", " + DV_orientation_vector.getY() + ", " + DV_orientation_vector.getZ() + ">");
-
-		//		System.out.println(" ");
-		//		System.out.println("AP angle: " + angleOfRotationAP);
-
-		//		System.out.println(" ");
-		//		System.out.println("LR angle: " + angleOfRotationLR);
 
 		return true;
 	}
@@ -306,9 +294,8 @@ public class CanonicalTransform {
 
 		vec = new Point3D(
 				(Math.abs(vec.getX() - tmp.getX()) <= ZERO_THRESHOLD) ? tmp.getX() : vec.getX(),
-						(Math.abs(vec.getY() - tmp.getY()) <= ZERO_THRESHOLD) ? tmp.getY() : vec.getY(),		
-								(Math.abs(vec.getZ() - tmp.getZ()) <= ZERO_THRESHOLD) ? tmp.getZ() : vec.getZ()
-				);
+				(Math.abs(vec.getY() - tmp.getY()) <= ZERO_THRESHOLD) ? tmp.getY() : vec.getY(),		
+				(Math.abs(vec.getZ() - tmp.getZ()) <= ZERO_THRESHOLD) ? tmp.getZ() : vec.getZ());
 
 		return vec;
 	}
@@ -327,36 +314,25 @@ public class CanonicalTransform {
 		vec_local[1] = vec[1];
 		vec_local[2] = vec[2];
 
-//		System.out.println("Pre rotation: <" + vec_local[0] + ", " + vec_local[1] + ", " + vec_local[2] + ">");
 		// get Point3D from applying first rotation (AP) to vector
 		Point3D daughterCellsPt3d_firstRot = rotMatrixAP.deltaTransform(vec_local[0], vec_local[1], vec_local[2]);
-
-		//		daughterCellsPt3d_firstRot = roundVecCoords(daughterCellsPt3d_firstRot);
 
 		// update vec_local
 		vec_local[0] = daughterCellsPt3d_firstRot.getX();
 		vec_local[1] = daughterCellsPt3d_firstRot.getY();
 		vec_local[2] = daughterCellsPt3d_firstRot.getZ();
 		
-//		System.out.println("Post rotation: <" + vec_local[0] + ", " + vec_local[1] + ", " + vec_local[2] + ">");
-
-//		System.out.println("Pre rotation: <" + vec_local[0] + ", " + vec_local[1] + ", " + vec_local[2] + ">");
 		// get Point3D from applying second rotation (LR) to vector
 		Point3D daughterCellsPt3d_bothRot = rotMatrixLR.deltaTransform(vec_local[0], vec_local[1], vec_local[2]);
-
-		//		daughterCellsPt3d_bothRot = roundVecCoords(daughterCellsPt3d_bothRot);
-
+		
 		// update vec_local
 		vec_local[0] = daughterCellsPt3d_bothRot.getX();
 		vec_local[1] = daughterCellsPt3d_bothRot.getY();
 		vec_local[2] = daughterCellsPt3d_bothRot.getZ();
-		
-//		System.out.println("Post rotation: <" + vec_local[0] + ", " + vec_local[1] + ", " + vec_local[2] + ">");
 
 		// error handling
 		if (Double.isNaN(vec_local[0]) || Double.isNaN(vec_local[1]) || Double.isNaN(vec_local[2])) return false;
-
-		//		System.out.println("<" + vec[0] + ", " + vec[1] + ", " + vec[2] + "> to <" + vec_local[0] + ", " + vec_local[1] + ", " + vec_local[2] + ">");
+		
 		// update parameter vector
 		vec[0] = vec_local[0];
 		vec[1] = vec_local[1];
@@ -392,6 +368,7 @@ public class CanonicalTransform {
 		if (rotatedVec == null) return false;
 		vec_local[0] = rotatedVec.getX();
 		vec_local[1] = rotatedVec.getY();
+		
 		vec_local[2] = rotatedVec.getZ();
 		
 		// error handling
@@ -413,10 +390,12 @@ public class CanonicalTransform {
 	// static variables
 	private static final double[] AP_canonical_orientation = {-1, 0, 0}; // A points down the negative x axis in canonical orienatation
 	private static final double[] LR_canonical_orientation = {0, 0, 1}; // L points out toward the viewer in canonical orienatation
-	//    private static final double[] DV_canonical_orientation = {0, -1, 0};
 	private static final Point3D AP_can_or = new Point3D(AP_canonical_orientation[0], AP_canonical_orientation[1], AP_canonical_orientation[2]);
 	private static final Point3D LR_can_or = new Point3D(LR_canonical_orientation[0], LR_canonical_orientation[1], LR_canonical_orientation[2]);
-	//    private static final Point3D DV_can_or = new Point3D(DV_canonical_orientation[0], DV_canonical_orientation[1], DV_canonical_orientation[2]);
 	private static final int THREE = 3;
-	private static final double ZERO_THRESHOLD = .1;    
+	private static final double ZERO_THRESHOLD = .1;
+	
+	// probably won't need to use these, but if so here they are
+//  private static final Point3D DV_can_or = new Point3D(DV_canonical_orientation[0], DV_canonical_orientation[1], DV_canonical_orientation[2]);
+//	private static final double[] DV_canonical_orientation = {0, -1, 0};
 }

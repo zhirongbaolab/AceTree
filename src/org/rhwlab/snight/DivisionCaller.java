@@ -51,7 +51,6 @@ public class DivisionCaller {
 	double [] 		iDaCorrected;
 
 	private BooleanProperty auxInfoVersion2;
-
 	private CanonicalTransform canTransform;
 
 	/**
@@ -76,7 +75,7 @@ public class DivisionCaller {
 		} else {
 			this.iZPixRes = 1; //default to this
 		}
-		
+
 		getScalingParms();
 	}
 
@@ -359,6 +358,7 @@ public class DivisionCaller {
 
 		// find the dot product between the vector in the Rule and the corrected, rotated vector between the daughter cells
 		double dot = getDotProduct(parent, dau1, dau2, r);
+
 		if (dot > 0) {
 			newd1 = r.iDau1;
 			newd2 = r.iDau2;
@@ -382,9 +382,17 @@ public class DivisionCaller {
 		double [] da = new double[3];
 
 		// take the difference between the coordinates of the daughter cells
-		da[0] = d2.x - d1.x;
-		da[1] = d2.y - d1.y;
-		da[2] = d2.z - d1.z;
+		if (auxInfoVersion2.get()) {
+			da[0] = d1.x - d2.x;
+			da[1] = d1.y - d2.y;
+			da[2] = d1.z - d2.z;
+		} else {
+			da[0] = d2.x - d1.x;
+			da[1] = d2.y - d1.y;
+			da[2] = d2.z - d1.z;
+		}
+		
+
 
 		// scale the z coordinate difference by the z pixel resolution i.e. the z scale
 		da[2] *= iZPixRes;
@@ -432,9 +440,9 @@ public class DivisionCaller {
 		} else {
 			double [] dxy = handleRotation_V1(da[0], da[1], iAng);
 			da[0] = dxy[0];
-			da[1] = dxy[1];
+			da[1] = dxy[1];	
 		}
-
+		
 		// correct for x stretch
 		da[0] *= (iEMajor/iDMajor);
 		// correct for y stretch
