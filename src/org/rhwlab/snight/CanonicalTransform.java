@@ -150,7 +150,14 @@ public class CanonicalTransform {
 		this.AP_orientation_vector = AP_orientation_vector.normalize();
 		this.LR_orientation_vector = LR_orientation_vector.normalize();
 
-		// cross product for DV orientation vector --> init with AP_orientation coords and then cross with LR
+		/* cross product for DV orientation vector --> init with AP_orientation coords and then cross with LR
+		 * NOTE: It's important that the cross product is computed as APxLR and not LRxAP because cross product is anticommunicative
+		 * To see this, use the right hand rule where the AP vector is your index finger and the LR vector is your middle finger:
+		 *     - in this orientation, the DV vector as a result of the cross product is your thumb (which should be at <0,0,+1> on
+		 *       your hand)
+		 *     - if we did LRxAP, the DV vector (thumb) would point down at <0,0,-1> which would be inconsistent with the 
+		 *       canonical orientation scheme
+		 */
 		this.DV_orientation_vector = new Point3D(AP_orientation_vector.getX(), AP_orientation_vector.getY(), AP_orientation_vector.getZ());
 		this.DV_orientation_vector.crossProduct(LR_orientation_vector);
 
