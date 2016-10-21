@@ -3,6 +3,7 @@ package org.rhwlab.snight;
 import java.util.StringTokenizer;
 import javafx.geometry.Point3D;
 import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Transform;
 
 /**
  * This class represents the transform model used to rotate vectors to canonical orientation
@@ -45,6 +46,7 @@ public class CanonicalTransform {
 	// rotation matrices
 	private Rotate rotMatrixAP;
 	private Rotate rotMatrixLR;
+	private Transform productTransform;
 
 	// set to true when rotations are confirmed, false on any failure
 	public boolean activeTransform;
@@ -131,10 +133,10 @@ public class CanonicalTransform {
 	 * *** There is a degenerate case of the axis-angle representation that needs to be handled manually:
 	 * - When the cross product of the two vectors is <0,0,0>, the resulting rotation matrix will not rotate
 	 * 		the vector even if there is an angle between the two vectors
-	 * - A <0,0,0> vector will result when the two vectors are in the same plane. Thus, when this happens, use
+	 * - A <0,0,0> vector will result when the two vectors are colinear in the same plane. Thus, when this happens, use
 	 *		the two vectors to figure out which plane they are in and manually set the rotation matrix to move
 	 *		around an axis perpendicular to the plane in which the two vectors lie. e.g.:
-	 *			- rotate around the z-axis if the vectors are in the xy-plane
+	 *			- rotate around the z-axis if the vectors are in the xy-plane and are colinear
 	 * 
 	 * @author: Braden Katzman (July-August 2016)
 	 */
@@ -164,9 +166,8 @@ public class CanonicalTransform {
 		// axis angle rep. of AP --> init with AP_orientation coords and then cross with AP canonical orientation
 		this.rotationAxisAP = new Point3D(AP_orientation_vector.getX(), AP_orientation_vector.getY(), AP_orientation_vector.getZ());
 		this.rotationAxisAP = rotationAxisAP.crossProduct(AP_can_or);
-		this.rotationAxisAP = roundVecCoords(rotationAxisAP);
 		this.rotationAxisAP = rotationAxisAP.normalize();
-		this.angleOfRotationAP = angBWVecs(AP_orientation_vector, AP_can_or);
+		this.angleOfRotationAP = AP_orientation_vector.angle(AP_can_or);
 
 		// check for degenerate case --> make sure angle of nonzero first to ensure the dataset isn't just already in canonical orientation
 		if (angleOfRotationAP != 0 && rotationAxisAP.getX() == 0 && rotationAxisAP.getY() == 0 && rotationAxisAP.getZ() == 0) {
@@ -180,15 +181,14 @@ public class CanonicalTransform {
 		}
 
 		// build rotation matrix for AP
-		this.rotMatrixAP = new Rotate(radiansToDegrees(this.angleOfRotationAP),
+		this.rotMatrixAP = new Rotate(angleOfRotationAP,
 				new Point3D(rotationAxisAP.getX(), rotationAxisAP.getY(), rotationAxisAP.getZ()));
 
 		// axis angle rep. of LR		
 		this.rotationAxisLR = new Point3D(LR_orientation_vector.getX(), LR_orientation_vector.getY(), LR_orientation_vector.getZ());
 		this.rotationAxisLR = rotationAxisLR.crossProduct(LR_can_or);
-		this.rotationAxisLR = roundVecCoords(rotationAxisLR);
 		this.rotationAxisLR = rotationAxisLR.normalize();
-		this.angleOfRotationLR = angBWVecs(LR_orientation_vector, LR_can_or);
+		this.angleOfRotationLR = LR_orientation_vector.angle(LR_can_or);
 
 		// check for degenerate case --> make sure angle of nonzero first to ensure the dataset isn't just already in canonical orientation
 		if (angleOfRotationLR != 0 && rotationAxisLR.getX() == 0 && rotationAxisLR.getY() == 0 && rotationAxisLR.getZ() == 0) {
@@ -202,7 +202,7 @@ public class CanonicalTransform {
 		}
 
 		// build rotation matrix for LR
-		this.rotMatrixLR = new Rotate(radiansToDegrees(this.angleOfRotationLR),
+		this.rotMatrixLR = new Rotate(this.angleOfRotationLR,
 				new Point3D(rotationAxisLR.getX(), rotationAxisLR.getY(), rotationAxisLR.getZ()));
 
 		return true;
@@ -225,6 +225,7 @@ public class CanonicalTransform {
 		if (!AP_can_or.equals(AP_orientation_test_vec)) {
 			System.out.println("AP orientation incorrectly rotated to: <" + 
 					AP_orientation_test_vec.getX() + ", " + AP_orientation_test_vec.getY() + ", " + AP_orientation_test_vec.getZ() + ">");
+			System.out.println(rotMatrixAP.toString());
 			System.out.println("Reverting to AuxInfo v1.0");
 			return false;
 		}
@@ -236,57 +237,21 @@ public class CanonicalTransform {
 		if (!LR_can_or.equals(LR_orientation_test_vec)) {
 			System.out.println("LR orientation incorrectly rotated to: <" + 
 					LR_orientation_test_vec.getX() + ", " + LR_orientation_test_vec.getY() + ", " + LR_orientation_test_vec.getZ() + ">");
+			System.out.println(rotMatrixLR.toString());
 			System.out.println("Reverting to AuxInfo v1.0");
 
 			return false;
 		}
+		
+		// if we've reached this point, let's build the product transform
+		this.productTransform = rotMatrixAP.createConcatenation(rotMatrixLR);
 
 		System.out.println("Confirmed transforms rotate from initial AP, LR to canonical");
 		System.out.println(rotMatrixAP.toString());
 		System.out.println(rotMatrixLR.toString());
+		System.out.println(productTransform.toString());
 		System.out.println(" ");
 		return true;
-	}
-
-	/**
-	 * Convert radians to degrees
-	 * 
-	 * @param radians
-	 * @return degrees
-	 */
-	private double radiansToDegrees(double radians) {
-		if (Double.isNaN(radians)) return 0.;
-
-		return radians * (180/Math.PI);
-	}
-
-	/**
-	 * Finds the angle between two vectors using the formula:
-	 * acos( dot(vec_1, vec_2) / (length(vec_1) * length(vec_2)) )
-	 * 
-	 * @param v1
-	 * @param v2
-	 * @return the angle between the two input vectors
-	 */
-	private double angBWVecs(Point3D v1, Point3D v2) {
-		if (v1 == null || v2 == null) return 0.;
-
-		double ang = Math.acos(v1.dotProduct(v2) / (vecLength(v1) * vecLength(v2)));
-
-		return (Double.isNaN(ang)) ? 0. : ang;
-	}
-
-	/**
-	 * JavaFX does not have a built in Vector class, so we use Point3D as a substitute
-	 * This method treats a Point3D as a vector and finds its length
-	 * 
-	 * @param v - the vector represented by a Point3D
-	 * @return the length of the vector
-	 */
-	private double vecLength(Point3D v) {
-		if (v == null) return 0.;
-
-		return Math.sqrt((v.getX()*v.getX()) + (v.getY()*v.getY()) + (v.getZ()*v.getZ()));
 	}
 
 	/**
@@ -312,7 +277,7 @@ public class CanonicalTransform {
 	 * 
 	 * @param vec - the vector between daughter cells after division
 	 */
-	public boolean applyProductTransform(double[] vec) {
+	public boolean applyProductTransform(double[] vec, boolean isVec) {
 		if (!this.activeTransform) return false;
 		
 		// make local copy
@@ -320,6 +285,22 @@ public class CanonicalTransform {
 		vec_local[0] = vec[0];
 		vec_local[1] = vec[1];
 		vec_local[2] = vec[2];
+		
+//		System.out.println(vec_local[0] + ", " + vec_local[1] + ", " + vec_local[2]);
+		
+		Point3D transformed;
+		
+		/*
+		 * this probably does this same thing but for the sake of clarity deltaTransform works on a vector represented by
+		 * a Point3D and transform works on a point represented by Point3D
+		 */
+		if (isVec) {
+			//transformed = rotMatrixAP.deltaTransform((new Point3D(vec_local[0], vec_local[1], vec_local[2])));
+			transformed = productTransform.deltaTransform(new Point3D(vec_local[0], vec_local[1], vec_local[2]));
+		} else {
+			//transformed = rotMatrixAP.transform((new Point3D(vec_local[0], vec_local[1], vec_local[2])));
+			transformed = productTransform.transform(new Point3D(vec_local[0], vec_local[1], vec_local[2]));
+		}
 
 		// get Point3D from applying first rotation (AP) to vector
 		Point3D daughterCellsPt3d_firstRot = rotMatrixAP.deltaTransform(vec_local[0], vec_local[1], vec_local[2]);
@@ -336,6 +317,13 @@ public class CanonicalTransform {
 		vec_local[0] = daughterCellsPt3d_bothRot.getX();
 		vec_local[1] = daughterCellsPt3d_bothRot.getY();
 		vec_local[2] = daughterCellsPt3d_bothRot.getZ();
+		
+//		// update vec_local
+		vec_local[0] = transformed.getX();
+		vec_local[1] = transformed.getY();
+		vec_local[2] = transformed.getZ();
+		
+//		System.out.println(vec_local[0] + ", " + vec_local[1] + ", " + vec_local[2]);
 
 		// error handling
 		if (Double.isNaN(vec_local[0]) || Double.isNaN(vec_local[1]) || Double.isNaN(vec_local[2])) return false;

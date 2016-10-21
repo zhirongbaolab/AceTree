@@ -436,7 +436,7 @@ public class DivisionCaller {
 	private void measurementCorrection(double [] da) {
 		// correct for angle
 		if (auxInfoVersion2.get()) {
-			canTransform.applyProductTransform(da);
+			canTransform.applyProductTransform(da, true);
 		} else {
 			double [] dxy = handleRotation_V1(da[0], da[1], iAng);
 			da[0] = dxy[0];
