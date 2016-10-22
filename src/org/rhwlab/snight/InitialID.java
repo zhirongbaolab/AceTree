@@ -352,11 +352,23 @@ public class InitialID {
 		ymin = Integer.MAX_VALUE; //Movie.frameheight * Movie.framewidth;
 		ymax = Integer.MIN_VALUE;
 		
-		int[][] nuc_coords = new int[4][2];
+		/*
+		 * this will be used as reference to set the 4 cell diamond under the AuxInfo_v2 scheme
+		 * We want to wait until we have all of the coordinates to set the positions so on each 
+		 * transformation, we'll store:
+		 * - index in nuclei Vector --> by default of the size
+		 * - transformed x coordinate
+		 * - transformed y coordinate
+		 */
+		int[][] nuc_coords = new int[nuclei.size()][2];
 		
 		for (i=0; i<nuclei.size(); i++) {
 			Nucleus nucleii = nuclei.elementAt(i);
-			if (nucleii.status < 0 || nucleii.identity.indexOf(POLAR) > -1) continue;
+			if (nucleii.status < 0 || nucleii.identity.indexOf(POLAR) > -1) {
+				nuc_coords[i][0] = 0;
+				nuc_coords[i][1] = 0;
+				continue;
+			}
 			int [] ia = new int[3];
 			ia[0] = nucleii.x;
 			ia[1] = nucleii.y;
@@ -369,11 +381,9 @@ public class InitialID {
 			 * if AuxInfo_v2 is present, add the cell to the local list and then we'll decide the directions after
 			 */
 			if (MeasureCSV.isAuxInfoV2()) {
-				if (i < 4) {
-					nuc_coords[i][0] = ia[0];
-					nuc_coords[i][1] = ia[1];
-					System.out.println(ia[0] + ", " + ia[1]);
-				}
+				nuc_coords[i][0] = ia[0];
+				nuc_coords[i][1] = ia[1];
+//				System.out.println(ia[0] + ", " + ia[1]);
 			} else {
 				// depending on the orientation of the current nucleus in space, set it as N, E, S, W
 				if (ia[0] < xmin) {
@@ -406,15 +416,18 @@ public class InitialID {
 		 */
 		// if in AuxInfo_v2 mode, assign the diamond now
 		if (MeasureCSV.isAuxInfoV2()) {
-			boolean[] assigned = {false, false, false, false};
+			boolean[] assigned = new boolean[nuclei.size()];
+			for (int j = 0; j < assigned.length; j++) { assigned[j]=false; }
 			
-			xmin = Integer.MAX_VALUE; // will be used to find east
-			xmax = Integer.MIN_VALUE; // will be used to find west
-			ymin = Integer.MAX_VALUE; // will be used to find north
-			ymax = Integer.MIN_VALUE; // will be used to find south
+			xmin = Integer.MAX_VALUE; // east
+			xmax = Integer.MIN_VALUE; // west
+			ymin = Integer.MAX_VALUE; // north
+			ymax = Integer.MIN_VALUE; // south
 			
 			// first set east and west because that division axis is greater than north south
-			for (i = 0; i < 4; i++) {
+			for (i = 0; i < nuclei.size(); i++) {
+				if (nuclei.get(i).status < 0 || nuclei.get(i).identity.indexOf(POLAR) > -1) { continue; }
+				
 				if (nuc_coords[i][0] < xmin) {
 					xmin = nuc_coords[i][0];
 				}
@@ -424,25 +437,29 @@ public class InitialID {
 				}
 			}
 			
-			System.out.println(xmin + ", " + xmax);
+//			System.out.println("Xmin, xmax = " + xmin + ", " + xmax);
 			
 			// figure out which was the east and west
-			for (i = 0; i < 4; i++) {
+			for (i = 0; i < nuclei.size(); i++) {
+				if (nuclei.get(i).status < 0 || nuclei.get(i).identity.indexOf(POLAR) > -1) { continue; }
+				
 				if (xmin == nuc_coords[i][0]) {
-					System.out.println("west is: " + (i+1));
+//					System.out.println("west is: " + (i+1) + " with xmin = " + xmin);
 					west = nuclei.get(i);
 					assigned[i] = true;
 				}
 				
 				if (xmax == nuc_coords[i][0]) {
-					System.out.println("east is: " + (i+1));
+//					System.out.println("east is: " + (i+1) + " with xmax = " + xmax);
 					east = nuclei.get(i);
 					assigned[i] = true;
 				}
 			}
 			
 			// now set north and south
-			for (i = 0; i < 4; i++) {
+			for (i = 0; i < nuclei.size(); i++) {
+				if (nuclei.get(i).status < 0 || nuclei.get(i).identity.indexOf(POLAR) > -1) { continue; }
+				
 				if (!assigned[i]) {
 					if (nuc_coords[i][1] < ymin) {
 						ymin = nuc_coords[i][1];
@@ -454,17 +471,23 @@ public class InitialID {
 				}
 			}
 			
+//			System.out.println("Ymin, ymax = " + ymin + ", " + ymax);
+			
 			// figure out which is north and with is south
-			for (i = 0; i < 4; i++) {
+			for (i = 0; i < nuclei.size(); i++) {
+				if (nuclei.get(i).status < 0 || nuclei.get(i).identity.indexOf(POLAR) > -1) { continue; }
+				
 				if (!assigned[i]) {
 					if (ymin == nuc_coords[i][1]) {
-						System.out.println("north is: " + (i+1));
+//						System.out.println("north is: " + (i+1) + " with ymin = " + ymin);
 						north = nuclei.get(i);
+						assigned[i] = true;
 					}
 					
 					if (ymax == nuc_coords[i][1]) {
-						System.out.println("south is: " + (i+1));
+//						System.out.println("south is: " + (i+1) + " with ymax = " + ymax);
 						south = nuclei.get(i);
+						assigned[i] = true;
 					}
 				}
 			}
@@ -483,7 +506,7 @@ public class InitialID {
 			return 0;
 		}
 
-		System.out.println("Assigning IDs");
+//		System.out.println("Assigning IDs");
 		// set the ID tags for later access of these nuclei --> java is only pass-by-value with method arguments, all other objects are references 
 		north.id_tag = N;
 		south.id_tag = S;
