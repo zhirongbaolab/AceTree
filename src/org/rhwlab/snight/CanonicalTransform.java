@@ -67,7 +67,7 @@ public class CanonicalTransform {
 			return;
 		}
 		this.measureCSV = measureCSV;
-
+		
 		boolean continue_;
 		continue_ = prepConfigVecs(); // read the configuration vectors into memory
 		if (continue_) {
@@ -245,7 +245,7 @@ public class CanonicalTransform {
 		
 		// if we've reached this point, let's build the product transform
 		this.productTransform = rotMatrixAP.createConcatenation(rotMatrixLR);
-
+		
 		System.out.println("Confirmed transforms rotate from initial AP, LR to canonical");
 		System.out.println(rotMatrixAP.toString());
 		System.out.println(rotMatrixLR.toString());
@@ -277,7 +277,7 @@ public class CanonicalTransform {
 	 * 
 	 * @param vec - the vector between daughter cells after division
 	 */
-	public boolean applyProductTransform(double[] vec, boolean isVec) {
+	public boolean applyProductTransform(double[] vec) {
 		if (!this.activeTransform) return false;
 		
 		// make local copy
@@ -285,6 +285,8 @@ public class CanonicalTransform {
 		vec_local[0] = vec[0];
 		vec_local[1] = vec[1];
 		vec_local[2] = vec[2];
+		
+//		applyTranslationToOrigin(vec_local);
 		
 //		System.out.println(vec_local[0] + ", " + vec_local[1] + ", " + vec_local[2]);
 		
@@ -294,29 +296,7 @@ public class CanonicalTransform {
 		 * this probably does this same thing but for the sake of clarity deltaTransform works on a vector represented by
 		 * a Point3D and transform works on a point represented by Point3D
 		 */
-		if (isVec) {
-			//transformed = rotMatrixAP.deltaTransform((new Point3D(vec_local[0], vec_local[1], vec_local[2])));
-			transformed = productTransform.deltaTransform(new Point3D(vec_local[0], vec_local[1], vec_local[2]));
-		} else {
-			//transformed = rotMatrixAP.transform((new Point3D(vec_local[0], vec_local[1], vec_local[2])));
-			transformed = productTransform.transform(new Point3D(vec_local[0], vec_local[1], vec_local[2]));
-		}
-
-		// get Point3D from applying first rotation (AP) to vector
-		Point3D daughterCellsPt3d_firstRot = rotMatrixAP.deltaTransform(vec_local[0], vec_local[1], vec_local[2]);
-
-		// update vec_local
-		vec_local[0] = daughterCellsPt3d_firstRot.getX();
-		vec_local[1] = daughterCellsPt3d_firstRot.getY();
-		vec_local[2] = daughterCellsPt3d_firstRot.getZ();
-		
-		// get Point3D from applying second rotation (LR) to vector
-		Point3D daughterCellsPt3d_bothRot = rotMatrixLR.deltaTransform(vec_local[0], vec_local[1], vec_local[2]);
-		
-		// update vec_local
-		vec_local[0] = daughterCellsPt3d_bothRot.getX();
-		vec_local[1] = daughterCellsPt3d_bothRot.getY();
-		vec_local[2] = daughterCellsPt3d_bothRot.getZ();
+		transformed = productTransform.transform(new Point3D(vec_local[0], vec_local[1], vec_local[2]));
 		
 //		// update vec_local
 		vec_local[0] = transformed.getX();
@@ -327,6 +307,8 @@ public class CanonicalTransform {
 
 		// error handling
 		if (Double.isNaN(vec_local[0]) || Double.isNaN(vec_local[1]) || Double.isNaN(vec_local[2])) return false;
+		
+//		applyTranslationFromOrigin(vec_local);
 		
 		// update parameter vector
 		vec[0] = vec_local[0];
@@ -363,7 +345,6 @@ public class CanonicalTransform {
 		if (rotatedVec == null) return false;
 		vec_local[0] = rotatedVec.getX();
 		vec_local[1] = rotatedVec.getY();
-		
 		vec_local[2] = rotatedVec.getZ();
 		
 		// error handling
@@ -376,8 +357,7 @@ public class CanonicalTransform {
 		
 		return true;
 	}
-
-
+	
 	public boolean isActiveTransform() {
 		return this.activeTransform;
 	}

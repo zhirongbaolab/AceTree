@@ -249,7 +249,7 @@ public class DivisionCaller {
 
 			// set the xyz axis of this rule based on sulston first letter
 			/*
-			 * If the first daughter divides in the anterior direction, the Rule vector is <1,0,0>
+			 * If the first daughter divides in the anterior direction, the Rule vector is <1,0,0> in AuxInfo1
 			 * If the first daughter divides in the left direction, the Rule vector is <0,0,1>
 			 * If the first daughter divides in the dorsal direction, the Rule vector is <0,1,0> (else condition always seems to be when sulston equals "d")
 			 */
@@ -336,6 +336,10 @@ public class DivisionCaller {
 		double dot = dotCorrected;
 		Double Dot = new Double(dot);
 		if (Dot.isNaN()) dot = 0;
+		
+		
+//		System.out.println("Dot product = " + dot + "with rule vec: <" + r.iX + ", " + r.iY + ", " + r.iZ 
+//				+ "> and diff vec: <" + daCorrected[0] + ", " + daCorrected[1] + ", " + daCorrected[2] + ">");
 		return dot;
 	}
 
@@ -380,8 +384,7 @@ public class DivisionCaller {
 	 */
 	private double [] diffsCorrected(Nucleus d1, Nucleus d2) {
 		double [] da = new double[3];
-
-		// take the difference between the coordinates of the daughter cells
+	
 		if (auxInfoVersion2.get()) {
 			da[0] = d1.x - d2.x;
 			da[1] = d1.y - d2.y;
@@ -392,8 +395,6 @@ public class DivisionCaller {
 			da[2] = d2.z - d1.z;
 		}
 		
-
-
 		// scale the z coordinate difference by the z pixel resolution i.e. the z scale
 		da[2] *= iZPixRes;
 		//if (iDebug) println("diffs, " + fmt4(da[0]) + CS + fmt4(da[1]) + CS + fmt4(da[2]));
@@ -436,7 +437,7 @@ public class DivisionCaller {
 	private void measurementCorrection(double [] da) {
 		// correct for angle
 		if (auxInfoVersion2.get()) {
-			canTransform.applyProductTransform(da, true);
+			canTransform.applyProductTransform(da);
 		} else {
 			double [] dxy = handleRotation_V1(da[0], da[1], iAng);
 			da[0] = dxy[0];

@@ -91,9 +91,6 @@ public class InitialID {
 	 * @param ia
 	 */
 	private void applyTransformation(int [] ia) {
-//		int x = ia[0] - iXC;
-//		int y = ia[1] - iYC;
-
 		double[] da = {0., 0., 0.};
 		if (MeasureCSV.isAuxInfoV2()) {
 			if (canTrans == null) return;
@@ -102,10 +99,7 @@ public class InitialID {
 				nuc_coords[0] = (double) ia[0];
 				nuc_coords[1] = (double) ia[1];
 				nuc_coords[2] = (double) ia[2];
-//				da[0] = x;
-//				da[1] = y;
-//				da[2] = ia[2];
-				boolean success = canTrans.applyProductTransform(nuc_coords, false);
+				boolean success = canTrans.applyProductTransform(nuc_coords);
 				if (!success) {
 					System.out.println("Failed to rotate with CanonicalTransform");
 					return;
@@ -121,9 +115,6 @@ public class InitialID {
 			ia[0] = iXC + (int)Math.round(da[0]);
 			ia[1] = iYC + (int)Math.round(da[1]);
 		}
-		
-//		ia[0] = iXC + (int)Math.round(da[0]);
-//		ia[1] = iYC + (int)Math.round(da[1]);
 	}
 
 	int getNucCount() {
@@ -410,10 +401,6 @@ public class InitialID {
 		}
 		
 		
-		/*
-		 * TODO
-		 * FIGURE OUT WHAT IS GOING ON HERE
-		 */
 		// if in AuxInfo_v2 mode, assign the diamond now
 		if (MeasureCSV.isAuxInfoV2()) {
 			boolean[] assigned = new boolean[nuclei.size()];
@@ -444,14 +431,14 @@ public class InitialID {
 				if (nuclei.get(i).status < 0 || nuclei.get(i).identity.indexOf(POLAR) > -1) { continue; }
 				
 				if (xmin == nuc_coords[i][0]) {
-//					System.out.println("west is: " + (i+1) + " with xmin = " + xmin);
-					west = nuclei.get(i);
+//					System.out.println("east is: " + (i+1) + " with xmin = " + xmin);
+					east = nuclei.get(i);
 					assigned[i] = true;
 				}
 				
 				if (xmax == nuc_coords[i][0]) {
-//					System.out.println("east is: " + (i+1) + " with xmax = " + xmax);
-					east = nuclei.get(i);
+//					System.out.println("west is: " + (i+1) + " with xmax = " + xmax);
+					west = nuclei.get(i);
 					assigned[i] = true;
 				}
 			}
@@ -479,14 +466,14 @@ public class InitialID {
 				
 				if (!assigned[i]) {
 					if (ymin == nuc_coords[i][1]) {
-//						System.out.println("north is: " + (i+1) + " with ymin = " + ymin);
-						north = nuclei.get(i);
+//						System.out.println("south is: " + (i+1) + " with ymin = " + ymin);
+						south = nuclei.get(i);
 						assigned[i] = true;
 					}
 					
 					if (ymax == nuc_coords[i][1]) {
-//						System.out.println("south is: " + (i+1) + " with ymax = " + ymax);
-						south = nuclei.get(i);
+//						System.out.println("north is: " + (i+1) + " with ymax = " + ymax);
+						north = nuclei.get(i);
 						assigned[i] = true;
 					}
 				}
@@ -507,7 +494,7 @@ public class InitialID {
 		}
 
 //		System.out.println("Assigning IDs");
-		// set the ID tags for later access of these nuclei --> java is only pass-by-value with method arguments, all other objects are references 
+		// set the ID tags for later access of these nuclei 
 		north.id_tag = N;
 		south.id_tag = S;
 		east.id_tag = E;
