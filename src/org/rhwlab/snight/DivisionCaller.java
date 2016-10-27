@@ -120,9 +120,6 @@ public class DivisionCaller {
 		this.iZPixRes = Double.parseDouble(iMeasureCSV.iMeasureHash.get(MeasureCSV.att_v2[MeasureCSV.ZPIXRES_v2]));
 
 		getScalingParms();
-
-		// uncomment this line to override AuxInfo v2.0 functionality and revert to v1.0
-		//		this.auxInfoVersion2.set(false);
 	}
 
 	private void getScalingParms() {		
@@ -373,6 +370,8 @@ public class DivisionCaller {
 		}
 		dau1.identity = newd1;
 		dau2.identity = newd2;
+		
+		System.out.println("Assigned names dau1- " + newd1 + ", dau2- " + newd2 + ". Rule: <" + r.iX + ", " + r.iY + ", " + r.iZ + ">, dot=" + dot);
 	}
 
 	/**
