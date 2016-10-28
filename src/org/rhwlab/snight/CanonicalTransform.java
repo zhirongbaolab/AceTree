@@ -6,7 +6,7 @@ import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Transform;
 
 /**
- * This class represents the transform model used to rotate vectors to canonical orientation
+ * This class represents the affine transform used to rotate vectors to canonical orientation
  * 
  * Before the 4-cell identity is assigned, this transform is constructed based on the two vectors
  * supplied in the AuxInfo_v2.csv file that specify the orientation of the AP vector and the LR

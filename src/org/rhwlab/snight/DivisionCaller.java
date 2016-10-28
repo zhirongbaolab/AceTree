@@ -371,7 +371,8 @@ public class DivisionCaller {
 		dau1.identity = newd1;
 		dau2.identity = newd2;
 		
-		System.out.println("Assigned names dau1- " + newd1 + ", dau2- " + newd2 + ". Rule: <" + r.iX + ", " + r.iY + ", " + r.iZ + ">, dot=" + dot);
+		System.out.print(" --> Assigned names dau1- " + newd1 + ", dau2- " + newd2 + ". Rule: <" + r.iX + ", " + r.iY + ", " + r.iZ + ">, dot=" + dot);
+		System.out.println(" ");
 	}
 
 	/**
@@ -384,15 +385,19 @@ public class DivisionCaller {
 	private double [] diffsCorrected(Nucleus d1, Nucleus d2) {
 		double [] da = new double[3];
 	
-		if (auxInfoVersion2.get()) {
-			da[0] = d1.x - d2.x;
-			da[1] = d1.y - d2.y;
-			da[2] = d1.z - d2.z;
-		} else {
-			da[0] = d2.x - d1.x;
-			da[1] = d2.y - d1.y;
-			da[2] = d2.z - d1.z;
-		}
+//		if (auxInfoVersion2.get()) {
+//			da[0] = d1.x - d2.x;
+//			da[1] = d1.y - d2.y;
+//			da[2] = d1.z - d2.z;
+//		} else {
+//			da[0] = d2.x - d1.x;
+//			da[1] = d2.y - d1.y;
+//			da[2] = d2.z - d1.z;
+//		}
+		
+		da[0] = d2.x - d1.x;
+		da[1] = d2.y - d1.y;
+		da[2] = d2.z - d1.z;
 		
 		// scale the z coordinate difference by the z pixel resolution i.e. the z scale
 		da[2] *= iZPixRes;
@@ -435,6 +440,7 @@ public class DivisionCaller {
 	 */
 	private void measurementCorrection(double [] da) {
 		// correct for angle
+		System.out.print("da at: <" + da[0] + ", " + da[1] + ", " + da[2] + ">");
 		if (auxInfoVersion2.get()) {
 			canTransform.applyProductTransform(da);
 		} else {
@@ -442,6 +448,8 @@ public class DivisionCaller {
 			da[0] = dxy[0];
 			da[1] = dxy[1];	
 		}
+		
+		System.out.print(" rotated to <" + da[0] + ", " + da[1] + ", " + da[2] + ">");
 		
 		// correct for x stretch
 		da[0] *= (iEMajor/iDMajor);
