@@ -334,9 +334,6 @@ public class DivisionCaller {
 		Double Dot = new Double(dot);
 		if (Dot.isNaN()) dot = 0;
 		
-		
-//		System.out.println("Dot product = " + dot + "with rule vec: <" + r.iX + ", " + r.iY + ", " + r.iZ 
-//				+ "> and diff vec: <" + daCorrected[0] + ", " + daCorrected[1] + ", " + daCorrected[2] + ">");
 		return dot;
 	}
 
@@ -370,9 +367,6 @@ public class DivisionCaller {
 		}
 		dau1.identity = newd1;
 		dau2.identity = newd2;
-		
-		System.out.print(" --> Assigned names dau1- " + newd1 + ", dau2- " + newd2 + ". Rule: <" + r.iX + ", " + r.iY + ", " + r.iZ + ">, dot=" + dot);
-		System.out.println(" ");
 	}
 
 	/**
@@ -440,7 +434,6 @@ public class DivisionCaller {
 	 */
 	private void measurementCorrection(double [] da) {
 		// correct for angle
-		System.out.print("da at: <" + da[0] + ", " + da[1] + ", " + da[2] + ">");
 		if (auxInfoVersion2.get()) {
 			canTransform.applyProductTransform(da);
 		} else {
@@ -448,8 +441,6 @@ public class DivisionCaller {
 			da[0] = dxy[0];
 			da[1] = dxy[1];	
 		}
-		
-		System.out.print(" rotated to <" + da[0] + ", " + da[1] + ", " + da[2] + ">");
 		
 		// correct for x stretch
 		da[0] *= (iEMajor/iDMajor);
