@@ -247,9 +247,9 @@ public class CanonicalTransform {
 		this.productTransform = rotMatrixAP.createConcatenation(rotMatrixLR);
 		
 		System.out.println("Confirmed transforms rotate from initial AP, LR to canonical");
-		System.out.println(rotMatrixAP.toString());
-		System.out.println(rotMatrixLR.toString());
-		System.out.println(productTransform.toString());
+		System.out.println("AP rotation: " + rotMatrixAP.toString());
+		System.out.println("LR rotation: " + rotMatrixLR.toString());
+		System.out.println("Affine transform: " + productTransform.toString());
 		System.out.println(" ");
 		return true;
 	}
@@ -285,11 +285,7 @@ public class CanonicalTransform {
 		vec_local[0] = vec[0];
 		vec_local[1] = vec[1];
 		vec_local[2] = vec[2];
-		
-//		applyTranslationToOrigin(vec_local);
-		
-//		System.out.println(vec_local[0] + ", " + vec_local[1] + ", " + vec_local[2]);
-		
+			
 		Point3D transformed;
 		
 		/*
@@ -303,17 +299,14 @@ public class CanonicalTransform {
 		vec_local[1] = transformed.getY();
 		vec_local[2] = transformed.getZ();
 		
-//		System.out.println(vec_local[0] + ", " + vec_local[1] + ", " + vec_local[2]);
 
 		// error handling
 		if (Double.isNaN(vec_local[0]) || Double.isNaN(vec_local[1]) || Double.isNaN(vec_local[2])) return false;
 		
-//		applyTranslationFromOrigin(vec_local);
-		
 		// update parameter vector
 		vec[0] = vec_local[0];
 		vec[1] = vec_local[1];
-		vec[1] = vec_local[2];
+		vec[2] = vec_local[2];
 		
 		return true;
 	}
@@ -353,7 +346,7 @@ public class CanonicalTransform {
 		// update parameter vector
 		vec[0] = vec_local[0];
 		vec[1] = vec_local[1];
-		vec[1] = vec_local[2];
+		vec[2] = vec_local[2];
 		
 		return true;
 	}
@@ -364,7 +357,7 @@ public class CanonicalTransform {
 
 	// static variables
 	private static final double[] AP_canonical_orientation = {-1, 0, 0}; // A points down the negative x axis in canonical orienatation
-	private static final double[] LR_canonical_orientation = {0, 0, 1}; // L points out toward the viewer in canonical orienatation
+	private static final double[] LR_canonical_orientation = {0, 0, -1}; // L points out toward the viewer in canonical orienatation
 	private static final Point3D AP_can_or = new Point3D(AP_canonical_orientation[0], AP_canonical_orientation[1], AP_canonical_orientation[2]);
 	private static final Point3D LR_can_or = new Point3D(LR_canonical_orientation[0], LR_canonical_orientation[1], LR_canonical_orientation[2]);
 	private static final int THREE = 3;
