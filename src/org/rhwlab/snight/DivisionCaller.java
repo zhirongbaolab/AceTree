@@ -324,7 +324,9 @@ public class DivisionCaller {
 
 		// normalize the vector
 		sample = sample.normalize();
-
+		
+//		System.out.print(" to: <" + daCorrected[0] + ", " + daCorrected[1] + ", " + daCorrected[2] + ">");
+		
 		/*
 		 * find and return the dot product of the normalized, corrected, and rotated
 		 * vector between the two daughter cells
@@ -367,6 +369,9 @@ public class DivisionCaller {
 		}
 		dau1.identity = newd1;
 		dau2.identity = newd2;
+		
+//		System.out.print(" - dau1-" + newd1 + ", dau2-" + newd2 + " w/ dot=" + dot);
+//		System.out.println(" ");
 	}
 
 	/**
@@ -392,6 +397,8 @@ public class DivisionCaller {
 		da[0] = d2.x - d1.x;
 		da[1] = d2.y - d1.y;
 		da[2] = d2.z - d1.z;
+		
+//		System.out.print("da: <" + da[0] + ", " + da[1] + ", " + da[2] + ">");
 		
 		// scale the z coordinate difference by the z pixel resolution i.e. the z scale
 		da[2] *= iZPixRes;
