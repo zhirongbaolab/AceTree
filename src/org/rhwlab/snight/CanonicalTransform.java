@@ -205,7 +205,8 @@ public class CanonicalTransform {
 				System.out.println("Degenerate case of axis angle rotation, rotation only about x axis in yz plane");
 
 				// make the x axis the axis of rotation
-				this.rotationAxisLR = new Point3D(1., 0., 0.);
+//				this.rotationAxisLR = new Point3D(1., 0., 0.); // need to use this for JIM113_UNC-86myrGFP
+				this.rotationAxisLR = new Point3D(0., 1., 0.); // need to use this for JIM113_SiO
 			}
 		}
 
@@ -305,16 +306,7 @@ public class CanonicalTransform {
 		 * this probably does this same thing but for the sake of clarity deltaTransform works on a vector represented by
 		 * a Point3D and transform works on a point represented by Point3D
 		 */
-//		System.out.println("Before product rotation: " + vec_local[0] + ", " + vec_local[1] + ", " + vec_local[2]);
 		transformed = productTransform.transform(vec_local[0], vec_local[1], vec_local[2]);
-//		System.out.println("After product rotation: " + transformed.getX() + ", " + transformed.getY() + ", " + transformed.getZ());
-		
-//		System.out.println("Before LR rotation: " + vec_local[0] + ", " + vec_local[1] + ", " + vec_local[2]);
-//		transformed = rotMatrixLR.transform(vec_local[0], vec_local[1], vec_local[2]);
-////		System.out.println("After LR rotation: " + transformed.getX() + ", " + transformed.getY() + ", " + transformed.getZ());
-//		transformed = rotMatrixAP.transform(transformed.getX(), transformed.getY(), transformed.getZ());
-//		System.out.println("After AP rotation: " + transformed.getX() + ",  " + transformed.getY() + ", " +  transformed.getZ());
-		
 		
 //		// update vec_local
 		vec_local[0] = transformed.getX();

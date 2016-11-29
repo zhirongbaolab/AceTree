@@ -231,7 +231,7 @@ public class DivisionCaller {
 				sulston = sulston.substring(0, 1);
 			}
 
-			//System.out.println("Using first letter: '" +  sulston + "' for daughter_1 and: '" + complement(sulston.charAt(0)) + "' for daughter_2");
+//			System.out.println("Using first letter: '" +  sulston + "' for daughter_1 and: '" + complement(sulston.charAt(0)) + "' for daughter_2");
 
 			// append parent identity with sulston letter for daughter_1 sulston name 
 			String sdau1 = parent.identity + sulston;
