@@ -184,8 +184,14 @@ public class CanonicalTransform {
 		this.rotMatrixAP = new Rotate(angleOfRotationAP,
 				new Point3D(rotationAxisAP.getX(), rotationAxisAP.getY(), rotationAxisAP.getZ()));
 
+		// before finding the axis angle representation of the LR rotation, rotate the LR config vec by the AP rotation
+		double[] LR_orientation_rotated = new double[]{LR_orientation_vector.getX(), 
+														LR_orientation_vector.getY(), 
+														LR_orientation_vector.getZ()};
+		applySingleTransform(LR_orientation_rotated, AP);
+		
 		// axis angle rep. of LR		
-		this.rotationAxisLR = new Point3D(LR_orientation_vector.getX(), LR_orientation_vector.getY(), LR_orientation_vector.getZ());
+		this.rotationAxisLR = new Point3D(LR_orientation_rotated[0], LR_orientation_rotated[1], LR_orientation_rotated[2]);
 		this.rotationAxisLR = rotationAxisLR.crossProduct(LR_can_or);
 		this.rotationAxisLR = rotationAxisLR.normalize();
 		this.angleOfRotationLR = LR_orientation_vector.angle(LR_can_or);
@@ -362,6 +368,8 @@ public class CanonicalTransform {
 	private static final Point3D LR_can_or = new Point3D(LR_canonical_orientation[0], LR_canonical_orientation[1], LR_canonical_orientation[2]);
 	private static final int THREE = 3;
 	private static final double ZERO_THRESHOLD = .1;
+	private static final String AP = "AP";
+	private static final String LR = "LR";
 	
 	// probably won't need to use these, but if so here they are
 //  private static final Point3D DV_can_or = new Point3D(DV_canonical_orientation[0], DV_canonical_orientation[1], DV_canonical_orientation[2]);
