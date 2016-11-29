@@ -264,9 +264,14 @@ public class DivisionCaller {
 			// append a 0 to the sulston name
 			sulston += "0";
 
-			// create a rule for this parent which contains parent name, the directional suslton letter for the first daughter, and the vector corresponding
+			// create a rule for this parent which contains parent name, the directional sulston letter for the first daughter, and the vector corresponding
 			r = new Rule(pname, sulston, sdau1, sdau2, x, y, z);
 
+			/*
+			 * TODO
+			 * Go over this with Anthony
+			 * How should I handle different rotations being introduced late in naming?
+			 */
 			if (!(auxInfoVersion2.get())) {
 				// assuming dummy rules are late in embryonic development
 				// introduce rotation
@@ -325,7 +330,7 @@ public class DivisionCaller {
 		// normalize the vector
 		sample = sample.normalize();
 		
-//		System.out.print(" to: <" + daCorrected[0] + ", " + daCorrected[1] + ", " + daCorrected[2] + ">");
+		System.out.print(" to: <" + daCorrected[0] + ", " + daCorrected[1] + ", " + daCorrected[2] + ">");
 		
 		/*
 		 * find and return the dot product of the normalized, corrected, and rotated
@@ -370,12 +375,15 @@ public class DivisionCaller {
 		dau1.identity = newd1;
 		dau2.identity = newd2;
 		
-//		System.out.print(" - dau1-" + newd1 + ", dau2-" + newd2 + " w/ dot=" + dot);
-//		System.out.println(" ");
+		System.out.print(" - dau1-" + newd1 + ", dau2-" + newd2 + " w/ dot=" + dot);
+		System.out.println(" ");
 	}
 
 	/**
-	 * Find the vector between the daughter cells with corrections and rotations
+	 * Find the vector between the daughter cells with corrections and rotations.
+	 * 
+	 * In the first AuxInfo scheme, this method first applies the AP rotation via measureCorrection and
+	 * then induces LR rotation with coordinate sign flipping
 	 * 
 	 * @param d1
 	 * @param d2
@@ -383,22 +391,12 @@ public class DivisionCaller {
 	 */
 	private double [] diffsCorrected(Nucleus d1, Nucleus d2) {
 		double [] da = new double[3];
-	
-//		if (auxInfoVersion2.get()) {
-//			da[0] = d1.x - d2.x;
-//			da[1] = d1.y - d2.y;
-//			da[2] = d1.z - d2.z;
-//		} else {
-//			da[0] = d2.x - d1.x;
-//			da[1] = d2.y - d1.y;
-//			da[2] = d2.z - d1.z;
-//		}
 		
 		da[0] = d2.x - d1.x;
 		da[1] = d2.y - d1.y;
 		da[2] = d2.z - d1.z;
 		
-//		System.out.print("da: <" + da[0] + ", " + da[1] + ", " + da[2] + ">");
+		System.out.print("da: <" + da[0] + ", " + da[1] + ", " + da[2] + ">");
 		
 		// scale the z coordinate difference by the z pixel resolution i.e. the z scale
 		da[2] *= iZPixRes;
@@ -406,7 +404,7 @@ public class DivisionCaller {
 
 		// induce rotations with corrections and scaling
 		measurementCorrection(da);
-
+		
 		if (!(auxInfoVersion2.get())) {
 			if (iAxisUse == null)
 				iAxisUse = MeasureCSV.defaultAtt_v1[MeasureCSV.AXIS_v1];

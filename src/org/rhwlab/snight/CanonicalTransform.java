@@ -196,7 +196,9 @@ public class CanonicalTransform {
 		this.rotationAxisLR = rotationAxisLR.normalize();
 		this.angleOfRotationLR = LR_orientation_vector.angle(LR_can_or);
 
-		// check for degenerate case --> make sure angle of nonzero first to ensure the dataset isn't just already in canonical orientation
+		/* check for degenerate case --> make sure angle of nonzero first to ensure the dataset isn't just already in canonical orientation
+		* NOTE: the vectors are colinear when they face in opposite directions e.g. <1,0,0> and <-1,0,0>
+		*/
 		if (angleOfRotationLR != 0 && rotationAxisLR.getX() == 0 && rotationAxisLR.getY() == 0 && rotationAxisLR.getZ() == 0) {
 			// ensure that the LR orientation vector is in fact a vector in the yz plane
 			if (LR_orientation_vector.getX() == 0 && LR_orientation_vector.getY() == 0 && LR_orientation_vector.getZ() != 0) {
@@ -250,7 +252,12 @@ public class CanonicalTransform {
 		}
 		
 		// if we've reached this point, let's build the product transform
-		this.productTransform = rotMatrixAP.createConcatenation(rotMatrixLR);
+		/*
+		 * the order in which these rotations are applied is opposite to the left to right ordering of this code. The following
+		 * line says that the product transform applies the AP rotation first and then the LR rotation. This mirrors the order
+		 * in which compressed rotations are carried out under the first AuxInfo scheme. See DivisionCaller.java method diffsCorrected()
+		 */
+		this.productTransform = rotMatrixLR.createConcatenation(rotMatrixAP);
 		
 		System.out.println("Confirmed transforms rotate from initial AP, LR to canonical");
 		System.out.println("AP rotation: " + rotMatrixAP.toString());
@@ -298,7 +305,16 @@ public class CanonicalTransform {
 		 * this probably does this same thing but for the sake of clarity deltaTransform works on a vector represented by
 		 * a Point3D and transform works on a point represented by Point3D
 		 */
-		transformed = productTransform.transform(new Point3D(vec_local[0], vec_local[1], vec_local[2]));
+//		System.out.println("Before product rotation: " + vec_local[0] + ", " + vec_local[1] + ", " + vec_local[2]);
+		transformed = productTransform.transform(vec_local[0], vec_local[1], vec_local[2]);
+//		System.out.println("After product rotation: " + transformed.getX() + ", " + transformed.getY() + ", " + transformed.getZ());
+		
+//		System.out.println("Before LR rotation: " + vec_local[0] + ", " + vec_local[1] + ", " + vec_local[2]);
+//		transformed = rotMatrixLR.transform(vec_local[0], vec_local[1], vec_local[2]);
+////		System.out.println("After LR rotation: " + transformed.getX() + ", " + transformed.getY() + ", " + transformed.getZ());
+//		transformed = rotMatrixAP.transform(transformed.getX(), transformed.getY(), transformed.getZ());
+//		System.out.println("After AP rotation: " + transformed.getX() + ",  " + transformed.getY() + ", " +  transformed.getZ());
+		
 		
 //		// update vec_local
 		vec_local[0] = transformed.getX();
@@ -362,8 +378,8 @@ public class CanonicalTransform {
 	}
 
 	// static variables
-	private static final double[] AP_canonical_orientation = {-1, 0, 0}; // A points down the negative x axis in canonical orienatation
-	private static final double[] LR_canonical_orientation = {0, 0, -1}; // L points out toward the viewer in canonical orienatation
+	private static final double[] AP_canonical_orientation = {1, 0, 0};
+	private static final double[] LR_canonical_orientation = {0, 0, 1};
 	private static final Point3D AP_can_or = new Point3D(AP_canonical_orientation[0], AP_canonical_orientation[1], AP_canonical_orientation[2]);
 	private static final Point3D LR_can_or = new Point3D(LR_canonical_orientation[0], LR_canonical_orientation[1], LR_canonical_orientation[2]);
 	private static final int THREE = 3;
