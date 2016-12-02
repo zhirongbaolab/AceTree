@@ -205,8 +205,7 @@ public class CanonicalTransform {
 				System.out.println("Degenerate case of axis angle rotation, rotation only about x axis in yz plane");
 
 				// make the x axis the axis of rotation
-//				this.rotationAxisLR = new Point3D(1., 0., 0.); // need to use this for JIM113_UNC-86myrGFP
-				this.rotationAxisLR = new Point3D(0., 1., 0.); // need to use this for JIM113_SiO
+				this.rotationAxisLR = new Point3D(1., 0., 0.);
 			}
 		}
 
@@ -300,13 +299,11 @@ public class CanonicalTransform {
 		vec_local[1] = vec[1];
 		vec_local[2] = vec[2];
 			
-		Point3D transformed;
-		
 		/*
 		 * this probably does this same thing but for the sake of clarity deltaTransform works on a vector represented by
 		 * a Point3D and transform works on a point represented by Point3D
 		 */
-		transformed = productTransform.transform(vec_local[0], vec_local[1], vec_local[2]);
+		Point3D transformed = productTransform.transform(vec_local[0], vec_local[1], vec_local[2]);
 		
 //		// update vec_local
 		vec_local[0] = transformed.getX();
@@ -370,7 +367,7 @@ public class CanonicalTransform {
 	}
 
 	// static variables
-	private static final double[] AP_canonical_orientation = {1, 0, 0};
+	private static final double[] AP_canonical_orientation = {-1, 0, 0};
 	private static final double[] LR_canonical_orientation = {0, 0, 1};
 	private static final Point3D AP_can_or = new Point3D(AP_canonical_orientation[0], AP_canonical_orientation[1], AP_canonical_orientation[2]);
 	private static final Point3D LR_can_or = new Point3D(LR_canonical_orientation[0], LR_canonical_orientation[1], LR_canonical_orientation[2]);

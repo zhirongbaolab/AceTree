@@ -7,7 +7,6 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.StringTokenizer;
 
 import org.rhwlab.acetree.AceTree;
 
@@ -17,7 +16,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
-import javafx.scene.transform.Rotate;
 
 
 /**
@@ -327,17 +325,17 @@ public class DivisionCaller {
 		// create vector from daughter vector coordinates
 		Point3D sample = new Point3D(daCorrected[0], daCorrected[1], daCorrected[2]);
 
+		
 		// normalize the vector
 		sample = sample.normalize();
 		
-		System.out.print(" to: <" + daCorrected[0] + ", " + daCorrected[1] + ", " + daCorrected[2] + ">");
+//		System.out.print(" to: <" + daCorrected[0] + ", " + daCorrected[1] + ", " + daCorrected[2] + ">");
 		
 		/*
 		 * find and return the dot product of the normalized, corrected, and rotated
 		 * vector between the two daughter cells
 		 */
-		double dotCorrected = template.dotProduct(sample);
-		double dot = dotCorrected;
+		double dot = template.dotProduct(sample);
 		Double Dot = new Double(dot);
 		if (Dot.isNaN()) dot = 0;
 		
@@ -367,16 +365,15 @@ public class DivisionCaller {
 		if (dot > 0) {
 			newd1 = r.iDau1;
 			newd2 = r.iDau2;
-		}
-		else {
+		} else {
 			newd1 = r.iDau2;
 			newd2 = r.iDau1;
 		}
 		dau1.identity = newd1;
 		dau2.identity = newd2;
 		
-		System.out.print(" - dau1-" + newd1 + ", dau2-" + newd2 + " w/ dot=" + dot);
-		System.out.println(" ");
+//		System.out.print(" - dau1-" + newd1 + ", dau2-" + newd2 + " w/ dot=" + dot);
+//		System.out.println(" ");
 	}
 
 	/**
@@ -396,7 +393,7 @@ public class DivisionCaller {
 		da[1] = d2.y - d1.y;
 		da[2] = d2.z - d1.z;
 		
-		System.out.print("da: <" + da[0] + ", " + da[1] + ", " + da[2] + ">");
+//		System.out.print("da: <" + da[0] + ", " + da[1] + ", " + da[2] + ">");
 		
 		// scale the z coordinate difference by the z pixel resolution i.e. the z scale
 		da[2] *= iZPixRes;
@@ -444,7 +441,7 @@ public class DivisionCaller {
 		} else {
 			double [] dxy = handleRotation_V1(da[0], da[1], iAng);
 			da[0] = dxy[0];
-			da[1] = dxy[1];	
+			da[1] = dxy[1];
 		}
 		
 		// correct for x stretch

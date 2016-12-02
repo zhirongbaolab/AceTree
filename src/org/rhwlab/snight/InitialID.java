@@ -364,9 +364,9 @@ public class InitialID {
 			ia[0] = nucleii.x;
 			ia[1] = nucleii.y;
 			ia[2] = (int) nucleii.z;
-			println("alignDiamond, BEFORE, " + ia[0] + CS + ia[1] + CS + ia[2] + CS + xmin + CS + xmax + CS + ymin + CS + ymax);
+//			println("alignDiamond, BEFORE, " + ia[0] + CS + ia[1] + CS + ia[2] + CS + xmin + CS + xmax + CS + ymin + CS + ymax);
 			applyTransformation(ia);
-			println("alignDiamond, AFTER , " + ia[0] + CS + ia[1] + CS + ia[2]);
+//			println("alignDiamond, AFTER , " + ia[0] + CS + ia[1] + CS + ia[2]);
 
 			/*
 			 * if AuxInfo_v2 is present, add the cell to the local list and then we'll decide the directions after
@@ -378,22 +378,22 @@ public class InitialID {
 			} else {
 				// depending on the orientation of the current nucleus in space, set it as N, E, S, W
 				if (ia[0] < xmin) {
-					println("Setting West Nuc");
+//					println("Setting West Nuc");
 					xmin = ia[0];
 					west = nucleii;
 				}
 				if (ia[0] > xmax) {
-					println("Setting East Nuc");
+//					println("Setting East Nuc");
 					xmax = ia[0]; 
 					east = nucleii;
 				}
 				if (ia[1] < ymin) {
-					println("Setting North Nuc");
+//					println("Setting North Nuc");
 					ymin = ia[1];
 					north = nucleii;
 				}
 				if (ia[1] > ymax) {
-					println("Setting South Nuc");
+//					println("Setting South Nuc");
 					ymax = ia[1]; 
 					south = nucleii;
 				}

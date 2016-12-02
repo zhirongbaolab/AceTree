@@ -62,7 +62,6 @@ public class Identity3 {
        this.measureCSV = iNucleiMgr.getMeasureCSV();
        // check for presence of uncompressed embryo --> AuxInfo_v2
         if (MeasureCSV.isAuxInfoV2()) {
-        	System.out.println("Beginning construction of CanonicalTransform");
         	canTransform = new CanonicalTransform(measureCSV);
         }
         
@@ -300,10 +299,6 @@ public class Identity3 {
 //        }
     }
 
-    /*
-     * TODO
-     * figure out what this does --> why does it overwrite the identity that was probably just sent in division caller
-     */
     private void usePreassignedID(Nucleus dau1, Nucleus dau2) {
         //println("usePreassignedID: " + dau1.identity + CS + dau2.identity);
         //println("usePreassignedID:2 " + dau1.assignedID + CS + dau2.assignedID);
@@ -312,12 +307,12 @@ public class Identity3 {
         }
         //println("usePreassignedID:3 " + dau1.assignedID + CS + dau2.assignedID);
         if (dau1.assignedID.length() > 0) {
-        	println("Changing dau1 identity from: " + dau1.identity + " to: " + dau1.assignedID);
+//        	println("Changing dau1 identity from: " + dau1.identity + " to: " + dau1.assignedID);
         	dau1.identity = dau1.assignedID;
         }
         	
         if (dau2.assignedID.length() > 0) {
-        	println("Changing dau2 identity from: " + dau2.identity + " to: " + dau2.assignedID);
+//        	println("Changing dau2 identity from: " + dau2.identity + " to: " + dau2.assignedID);
         	dau2.identity = dau2.assignedID;
         }
 
