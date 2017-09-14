@@ -5,7 +5,6 @@
 package org.rhwlab.acetree;
 
 // import org.test.Display3D;
-import org.rhwlab.volumeview.Display3D;
 
 import javax.swing.UIManager.*;
 import javax.swing.UIManager;
@@ -23,7 +22,7 @@ import org.rhwlab.help.TestWindow;
 import org.rhwlab.image.CellMovementImage;
 //import org.rhwlab.image.EditImage;
 //import org.rhwlab.image.EditImage3;
-import org.rhwlab.image.Image3D;
+
 import org.rhwlab.image.ImageAllCentroids;
 import org.rhwlab.image.ImageWindow;
 import org.rhwlab.image.DepthViews;
@@ -145,7 +144,6 @@ public class AceTree extends JPanel
 	private static final long serialVersionUID = 1L;
 
 	// public static String runningFrom=""; // hack for path stuff
-    private Display3D display3D;
 
     protected static AceTree  iAceTree;
 
@@ -229,8 +227,6 @@ public class AceTree extends JPanel
     public Integer      iTrackPosition;
     public Integer      iTrackPositionSave;
     private boolean     iIgnoreValueChanged;
-
-    protected Image3D    iImage3D;
     
     private Object      iDispProps3D;
     private Object      iDispProps3D2;
@@ -372,60 +368,6 @@ public class AceTree extends JPanel
 
     public static void setWasClosed(int i) {
         wasClosed = i;
-    }
-
-    /* Function: run3Dviewer
-     * Usage: iAceTree.run3Dviewer();
-     ---
-     * Runs a new 3D viewer.
-     */
-    public void run3Dviewer() {
-        try{
-            if (display3D == null) {
-                display3D = new Display3D();
-            } else {
-                if (display3D.getUniverse().getWindow() == null) {
-                    display3D = null;
-                    display3D = new Display3D();
-                } else {
-                    System.out.println("You cannot open up more than one main universe.");
-                    return;
-                }               
-            }
-
-            if (wasClosed == 0) { // horrible work-around for getting HandTool/RectangleTool to work, but it does the job
-                // should fix to make more elegant in the future
-                display3D.runThread("close");
-                display3D = null;
-                display3D = new Display3D();
-            }
-
-            System.out.println("Base directory: " + iZipTifFilePath.substring(0, iZipTifFilePath.length()-5));
-            System.out.println("Image Title: " + transformTitle());
-            display3D.setBaseDir(iZipTifFilePath.substring(0, iZipTifFilePath.length()-5));
-            display3D.updateUniverse(transformTitle());
-            display3D.runThread("");
-        } catch(NullPointerException e) {
-            display3D = null;
-            System.out.println("Image stack is not loaded");
-        }
-    }
-
-    /* Function: addNext3D;
-     * Usage: addNext3D();
-     ---
-     * Updates content of new 3D viewer, if get Cell, next, or previous
-     * button on AceTree is selected.
-     */
-    public void addNext3D() {
-       if (display3D != null) {
-            if (display3D.getUniverse().getWindow() == null) {
-               display3D = null;
-            } else {
-               display3D.updateUniverse(transformTitle());
-               display3D.addNext();
-            }
-        }      
     }
 
     public PlayerControl getPlayerControl() {
@@ -2907,9 +2849,6 @@ public class AceTree extends JPanel
         	setCurrentCell(c, requestedTime, CONTROLCALLBACK);
 
             System.out.println(transformTitle());
-            
-            // New 3D Viewer Code, to update upon "getting cell"
-            addNext3D();
         }
     }
 
@@ -3268,7 +3207,6 @@ public class AceTree extends JPanel
      * does the work required by the cell selection control
      * @param c Cell the cell desired
      * @param requestedTime int the time index where it is to be shown
-     * @param v2 vector of nuclei at this time point
      */
     @SuppressWarnings("unused")
 	private void showSelectedCell(Cell c, int requestedTime) {
@@ -3589,19 +3527,6 @@ public class AceTree extends JPanel
         return iCanonicalTree;
     }
 
-    public void threeDview() {
-        String s = getImageTitle();
-        if (iUseStack == 1)
-        	s = getTifPathWithPrefix();
-        System.out.println("AceTree passing to Image3D title: "+s);
-        try {
-    		iImage3D = new Image3D(this, s);
-        } catch(NoClassDefFoundError ee) {
-        	new Java3DError(iMainFrame);
-        }
-
-    }
-
     public String getTifPathWithPrefix() {
     	return iTifPrefix+makeImageName();
     }
@@ -3615,7 +3540,7 @@ public class AceTree extends JPanel
     public String getImageTitle() {
         String s = makeImageName();
         int k = s.lastIndexOf("-");
-        s = s.substring(0, k);
+        s = s.substring(0, k)
         String s2 = iTifPrefix;
         int j = s2.lastIndexOf(C.Fileseparator);
         if (j > 0) s2 = s2.substring(j + 1);
@@ -3665,31 +3590,6 @@ public class AceTree extends JPanel
     }
     */
 
-    // called by Image3D actionPerformed() 
-    // argument will be TRUE if AceTree should start saving movie/rendering images
-    // argument will be FALSE if AceTree should stop    "       "
-    public void image3DSave(boolean saveIt) {
-        Image3D.setSaveImageState(saveIt);
-        if (!saveIt) return;
-        if (iImage3D == null) {
-            System.out.println("no active image3d");
-            threeDview();
-            //return;
-        } else {
-            //iImage3D.saveImage();
-        	//println("image3DSave, " + iImgWin.getTitle());
-        	//println("image3DSave, " + iImgWin.getName());
-        	String name = iImgWin.getTitle();
-        	name = name.substring(0, name.length() - 8);
-        	name = name.substring(4, name.length());
-            iImage3D.offScreenRendering(name);
-        }
-    }
-
-    public boolean hasActiveImage3D() {
-        return iImage3D != null;
-    }
-
 
     public void image2DSave(boolean saveIt) {
         iImgWin.setSaveImageState(saveIt);
@@ -3713,12 +3613,6 @@ public class AceTree extends JPanel
 		    iImgWin.setSpecialEffect(null);
         boolean b = nextTime();
         
-        if (iImage3D != null && iImage3D.getImage3DFrame().isVisible()) {
-        	iImage3D.insertContent(getImageTitle());
-        	// New 3D Viewer Code, to update upon clicking next
-            addNext3D();
-        }
-        
         updateDisplay();
         return b;
     }
@@ -3730,25 +3624,12 @@ public class AceTree extends JPanel
         for (int i = 0; i < 4 & b; i++)
         	b = nextTime();
         
-        if (iImage3D != null && iImage3D.getImage3DFrame().isVisible()) {
-        	iImage3D.insertContent(getImageTitle());
-        	// New 3D Viewer Code, to update upon clicking next
-            addNext3D();
-        }
-        
         updateDisplay();
         return b;
     }
 
     public boolean prevImage() {
         boolean b = prevTime();
-        
-        if (iImage3D != null) {
-        	iImage3D.insertContent(getImageTitle());
-        }
-
-        // New 3D Viewer Code, to update upon clicking previous
-        addNext3D();
         
         updateDisplay();
         return b;
@@ -3760,13 +3641,6 @@ public class AceTree extends JPanel
         boolean b = prevTime();
         for (int i = 0; i < 4 & b; i++)
         	b = prevTime();
-        
-        if (iImage3D != null) {
-        	iImage3D.insertContent(getImageTitle());
-        }
-
-        // New 3D Viewer Code, to update upon clicking previous
-        addNext3D();
         
         updateDisplay();
         return b;
@@ -3815,7 +3689,6 @@ public class AceTree extends JPanel
     public int getUseStack() {
         return iUseStack;
     }
-    
 
     public int getImageTime() {
         return iImageTime;

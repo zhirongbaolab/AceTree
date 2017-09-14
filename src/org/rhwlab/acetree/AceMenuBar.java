@@ -809,15 +809,7 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
             iAceTree.exportNewick();
         } else if (iTest == o) {
             iAceTree.test();
-        } else if (i3D == o) {
-            
-        } else if (i3D2 == o) {
-            iAceTree.threeDview(); 
-	    //  } else if (iZoomView == o) {
-            //iAceTree.zoomView();
-        } else if (i3DViewer == o) {
-            iAceTree.run3Dviewer();
-        } else if (i3D3 == o) {
+        }else if (i3D3 == o) {
         	WormGUIDESWindow view = new WormGUIDESWindow(iAceTree.getNucleiMgr());
         	view.initializeWormGUIDES();
         } else if (i3D2Z == o) {
@@ -868,9 +860,6 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
         if (source == i3Dsave) {
             //i3DsaveState = e.getStateChange();
             //iAceTree.image3DSave(i3Dsave.getState());
-        } else if (source == i3D2save) {
-            i3D2saveState = e.getStateChange();
-            iAceTree.image3DSave(i3D2save.getState());
         } else if (source == i2Dsave) {
             iAceTree.image2DSave(i2Dsave.getState());
         }
