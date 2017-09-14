@@ -1392,42 +1392,44 @@ public class ImageWindow extends JFrame implements  KeyListener, Runnable {
         double x, y, r;
         boolean g;
         Nucleus n = cNucleiMgr.findClosestNucleus(mx, my, iImagePlane + iPlaneInc, iImageTime + iTimeInc);
-        if (cNucleiMgr.hasCircle(n, iImagePlane + iPlaneInc)) {
-			String propername = PartsList.lookupSulston(n.identity);
-			String label = n.identity;
-			if(propername != null){
-			    label=label+" "+propername;
-			}
-	        AnnotInfo ai = new AnnotInfo(label, n.x, n.y);
-	        // now, if this one is not in the vector add it
-	        // otherwise remove it
-	        boolean itemRemoved = false;
-	        boolean itemAlreadyPresent = false;
-	        String test = label;//n.identity;
-	        AnnotInfo aiTest = null;
-	        for (int k=0; k < iAnnotsShown.size(); k++) {
-	            aiTest =(AnnotInfo)iAnnotsShown.elementAt(k);
-	            if (aiTest.iName.equals(test)) {
-	                itemAlreadyPresent = true;
-	                if (!dontRemove) {
-	                    iAnnotsShown.remove(k);
-	                    itemRemoved = true;
-	                }
-	                break;
-	            }
-	
-	        }
-	
-	        if (!itemRemoved && !itemAlreadyPresent) {
-	            iAnnotsShown.add(ai);
-	        }
-	        // if this was a button 3 mouse click
-	        // and this is the main window
-	        // we will make this the current cell and makeDisplayText agree
-	        if (iIsRightMouseButton && iIsMainImgWindow) {
-	            iIsRightMouseButton = false;
-	        }
-	    }
+        if (n != null) {
+            if (cNucleiMgr.hasCircle(n, iImagePlane + iPlaneInc)) {
+                String propername = PartsList.lookupSulston(n.identity);
+                String label = n.identity;
+                if (propername != null) {
+                    label = label + " " + propername;
+                }
+                AnnotInfo ai = new AnnotInfo(label, n.x, n.y);
+                // now, if this one is not in the vector add it
+                // otherwise remove it
+                boolean itemRemoved = false;
+                boolean itemAlreadyPresent = false;
+                String test = label;//n.identity;
+                AnnotInfo aiTest = null;
+                for (int k = 0; k < iAnnotsShown.size(); k++) {
+                    aiTest = (AnnotInfo) iAnnotsShown.elementAt(k);
+                    if (aiTest.iName.equals(test)) {
+                        itemAlreadyPresent = true;
+                        if (!dontRemove) {
+                            iAnnotsShown.remove(k);
+                            itemRemoved = true;
+                        }
+                        break;
+                    }
+
+                }
+
+                if (!itemRemoved && !itemAlreadyPresent) {
+                    iAnnotsShown.add(ai);
+                }
+                // if this was a button 3 mouse click
+                // and this is the main window
+                // we will make this the current cell and makeDisplayText agree
+                if (iIsRightMouseButton && iIsMainImgWindow) {
+                    iIsRightMouseButton = false;
+                }
+            }
+        }
 	}
 
 
@@ -1895,8 +1897,10 @@ public class ImageWindow extends JFrame implements  KeyListener, Runnable {
         }
         String name = "";
         Nucleus n = cNucleiMgr.findClosestNucleus(x, y, iImageTime + iTimeInc);
-        if (cNucleiMgr.hasCircle(n, iImagePlane + iPlaneInc)) {
-            name = n.identity;
+        if (n != null) {
+            if (cNucleiMgr.hasCircle(n, iImagePlane + iPlaneInc)) {
+                name = n.identity;
+            }
         }
         return name;
     }

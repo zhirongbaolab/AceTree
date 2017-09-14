@@ -86,7 +86,7 @@ public class InputCtrl extends JPanel implements ActionListener {
         JLabel[] labels = new JLabel[labelStrings.length];
         JComponent[] fields = new JComponent[labelStrings.length];
         int fieldNum = 0;
-        MaskFormatter mf = createFormatter("######");
+        MaskFormatter mf = createFormatter("#################");
         iTimeField = new JFormattedTextField(mf);
         iTimeField.setFocusLostBehavior(JFormattedTextField.PERSIST);
         iNameField = new JTextField();

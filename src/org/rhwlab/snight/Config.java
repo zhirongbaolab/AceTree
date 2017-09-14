@@ -113,7 +113,7 @@ public class Config {
 
         iConfigFileName = configFile;
         iTypicalImage = "";
-        iEndingIndex = 9999;
+        iEndingIndex = 99999;
         iXy_res = XYRESNOMINAL;
         iZ_res = ZRESNOMINAL;
         iPolar_size = POLARSIZENOMINAL;
@@ -323,14 +323,19 @@ public class Config {
         }
         
         if (name.lastIndexOf('-') > name.lastIndexOf('_')) {
-        	if (iUseStack == 0) {
-	        	k2 = k1 - 8;
-	        }
-	        else {
-	        	k2 = k1 - 4;
-	        }
-        }
-        else {
+            // revised 09/29/16 because we want to support datasets with more than 999 time points
+            // work backwards and find the index of the 't' that starts the time plane suffix
+            boolean foundT = false;
+            int idx = k1; // start at the '.' that begins '.tif'
+            while (!foundT) {
+                if (name.charAt(idx) == 't') {
+                    foundT = true;
+                    k2 = idx;
+                    } else {
+                    idx--;
+                }
+            }
+        } else {
         	if (iUseStack == 0) {
 	        	//Is this format ever used?
 	        }
