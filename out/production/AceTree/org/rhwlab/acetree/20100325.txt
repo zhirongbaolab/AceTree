@@ -1,0 +1,101 @@
+March 25, 2010
+
+TO:     File
+FROM:   TomB
+
+MATLAB
+
+Maybe give some more attention to this.
+
+I would like to know how much of the source distribution is really needed.
+
+It would be interesting to see what Anthony did about comparing the new
+approach with the traditional SN.
+
+It might be good to get John's input on this issue.
+
+I was thinking of running 102405_pha4red thru the new code since it is the
+most heavily edited series we have and claims to be edited to 462 cells.
+
+I have not heard from Brian McNally but I would like his input so I can try
+this out on the cluster.
+
+I should also make a preliminary survey of how the code could be converted to
+java. Presumably if I volunteered, Anthony would be willing to consult.
+
+there are 56 .m files in the distribution
+out of 116 total
+
+there are 39 .asv files
+none of the asv files show current dates
+
+there are 6  .c files
+
+trashed 5 *.*~ files
+
+looks like 10 other files
+2 .prj files
+
+there are a few directories 
+bogus
+junk
+save
+targetdir081505_matlabnuclei
+
+created 3 more directories
+asv, prj, c
+
+8 directories
+56 .m files
+67 total lines
+2 .mat files
+
+$ ls
+#assignPlanesDirectional.m             ###DLSMAdaptiveMaximaFilter.m          #outputSNFiles.m
+#assign_planes.m                       #dogfilter.m                         #outputSNParamFile.m
+#buildOverlapList.m                    ###evaluate_firstround_forpaper.m      ###param_training_code.m
+#calc_disk_feature_vector.m            ###evaluateStarrynite_with_tracking.m  #pickCenterIndicies.m
+#calculateLogodds.m                    #filter_boundary.m                   #processSequence.m
+#calculateSphereDiameters_geometric.m  #findOverlookedNuclei.m              #processVolume.m
+###calculateTrackingError.m              #fspecial3_mod.m                     readme.txt
+###closenessFilter.m                     #getParameter.m                      ###readnuclei.m
+#closenessFilterRemovingIsolated.m     ###launchScript.m                      #readParameters.m
+#commandLineDriver.m                   ###loadCellStackLSM.m                  #removeClaimed.m
+###compareDetectionWRadius_3.m           ###loadCellStackLSMtime.m              #resolveConflicts.m
+#conFromPairMerge.m                    #loadCellStack.m                     ###sphereBeltCrustPoints.m
+#conv3Dfreq.m                          ###loadCellStackMetamorph.m            ###splitScoreBetweenOverlap.m
+#createDiskSet.m                       ###loadNewCellStack.m                  ###splitScore.m
+dirs                                  #mergeAndJudgeNuclei.m               ###test.m
+###displayData.m                         ###mergeDecision.m                     #tiledogfilter.m
+###distance.m                            ###mergeScore2.m                       ###training_code.m
+#distance_mem.m                        ###newdriver_test.m                    #vcalculateMaximalRange.m
+#distanceToPoint.m                     ###offline_matching_test.m
+###distributionTrainingCode.m            ###outputAceTreeSlice.m
+biowolp@briggsae-14:02 /net/waterston/vol2/home/biowolp/anthony/20100201/distribution_code
+$
+
+By this process I have worked it down to 30 files
+
+from outputSNParamFile
+I see that it is mostly canned
+but uses starttime, endtime, slices, xyres, zres, nucsize
+takes polar size as nucsize/2
+all else canned
+
+outputSNFiles.m  is harder to see
+looks like there is a structure timepoints{}
+
+$ ls *.m
+assignPlanesDirectional.m             conFromPairMerge.m      fspecial3_mod.m        processVolume.m
+assign_planes.m                       conv3Dfreq.m            getParameter.m         readParameters.m
+buildOverlapList.m                    createDiskSet.m         loadCellStack.m        removeClaimed.m
+calc_disk_feature_vector.m            distance_mem.m          mergeAndJudgeNuclei.m  resolveConflicts.m
+calculateLogodds.m                    distanceToPoint.m       outputSNFiles.m        tiledogfilter.m
+calculateSphereDiameters_geometric.m  dogfilter.m             outputSNParamFile.m    vcalculateMaximalRange.m
+closenessFilterRemovingIsolated.m     filter_boundary.m       pickCenterIndicies.m
+commandLineDriver.m                   findOverlookedNuclei.m  processSequence.m
+biowolp@briggsae-15:25 /net/waterston/vol2/home/biowolp/anthony/20100201/distribution_code
+$
+
+
+
