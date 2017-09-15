@@ -438,13 +438,13 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
         i3D3.addActionListener(this);
         menu.add(i3D3);
 		
-        i3D2 = new JMenuItem(THREED2);
-        i3D2.addActionListener(this);
-        menu.add(i3D2);
-
-        i3DViewer =new JMenuItem(NEWTHREEDVIEW);
-        i3DViewer.addActionListener(this);
-        menu.add(i3DViewer);
+//        i3D2 = new JMenuItem(THREED2);
+//        i3D2.addActionListener(this);
+//        menu.add(i3D2);
+//
+//        i3DViewer =new JMenuItem(NEWTHREEDVIEW);
+//        i3DViewer.addActionListener(this);
+//        menu.add(i3DViewer);
 
 	//if(fullgui){      
  	// i3Dsave = new JCheckBoxMenuItem(THREEDSAVE);
@@ -963,7 +963,6 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
         ,UNDO = "Undo"
         ,VIEW = "View"
         ,THREED = "3D old View"
-        ,THREED2 = "3D View"
         ,THREED3 = "3D Sister View"
         ,THREEDSAVE = "Save 3D old"
         ,THREEDTWOSAVE = "Save 3D View"
@@ -979,7 +978,6 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
         ,ABOUT = "About"
         ,NEW = "New features"
         ,ZOOMVIEW = "Zoom View"
-        ,NEWTHREEDVIEW = "IJ 3D Image View"
         ,THREED4 = "WormGUIDES"
 
         ;

@@ -9,7 +9,7 @@ package org.rhwlab.snight;
  */
 
 import wormguides.MainApp;
-import wormguides.models.NucleiMgrAdapterResource;
+import wormguides.resources.NucleiMgrAdapterResource;
 
 public class WormGUIDESWindow extends wormguides.MainApp {
 	private NucleiMgrAdapter nucleiMgrAdapter;

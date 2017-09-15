@@ -1,11 +1,8 @@
 package org.rhwlab.snight;
 
 import java.util.*;
-
 import org.rhwlab.tree.Cell;
-
-import acetree.lineagedata.LineageData;
-
+import acetree.LineageData;
 /*
  * Adapter to interface AceTree 3D Viewing with WormGUIDES
  * 
@@ -261,7 +258,7 @@ public class NucleiMgrAdapter implements LineageData {
 		}
 		
 		@Override
-		public void shiftAllPositions(int x, int y, int z) {
+		public void shiftAllPositions(double x, double y, double z) {
 			for (int i = 0; i < allPositions.size(); i++) {
 				ArrayList<double[]> positions_at_frame = allPositions.get(i);
 				
