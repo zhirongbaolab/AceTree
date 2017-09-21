@@ -111,7 +111,7 @@ import org.rhwlab.acetree.PartsList;
  * @author biowolp
  * @version 1.0 January 25, 2005
  */
-public class ImageWindow extends JFrame implements  KeyListener, Runnable {
+public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 	public ImageCanvas      iImgCanvas;
     static ImagePlus        iImgPlus;
     String                  iTitle;
