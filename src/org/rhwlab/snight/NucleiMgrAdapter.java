@@ -28,6 +28,7 @@ public class NucleiMgrAdapter implements LineageData {
 			preprocessCellOccurrences();
 			preprocessCellPositions();
 			setIsSulstonModeFlag(nucleiMgr.iAncesTree.sulstonmode);
+			System.out.println("NucleiMgrAdapter has isSulstonMode: " + isSulston);
 			this.xyzScale = new double[3];
 			this.xyzScale[0] = this.xyzScale[1] = nucleiMgr.iConfig.iXy_res;
 			this.xyzScale[2] = nucleiMgr.iConfig.iZ_res;
@@ -53,7 +54,7 @@ public class NucleiMgrAdapter implements LineageData {
 					if (!cellOccurences.containsKey(name)) {
 						int[] start_end = new int[2];
 						start_end[0] = i;
-						start_end[0] = 0; /* to avoid null exceptions if no end time point is found */
+						start_end[1] = i; /* to avoid null exceptions if no end time point is found */
 						
 						cellOccurences.put(name, start_end);
 					}
@@ -99,7 +100,7 @@ public class NucleiMgrAdapter implements LineageData {
 		@Override
 		public String[] getNames(int time) {
 			if (time > 0) {
-				ArrayList<String> namesAL = new ArrayList<String>(); //named to distinguish between return String[] array
+				ArrayList<String> namesAL = new ArrayList<>(); //named to distinguish between return String[] array
 				
 				//access vector of nuclei at given time frame
 				Vector<Nucleus> v = nucleiMgr.nuclei_record.get(time);
@@ -107,7 +108,7 @@ public class NucleiMgrAdapter implements LineageData {
 				
 				//copy nuclei identities to ArrayList names AL
 				for (int m = 0; m < v.size(); ++m) {
-					Nucleus n = (Nucleus) v.get(m);
+					Nucleus n = v.get(m);
 					if (n.status == 1) {
 						namesAL.add(n.identity); //push back identity
 					}
@@ -200,15 +201,14 @@ public class NucleiMgrAdapter implements LineageData {
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		@Override
 		public ArrayList<String> getAllCellNames() {
-			Hashtable allCellNamesHash = nucleiMgr.getCellsByName();
-			
-			/* construct array list from values of hashtable
-			 * each hash value is cell, so we will pull iName out
-			 */
-			ArrayList<Cell> cells = new ArrayList<Cell>(allCellNamesHash.values());
-			ArrayList<String> allCellNames = new ArrayList<String>();
-			for (int i = 0; i < cells.size(); ++i) {
-				allCellNames.add(cells.get(i).getName());
+			ArrayList<String> allCellNames = new ArrayList<>();
+			for (int i = 0; i < realTimePoints; i++) {
+				String[] namesAti = getNames(i);
+				for (String name : namesAti) {
+					if (!allCellNames.contains(name)) {
+						allCellNames.add(name);
+					}
+				}
 			}
 			
 			return allCellNames;
@@ -218,11 +218,6 @@ public class NucleiMgrAdapter implements LineageData {
 		public int getNumberOfTimePoints() {
 			return this.realTimePoints;
 		}
-		
-		public int getNumberOfCellsAtTime(int time) {
-			return ((Vector<Nucleus>) nucleiMgr.nuclei_record.get(time)).size();
-		}
-		
 		
 		/*
 		 * If slow, optimize with preprocessing of cells and their first and last occurrences

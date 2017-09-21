@@ -81,7 +81,7 @@ public class DivisionCaller {
 	 * The constructor called by datasets that use the AuxInfo v2.0 uncompressed embryo scheme
 	 * 
 	 * @param measureCSV
-	 * @param canTrans - the transform representing the rotations to AP and LR canonical
+	 * @param canTransform - the transform representing the rotations to AP and LR canonical
 	 */
 	public DivisionCaller(MeasureCSV measureCSV, CanonicalTransform canTransform) {
 		System.out.println("Using AuxInfo version 2.0");
@@ -273,6 +273,8 @@ public class DivisionCaller {
 			if (!(auxInfoVersion2.get())) {
 				// assuming dummy rules are late in embryonic development
 				// introduce rotation
+				if (iAxis == null)
+					iAxisUse = MeasureCSV.defaultAtt_v1[MeasureCSV.AXIS_v1];
 				if (iAxis.equals("ADL"))
 					iAxisUse = "ARD";
 				if (iAxis.equals("AVR"))
@@ -281,8 +283,6 @@ public class DivisionCaller {
 					iAxisUse = "PLD";
 				if (iAxis.equals("PVL"))
 					iAxisUse = "PRV";
-				if (iAxis == null)
-					iAxisUse = MeasureCSV.defaultAtt_v1[MeasureCSV.AXIS_v1];
 			}
 		}
 		return r;
