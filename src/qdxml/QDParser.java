@@ -153,7 +153,7 @@ public class QDParser {
 	  st.push(new Integer(mode));
 	  mode = OPEN_TAG;
 	  tagName = null;
-	  attrs = new Hashtable<String, String>();
+	  attrs = new Hashtable<>();
 	  sb.append((char)c);
         }
 
@@ -201,7 +201,7 @@ public class QDParser {
 		  return;
 		}
 		sb.setLength(0);
-		attrs = new Hashtable<String, String>();
+		attrs = new Hashtable<>();
 		tagName = null;
 		mode = popMode(st);
 

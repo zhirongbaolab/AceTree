@@ -28,6 +28,8 @@ public class XMLConfig implements DocHandler {
     String   iImageFile;
     String   iEndIndex;
 
+    boolean pathRefigured;
+
     public static Config createConfigFromXMLFile(String fileName) {
         iConfigFileName = fileName;
         //println("XMLConfig: reading config file: " + iConfigFileName);
@@ -71,7 +73,7 @@ public class XMLConfig implements DocHandler {
     @Override
 	@SuppressWarnings({ "unchecked", "rawtypes", "static-access" })
 	public void startElement(String tag, Hashtable h) throws Exception {
-
+        pathRefigured = false;
         if (tag.equals("embryo")) {
             if (iConfig == null) {
             	iConfig = new Config(iConfigFileName, true);
@@ -90,52 +92,9 @@ public class XMLConfig implements DocHandler {
             
             //check if the file exists
             if(!new File(typical).exists()) {
-            	System.out.println(typical + " doesn't exist on the system. Building new file path for layered images...");
-            	
-            	//try using layered images two directories up
-            	int fileNameIdx = typical.lastIndexOf('/');
-            	String fileName = typical.substring(fileNameIdx+1);
-            	int planeIdx = fileName.indexOf("-p");
-            	
-            	String fileNameNoPlane = fileName.substring(0, planeIdx - 1);
-            	
-            	int extIdx = fileName.lastIndexOf('.');
-            	String ext = fileName.substring(extIdx);
-            	ext = ext.toUpperCase();
-            	
-            	int lastDashIdx = fileNameNoPlane.lastIndexOf('-');
-            	String filePrefix = fileNameNoPlane.substring(0, lastDashIdx) + '_';
-            	
-            	int tIdx = fileName.indexOf("-t");
-            	if (fileName.charAt(tIdx+2) == '0') {
-            		tIdx+=2;
-            		
-            		while(fileName.charAt(tIdx) == '0') {
-            			tIdx++;
-            		}
-            	}
-            	
-            	String t = 't' + fileName.substring(tIdx, planeIdx);
-            	
-            	String fileNameUpdate = filePrefix + t + ext;
-            	
-//            	System.out.println("NEW FILE NAME: " + fileNameUpdate);
-            	
-            	int removeDirsIdx = typical.indexOf("image/tif");
-            	if (removeDirsIdx > 0) {
-            		String filePre = typical.substring(0, removeDirsIdx);
-                	
-                	String finalPath = filePre + fileNameUpdate;
-                	
-//                	System.out.println("Typical: " + typical);     	
-                	typical = finalPath;
-//                	System.out.println("Typical became: " + typical);
-                	
-                	String useStack = "1";
-                    iConfig.iConfigHash.put("use stack", useStack); 
-            	}
+                typical = reconfigureImagePath(typical);
+                pathRefigured = true;
             }
-            
             System.out.println("Trying to configure image file: " + typical);
             
             iConfig.iConfigHash.put("typical image", typical);
@@ -182,9 +141,79 @@ public class XMLConfig implements DocHandler {
         	String y = (String)h.get("y");
         	iConfig.iConfigHash.put("x", x);
         	iConfig.iConfigHash.put("y", y);
+        } else if (tag.equals("Split")) {
+            String splitMode = (String)h.get("SplitMode");
+            System.out.println("THE SPLIT MODE IS: " + splitMode);
+            iConfig.iConfigHash.put("splitMode", splitMode);
+            if (!pathRefigured)
+                iConfig.iConfigHash.put("typical image", reconfigureImagePath(iConfig.iConfigHash.get("typical image")));
+        }
+    }
+
+    /**
+     * Update the image path from the 8bit one listed in the .xml file
+     * to a 16bit one. This is used in the case of 8bit images not existing,
+     * or explicit need to use 16bit images in the presence of both types
+     *
+     * @return
+     */
+    private String reconfigureImagePath(Object t_) {
+        // look for 16 bit .TIFF files
+        String typical = (String)t_;
+
+        if (!new File(typical).exists()) {
+            System.out.println(typical + " doesn't exist on the system. Building new file path for layered images...");
+        }
+
+        if (iConfig.iConfigHash.get("splitMode").equals("0")) {
+            System.out.println(typical + " being updated to 16bit images to support non-split mode");
         }
 
 
+        //try using layered images two directories up
+        int fileNameIdx = typical.lastIndexOf('/');
+        String fileName = typical.substring(fileNameIdx+1);
+        int planeIdx = fileName.indexOf("-p");
+
+        String fileNameNoPlane = fileName.substring(0, planeIdx - 1);
+
+        int extIdx = fileName.lastIndexOf('.');
+        String ext = fileName.substring(extIdx);
+        ext = ext.toUpperCase();
+
+        int lastDashIdx = fileNameNoPlane.lastIndexOf('-');
+        String filePrefix = fileNameNoPlane.substring(0, lastDashIdx) + '_';
+
+        int tIdx = fileName.indexOf("-t");
+        if (fileName.charAt(tIdx+2) == '0') {
+            tIdx+=2;
+
+            while(fileName.charAt(tIdx) == '0') {
+                tIdx++;
+            }
+        }
+
+        String t = 't' + fileName.substring(tIdx, planeIdx);
+
+        String fileNameUpdate = filePrefix + t + ext;
+
+//            	System.out.println("NEW FILE NAME: " + fileNameUpdate);
+
+        int removeDirsIdx = typical.indexOf("image/tif");
+        if (removeDirsIdx > 0) {
+            String filePre = typical.substring(0, removeDirsIdx);
+
+            String finalPath = filePre + fileNameUpdate;
+
+//                	System.out.println("Typical: " + typical);
+            typical = finalPath;
+//                	System.out.println("Typical became: " + typical);
+
+            String useStack = "1";
+            iConfig.iConfigHash.put("use stack", useStack);
+        }
+
+        return typical;
     }
 
     /* (non-Javadoc)

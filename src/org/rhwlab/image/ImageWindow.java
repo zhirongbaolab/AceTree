@@ -155,6 +155,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 
     public static int 			imagewindowPlaneNumber;//unlike iImagePlane this includes imcrement number used only for new image access
     public static int 			imagewindowUseStack;
+    public static int           iSplit;
 
     // static variables and functions
 
@@ -197,6 +198,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         ImageCanvas ic = new ImageCanvas(imgPlus);
         iImgCanvas = ic;
         iDispProps = getDisplayProps();
+
 
 	    //custom icon
 	    URL imageURL = ImageWindow.class.getResource("/images/icon2.gif");
@@ -245,10 +247,11 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         // Original contrast percentages
         //System.out.println("ImageWindow set default contrast values: 0 to max16bit/max8bit");
         contrastmin1 = contrastmin2 = 0;
-        if (imagewindowUseStack == 1)
-        	contrastmax1 = contrastmax2 = MAX16BIT;
-        else
-        	contrastmax1 = contrastmax2 = MAX8BIT;
+        if (imagewindowUseStack == 1) {
+            contrastmax1 = contrastmax2 = MAX16BIT;
+        } else {
+            contrastmax1 = contrastmax2 = MAX8BIT;
+        }
         // Hardcoded contrast channel values to begin with for 16-bit to 8-bit conversion
         /*
         contrast1a = 1400;
@@ -281,7 +284,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
     }
 
 
-    public static void setStaticParameters(String zipTifFilePath, String tifPrefix, int useZip, int splitChannelImage) {
+    public static void setStaticParameters(String zipTifFilePath, String tifPrefix, int useZip, int splitChannelImage, int splitMode) {
         //System.out.println("ImageWindow.setStaticParameters entered");
         cZipTifFilePath = zipTifFilePath;
         cTifPrefix = tifPrefix;
@@ -295,6 +298,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         //        cZipTifFilePath + CS + cTifPrefix + CS + cTifPrefixR);
         
         cSplitChannelImage = splitChannelImage;
+        iSplit = splitMode;
     }
     public static void setNucleiMgr(NucleiMgr nucleiMgr) {
         cNucleiMgr = nucleiMgr;
@@ -336,13 +340,14 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 	    return cZipTifFilePath +  C.Fileseparator +cTifPrefix + iAceTree.makeImageName();
     }
 
-    public static ImagePlus makeImage2(String s, int iplane, int ustack) {
+    public static ImagePlus makeImage2(String s, int iplane, int ustack, int splitMode) {
     	//System.out.println("ImageWindow.makeImage2: "+s);
         cCurrentImageFile = s;
         ImagePlus ip = null;
 
         imagewindowPlaneNumber = iplane;
         imagewindowUseStack = ustack;
+        iSplit = splitMode;
         switch(cUseZip) {
             case 0:
             case 3:
@@ -372,6 +377,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 
 
     public static ImagePlus doMakeImageFromZip(String s) {
+        //System.out.println("Calling doMakeImageFromZip");
         //System.out.println("ImageWindow.doMakeImageFromZip entered: " + s);
         if (cZipImage == null) cZipImage = new ZipImage(cZipTifFilePath);
         ZipEntry ze = cZipImage.getZipEntry(s);
@@ -389,6 +395,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 
 
     public static ImagePlus doMakeImageFromZip2(String s) {
+        //System.out.println("Calling doMakeImageFromZip2");
         cZipImage = new ZipImage(cZipTifFilePath + "/" + s);
         int k1 = s.indexOf("/") + 1;
         String ss = s.substring(k1);
@@ -434,6 +441,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 
 
     public static ImagePlus doMakeImageFromTif(String s) {
+        //System.out.println("Calling doMakeImageFromTif");
 		if (cUseZip == 3)
 			s = s.replaceAll("tif", "jpg");
         //println("ImageWindow.doMakeImageFromTif entered: " + s);
@@ -583,6 +591,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         //System.out.println("convertToRGB entered");
     	// this is where ted put code for splitting which need to test
 
+        // this is a check for whether we are using 8bit (useStack = 0) or 16bit (useStack = 1)
 		if(imagewindowUseStack == 1) {
 			FileInfo fi = new FileInfo();
 	    	fi = ip.getFileInfo();
@@ -596,7 +605,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 			int ipwidth = iproc.getWidth();
 			int ipheight = iproc.getHeight();
 			//System.out.println("cSplitChannelImage: "+cSplitChannelImage);
-			if (cSplitChannelImage == 1) {
+			if (cSplitChannelImage == 1 && iSplit == 1) {
 				pixelCount /= 2;
 				ipwidth /= 2;
 			}
@@ -606,8 +615,9 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 			byte [] B = new byte[pixelCount];
 			
 			ColorProcessor iproc3 = new ColorProcessor(ipwidth, ipheight);
-			
-			if (cSplitChannelImage == 1) {
+
+			// this indicates 16bit images are present (because useStack = 1), *and* they should be split into two channels
+			if (cSplitChannelImage == 1 && iSplit == 1) {
 				iproc.setRoi(new Rectangle(ip.getWidth()/2, 0, ip.getWidth()/2, ip.getHeight()));
 				ImageProcessor croppedR = iproc.crop();
 				ImagePlus croppedIPR = new ImagePlus(ip.getTitle(), croppedR);
@@ -644,8 +654,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 				ImageProcessor convertedG = croppedIPG.getProcessor();
 				R = (byte [])convertedR.getPixels();
 				G = (byte [])convertedG.getPixels();
-			}
-			else {
+			} else { // this option identifies the case where 16bit images should *not* be split
 				if (setOriginalContrastValues){
 	    			// Set contrast values from original image
 	    			int ipmingre = (int)(ip.getDisplayRangeMin());
@@ -669,7 +678,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 	        ip.setProcessor("test", iproc3);
 
 	        return ip;
-	    } else {
+	    } else { // useStack = 0, so load the 8bit images
 	    	//original version
     		FileInfo fi = new FileInfo();
     		fi = ip.getFileInfo();
@@ -696,98 +705,6 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 	        return buildImagePlus(ip);
 		}
     }
-    
-    // Try not to use this, stick with ImageJ classes
-    /*
-    private static ImageProcessor convertTo8Bits(ImageProcessor ip, float tone, float ttwo, float toneb, float ttwob) {
-	    // if already byte image do nothing
-	    if(ip instanceof ByteProcessor) 
-	    	return ip;
-	
-	    short [] pixels = (short[])ip.getPixels();
-	    byte [] bpixels = new byte[pixels.length];
-	 
-	    double minval = 9000000;
-	    double maxval = 0;
-	    for (int y = 0; y<pixels.length; y++) {  
-	       // Editing pixel at x,y position
-	       short p = pixels[y];
-	       if (p > maxval) 
-	    	   maxval=p;
-	       if (p < minval) 
-	    	   minval=p;
-	    }
-	    //System.out.println("Min/max of imageprocessor: "+minval+", "+maxval);
-
-	    for (int y=0; y<pixels.length; y++) {
-	       //works
-	       //  double val=((double)(pixels[y])-tone)/(ttwo-tone)*255;
-	       short p=pixels[y];
-	       double val=0;
-	       if(p>=ttwo)
-	    	   val=(p/maxval)*(255-ttwob)+ttwob;
-	       if(p<=tone) 	
-	    	   val=(p/tone*toneb);	
-	       if(p>tone && p<ttwo) 	
-	    	   val=(p-tone)/(ttwo-tone)*ttwob;
-	       if (val>255) 
-	    	   val=255;
-	       if (val<0) 
-	    	   val=0;
-	       bpixels[y]=(byte)val;
-	   } 
-	   //System.out.println("min "+minval+" max "+maxval+"\n"); 
-	   ip = new ByteProcessor(ip.getWidth(), ip.getHeight());
-	   ip.setPixels(bpixels);
-	   return ip;
-    }
-    */
-    
-    // Try not to use this, stick with ImageJ classes
-    /*
-    @SuppressWarnings("unused")
-	private static ImagePlus convertTo8Bits(ImagePlus img) {
-		ImageProcessor ip = img.getProcessor();
-		if (ip instanceof ColorProcessor) {
-		    MedianCut mc = new MedianCut((int[])ip.getPixels(), ip.getWidth(), ip.getHeight());
-		    img.setProcessor(null, mc.convertToByte(256));
-		} else {
-		    // if already byte image do nothing
-		    if(ip instanceof ByteProcessor) return img;
-		
-		    //else scale to byte range and copy to byte array
-		    short [] pixels =(short[])ip.getPixels();
-		    byte []bpixels=new byte[pixels.length];
-		    float tone = 1400;
-		    float toneb = 20;
-		    float ttwo = 3000;//%this was 2600 in current wrong
-		    float ttwob = 235;
-		    double minval=9000000;
-		    double maxval=0;
-		    
-	        for (int y=0; y<pixels.length; y++) {  
-			
-			  // Editing pixel at x,y position
-			  short p=pixels[y];
-			  if (p>maxval) maxval=p;
-		      if (p<minval) minval=p;
-	
-		      double val=((double)(pixels[y])-tone)/(ttwo-tone)*255;
-			  if (val>255) val=255;
-			      bpixels[y]=(byte)val;
-		    }  
-		    
-	        //System.out.println("min "+minval+" max "+maxval+"\n"); 
-		    ip=new ByteProcessor(ip.getWidth(),ip.getHeight());
-		    ip.setPixels(bpixels);
-		    
-		    //	ip = ip.convertToByte(true);
-		    img.setProcessor(null, ip);
-		}
-		return img;
-    }
-    */
-
 
     private static ImagePlus buildImagePlus(ImagePlus ip) {
         ImageProcessor iproc = ip.getProcessor();
@@ -2078,6 +1995,10 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 
     public static void setUseStack(int x) {
     	imagewindowUseStack = x;
+    }
+
+    public static void setSplitMode(int mode) {
+        iSplit = mode;
     }
     
     private static final int MAX8BIT = 255, MAX16BIT = 65535;

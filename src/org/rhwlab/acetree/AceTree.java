@@ -239,6 +239,7 @@ public class AceTree extends JPanel
     private boolean     iCallSaveImage;
     private int		iUseZip;
     private int		iUseStack;
+    private int     iSplit;
     private int		iFileNameType;
 
     private CanonicalTree   iCanonicalTree;
@@ -620,7 +621,9 @@ public class AceTree extends JPanel
         // this is the only place where we construct a NucleiMgr
         NucleiMgr nucMgr = new NucleiMgr(configFileName);
         ImageWindow.setUseStack(iUseStack);
-        //System.out.println("ImageWindow static stack set: "+iUseStack);
+        ImageWindow.setSplitMode(iSplit);
+        System.out.println("ImageWindow static stack set: "+ iUseStack);
+        System.out.println("ImageWindow static split mode: " + iSplit);
         if (!nucMgr.iGoodNucleiMgr) {
             return -1;
         }
@@ -649,7 +652,9 @@ public class AceTree extends JPanel
         // this is the only place where we construct a NucleiMgr
         NucleiMgr nucMgr = new NucleiMgr(config);
         ImageWindow.setUseStack(iUseStack);
-        //System.out.println("ImageWindow static stack set: "+iUseStack);
+        ImageWindow.setSplitMode(iSplit);
+        System.out.println("ImageWindow static stack set: "+ iUseStack);
+        System.out.println("ImageWindow static stack set: " + iSplit);
         if (!nucMgr.iGoodNucleiMgr) {
             return -1;
         }
@@ -720,6 +725,7 @@ public class AceTree extends JPanel
         iEndingIndex = c.iEndingIndex;
         iUseZip = c.iUseZip;
         iUseStack = c.iUseStack;
+        iSplit = c.iSplit;
         iZipTifFilePath = c.iZipTifFilePath;
         
         // Get start time
@@ -941,7 +947,7 @@ public class AceTree extends JPanel
         ImageWindow.setNucleiMgr(iNucleiMgr);
         ImageWindow.setStaticParameters(iNucleiMgr.getConfig().iZipTifFilePath,
                 iNucleiMgr.getConfig().iTifPrefix, iNucleiMgr.getConfig().iUseZip,
-                iNucleiMgr.getConfig().iSplitChannelImage);
+                iNucleiMgr.getConfig().iSplitChannelImage, iNucleiMgr.getConfig().iSplit);
 
         System.out.println("StartingIndex: " + iStartingIndex);
         System.out.println("EndingIndex: " + iEndingIndex);
@@ -1967,6 +1973,7 @@ public class AceTree extends JPanel
         String cfile = makeImageName();
         ImagePlus ip = null;
         ImageWindow.setUseStack(iUseStack);
+        ImageWindow.setSplitMode(iSplit);
         if (cfile == null) {
             //IJ.error("no image available");
         	//System.out.println("AceTree calling ImageWindow.makeImage(null)...");
@@ -1986,7 +1993,7 @@ public class AceTree extends JPanel
                 System.out.println("\nhandleImage making new one: " + ip + CS + iTifPrefix + CS + cfile);
 				// ip = ImageWindow.makeImage(iTifPrefix + cfile);
                 //System.out.println("AceTree calling ImageWindow.makeImage2...");
-				ip = ImageWindow.makeImage2(iTifPrefix + cfile, getImagePlane(), getUseStack());
+				ip = ImageWindow.makeImage2(iTifPrefix + cfile, getImagePlane(), getUseStack(), getiSplit());
 				 //iImgWin = new ImageWindow( cfile, ip);
 				try {
 					iImgWin = new ImageWindow(iTifPrefix + cfile, ip, iPlayerControl);
@@ -3689,6 +3696,8 @@ public class AceTree extends JPanel
     public int getUseStack() {
         return iUseStack;
     }
+
+    public int getiSplit() { return iSplit; }
 
     public int getImageTime() {
         return iImageTime;
