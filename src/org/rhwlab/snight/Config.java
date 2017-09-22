@@ -43,6 +43,18 @@ public class Config {
     public int          iNamingMethod;
     public int          iUseZip;
     public int			iUseStack; //ted change stack type
+
+    /*
+     * iSplit - Flag to determine whether or not to split 16-bit images
+      *
+      * iUseStack is either set to 1, in which case non-8bit images are used, or set to 0
+      * or not set at all, in which case 8bit images are used.
+      *
+      * This flag will only apply to cases in which iUseStack is 1, and it will distinguish
+      * between cases when the images should be split (iSplit == 1, or not set),
+      * and when the images should not be split (iSplit == 0)
+      */
+    public int          iSplit;
     public String       iAxisGiven; // must be "", or "adl", or "avr"
     public float        iXy_res;
     public float        iZ_res;
@@ -462,6 +474,16 @@ public class Config {
             iExprCorr = s;
         }
 
+        s = (String)iConfigHash.get(configParams[SPLIT]);
+        if (s.length() > 0) {
+            iSplit = Integer.parseInt(s);
+            if (iSplit == 0) {
+                iUseStack = 1; // just in case it wasn't picked up elsewhere
+            }
+        } else {
+            iSplit = 1;
+        }
+
     }
 
     private void setOldStyleParms() {
@@ -572,7 +594,7 @@ public class Config {
     ,EXPR_CORR = "<exprCorr type=\""
     ,USE_ZIP = "<useZip type=\""
 	,USE_STACK = "<useStack type=\""
-	,SPLIT_CHANNEL_IMAGE = "<splitChannelImage type=\""
+	,i16BITSPLIT = "<Split SplitMode=\""
     ;
 
     private void showStartingParms() {
@@ -588,6 +610,7 @@ public class Config {
         System.out.println("iUseStack: " + iUseStack);
         System.out.println("iStartTime: " + iStartTime);
         System.out.println("iSplitChannelImage: " + iSplitChannelImage);
+        System.out.println("iSplit: " + iSplit);
 
         System.out.println("showStartingParms end");
     }
@@ -634,6 +657,7 @@ public class Config {
            ,"x"
            ,"y"
            ,"splitChannelImage"
+            ,"splitMode"
     };
 
     private static final int
@@ -655,7 +679,7 @@ public class Config {
         ,EXPRCORR = 15
 		,USESTACK = 16
 		,SPLITCHANNELIMAGE = 21
-        ;
+        ,SPLIT = 22;
 
     public static final float
          XYRESNOMINAL = .09f

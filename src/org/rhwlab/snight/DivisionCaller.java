@@ -275,13 +275,13 @@ public class DivisionCaller {
 				// introduce rotation
 				if (iAxis == null)
 					iAxisUse = MeasureCSV.defaultAtt_v1[MeasureCSV.AXIS_v1];
-				if (iAxis.equals("ADL"))
+				else if (iAxis.equals("ADL"))
 					iAxisUse = "ARD";
-				if (iAxis.equals("AVR"))
+				else if (iAxis.equals("AVR"))
 					iAxisUse = "ALV";
-				if (iAxis.equals("PDR"))
+				else if (iAxis.equals("PDR"))
 					iAxisUse = "PLD";
-				if (iAxis.equals("PVL"))
+				else if (iAxis.equals("PVL"))
 					iAxisUse = "PRV";
 			}
 		}

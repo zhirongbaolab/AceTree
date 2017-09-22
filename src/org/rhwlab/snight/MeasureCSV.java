@@ -65,7 +65,7 @@ public class MeasureCSV {
 	 * @throws IOException
 	 */
 	private void readAuxInfoV2(String filepath) throws IOException {
-		iMeasureHash = new Hashtable<String, String>();
+		iMeasureHash = new Hashtable<>();
 		
 		iFilePath = filepath;
 		boolean namesRead = false;

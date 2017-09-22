@@ -79,6 +79,7 @@ public class NucleiMgr {
     public  boolean     	iGoodNucleiMgr;
     
     public int iUseStack;
+    public int iSplit;
 
     PrintWriter				iPrintWriter;
     
@@ -105,6 +106,7 @@ public class NucleiMgr {
     @SuppressWarnings("unused")
 	public NucleiMgr(String configFileName) {
     	iUseStack = 0;
+    	iSplit = 1;
         //System.out.println("NucleiMgr(" + configFileName + ")" + CS + DBAccess.cDBLocation);
         //iAceTree = AceTree.getAceTree(null);
         iEditLog = new EditLog("EditLog");
@@ -138,6 +140,7 @@ public class NucleiMgr {
         
         // set use stack flag
         iUseStack = iConfig.iUseStack;
+        iSplit = iConfig.iSplit;
         
         // Set start time
         iStartTime = iConfig.getStartTime();
@@ -213,6 +216,7 @@ public class NucleiMgr {
         
         // Set use stack flag
         iUseStack = iConfig.iUseStack;
+        iSplit = iConfig.iSplit;
 
         // parse out the core of the iTifPrefix
         int k = iConfig.iTifPrefix.lastIndexOf("/");
@@ -336,6 +340,7 @@ public class NucleiMgr {
         ImageWindow.cImageWidth = width;
         ImageWindow.cImageHeight = height;
         ImageWindow.imagewindowUseStack = iUseStack;
+        ImageWindow.iSplit = iSplit;
     }
 
     private String makeImageName(int time, int plane) {
@@ -468,6 +473,7 @@ public class NucleiMgr {
         }
        System.out.println("last, iEndingIndex: " + last + CS + iEndingIndex + CS  + iConfig.iEndingIndex + CS + iMovie);
        iUseStack = iConfig.iUseStack;
+       iSplit = iConfig.iSplit;
     }
 
     // here I want to read all the nuclei data in the zip file
@@ -617,7 +623,8 @@ public class NucleiMgr {
                 iConfig.iZipTifFilePath
                 ,iConfig.iTifPrefix
                 ,iConfig.iUseZip
-                ,iConfig.iSplitChannelImage);
+                ,iConfig.iSplitChannelImage
+                ,iConfig.iSplit);
     }
 
     //public Identity getIdentity() {

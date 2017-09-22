@@ -516,7 +516,8 @@ public class NucleiMgrHeadless extends NucleiMgr {
                 iConfig.iZipTifFilePath
                 ,iConfig.iTifPrefix
                 ,iConfig.iUseZip
-                ,iConfig.iSplitChannelImage);
+                ,iConfig.iSplitChannelImage
+                ,iConfig.iSplit);
     }
 
     //public Identity getIdentity() {
