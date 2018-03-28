@@ -141,11 +141,11 @@ public class XMLConfig implements DocHandler {
         	String y = (String)h.get("y");
         	iConfig.iConfigHash.put("x", x);
         	iConfig.iConfigHash.put("y", y);
-        } else if (tag.equals("Split")) {
+        } else if (tag.equals("Split")) { // TODO: pavak case is has 16 bit and no 8, wants to use SplitMode to say don't split. Si0 case is has 8, 16, wants to use SplitMode so needs recongifuring
             String splitMode = (String)h.get("SplitMode");
             System.out.println("THE SPLIT MODE IS: " + splitMode);
             iConfig.iConfigHash.put("splitMode", splitMode);
-            if (!pathRefigured)
+            if (!pathRefigured && (!new File((String)iConfig.iConfigHash.get("typical image")).exists()))
                 iConfig.iConfigHash.put("typical image", reconfigureImagePath(iConfig.iConfigHash.get("typical image")));
         }
     }

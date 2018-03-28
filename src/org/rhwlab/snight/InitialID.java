@@ -369,7 +369,7 @@ public class InitialID {
 //			println("alignDiamond, AFTER , " + ia[0] + CS + ia[1] + CS + ia[2]);
 
 			/*
-			 * if AuxInfo_v2 is present, add the cell to the local list and then we'll decide the directions after
+			 * if AuxInfo_v2 is present, add the cell to the local list and then we'll decide tAFhe directions after
 			 */
 			if (MeasureCSV.isAuxInfoV2()) {
 				nuc_coords[i][0] = ia[0];
