@@ -1,7 +1,0 @@
-Manifest-Version: 201503161445
-Main-Class: AceTreeLauncher
-Class-Path: AceTree.jar ij.jar flanagan.jar sgt_v30.jar ij-ImageIO_.jar
-Created-By: biowolp biowolp@u.washington.edu
-University-of-Washington: Department of Genome Sciences
-Laboratory: Waterston Laboratory
-DBLocation: /nfs/waterston/embryoDB/
