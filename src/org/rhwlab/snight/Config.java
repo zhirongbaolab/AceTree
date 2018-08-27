@@ -276,7 +276,7 @@ public class Config {
 
     @SuppressWarnings("unused")
 	private void decodeTypicalImage(String s) {
-    	System.out.println("Decoding typical image...");
+    	System.out.println("Decoding typical image...: " + s);
         // if a typical image entry is found,
         // this code will extract:
         // tif directory
@@ -348,17 +348,20 @@ public class Config {
                 }
             }
         } else {
-        	if (iUseStack == 0) {
-	        	//Is this format ever used?
-	        }
-	        else {
-	        	k2 = name.lastIndexOf('_') + 1;
-	        }
+            k2 = name.lastIndexOf('_') + 1;
+
+//        	if (iUseStack == 0) {
+//	        	//Is this format ever used?
+//	        }
+//	        else {
+//	        	k2 = name.lastIndexOf('_') + 1;
+//	        }
         }
 
         int k3 = parent.lastIndexOf("/");
         String forepath = parent.substring(k3 + 1);
         println("setStartingParms: forepath: " + forepath);
+        System.out.println(name + ", " + k2);
         String forename = name.substring(0, k2);
         println("setStartingParms: forename: " + forename);
         
