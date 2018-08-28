@@ -16,7 +16,6 @@ import java.awt.Color;
 
 import org.rhwlab.acetree.ControlCallback;
 import org.rhwlab.help.AceTreeHelp;
-import org.rhwlab.help.Java3DError;
 import org.rhwlab.help.GeneralStartupError;
 import org.rhwlab.help.TestWindow;
 import org.rhwlab.image.CellMovementImage;
@@ -544,14 +543,6 @@ public class AceTree extends JPanel
 	
 	        buildTree(false);
 	        setShowAnnotations(true);
-	       
-	
-	        // Show Java 3D warning message
-	        try {
-	    		Class.forName("javax.media.j3d.VirtualUniverse");
-	    	} catch (ClassNotFoundException e) {
-	    		new Java3DError(iMainFrame);
-	    	}
     	} catch (Throwable t) {
 			new GeneralStartupError(getMainFrame(), t);
     	}
