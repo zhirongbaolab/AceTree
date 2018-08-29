@@ -57,22 +57,17 @@ public class DivisionCaller {
 	 * 
 	 * @param measureCSV
 	 */
-	public DivisionCaller(MeasureCSV measureCSV) {
+	public DivisionCaller(MeasureCSV measureCSV, String axis, double zpixRes) {
 		System.out.println("Using AuxInfo version 1.0");
 		this.iMeasureCSV = measureCSV;
 		this.iRulesHash = new Hashtable<String, Rule>();
 		this.auxInfoVersion2 = new SimpleBooleanProperty();
 		this.auxInfoVersion2.set(false);
-		this.iAxis = iMeasureCSV.iMeasureHash.get(MeasureCSV.att_v1[MeasureCSV.AXIS_v1]);
+		this.iAxis = axis;
 		readNewRules();
 		readSulstonRules();
 
-		String zpixres = iMeasureCSV.iMeasureHash.get(MeasureCSV.att_v1[MeasureCSV.ZPIXRES_v1]);
-		if (zpixres != null) {
-			this.iZPixRes = Double.parseDouble(zpixres);
-		} else {
-			this.iZPixRes = 1; //default to this
-		}
+        iZPixRes = zpixRes;
 
 		getScalingParms();
 	}
@@ -325,7 +320,6 @@ public class DivisionCaller {
 		// create vector from daughter vector coordinates
 		Point3D sample = new Point3D(daCorrected[0], daCorrected[1], daCorrected[2]);
 
-		
 		// normalize the vector
 		sample = sample.normalize();
 		
@@ -351,7 +345,6 @@ public class DivisionCaller {
 	 * @return
 	 */
 	public void assignNames(Nucleus parent, Nucleus dau1, Nucleus dau2) {
-		//		System.out.println("Assigning names in DivisionCaller.java for parent: " + parent.identity);
 		String newd1 = "";
 		String newd2 = "";
 
@@ -371,9 +364,6 @@ public class DivisionCaller {
 		}
 		dau1.identity = newd1;
 		dau2.identity = newd2;
-		
-//		System.out.print(" - dau1-" + newd1 + ", dau2-" + newd2 + " w/ dot=" + dot);
-//		System.out.println(" ");
 	}
 
 	/**
@@ -381,7 +371,7 @@ public class DivisionCaller {
 	 * 
 	 * In the first AuxInfo scheme, this method first applies the AP rotation via measureCorrection and
 	 * then induces LR rotation with coordinate sign flipping
-	 * 
+	 * getDotProduct
 	 * @param d1
 	 * @param d2
 	 * @return the vector between the two daughters, corrected by constants and axis in use
@@ -401,10 +391,8 @@ public class DivisionCaller {
 
 		// induce rotations with corrections and scaling
 		measurementCorrection(da);
-		
+
 		if (!(auxInfoVersion2.get())) {
-			if (iAxisUse == null)
-				iAxisUse = MeasureCSV.defaultAtt_v1[MeasureCSV.AXIS_v1];
 			if (iAxisUse.equals("AVR")) {
 				da[1] *= -1;
 				da[2] *= -1;

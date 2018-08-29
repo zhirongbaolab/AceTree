@@ -65,18 +65,14 @@ public class Identity3 {
         	canTransform = new CanonicalTransform(measureCSV);
         }
         
-        /*
-         * TODO
-         * figure out what is going on with the axis here
-         */
+
         iParameters.axis = 0; // a flag telling if we have an axis 0 = no axis
         int start[] = new int[1];
         start[0] = iStartingIndex;
         int[] lineage_ct_p = new int[1];
         lineage_ct_p[0] = 1;
         int lin_ct = lineage_ct_p[0];
-        iAxis = tryForAxis(); // sets iParameters.axis to 1 if if finds one 
-        
+        iAxis = tryForAxis(); // sets iParameters.axis to 1 if if finds one
         // if no axis was specified then the initialID code will be run
         // you could still use NEWCANONICAL here if iStartingIndex is greater than one
         // but this should be phased out
@@ -193,7 +189,7 @@ public class Identity3 {
         if (MeasureCSV.isAuxInfoV2() && canTransform != null) {
         	iDivisionCaller = new DivisionCaller(iMeasureCSV, canTransform);
         } else {
-        	iDivisionCaller = new DivisionCaller(iMeasureCSV);
+        	iDivisionCaller = new DivisionCaller(iMeasureCSV, iAxis, zPixRes);
         }
         
     	//iNucCount = 1;
@@ -223,11 +219,7 @@ public class Identity3 {
             nuclei = nuclei_record.elementAt(i - 1);
             nuc_ct = nuclei.size();
             Nucleus parent = null;
-            
-            // access nuclei at the next time point
             Vector<Nucleus> nextNuclei = nuclei_record.elementAt(i);
-            
-            parent = null;
             
             /*
              * Iterate over the nuclei at the current time point
@@ -280,6 +272,7 @@ public class Identity3 {
                 // this canonical parent is dividing
                 Nucleus dau1 = nextNuclei.elementAt(parent.successor1 - 1);
                 Nucleus dau2 = nextNuclei.elementAt(parent.successor2 - 1);
+                //System.out.println("about to assign names to children of: " + parent.identity + " - " + dau1.identity + ", " + dau2.identity);
                
                 /*
                  * Assign names via DivisionCaller
@@ -342,24 +335,38 @@ public class Identity3 {
     	/*
     	 * only proceed on AuxInfo v1.0
     	 */
-        String orientation = "A";
-        if (iParameters.ap < 0) {
-        	orientation = "P";
-        }
-        
-        if (iParameters.dv > 0) {
-        	orientation += "D";
-        } else {
-        	orientation += "V";
-        }
-        
-        if (iParameters.lr > 0) {
-        	orientation += "L";
-        } else {
-        	orientation += "R";
-        }
 
+        String orientation = "A";
+        String late = "A";
+        if (iParameters.ap < 0) orientation = "P";
+        if (iParameters.dv > 0) orientation += "D";
+        else orientation += "V";
+        if (iParameters.lr > 0) orientation += "L";
+        else orientation += "R";
+        if (orientation.equals("ADL")) late = "ARD";
+        else if (orientation.equals("AVR")) late = "ALV";
+        else if (orientation.equals("PDR")) late = "PLD";
+        else if (orientation.equals("PVL")) late = "PRV";
         return orientation;
+
+//        String orientation = "A";
+//        if (iParameters.ap < 0) {
+//        	orientation = "P";
+//        }
+//
+//        if (iParameters.dv > 0) {
+//        	orientation += "D";
+//        } else {
+//        	orientation += "V";
+//        }
+//
+//        if (iParameters.lr > 0) {
+//        	orientation += "L";
+//        } else {
+//        	orientation += "R";
+//        }
+//
+//        return orientation;
     }
 
     public String getAxis() {
