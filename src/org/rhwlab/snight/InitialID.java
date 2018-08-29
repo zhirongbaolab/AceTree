@@ -126,13 +126,13 @@ public class InitialID {
 			if (cell_ct == 4)
 				first_four = 0;
 
-			System.out.println("looking for 4 cell stage");
+			//System.out.println("looking for 4 cell stage");
 			for (int i=startingIndex - 1; i < iEndingIndex - 1; i++) {
-			    System.out.println(i);
+			    //System.out.println("i: " + i);
 				nuclei = nuclei_record.elementAt(i);
 				nuc_ct = nuclei.size();
 				cell_ct = countCells(nuclei);
-				System.out.println(cell_ct);
+				//System.out.println("cell count: " + cell_ct);
 				if (cell_ct > 4)
 					break;
 				if (cell_ct == 4) {
@@ -247,7 +247,7 @@ public class InitialID {
 	 * @return 1 on success, 0 on failure
 	 */
 	private int alignDiamond(Vector<Nucleus> nuclei) {
-		println("alignDiamond in InitialID");
+		//println("alignDiamond in InitialID");
 		int rtn = 1;
 		int xmin, xmax, ymin, ymax;
 		Nucleus north=null, south=null, west=null, east=null;
@@ -299,22 +299,22 @@ public class InitialID {
 			} else {
 				// depending on the orientation of the current nucleus in space, set it as N, E, S, W
 				if (ia[0] < xmin) {
-					println("Setting West Nuc");
+					//println("Setting West Nuc");
 					xmin = ia[0];
 					west = nucleii;
 				}
 				if (ia[0] > xmax) {
-					println("Setting East Nuc");
+					//println("Setting East Nuc");
 					xmax = ia[0];
 					east = nucleii;
 				}
 				if (ia[1] < ymin) {
-					println("Setting North Nuc");
+					//println("Setting North Nuc");
 					ymin = ia[1];
 					north = nucleii;
 				}
 				if (ia[1] > ymax) {
-					println("Setting South Nuc");
+					//println("Setting South Nuc");
 					ymax = ia[1];
 					south = nucleii;
 				}
@@ -437,7 +437,6 @@ public class InitialID {
 	 * @param ia
 	 */
 	private void applyTransformation(int [] ia) {
-		System.out.println("applyTransformation() in InitialID");
 		double[] da = {0., 0., 0.};
 		if (MeasureCSV.isAuxInfoV2()) {
 			if (canTrans == null) return;
@@ -456,7 +455,6 @@ public class InitialID {
 			ia[1] = (int)nuc_coords[1];
 			ia[2] = (int)nuc_coords[2];
 		} else {
-		    System.out.println("vars in applyTransform() - iXC, iYC, iAng - " + iXC + ", " + iYC + ", " + iAng);
 			int x = ia[0] - iXC;
 			int y = ia[1] - iYC;
 			da = DivisionCaller.handleRotation_V1(x, y, iAng);
@@ -470,8 +468,8 @@ public class InitialID {
 		Nucleus n;
 		for (int i=0; i < nuclei.size(); i++) {
 			n = nuclei.elementAt(i);
-			//if (n.status > -1 && !n.identity.equals(POLAR)) cell_ct++;
-			if (n.status > -1 && n.identity.indexOf(POLAR) == -1) cell_ct++;
+			if (n.status > -1 && !n.identity.equals(POLAR)) cell_ct++;
+			//if (n.status > -1 && n.identity.indexOf(POLAR) == -1) cell_ct++;
 		}
 		return cell_ct;
 	}
