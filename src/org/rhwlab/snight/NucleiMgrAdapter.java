@@ -1,8 +1,9 @@
 package org.rhwlab.snight;
 
 import java.util.*;
-import org.rhwlab.tree.Cell;
-import acetree.LineageData;
+
+import application_src.application_model.data.LineageData;
+
 /*
  * Adapter to interface AceTree 3D Viewing with WormGUIDES
  * 
@@ -104,7 +105,7 @@ public class NucleiMgrAdapter implements LineageData {
 				
 				//access vector of nuclei at given time frame
 				Vector<Nucleus> v = nucleiMgr.nuclei_record.get(time);
-//				Vector v = (Vector) nucleiMgr.nuclei_record.get(time - 1);
+
 				
 				//copy nuclei identities to ArrayList names AL
 				for (int m = 0; m < v.size(); ++m) {
