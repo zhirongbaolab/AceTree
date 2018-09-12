@@ -509,7 +509,7 @@ public class NucleiMgr {
         while (e.hasMoreElements()) {
         	//System.out.println("More elements...");
             ZipEntry ze = e.nextElement();
-            Vector<Nucleus> v = new Vector<Nucleus>();
+            Vector<Nucleus> v = new Vector<>();
             String [] saa = zn.parseZipEntry(ze);
             
             if (saa.length < 2)
@@ -525,8 +525,10 @@ public class NucleiMgr {
                     if (nuclei_record.size() > index) {
                         nuclei_record.setElementAt(v, index);
                         //lastNonEmptyIndex = index;
-                        if (index > iLastNucleiFile)
-                        	iLastNucleiFile = index;
+                        if (index > iLastNucleiFile) {
+                            System.out.println("update iLastNucleiFile to: " + index);
+                            iLastNucleiFile = index;
+                        }
                     }
                     continue;
                 }
@@ -596,7 +598,9 @@ public class NucleiMgr {
         int newSize = iLastNucleiFile+1;
         if (newSize < iEndingIndex)
         	newSize = iEndingIndex+1;
-        nuclei_record.setSize(newSize);
+        nuclei_record.setSize(newSize+1); // extra +1 to account for difference in indexing and setup for legacy datasets.
+                                            // the adapter will catch time points that are empty later on and not render
+                                            // them so this avoids indexing errors
         
         println("readNuclei: at end, nuclei_record.size: " + nuclei_record.size());
 
