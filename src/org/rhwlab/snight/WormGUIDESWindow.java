@@ -6,7 +6,7 @@ import application_src.application_model.resources.NucleiMgrAdapterResource;
 
 /**
  * Class to open WormGUIDES via AceTree
- * 
+ *
  * Created: Oct. 2, 2015
  * Author: Braden Katzman
  */
