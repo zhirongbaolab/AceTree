@@ -500,7 +500,7 @@ public class NucleiMgr {
         System.out.println("readNuclei:2 " + iMovie.time_end + CS + iMovie.time_start);
 
         // Try this way of iterating through zip entries
-        //InputStream is = getInputStream 
+        //InputStream is = getInputStream
         //ZipEntry ze = null;
 
         // Old way of iteration
@@ -970,7 +970,7 @@ public class NucleiMgr {
         Parameters p = new Parameters();
         //Movie iMovie = p.getMovie();
         createDummies(p);
-  
+
         String start = tifPath + C.Fileseparator + tifPrefix;
         int i;
         for (i=0; i <= 50; i++) {
