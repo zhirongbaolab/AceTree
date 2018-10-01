@@ -78,6 +78,8 @@ public class XMLConfig implements DocHandler {
             if (iConfig == null) {
             	iConfig = new Config(iConfigFileName, true);
             }
+
+            // THIS IS EQUIVALENT TO THE SET STARTING PARMS METHOD IN CONFIG.JAVA IS CALLED ON A NON-XML DATASET
             iConfig.iConfigHash = new Hashtable<String, String>();
             for (int i=0; i < Config.configParams.length; i++) {
                 iConfig.iConfigHash.put(Config.configParams[i], "");
@@ -141,7 +143,7 @@ public class XMLConfig implements DocHandler {
         	String y = (String)h.get("y");
         	iConfig.iConfigHash.put("x", x);
         	iConfig.iConfigHash.put("y", y);
-        } else if (tag.equals("Split")) { // TODO: pavak case is has 16 bit and no 8, wants to use SplitMode to say don't split. Si0 case is has 8, 16, wants to use SplitMode so needs recongifuring
+        } else if (tag.equals("Split")) { // TODO: pavak case has 16 bit and no 8, wants to use SplitMode to say don't split. Si0 case is has 8, 16, wants to use SplitMode so needs recongifuring
             String splitMode = (String)h.get("SplitMode");
             System.out.println("THE SPLIT MODE IS: " + splitMode);
             iConfig.iConfigHash.put("splitMode", splitMode);
@@ -158,6 +160,7 @@ public class XMLConfig implements DocHandler {
      * @return
      */
     private String reconfigureImagePath(Object t_) {
+        System.out.println("Reconfiguring Image Path in XMLConfig.java");
         // look for 16 bit .TIFF files
         String typical = (String)t_;
 
