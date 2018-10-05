@@ -212,14 +212,14 @@ public class Config {
         }
 		else{
 		    if(!f.isAbsolute()){
-				System.out.println( "else   case");
+				System.out.println("else   case");
 				File fxml = new File(iConfigFileName);
 				String xmllocation= fxml.getParent();
 				xmllocation = xmllocation + System.getProperty("file.separator");
 				iZipFileName = xmllocation + iZipFileName;
 		    }
 		}
-	    System.out.println("trying to open zip file at "+iZipFileName);
+	    System.out.println("\nTrying to open zip file in Config.java located at: " + iZipFileName);
 	    
 	    f = new File(iZipFileName);
 	    if (!f.exists()) {
@@ -267,7 +267,7 @@ public class Config {
 
     @SuppressWarnings("unused")
 	private void decodeTypicalImage(String s) {
-    	System.out.println("Decoding typical image...: " + s);
+    	System.out.println("Decoding typical image in Config.java...: " + s);
         // if a typical image entry is found,
         // this code will extract:
         // tif directory

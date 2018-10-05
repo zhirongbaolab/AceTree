@@ -96,8 +96,9 @@ public class XMLConfig implements DocHandler {
             if(!new File(typical).exists()) {
                 typical = reconfigureImagePath(typical);
                 pathRefigured = true;
+                System.out.println("Reconfigured Image Path in XMLConfig.java is:" + typical);
             }
-            System.out.println("Trying to configure image file: " + typical);
+
             
             iConfig.iConfigHash.put("typical image", typical);
         } else if (tag.equals("start")) {

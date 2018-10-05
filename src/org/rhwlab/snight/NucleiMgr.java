@@ -77,22 +77,22 @@ public class NucleiMgr {
     int         	iLastNucleiFile;
 
     public  boolean     	iGoodNucleiMgr;
-    
+
     public int iUseStack;
     public int iSplit;
 
     PrintWriter				iPrintWriter;
-    
+
     int				iStartTime;
 
     static String p2 = "t";
     static String p3 = "-nuclei";
 
-    
+
     public NucleiMgr() {
 
     }
-    
+
 
     // Method doesn't seem to be used anywhere
     /*
@@ -111,7 +111,6 @@ public class NucleiMgr {
     	iUseStack = 0; // indicates 8bit images
     	iSplit = 1; // indicates split into two channels if 16bit images are used
     	// **********************************************************
-
         //System.out.println("NucleiMgr(" + configFileName + ")" + CS + DBAccess.cDBLocation);
         //iAceTree = AceTree.getAceTree(null);
         iEditLog = new EditLog("EditLog");
@@ -124,7 +123,7 @@ public class NucleiMgr {
 
         /*
          * Revised 7/19/17 by @author Braden Katzman
-         * 
+         *
          * With the addition of a second AuxInfo file structure, MeasureCSV.java finishes the
          * creation of the AuxInfo file path by appending AuxInfo.csv or AuxInfo_v2.csv
          * in order to handle both forms of file
@@ -140,19 +139,20 @@ public class NucleiMgr {
             iConfig = new Config(configFileName, false);
         }
 
-        
+
         iStartingIndex = iConfig.iStartingIndex;
         iEndingIndex = iConfig.iEndingIndex;
         String zipPath = iConfig.iZipFileName;
         //println("NucleiMgr, zipPath=" + zipPath);
         String nucleiDir = iConfig.iZipNucDir + "/"; //"nuclei/";
         //println("NucleiMgr, nucleiDir=" + nucleiDir);
+
         
         // ******* THIS WILL UPDATE THE USE STACK AND SPLIT FLAGS IF THEY WERE SET BY THE USER *********************
         iUseStack = iConfig.iUseStack;
         iSplit = iConfig.iSplit;
         // *********************************************************************************************************
-        
+
         // Set start time
         iStartTime = iConfig.getStartTime();
 
@@ -173,7 +173,7 @@ public class NucleiMgr {
         //int m = zipPath.lastIndexOf("null");
         m = zipPath.length() - m;
         if (m == 4) {
-	    System.out.println(" Direct opening of images is no longer supported");
+            System.out.println(" Direct opening of images is no longer supported");
 	    /*
 	    //removed this ability in cleaning dependence on  no longer supported from gui -AS 2/14/2013
             fakeNuclei();
@@ -182,7 +182,7 @@ public class NucleiMgr {
             findImageParameters();
             iGoodNucleiMgr = true;
 	    */
-	    iGoodNucleiMgr=false;
+            iGoodNucleiMgr=false;
         } else {
             // the normal case where we have zipped nuclei to use
             //iParameters = readParameterInfo(zipPath);
@@ -190,15 +190,15 @@ public class NucleiMgr {
             iZipNuclei = new ZipNuclei(zipPath);
             if (iZipNuclei.iZipFile != null) {
                 //20060719 readEditLog(iEditLog);
-            	long timeStart = System.nanoTime();
 
-            	// read the data from the zip file
+                // NUCLEI PROCESSING
+                long timeStart = System.nanoTime();
                 readNuclei();
-
-
                 long timeEnd = System.nanoTime();
                 double timeDiff = (timeEnd-timeStart)/1e6;
                 System.out.println("Time elapsed reading nuclei: "+timeDiff+" ms.");
+
+                // IMAGE PROCESSING
                 getScopeParameters();
                 findImageParameters();
                 iGoodNucleiMgr = true;
@@ -209,8 +209,8 @@ public class NucleiMgr {
     }
 
     public NucleiMgr(Config config, PrintWriter printWriter) {
-    	this(config);
-    	iPrintWriter = printWriter;
+        this(config);
+        iPrintWriter = printWriter;
     }
 
     // Timing commented out -was used for optimization
@@ -227,14 +227,14 @@ public class NucleiMgr {
         iMeasureCSV = new MeasureCSV(measureCSVpath);
 
         iConfig = config;
-        
+
         iStartingIndex = iConfig.iStartingIndex;
         iEndingIndex = iConfig.iEndingIndex;
         String zipPath = iConfig.iZipFileName;
         //println("NucleiMgr, zipPath=" + zipPath);
         String nucleiDir = iConfig.iZipNucDir + "/"; //"nuclei/";
         //println("NucleiMgr, nucleiDir=" + nucleiDir);
-        
+
         // Set use stack flag
         iUseStack = iConfig.iUseStack;
         iSplit = iConfig.iSplit;
@@ -258,7 +258,7 @@ public class NucleiMgr {
             findImageParameters();
             iGoodNucleiMgr = true;
 	    */
-        	iGoodNucleiMgr = false;
+            iGoodNucleiMgr = false;
         } else {
             // the normal case where we have zipped nuclei to use
             //iParameters = readParameterInfo(zipPath);
@@ -266,7 +266,7 @@ public class NucleiMgr {
             iZipNuclei = new ZipNuclei(zipPath);
             if (iZipNuclei.iZipFile != null) {
                 //20060719 readEditLog(iEditLog);
-            	long timeStart = System.nanoTime();
+                long timeStart = System.nanoTime();
                 readNuclei();
                 long timeEnd = System.nanoTime();
                 double timeDiff = (timeEnd-timeStart)/1e6;
@@ -275,13 +275,13 @@ public class NucleiMgr {
                 findImageParameters();
                 iGoodNucleiMgr = true;
             }
-        } 
+        }
         computeRWeights();
         System.gc();
     }
-    
+
     public int getStartTime() {
-    	return iStartTime;
+        return iStartTime;
     }
 
     public int getStartingIndex() {
@@ -291,36 +291,36 @@ public class NucleiMgr {
     public void computeRWeights() {
         int k = getWeightMethodIndex();
         try {
-	        for (int i = iStartingIndex; i <= iEndingIndex; i++) {
-	            //println("computeRWeight, " + i);
-	            Vector<Nucleus> v = nuclei_record.get(i - 1);
-	            for (int j=0; j < v.size(); j++) {
-	                Nucleus n = v.get(j);
-	                //println("computeRWeight, " + n.identity);
-	                if (n.status >= 0) computeRWeight(n, k);
-	            }
-	        }
+            for (int i = iStartingIndex; i <= iEndingIndex; i++) {
+                //println("computeRWeight, " + i);
+                Vector<Nucleus> v = nuclei_record.get(i - 1);
+                for (int j=0; j < v.size(); j++) {
+                    Nucleus n = v.get(j);
+                    //println("computeRWeight, " + n.identity);
+                    if (n.status >= 0) computeRWeight(n, k);
+                }
+            }
         } catch(NullPointerException npe) {
-        	return;
+            return;
         }
     }
 
     public void computeRWeight(Nucleus n, int k) {
-		if(n.rwraw <= 0) return; // for backward compatibility
+        if(n.rwraw <= 0) return; // for backward compatibility
         n.rweight = n.rwraw;
         switch(k) {
-        case 1:
-            n.rweight -= n.rwcorr1; //global
-            break;
-        case 2:
-            n.rweight -= n.rwcorr2; //local
-            break;
-        case 3:
-            n.rweight -= n.rwcorr3; //blot
-            break;
-        case 4:
-            n.rweight -= n.rwcorr4; //cross
-            break;
+            case 1:
+                n.rweight -= n.rwcorr1; //global
+                break;
+            case 2:
+                n.rweight -= n.rwcorr2; //local
+                break;
+            case 3:
+                n.rweight -= n.rwcorr3; //blot
+                break;
+            case 4:
+                n.rweight -= n.rwcorr4; //cross
+                break;
         }
     }
 
@@ -341,18 +341,23 @@ public class NucleiMgr {
         int useZip = ImageWindow.cUseZip;
         int width = ImageWindow.cImageHeight;
         int height = ImageWindow.cImageWidth;
+        // ***************************************
 
         // now feed it my parameters
         sendStaticParametersToImageWindow();
+
         // make up a sample image name
         int plane = iMovie.plane_start;
         int time = iStartTime;
         String imageName = makeImageName(time, plane);
         // now "make" the image
-        //System.out.println("NucleiMgr calling ImageWindow.makeImage...");
+        System.out.println("\nNucleiMgr calling ImageWindow.makeImage on image: " + getConfig().iTifPrefix + imageName);
         ImageWindow.makeImage(getConfig().iTifPrefix + imageName);
         iImageWidth = ImageWindow.cImageWidth;
         iImageHeight = ImageWindow.cImageHeight;
+        // ********************************
+
+
         // now restore ImageWindow
         ImageWindow.cZipTifFilePath = zipTifFilePath;
         ImageWindow.cTifPrefix = tifPrefix;
@@ -375,15 +380,15 @@ public class NucleiMgr {
         name.append(p);
 
         switch(getConfig().iUseZip) {
-        case 0:
-        case 1:
-        case 3:
-            name.append(".tif");
-            break;
-        default:
-            name.append(".zip");
+            case 0:
+            case 1:
+            case 3:
+                name.append(".tif");
+                break;
+            default:
+                name.append(".zip");
         }
-        
+
         newLine();
         System.out.println("NucleiMgr made Image Name: "+ name.toString());
         return(name.toString());
@@ -398,7 +403,7 @@ public class NucleiMgr {
         iParameters.polar_size = iConfig.iPolar_size; //45;
         iMovie.plane_start = iConfig.iPlaneStart;
         iMovie.plane_end = iConfig.iPlaneEnd;
-        
+
         iUseStack = iConfig.iUseStack;
 
         return iParameters;
@@ -492,9 +497,9 @@ public class NucleiMgr {
         if (last < iConfig.iEndingIndex) {
             iConfig.iEndingIndex = last;
         }
-       System.out.println("last, iEndingIndex: " + last + CS + iEndingIndex + CS  + iConfig.iEndingIndex + CS + iMovie);
-       iUseStack = iConfig.iUseStack;
-       iSplit = iConfig.iSplit;
+        System.out.println("last, iEndingIndex: " + last + CS + iEndingIndex + CS  + iConfig.iEndingIndex + CS + iMovie);
+        iUseStack = iConfig.iUseStack;
+        iSplit = iConfig.iSplit;
     }
 
     // here I want to read all the nuclei data in the zip file
@@ -502,60 +507,60 @@ public class NucleiMgr {
     // iEndTime parameter setting
     // this should allow interative editing of the nuclei "files"
     @SuppressWarnings("unused")
-	private int readNuclei(ZipNuclei zn) {
+    private int readNuclei(ZipNuclei zn) {
         // the following results in all nuclei files being read
         // regardless of 1StartTime and iEndTime
-    	newLine();
+        newLine();
         System.out.println("readNuclei:1 " + iMovie.time_end + CS + iMovie.time_start);
         // Initializes vector to array of empty vectors
-        
+
         fakeNuclei();
-        
+
         // Try replacing fakeNuclei() with this:
         // Increment vector size by VEC_INCREMENT_SIZE (20) each time it is resized up
         //nuclei_record = new Vector(??, VEC_INCREMENT_SIZE);
-        
+
         iFakeNuclei = false; //override this param
         Nucleus n = null;
         int debugCount = 0;
         System.out.println("readNuclei:2 " + iMovie.time_end + CS + iMovie.time_start);
-        
+
         // Try this way of iterating through zip entries
-        //InputStream is = getInputStream 
+        //InputStream is = getInputStream
         //ZipEntry ze = null;
-        
+
         // Old way of iteration
         Enumeration<? extends ZipEntry> e = zn.iZipFile.entries();
         //int lastNonEmptyIndex = 0;
         while (e.hasMoreElements()) {
-        	//System.out.println("More elements...");
+            //System.out.println("More elements...");
             ZipEntry ze = e.nextElement();
             Vector<Nucleus> v = new Vector<Nucleus>();
             String [] saa = zn.parseZipEntry(ze);
-            
+
             if (saa.length < 2)
-            	continue; // maybe a nuclei/ entry
+                continue; // maybe a nuclei/ entry
 
             if (saa[0].equals("nuclei")) {
                 int index = zn.parseZipEntryName(saa[1]) - 1;
                 //System.out.println("Zip index: "+index);
                 if (index < 0)
-                	continue; // probably a nuclei/log entry
+                    continue; // probably a nuclei/log entry
                 String s = zn.readLine(ze);
                 if (s == null) {
                     if (nuclei_record.size() > index) {
                         nuclei_record.setElementAt(v, index);
                         //lastNonEmptyIndex = index;
                         if (index > iLastNucleiFile)
-                        	iLastNucleiFile = index;
+                            iLastNucleiFile = index;
                     }
                     continue;
                 }
                 boolean newFormat = true;
                 // detect old format by the absence of commas
                 //if (debugCount++ < 10) println("readNuclei: " + s);
-                if (s.indexOf(',') == -1) 
-                	newFormat = false;
+                if (s.indexOf(',') == -1)
+                    newFormat = false;
                 int j = 1;
                 // added code to handle some misformed nuclei files
                 // a little squirrely maybe but it is working
@@ -564,24 +569,24 @@ public class NucleiMgr {
                     try {
                         String [] sa;
                         if (newFormat)
-                        	sa = getTokens(s, 0);
+                            sa = getTokens(s, 0);
                         else
-                        	sa = getTokens(s);
+                            sa = getTokens(s);
                         if (sa[0] != null
-                            && (sa[0].length() > 0
-                            && Integer.parseInt(sa[0]) != j++)) {
+                                && (sa[0].length() > 0
+                                && Integer.parseInt(sa[0]) != j++)) {
                             break;
                         }
                         if (newFormat) {
-                        	n = new Nucleus(sa);
+                            n = new Nucleus(sa);
                         	/*
                         	if (n.identity.isEmpty() || n.identity == null)
                         		System.out.println("No name for nucleus: "+n);
                     		*/
-                        	//System.out.println("Created nucleus: ("+n.identity+")");
+                            //System.out.println("Created nucleus: ("+n.identity+")");
                         }
                         else
-                        	n = new Nucleus(sa, !newFormat);
+                            n = new Nucleus(sa, !newFormat);
                         v.add(n);
                         s = zn.readLine(ze);
                     }
@@ -595,11 +600,11 @@ public class NucleiMgr {
                         break;
                     }
                 }
-                
+
                 if (nuclei_record.size() > index) {
                     nuclei_record.setElementAt(v, index);
                     if (index > iLastNucleiFile)
-                    	iLastNucleiFile = index;
+                        iLastNucleiFile = index;
                 }
                 zn.closeEntry();
             }
@@ -612,31 +617,31 @@ public class NucleiMgr {
                 nuclei_record.remove(i);
             }
         }
-        
+
         // Cut nuclei_record down to the latrer of the where the last nuclei file is or the iEndingIndex specified in the .xml
         int newSize = iLastNucleiFile+1;
         if (newSize < iEndingIndex)
-        	newSize = iEndingIndex+1;
+            newSize = iEndingIndex+1;
         nuclei_record.setSize(newSize);
-        
+
         println("readNuclei: at end, nuclei_record.size: " + nuclei_record.size());
 
         System.out.println("readNuclei:3 " + iMovie.time_end + CS + iMovie.time_start);
-        
+
         return nuclei_record.size();
     }
 
     // Called by classes trying to access nuclei_record.elementAt(...)
     public Vector<Nucleus> getElementAt(int i) {
-    	if (nuclei_record.size()-1 < i) {
-    		int oldSize = nuclei_record.size();
-    		// Every time we run out of room in the vector, we add on 30 more indices
-    		// and initialize them to empty vectors
-    		nuclei_record.setSize(i+30);
-	    	for (int j = oldSize; j < nuclei_record.size(); j++)
-	    		nuclei_record.setElementAt(new Vector<Nucleus>(), j);
-    	}
-    	return nuclei_record.elementAt(i);
+        if (nuclei_record.size()-1 < i) {
+            int oldSize = nuclei_record.size();
+            // Every time we run out of room in the vector, we add on 30 more indices
+            // and initialize them to empty vectors
+            nuclei_record.setSize(i+30);
+            for (int j = oldSize; j < nuclei_record.size(); j++)
+                nuclei_record.setElementAt(new Vector<Nucleus>(), j);
+        }
+        return nuclei_record.elementAt(i);
     }
 
     public void sendStaticParametersToImageWindow() {
@@ -652,8 +657,8 @@ public class NucleiMgr {
     //    return iIdentity;
     //}
     public int getiEndingIndex(){
-    	return iEndingIndex;
-	}
+        return iEndingIndex;
+    }
 
     public Identity3 getIdentity() {
         return iIdentity;
@@ -672,11 +677,11 @@ public class NucleiMgr {
     }
 
     public void setConfig(Config config) {
-    	iConfig = config;
+        iConfig = config;
     }
 
     public MeasureCSV getMeasureCSV() {
-    	return iMeasureCSV;
+        return iMeasureCSV;
     }
 
     public EditLog getEditLog() {
@@ -693,18 +698,18 @@ public class NucleiMgr {
 
     public String getIndex(String name, int time) {
         int k = 0;
-        
+
         // Resize if trying to access a time greater than number of files loaded
         Vector<Nucleus> nuclei;
         if (nuclei_record.size() < time) {
-        	nuclei_record.setSize(time);
-        	for (int i = getiLastNucleiFile()+1; i < time; i++)
-        		nuclei_record.setElementAt(new Vector<Nucleus>(), i);
-        	nuclei = nuclei_record.elementAt(time - 1);
+            nuclei_record.setSize(time);
+            for (int i = getiLastNucleiFile()+1; i < time; i++)
+                nuclei_record.setElementAt(new Vector<Nucleus>(), i);
+            nuclei = nuclei_record.elementAt(time - 1);
         }
         else
-    		nuclei = nuclei_record.elementAt(time - 1);
-        
+            nuclei = nuclei_record.elementAt(time - 1);
+
         Nucleus n = null;
         for (int j=0; j < nuclei.size(); j++) {
             n = nuclei.elementAt(j);
@@ -831,7 +836,7 @@ public class NucleiMgr {
     }
 
     @SuppressWarnings("unused")
-	public boolean isValidCell(String name, int time) {
+    public boolean isValidCell(String name, int time) {
         boolean rtn = false;
         Nucleus n = getCurrentCellData(name, time);
         iDLog.append("isValidCell " + name + CS + time);
@@ -844,7 +849,7 @@ public class NucleiMgr {
     }
 
     @SuppressWarnings("unused")
-	public Nucleus getNucleusFromHashkey(String hashKey, int time) {
+    public Nucleus getNucleusFromHashkey(String hashKey, int time) {
         Nucleus r = null;
         boolean found = false;
         Vector<Nucleus> nucData = nuclei_record.elementAt(time - 1);
@@ -877,7 +882,7 @@ public class NucleiMgr {
     }
 
     @SuppressWarnings("unused")
-	public String getOrientation() {
+    public String getOrientation() {
         //println("getOrientation: ");
         //new Throwable().printStackTrace();
         String orientation = "A";
@@ -913,9 +918,9 @@ public class NucleiMgr {
             iZPixRes = iMovie.z_res/iMovie.xy_res*iParameters.z_res_fudge;
             //println("getScopeParameters: iZPixRes: " + iZPixRes);
         } else {
-                iPlaneEnd = iConfig.iPlaneEnd;
-                iPlaneStart = iConfig.iPlaneStart;
-                iZPixRes = iConfig.iZ_res/iConfig.iXy_res;
+            iPlaneEnd = iConfig.iPlaneEnd;
+            iPlaneStart = iConfig.iPlaneStart;
+            iZPixRes = iConfig.iZ_res/iConfig.iXy_res;
 
         }
         NucUtils.setZPixRes(iZPixRes);
@@ -948,7 +953,7 @@ public class NucleiMgr {
      * if LAST then extras are removed after all nuclei files have been read
      */
     @SuppressWarnings("unused")
-	public void fakeNuclei() {
+    public void fakeNuclei() {
         //println("fakeNuclei: iEndingIndex: " + iEndingIndex);
         iFakeNuclei = true;
         nuclei_record = new Vector<Vector<Nucleus>>(); //[iEndingIndex - iStartingIndex + 1];
@@ -991,7 +996,7 @@ public class NucleiMgr {
         Parameters p = new Parameters();
         //Movie iMovie = p.getMovie();
         createDummies(p);
-  
+
         String start = tifPath + C.Fileseparator + tifPrefix;
         int i;
         for (i=0; i <= 50; i++) {
@@ -1031,36 +1036,36 @@ public class NucleiMgr {
     */
 
     public void reviewNuclei() {
-    	Vector<Vector<Nucleus>> nr = nuclei_record;
-    	for (int i=194; i < 195; i++) {
-    		Vector<Nucleus> nuclei = nr.get(i);
-    		for (int j=0; j < nuclei.size(); j++) {
-    			Nucleus n = nuclei.get(j);
-    			println("reviewNuclei, " + i + CS + j  + CS + n);
-    		}
-    	}
+        Vector<Vector<Nucleus>> nr = nuclei_record;
+        for (int i=194; i < 195; i++) {
+            Vector<Nucleus> nuclei = nr.get(i);
+            for (int j=0; j < nuclei.size(); j++) {
+                Nucleus n = nuclei.get(j);
+                println("reviewNuclei, " + i + CS + j  + CS + n);
+            }
+        }
     }
 
 
     // Timing commented out -was used for optimization
-	public void processNuclei(boolean doIdentity, int namingMethod) {
-    	println("NucleiMgr processing nuclei including: assigning names, building AncesTree");
-    	//println("reviewNuclei, 1");
-    	//reviewNuclei();
+    public void processNuclei(boolean doIdentity, int namingMethod) {
+        println("NucleiMgr processing nuclei including: assigning names, building AncesTree");
+        //println("reviewNuclei, 1");
+        //reviewNuclei();
         setAllSuccessors();
-        if (iIdentity == null) 
-        	iIdentity = new Identity3(this);
+        if (iIdentity == null)
+            iIdentity = new Identity3(this);
         iIdentity.setNamingMethod(getConfig().iNamingMethod);
         iIdentity.setPrintWriter(iPrintWriter);
-    	//println("reviewNuclei, 2");
-    	//reviewNuclei();
+        //println("reviewNuclei, 2");
+        //reviewNuclei();
 //        println("about to create names");
         if (doIdentity) {
-        	iIdentity.identityAssignment();
+            iIdentity.identityAssignment();
         }
 //        println("about to create tree data structure");
 //    	println("reviewNuclei, 3");
-    	// Debug here
+        // Debug here
         // For debugging to see if all nuclei information was correctly read from zip file
     	/*
         for (int i = 0; i < nuclei_record.size(); i++) {
@@ -1073,18 +1078,18 @@ public class NucleiMgr {
         	}
         }
         */
-    	//reviewNuclei();
+        //reviewNuclei();
         //long timeStart = System.nanoTime();
         int newstart = iStartingIndex;
         if (iStartingIndex < iStartTime)
-        	newstart = iStartTime;
+            newstart = iStartTime;
         iAncesTree = new AncesTree(null, this, newstart, iEndingIndex);
 //        Cell PP = (Cell)iAncesTree.getCellsByName().get("P");
         //long timeEnd = System.nanoTime();
         //double timeDiff = (timeEnd-timeStart)/1e6;
         //System.out.println("Time to load entries: "+timeDiff+" ms");
 //        int kk = PP.getChildCount();
-        
+
         // For non-1 starting time, PP has a 0 child count
         //iAncesTree.printCounts();
         //println("NucleiMgr, constructor, " + kk + CS + PP.getName());
@@ -1155,8 +1160,8 @@ public class NucleiMgr {
     }
 
     public void makeBackupNucleiRecord() {
-	
-	System.out.println("Refusing to make backup, waste of memory");
+
+        System.out.println("Refusing to make backup, waste of memory");
 	/*
         System.out.println("makeBackupNucleiRecord");
         nuclei_record_backup = new Vector();
@@ -1178,9 +1183,9 @@ public class NucleiMgr {
     }
 
     public void restoreNucleiRecord() {
-		//   nuclei_record = nuclei_record_backup;
-		System.out.println("cannot restore no backup made");
-	}
+        //   nuclei_record = nuclei_record_backup;
+        System.out.println("cannot restore no backup made");
+    }
 
     public void setEndingIndex(int endTime) {
         iEndingIndex = endTime;
@@ -1217,21 +1222,21 @@ public class NucleiMgr {
     }
 
     public void setAllSuccessors() {
-    	newLine();
+        newLine();
         System.out.println("setAllSuccessors: " + iStartingIndex + CS + iEndingIndex + ", " + nuclei_record.size());
         //for (int i=iStartingIndex - 1; i < iEndingIndex; i++) {
         for (int i=iStartingIndex - 1; i < nuclei_record.size(); i++) {
             int r = setSuccessors(i);
             if (r != 0)
-            	break;
+                break;
         }
     }
 
     public int setSuccessors(int i) {
-    	//System.out.println("\nnucleimgr setsuccessors "+i);
-    	//long timeStart = System.nanoTime();
+        //System.out.println("\nnucleimgr setsuccessors "+i);
+        //long timeStart = System.nanoTime();
         if (iConfig.iNamingMethod == Identity3.MANUAL)
-        	return 0;
+            return 0;
         Vector<Nucleus> now = nuclei_record.elementAt(i);
         Nucleus n = null;
         int m1 = Nucleus.NILLI;
@@ -1242,7 +1247,7 @@ public class NucleiMgr {
             n.successor2 = m1;
         }
         if (i == iEndingIndex - 1)
-        	return 1;
+            return 1;
         Vector<Nucleus> next;
         try {
             next = nuclei_record.elementAt(i + 1);
@@ -1253,26 +1258,26 @@ public class NucleiMgr {
         for (int j=0; j < next.size(); j++) {
             n = next.elementAt(j);
             //println("setSuccessors: " + n.identity);
-            if (n.status == Identity3.DEAD) 
-            	continue;
+            if (n.status == Identity3.DEAD)
+                continue;
             int pred = n.predecessor;
-            if (pred == Identity3.DEAD) 
-            	continue;
+            if (pred == Identity3.DEAD)
+                continue;
             //println("setSuccessors2: " + j + CS + pred);
             Nucleus p = null;
             try {
-            	p = now.elementAt(pred -1);
+                p = now.elementAt(pred -1);
             } catch(Exception e) {
-            	continue;
+                continue;
             }
             if (p.successor1 == m1)
-            	p.successor1 = j + 1;
+                p.successor1 = j + 1;
             else if (p.successor2 == m1)
-            	p.successor2 = j + 1;
+                p.successor2 = j + 1;
             else {
                 System.out.println("error: MORE THAN 2 SUCCESSORS");
             }
-            
+
             //System.out.println("nucleimgr succ for "+p.identity+": "+p.successor1+" "+p.successor2);
         }
         //long timeEnd = System.nanoTime();
@@ -1368,19 +1373,19 @@ public class NucleiMgr {
      * pointers into the formatted lines of the nuclei files
      */
     private static final int [] XX = {
-        6,5,5,6,14,4,8,4,5,6,5,6,5,5,5
+            6,5,5,6,14,4,8,4,5,6,5,6,5,5,5
     };
 
     public static final int
-         LAST = 10000 // more than the most time points we ever expect to see
-    ;
+            LAST = 10000 // more than the most time points we ever expect to see
+            ;
 
 
     final public static String
-    PARAMETERS = "parameters"
-        ,NL = "\n"
-        ,CS = ", "
-        ;
+            PARAMETERS = "parameters"
+            ,NL = "\n"
+            ,CS = ", "
+            ;
 
 //    @SuppressWarnings({ "unused", "null" })
 //	public static void main(String[] args) {
