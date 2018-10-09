@@ -1,26 +1,27 @@
 package org.rhwlab.snight;
 
 
+import application_src.MainApp;
+import application_src.application_model.resources.NucleiMgrAdapterResource;
+
 /**
  * Class to open WormGUIDES via AceTree
- * 
+ *
  * Created: Oct. 2, 2015
  * Author: Braden Katzman
  */
 
-import wormguides.MainApp;
-import wormguides.resources.NucleiMgrAdapterResource;
 
-public class WormGUIDESWindow extends wormguides.MainApp {
+public class WormGUIDESWindow extends MainApp {
 	private NucleiMgrAdapter nucleiMgrAdapter;
 	private NucleiMgrAdapterResource nmar;
-	
+
 	public WormGUIDESWindow(NucleiMgr nucleiMgr) {
 		super();
 		nucleiMgrAdapter = new NucleiMgrAdapter(nucleiMgr);
 		nmar = new NucleiMgrAdapterResource(nucleiMgrAdapter);
 	}
-	
+
 	public void initializeWormGUIDES() {
 		Thread t = new Thread(new Runnable() {
 			@Override

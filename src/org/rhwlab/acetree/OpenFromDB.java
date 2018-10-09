@@ -180,7 +180,7 @@ public class OpenFromDB  extends JDialog implements ActionListener {
         			String atconfig = exml.iRecord[EmbryoXML.ATCONFIG];
         			String configFile = annots + "/dats/" + atconfig;
         			//Config config = Config.createConfigFromXMLFile(configFile);
-        			Config config = new Config(configFile);
+        			Config config = new Config(configFile, false);
         			if (iEditedPts.isSelected()) {
                 		String editedPts = exml.iRecord[EmbryoXML.EDITEDTP];
         				config.setEndingIndex(Integer.parseInt(editedPts));

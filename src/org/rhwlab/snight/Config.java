@@ -114,14 +114,9 @@ public class Config {
     	iSplitChannelImage = 1; //default
     }
 
-    public Config(String configFile){
+    public Config(String configFile, boolean xml){
     	this();
     	iConfigFileName = configFile;
-        int k = iConfigFileName.lastIndexOf(".");
-        String s = iConfigFileName.substring(k + 1);
-        //if (s.equals("xml")) {
-        //	new XMLConfig(configFile);
-        //}
 
         iConfigFileName = configFile;
         iTypicalImage = "";
@@ -134,20 +129,16 @@ public class Config {
         iZipNucDir = "nuclei/";
         iAxisGiven = "";
         iExprCorr = "blot";
-        if (!s.equals("xml")) {
+        if (!xml) {
             getStartingParms();
             setStartingParms();
-        } else {
-        	new XMLConfig(configFile, this);
         }
+        // COMMENTED THIS OUT 10/01/18 because if this is called with XML is true, then the XML config has already
+        // been made and populated the iConfigHash
+        // else {
+        	//new XMLConfig(configFile, this);
+        //}
         showStartingParms();
-    }
-
-    /*
-     * called by XMLConfig.createConfigFromXMLFile
-     */
-    public Config(String configFile, boolean xml) {
-        this(configFile);//,null);
     }
 
     // note that the XMLConfig code called here
@@ -221,14 +212,14 @@ public class Config {
         }
 		else{
 		    if(!f.isAbsolute()){
-				System.out.println( "else   case");
+				System.out.println("else   case");
 				File fxml = new File(iConfigFileName);
 				String xmllocation= fxml.getParent();
 				xmllocation = xmllocation + System.getProperty("file.separator");
 				iZipFileName = xmllocation + iZipFileName;
 		    }
 		}
-	    System.out.println("trying to open zip file at "+iZipFileName);
+	    System.out.println("\nTrying to open zip file in Config.java located at: " + iZipFileName);
 	    
 	    f = new File(iZipFileName);
 	    if (!f.exists()) {
@@ -276,7 +267,7 @@ public class Config {
 
     @SuppressWarnings("unused")
 	private void decodeTypicalImage(String s) {
-    	System.out.println("Decoding typical image...");
+    	System.out.println("Decoding typical image in Config.java...: " + s);
         // if a typical image entry is found,
         // this code will extract:
         // tif directory
@@ -348,17 +339,20 @@ public class Config {
                 }
             }
         } else {
-        	if (iUseStack == 0) {
-	        	//Is this format ever used?
-	        }
-	        else {
-	        	k2 = name.lastIndexOf('_') + 1;
-	        }
+            k2 = name.lastIndexOf('_') + 1;
+
+//        	if (iUseStack == 0) {
+//	        	//Is this format ever used?
+//	        }
+//	        else {
+//	        	k2 = name.lastIndexOf('_') + 1;
+//	        }
         }
 
         int k3 = parent.lastIndexOf("/");
         String forepath = parent.substring(k3 + 1);
         println("setStartingParms: forepath: " + forepath);
+        System.out.println(name + ", " + k2);
         String forename = name.substring(0, k2);
         println("setStartingParms: forename: " + forename);
         
@@ -733,7 +727,7 @@ public class Config {
         //s = "/nfs/waterston1/annots/bao/081505/dats/081505.xml";
         s = "/nfs/waterston1/annots/zhao/20090317PHA-4_AF16_L1/dats/20090317PHA-4_AF16_L1.xml";
         s = "C:/biowolp/0tmp/acewintest/20090826/AceTreeDemo/081505/dats/081505.xml";
-        Config c = new Config(s);//,null);
+        Config c = new Config(s, true);//,null);
         println("main, " + c);
         //Config cx = Config.createConfigFromXMLFile(s);
         //println("main, " + cx);

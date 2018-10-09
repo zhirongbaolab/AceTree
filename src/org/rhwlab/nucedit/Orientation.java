@@ -86,7 +86,7 @@ public class Orientation extends JDialog implements ActionListener, ListSelectio
         double zpixres = iNucleiMgr.getZPixRes();
         MeasureCSV measureCSV = iNucleiMgr.getMeasureCSV();
 //        iDivisionCaller = new DivisionCaller(axis, zpixres, measureCSV);
-        iDivisionCaller = new DivisionCaller(measureCSV);
+        iDivisionCaller = new DivisionCaller(measureCSV, axis, zpixres);
         iCutoff = 1;
     }
 
@@ -235,10 +235,11 @@ public class Orientation extends JDialog implements ActionListener, ListSelectio
 
         Identity3 identity = iNucleiMgr.getIdentity();
         String axis = identity.getAxis();
+        System.out.println("Initializing axis in Orientation.java: " + axis);
         double zpixres = iNucleiMgr.getZPixRes();
         MeasureCSV measureCSV = iNucleiMgr.getMeasureCSV();
 //        iDivisionCaller = new DivisionCaller(axis, zpixres, measureCSV);
-        iDivisionCaller = new DivisionCaller(measureCSV);
+        iDivisionCaller = new DivisionCaller(measureCSV, axis, zpixres);
 
         Config config = iNucleiMgr.getConfig();
         String shortName = config.getShortName();

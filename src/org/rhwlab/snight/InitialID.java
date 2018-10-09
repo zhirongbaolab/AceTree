@@ -80,43 +80,6 @@ public class InitialID {
 		}
 	}
 
-	/**
-	 * Used to align the 4 cell stage diamond with the canonical orientation
-	 * 
-	 * AuxInfo v1.0 uses the angle field to rotate the AP axis (always in XY plane in compressed embryo) to the canonical AP
-	 * AuxInfo v2.0 takes the given AP axis and projects it onto the xy plane, then uses the angle between the projection and canonical AP
-	 * 
-	 * source: https://www.maplesoft.com/support/help/Maple/view.aspx?path=MathApps/ProjectionOfVectorOntoPlane
-	 * 
-	 * @param ia
-	 */
-	private void applyTransformation(int [] ia) {
-		double[] da = {0., 0., 0.};
-		if (MeasureCSV.isAuxInfoV2()) {
-			if (canTrans == null) return;
-			
-				double[] nuc_coords = new double[3];
-				nuc_coords[0] = (double) ia[0];
-				nuc_coords[1] = (double) ia[1];
-				nuc_coords[2] = (double) ia[2];
-				boolean success = canTrans.applyProductTransform(nuc_coords);
-				if (!success) {
-					System.out.println("Failed to rotate with CanonicalTransform");
-					return;
-				}
-				
-				ia[0] = (int)nuc_coords[0];
-				ia[1] = (int)nuc_coords[1];
-				ia[2] = (int)nuc_coords[2];
-		} else {
-			int x = ia[0] - iXC;
-			int y = ia[1] - iYC;
-			da = DivisionCaller.handleRotation_V1(x, y, iAng);
-			ia[0] = iXC + (int)Math.round(da[0]);
-			ia[1] = iYC + (int)Math.round(da[1]);
-		}
-	}
-
 	int getNucCount() {
 		return iNucCount;
 	}
@@ -136,7 +99,7 @@ public class InitialID {
 		int nuc_ct = nuclei.size();
 		int cell_ct = countCells(nuclei);
 		if (cell_ct <= 6) {
-			System.out.println("<= 6 cells");
+			System.out.println("=< 6 cells");
 			polarBodies();
 			cell_ct = countCells(nuclei);
 		}
@@ -158,14 +121,18 @@ public class InitialID {
 			System.out.println("Starting with more than 4 cells.  No canonical ID assigned.");
 			return 0;
 		} else {
-			System.out.println("< 4 cells");
+			System.out.println("=< 4 cells in initialID() - InitialID");
 			iParameters.axis = 1;
 			if (cell_ct == 4)
 				first_four = 0;
+
+			//System.out.println("looking for 4 cell stage");
 			for (int i=startingIndex - 1; i < iEndingIndex - 1; i++) {
+			    //System.out.println("i: " + i);
 				nuclei = nuclei_record.elementAt(i);
 				nuc_ct = nuclei.size();
 				cell_ct = countCells(nuclei);
+				//System.out.println("cell count: " + cell_ct);
 				if (cell_ct > 4)
 					break;
 				if (cell_ct == 4) {
@@ -214,68 +181,15 @@ public class InitialID {
 		return 0;
 	}
 
-	private int countCells(Vector<Nucleus> nuclei) {
-		int cell_ct = 0;
-		Nucleus n;
-		for (int i=0; i < nuclei.size(); i++) {
-			n = nuclei.elementAt(i);
-			//if (n.status > -1 && !n.identity.equals(POLAR)) cell_ct++;
-			if (n.status > -1 && n.identity.indexOf(POLAR) == -1) cell_ct++;
-		}
-		return cell_ct;
-	}
-
-	@SuppressWarnings("unused")
-	private void polarBodies() {
-		Vector<Nucleus> nuclei = nuclei_record.elementAt(0);
-		Vector<Nucleus> nuclei_next = null;
-		int nuc_ct = nuclei.size();
-		int i, t;
-		int p_ct = 0;
-		Nucleus nucleii;
-		for (i = 0; i < nuc_ct; i++) {
-			nucleii = nuclei.elementAt(i);
-			if (nucleii.status < 0) continue;
-			if (nucleii.size < iParameters.polar_size) {
-				nucleii.identity = POLAR + (p_ct + 1);
-				p_ct++;
-			}
-		}
-		if (p_ct == 0) return;
-
-		for(i = 0; i < iEndingIndex; i++) {
-			nuclei = nuclei_record.elementAt(i);
-			nuc_ct = nuclei.size();
-			try {
-				nuclei_next = nuclei_record.elementAt(i + 1);
-			} catch(ArrayIndexOutOfBoundsException oob) {
-				break;
-			}
-			Nucleus nucleij = null;
-			for (int j = 0; j < nuc_ct; j++) {
-				nucleij = nuclei.elementAt(j);
-				if (nucleij.identity.indexOf(POLAR) == -1) continue;
-				if (nucleij.successor1 == Nucleus.NILLI) p_ct--;
-				if (p_ct == 0) break;
-				if (nucleij.successor2 != Nucleus.NILLI) {
-					System.out.println("Polar body divided: "
-							+ i + 1 + ":" + j + 1 + "->"
-							+ i + 2 + ":" + nucleij.successor1 + " and "
-							+ i + 2 + ":" + nucleij.successor2
-							);
-				} else {
-					if (nucleij.successor1 == -1) continue;
-					Nucleus suc = nuclei_next.elementAt(nucleij.successor1 - 1);
-					suc.identity = nucleij.identity;
-				}
-			}
-		}
-
-	}
-
-
+	/**
+	 * Called from initialID() ^^^
+	 *
+	 * @param four_cells
+	 * @param lineage_ct_p
+	 * @return
+	 */
 	private int fourCellID(int four_cells, int [] lineage_ct_p) {
-		println("determing four cell stage ID at time: " + four_cells);
+		println("determining fourCellID() in InitialID at time: " + four_cells);
 		Vector<Nucleus> nuclei = null, nuclei_next = null;
 		Nucleus nucleii = null;
 		int nuc_ct;
@@ -327,49 +241,56 @@ public class InitialID {
 
 	/**
 	 * Given the 4 cell stage nuclei, apply transformations to rotate the diamond to canonical orientation
-	 * 
+	 * called from fourCellID() ^^^
+	 *
 	 * @param nuclei - the 4 cell stage nuclei
 	 * @return 1 on success, 0 on failure
 	 */
 	private int alignDiamond(Vector<Nucleus> nuclei) {
-		println("aligning diamond");
+		//println("alignDiamond in InitialID");
 		int rtn = 1;
 		int xmin, xmax, ymin, ymax;
 		Nucleus north=null, south=null, west=null, east=null;
 		int i;
 
 		xmin = Integer.MAX_VALUE; //Movie.framewidth;
-		xmax = Integer.MIN_VALUE;
+		xmax = 0;
 		ymin = Integer.MAX_VALUE; //Movie.frameheight * Movie.framewidth;
-		ymax = Integer.MIN_VALUE;
-		
+		ymax = 0;
+
+		/* -------------- AUX INFO V2 STUFF ------------- */
 		/*
 		 * this will be used as reference to set the 4 cell diamond under the AuxInfo_v2 scheme
-		 * We want to wait until we have all of the coordinates to set the positions so on each 
+		 * We want to wait until we have all of the coordinates to set the positions so on each
 		 * transformation, we'll store:
 		 * - index in nuclei Vector --> by default of the size
 		 * - transformed x coordinate
 		 * - transformed y coordinate
 		 */
-		int[][] nuc_coords = new int[nuclei.size()][2];
-		
+
+        int[][] nuc_coords = new int[nuclei.size()][2];
+
+		/* -------------- AUX INFO V2 STUFF ------------- */
+
 		for (i=0; i<nuclei.size(); i++) {
 			Nucleus nucleii = nuclei.elementAt(i);
 			if (nucleii.status < 0 || nucleii.identity.indexOf(POLAR) > -1) {
+			    /* -------------- AUX INFO V2 STUFF ------------- */
 				nuc_coords[i][0] = 0;
 				nuc_coords[i][1] = 0;
+				/* -------------- AUX INFO V2 STUFF ------------- */
 				continue;
 			}
 			int [] ia = new int[3];
 			ia[0] = nucleii.x;
 			ia[1] = nucleii.y;
 			ia[2] = (int) nucleii.z;
-//			println("alignDiamond, BEFORE, " + ia[0] + CS + ia[1] + CS + ia[2] + CS + xmin + CS + xmax + CS + ymin + CS + ymax);
+			//println("alignDiamond, BEFORE, " + ia[0] + CS + ia[1] + CS + ia[2] + CS + xmin + CS + xmax + CS + ymin + CS + ymax);
 			applyTransformation(ia);
-//			println("alignDiamond, AFTER , " + ia[0] + CS + ia[1] + CS + ia[2]);
+			//println("alignDiamond, AFTER , " + ia[0] + CS + ia[1] + CS + ia[2]);
 
 			/*
-			 * if AuxInfo_v2 is present, add the cell to the local list and then we'll decide tAFhe directions after
+			 * if AuxInfo_v2 is present, add the cell to the local list and then we'll decide the directions after
 			 */
 			if (MeasureCSV.isAuxInfoV2()) {
 				nuc_coords[i][0] = ia[0];
@@ -378,99 +299,99 @@ public class InitialID {
 			} else {
 				// depending on the orientation of the current nucleus in space, set it as N, E, S, W
 				if (ia[0] < xmin) {
-//					println("Setting West Nuc");
+					//println("Setting West Nuc");
 					xmin = ia[0];
 					west = nucleii;
 				}
 				if (ia[0] > xmax) {
-//					println("Setting East Nuc");
-					xmax = ia[0]; 
+					//println("Setting East Nuc");
+					xmax = ia[0];
 					east = nucleii;
 				}
 				if (ia[1] < ymin) {
-//					println("Setting North Nuc");
+					//println("Setting North Nuc");
 					ymin = ia[1];
 					north = nucleii;
 				}
 				if (ia[1] > ymax) {
-//					println("Setting South Nuc");
-					ymax = ia[1]; 
+					//println("Setting South Nuc");
+					ymax = ia[1];
 					south = nucleii;
 				}
 			}
 		}
-		
-		
+
+
 		// if in AuxInfo_v2 mode, assign the diamond now
 		if (MeasureCSV.isAuxInfoV2()) {
 			boolean[] assigned = new boolean[nuclei.size()];
 			for (int j = 0; j < assigned.length; j++) { assigned[j]=false; }
-			
+
 			xmin = Integer.MAX_VALUE; // east
 			xmax = Integer.MIN_VALUE; // west
 			ymin = Integer.MAX_VALUE; // north
 			ymax = Integer.MIN_VALUE; // south
-			
+
 			// first set east and west because that division axis is greater than north south
 			for (i = 0; i < nuclei.size(); i++) {
 				if (nuclei.get(i).status < 0 || nuclei.get(i).identity.indexOf(POLAR) > -1) { continue; }
-				
+
 				if (nuc_coords[i][0] < xmin) {
 					xmin = nuc_coords[i][0];
 				}
-				
+
 				if (nuc_coords[i][0] > xmax) {
 					xmax = nuc_coords[i][0];
 				}
 			}
-			
+
 //			System.out.println("Xmin, xmax = " + xmin + ", " + xmax);
-			
+
 			// figure out which was the east and west
 			for (i = 0; i < nuclei.size(); i++) {
 				if (nuclei.get(i).status < 0 || nuclei.get(i).identity.indexOf(POLAR) > -1) { continue; }
-				
+
 				if (xmin == nuc_coords[i][0]) {
 //					System.out.println("east is: " + (i+1) + " with xmin = " + xmin);
 					east = nuclei.get(i);
 					assigned[i] = true;
 				}
-				
+
 				if (xmax == nuc_coords[i][0]) {
 //					System.out.println("west is: " + (i+1) + " with xmax = " + xmax);
 					west = nuclei.get(i);
 					assigned[i] = true;
 				}
 			}
-			
+
 			// now set north and south
 			for (i = 0; i < nuclei.size(); i++) {
 				if (nuclei.get(i).status < 0 || nuclei.get(i).identity.indexOf(POLAR) > -1) { continue; }
-				
+
 				if (!assigned[i]) {
 					if (nuc_coords[i][1] < ymin) {
 						ymin = nuc_coords[i][1];
 					}
-					
+
 					if (nuc_coords[i][1] > ymax) {
 						ymax = nuc_coords[i][1];
 					}
 				}
 			}
-			
+
 //			System.out.println("Ymin, ymax = " + ymin + ", " + ymax);
-			
+
 			// figure out which is north and with is south
 			for (i = 0; i < nuclei.size(); i++) {
 				if (nuclei.get(i).status < 0 || nuclei.get(i).identity.indexOf(POLAR) > -1) { continue; }
-				
+
 				if (!assigned[i]) {
 					if (ymin == nuc_coords[i][1]) {
 //						System.out.println("south is: " + (i+1) + " with ymin = " + ymin);
 						south = nuclei.get(i);
 						assigned[i] = true;
 					}
-					
+
 					if (ymax == nuc_coords[i][1]) {
 //						System.out.println("north is: " + (i+1) + " with ymax = " + ymax);
 						north = nuclei.get(i);
@@ -478,7 +399,7 @@ public class InitialID {
 					}
 				}
 			}
-			 
+
 		}
 
 		// if all four cells weren't properly assigned, return failure
@@ -494,7 +415,7 @@ public class InitialID {
 		}
 
 //		System.out.println("Assigning IDs");
-		// set the ID tags for later access of these nuclei 
+		// set the ID tags for later access of these nuclei
 		north.id_tag = N;
 		south.id_tag = S;
 		east.id_tag = E;
@@ -502,6 +423,103 @@ public class InitialID {
 
 		// if reached, this returns 1
 		return rtn;
+	}
+
+	/**
+	 * Used to align the 4 cell stage diamond with the canonical orientation
+	 * called by alignDiamond() ^^^
+	 *
+	 * AuxInfo v1.0 uses the angle field to rotate the AP axis (always in XY plane in compressed embryo) to the canonical AP
+	 * AuxInfo v2.0 takes the given AP axis and projects it onto the xy plane, then uses the angle between the projection and canonical AP
+	 *
+	 * source: https://www.maplesoft.com/support/help/Maple/view.aspx?path=MathApps/ProjectionOfVectorOntoPlane
+	 *
+	 * @param ia
+	 */
+	private void applyTransformation(int [] ia) {
+		double[] da = {0., 0., 0.};
+		if (MeasureCSV.isAuxInfoV2()) {
+			if (canTrans == null) return;
+
+			double[] nuc_coords = new double[3];
+			nuc_coords[0] = (double) ia[0];
+			nuc_coords[1] = (double) ia[1];
+			nuc_coords[2] = (double) ia[2];
+			boolean success = canTrans.applyProductTransform(nuc_coords);
+			if (!success) {
+				System.out.println("Failed to rotate with CanonicalTransform");
+				return;
+			}
+
+			ia[0] = (int)nuc_coords[0];
+			ia[1] = (int)nuc_coords[1];
+			ia[2] = (int)nuc_coords[2];
+		} else {
+			int x = ia[0] - iXC;
+			int y = ia[1] - iYC;
+			da = DivisionCaller.handleRotation_V1(x, y, iAng);
+			ia[0] = iXC + (int)Math.round(da[0]);
+			ia[1] = iYC + (int)Math.round(da[1]);
+		}
+	}
+
+	private int countCells(Vector<Nucleus> nuclei) {
+		int cell_ct = 0;
+		Nucleus n;
+		for (int i=0; i < nuclei.size(); i++) {
+			n = nuclei.elementAt(i);
+			if (n.status > -1 && !n.identity.equals(POLAR)) cell_ct++;
+			//if (n.status > -1 && n.identity.indexOf(POLAR) == -1) cell_ct++;
+		}
+		return cell_ct;
+	}
+
+	@SuppressWarnings("unused")
+	private void polarBodies() {
+		Vector<Nucleus> nuclei = nuclei_record.elementAt(0);
+		Vector<Nucleus> nuclei_next = null;
+		int nuc_ct = nuclei.size();
+		int i, t;
+		int p_ct = 0;
+		Nucleus nucleii;
+		for (i = 0; i < nuc_ct; i++) {
+			nucleii = nuclei.elementAt(i);
+			if (nucleii.status < 0) continue;
+			if (nucleii.size < iParameters.polar_size) {
+				nucleii.identity = POLAR + (p_ct + 1);
+				p_ct++;
+			}
+		}
+		if (p_ct == 0) return;
+
+		for(i = 0; i < iEndingIndex; i++) {
+			nuclei = nuclei_record.elementAt(i);
+			nuc_ct = nuclei.size();
+			try {
+				nuclei_next = nuclei_record.elementAt(i + 1);
+			} catch(ArrayIndexOutOfBoundsException oob) {
+				break;
+			}
+			Nucleus nucleij = null;
+			for (int j = 0; j < nuc_ct; j++) {
+				nucleij = nuclei.elementAt(j);
+				if (nucleij.identity.indexOf(POLAR) == -1) continue;
+				if (nucleij.successor1 == Nucleus.NILLI) p_ct--;
+				if (p_ct == 0) break;
+				if (nucleij.successor2 != Nucleus.NILLI) {
+					System.out.println("Polar body divided: "
+							+ i + 1 + ":" + j + 1 + "->"
+							+ i + 2 + ":" + nucleij.successor1 + " and "
+							+ i + 2 + ":" + nucleij.successor2
+							);
+				} else {
+					if (nucleij.successor1 == -1) continue;
+					Nucleus suc = nuclei_next.elementAt(nucleij.successor1 - 1);
+					suc.identity = nucleij.identity;
+				}
+			}
+		}
+
 	}
 
 	/**
@@ -646,7 +664,7 @@ public class InitialID {
 
 
 	private int fourCellIDAssignment(int four_cells) {
-		println("Starting four cell ID assignment - InitialID");
+		println("fourCellIDAssignment() in InitialID");
 
 		// initialize 4 cell stage nuclei, start times and nucleus count
 		Vector<Nucleus> nuclei;

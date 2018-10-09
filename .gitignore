@@ -5,5 +5,6 @@
 .project
 .classpath
 *.MF
-*.DS_STORE
-*.iml
+src/.DS_STORE
+src/MANIFEST/MANIFEST.MF
+AceTree.iml

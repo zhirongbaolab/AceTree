@@ -16,7 +16,6 @@ import java.awt.Color;
 
 import org.rhwlab.acetree.ControlCallback;
 import org.rhwlab.help.AceTreeHelp;
-import org.rhwlab.help.Java3DError;
 import org.rhwlab.help.GeneralStartupError;
 import org.rhwlab.help.TestWindow;
 import org.rhwlab.image.CellMovementImage;
@@ -501,13 +500,13 @@ public class AceTree extends JPanel
 
 
     public void bringUpSeriesUI(String configFileName) {
+        System.out.println("Bringing up series UI using file name: " + configFileName);
     	try {
 	    	// Reset ImageWindow use stack flag
     		newLine();
 	        System.out.println("ImageWindow stack flag reset to 0 in AceTree.");
 	        ImageWindow.setUseStack(0);
 
-	        System.out.println("bringUpSeriesUI: " + configFileName);
 	        System.gc();
 	        // check to see if the series is already in the hash
 	        String shortName = Config.getShortName(configFileName);
@@ -544,14 +543,6 @@ public class AceTree extends JPanel
 	
 	        buildTree(false);
 	        setShowAnnotations(true);
-	       
-	
-	        // Show Java 3D warning message
-	        try {
-	    		Class.forName("javax.media.j3d.VirtualUniverse");
-	    	} catch (ClassNotFoundException e) {
-	    		new Java3DError(iMainFrame);
-	    	}
     	} catch (Throwable t) {
 			new GeneralStartupError(getMainFrame(), t);
     	}
@@ -569,7 +560,7 @@ public class AceTree extends JPanel
         System.gc();
         // check to see if the series is already in the hash
         String shortName = Config.getShortName(configFileName);
-        NucleiMgr nucMgr = iNucleiMgrHash.get(shortName);
+        NucleiMgr nucMgr = iNucleiMgrHash.get(shortName); // usually null - nucMgr created below in bringUpSeriesData()
         if (nucMgr == null) {
             // if not in hash then make sure there is such a file before proceeding
 
@@ -605,7 +596,7 @@ public class AceTree extends JPanel
      * @ return int indicating success or failure
      */
     public int bringUpSeriesData(String configFileName) {
-        System.out.println("bringUpSeriesData: " + configFileName);
+        System.out.println("accessing the data from nuc.zip in bringUpSeriesData");
         File fx = new File(configFileName);
 		//String ss = TITLE + ": " + fx.getName();
         //iMainFrame.setTitle(ss);
@@ -619,6 +610,7 @@ public class AceTree extends JPanel
         iMainFrame.setTitle(TITLE);
         
         // this is the only place where we construct a NucleiMgr
+        System.out.println("Building a NucleiMgr and setting ImageWindow useStack, splitMode flags: " + iUseStack + ", " + iSplit);
         NucleiMgr nucMgr = new NucleiMgr(configFileName);
         ImageWindow.setUseStack(iUseStack);
         ImageWindow.setSplitMode(iSplit);
@@ -3950,6 +3942,7 @@ public class AceTree extends JPanel
     }
 
     public void run(String arg0) {
+        println("AceTree created - creating and showing GUI");
         createAndShowGUI();
     }
 

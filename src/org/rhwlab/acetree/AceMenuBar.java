@@ -173,15 +173,17 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
         menu.add(iQuickOpen);
 		}
 
+		// OPEN FROM DB
         iOpenFromDB = new JMenuItem("Open from DB");
         iOpenFromDB.addActionListener(this);
         menu.add(iOpenFromDB);
 
+        // OPEN CONFIG FILE
         iOpen = new JMenuItem(OPEN);
         iOpen.addActionListener(this);
         menu.add(iOpen);
         
-        // Add Bookmark option to file menu
+        // BOOKMARKS
         iBookmark = new JMenuItem("Bookmarks");
         iBookmark.addActionListener(this);
         menu.add(iBookmark);
@@ -618,7 +620,7 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
         }else if (iOpenFromDB == o) {
             new OpenFromDB(iAceTree);
 
-        } else if(iOpen == o) {
+        } else if(iOpen == o) { // PRIMARY USAGE - OPEN FROM CONFIG FILE IN FILE MENU
 		    ExampleFileFilter filter = new ExampleFileFilter();
 		    filter.addExtension("xml");
 		    filter.addExtension("dat");
