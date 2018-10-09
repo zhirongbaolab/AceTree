@@ -15,26 +15,46 @@ import qdxml.DocHandler;
 import qdxml.QDParser;
 
 /**
- * @author biowolp
+ * Revised 10/2018
+ * @author Braden Katzman
  *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * This class, in its revised form, functions primarily as a loader for .xml configuration files by populating
+ * a local hashtable with the tag data in an .xml file and returning this to Config.java so that it can
+ * then be organized into Nuclei (i.e. .zip) specific parameters and Image (i.e. the image series) specific parameters
  */
 public class XMLConfig implements DocHandler {
 
+    // TODO - we'll get rid of these when the new pipeline is working
     static Config   iConfig;
     static String   iConfigFileName;
     String   iZipFile;
     String   iImageFile;
     String   iEndIndex;
-
     boolean pathRefigured;
 
+    private Hashtable<String, String> xmlConfigData;
 
-    public static Hashtable<String, String> loadConfigDataFromXMLFile(String filename) {
-        Hashtable<String, String> xmlConfigData = new Hashtable<>();
+    // non param constructor called by Config constructor with String parameter
+    public XMLConfig() {
+        this.xmlConfigData = new Hashtable();
+    }
+
+    public Hashtable<String, String> loadConfigDataFromXMLFile(String filename) {
+        this.xmlConfigData = new Hashtable<>();
 
         // populate the xmlConfigData hashtable but using QDParser
+        try {
+            // try opening the file
+            FileReader fr = new FileReader(filename);
+            QDParser.parse(this, fr);
+
+            // if we reach here, the file is valid and opened. Let's parse it with QDParser
+        } catch (FileNotFoundException fnfe) {
+            System.out.println("Error reading .xml file: " + filename + " in XMLConfig.loadConfigDataFromXMLFile()");
+            fnfe.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return xmlConfigData;
     }
@@ -67,6 +87,10 @@ public class XMLConfig implements DocHandler {
 	public void startElement(String tag, Hashtable h) throws Exception {
         pathRefigured = false;
         if (tag.equals("embryo")) {
+            // nothing for revised version on this tag
+
+            // ***********************************************
+            // FOR EACH OF THESE IF CONDITIONS, THERE IS THE NEW REVISED HANDLER AND THE PREVIOUS, SEPARATED BY A CHUNK OF WHITESPACE and a comment of asterisks
             if (iConfig == null) {
             	iConfig = new Config(iConfigFileName, true);
             }
@@ -77,11 +101,25 @@ public class XMLConfig implements DocHandler {
                 iConfig.iConfigHash.put(Config.configParams[i], "");
             }
         } else if (tag.equals("nuclei")) {
+            // save the zip file name
+            String f = (String)h.get("file");
+            this.xmlConfigData.put("zipFileName", f);
+
+            // **********************************************
+
             String file = (String)h.get("file");
             iConfig.iConfigHash.put("zipFileName", file);
         } else if (tag.equals("image")) {
+            // get the image file name and put it in the hash (previously, there was processing on this name before adding)
+            // but for tidyness sake, that should come later
+            String imageFileName = (String)h.get("file");
+            this.xmlConfigData.put("imageFileName", imageFileName);
+
+            // TODO - when specifying two channels in the image tag, add the support here (see resolution tag below for example)
+
+            // **********************************************
+
             String typical = (String)h.get("file");
-            
             System.out.println("");
             
             //check if the file exists
@@ -94,56 +132,119 @@ public class XMLConfig implements DocHandler {
             
             iConfig.iConfigHash.put("typical image", typical);
         } else if (tag.equals("start")) {
+            String startIdx = (String)h.get("index");
+            this.xmlConfigData.put("startIdx", startIdx);
+
+            // **********************************************
+
             String startIndex = (String)h.get("index");
             iConfig.iConfigHash.put("starting index", startIndex);
         } else if (tag.equals("end")) {
+            String endIdx = (String)h.get("index");
+            this.xmlConfigData.put("endIdx", endIdx);
+
+            // **********************************************
+
             String endIndex = (String)h.get("index");
             iConfig.iConfigHash.put("ending index", endIndex);
         } else if (tag.equals("naming")) {
+            String namingMethod = (String)h.get("method");
+            this.xmlConfigData.put("namingMethod", namingMethod);
+
+            // **********************************************
+
             String method = (String)h.get("method");
             iConfig.iConfigHash.put("namingMethod", method);
         } else if (tag.equals("axis")) {
             String axis = (String)h.get("axis");
+            this.xmlConfigData.put("axis", axis);
+
+            // **********************************************
+
             iConfig.iConfigHash.put("axis", axis);
         } else if (tag.equals("polar")) {
-            String size = (String)h.get("size");
-            iConfig.iConfigHash.put("polarSize", size);
-//            println("startElement: " + size);
+            String polarSize = (String)h.get("size");
+            this.xmlConfigData.put("polarSize", polarSize);
+
+            // **********************************************
+
+            iConfig.iConfigHash.put("polarSize", polarSize);
         } else if (tag.equals("resolution")) {
             String xyRes = (String)h.get("xyRes");
-            iConfig.iConfigHash.put("xyRes", xyRes);
             String zRes = (String)h.get("zRes");
-            iConfig.iConfigHash.put("zRes", zRes);
             String planeEnd = (String)h.get("planeEnd");
+
+            this.xmlConfigData.put("xyRes", xyRes);
+            this.xmlConfigData.put("zRes", zRes);
+            this.xmlConfigData.put("planeEnd", planeEnd);
+
+            // **********************************************
+
+            iConfig.iConfigHash.put("xyRes", xyRes);
+            iConfig.iConfigHash.put("zRes", zRes);
             iConfig.iConfigHash.put("planeEnd", planeEnd);
         } else if (tag.equals("exprCorr")) {
             String exprCorr = (String)h.get("type");
+
+            this.xmlConfigData.put("exprCorr", exprCorr);
+            // **********************************************
+
             iConfig.iConfigHash.put("exprCorr", exprCorr);
         } else if (tag.equals("useZip")) {
             String useZip = (String)h.get("type");
+            this.xmlConfigData.put("useZip", useZip);
+
+            // **********************************************
+
             iConfig.iConfigHash.put("use zip", useZip);
         } else if (tag.equals("useStack")) {
         	String useStack = (String)h.get("type");
+
+        	this.xmlConfigData.put("useStack", useStack);
+            // **********************************************
+
             iConfig.iConfigHash.put("use stack", useStack);   
         } else if (tag.equals("splitChannelImage")) {
+            // TODO - redundant, only need the Split flag below
         	String splitChannelImage = (String)h.get("type");
+
+        	this.xmlConfigData.put("splitChannelImage", splitChannelImage);
+            // **********************************************
+
         	iConfig.iConfigHash.put("splitChannelImage", splitChannelImage);
         } else if (tag.equals("angle")) {
         	String degrees = (String)h.get("degrees");
+            this.xmlConfigData.put("angle", degrees);
+
+            // **********************************************
+
         	iConfig.iConfigHash.put("angle", degrees);
         } else if (tag.equals("center")) {
         	String x = (String)h.get("x");
         	String y = (String)h.get("y");
+
+        	this.xmlConfigData.put("x", x);
+        	this.xmlConfigData.put("y", y);
+
+            // **********************************************
+
         	iConfig.iConfigHash.put("x", x);
         	iConfig.iConfigHash.put("y", y);
         } else if (tag.equals("Split")) { // TODO: pavak case has 16 bit and no 8, wants to use SplitMode to say don't split. Si0 case is has 8, 16, wants to use SplitMode so needs recongifuring
             String splitMode = (String)h.get("SplitMode");
+
+            this.xmlConfigData.put("split", splitMode);
+            // **********************************************
+
+            // TODO - this will end up happening later on, not appropriate for it to be done in the parser
             System.out.println("THE SPLIT MODE IS: " + splitMode);
             iConfig.iConfigHash.put("splitMode", splitMode);
             if (!pathRefigured && (!new File((String)iConfig.iConfigHash.get("typical image")).exists()))
                 iConfig.iConfigHash.put("typical image", reconfigureImagePath(iConfig.iConfigHash.get("typical image")));
         }
     }
+
+    public Hashtable<String, String> getXMLConfigDataHash() { return this.xmlConfigData; }
 
     /**
      * Update the image path from the 8bit one listed in the .xml file

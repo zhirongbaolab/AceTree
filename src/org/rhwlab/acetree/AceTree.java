@@ -408,26 +408,6 @@ public class AceTree extends JPanel
 		} 
 		return iAceTree;
     }
-  
-
-//     // public synchronized static AceTree getAceTree(String configFileName, String fullGUI) {
-	
-//     //if (iAceTree == null) {
-// 	    System.out.println("AceTree.getAceTree making a new AceTree: " + configFileName);
-// 	    if (configFileName != null) {
-//  		if (fullGUI!=null){
-// 		    iAceTree = new AceTree(configFileName,true);
-// 		}
-//  		else{
-// 		    iAceTree = new AceTree(configFileName,false);
-// 		}
-// 	    }
-// 	    else {
-// 		iAceTree = new AceTree(null,fullGUI);
-// 	    }
-// 	} 
-// 	return iAceTree;
-//     }
 	 
     public synchronized static AceTree getAceTree(Object configFileName) {
 	System.out.println("array factory");
@@ -641,6 +621,8 @@ public class AceTree extends JPanel
         iMainFrame.setTitle(TITLE);
 
         // Under the revisions, we want to create a top level Config class which will build separate ImageConfig and NucleiConfig objects
+
+        System.out.println("building a config manager using file name" + configFileName);
         this.configManager = new Config(configFileName);
 
         // now we have respective NucleiConfig and ImageConfig through the reference to configManager

@@ -79,6 +79,15 @@ public class Config {
     public int			iSplitChannelImage; // whether to split image into two channels for 16-bit mode
 
 
+    /**
+     * Revised constructor
+     * @author Braden Katzman
+     *
+     * This constructor takes a file name, opens and parses it, and separates the contents into the
+     * respective NucleiConfig and ImageConfig objects
+     *
+     * @param configFileName
+     */
     public Config(String configFileName) {
         // error check
         if (configFileName == null || configFileName.isEmpty()) return;
@@ -87,14 +96,21 @@ public class Config {
         int test_idx = configFileName.lastIndexOf(".");
         if (test_idx > 0) {
             if (configFileName.substring(test_idx).equals(XML_ext)) {
-                Hashtable<String, String> xmlConfigData = XMLConfig.loadConfigDataFromXMLFile(configFileName);
+                XMLConfig xmlConfigLoader = new XMLConfig();
+                Hashtable<String, String> xmlConfigData = xmlConfigLoader.loadConfigDataFromXMLFile(configFileName);
+
+                // TESTING *******************************************
+                for (String s : xmlConfigData.keySet()) {
+                    System.out.println("k, v: " + s + ", " + xmlConfigLoader.getXMLConfigDataHash().get(s));
+                }
+                // TESTING *******************************************
 
                 // use the data to populate the two config classes
                 this.nucConfig = new NucleiConfig();
                 this.imageConfig = new ImageConfig();
 
 
-            } else {
+            } else { // assume it's what kind of file? --> TODO put legacy support here
 
             }
         }
