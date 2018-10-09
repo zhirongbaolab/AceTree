@@ -6,3 +6,4 @@
 .classpath
 *.MF
 AceTree.iml
+src/.DS_store
