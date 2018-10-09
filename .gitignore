@@ -4,3 +4,6 @@
 *.class
 .project
 .classpath
+*.MF
+*.DS_STORE
+*.iml
