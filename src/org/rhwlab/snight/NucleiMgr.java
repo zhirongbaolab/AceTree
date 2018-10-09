@@ -93,27 +93,20 @@ public class NucleiMgr {
 
     }
 
-
-    // Method doesn't seem to be used anywhere
-    /*
-    public void setNucleiRecord(Vector nr) {
-    	nuclei_record = nr;
-    }
-    */
-
-
     // Timing commented out -was used for optimization
     @SuppressWarnings("unused")
 	public NucleiMgr(String configFileName) {
         System.out.println("Creating NucleiMgr using config file name");
 
+        // this is deprecated and not used anymore. Kind of a tangled up class in other parts of the program but it can be safely removed
+        iEditLog = new EditLog("EditLog");
+
+        // REMOVE THESE --> SHOULD BE IN IMAGE CONFIG
         // ******************** SET THE DEFAULT FLAGS ***************
     	iUseStack = 0; // indicates 8bit images
     	iSplit = 1; // indicates split into two channels if 16bit images are used
     	// **********************************************************
-        //System.out.println("NucleiMgr(" + configFileName + ")" + CS + DBAccess.cDBLocation);
-        //iAceTree = AceTree.getAceTree(null);
-        iEditLog = new EditLog("EditLog");
+
 
 
         /* example format:

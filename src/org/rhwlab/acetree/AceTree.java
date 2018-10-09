@@ -25,6 +25,8 @@ import org.rhwlab.image.CellMovementImage;
 import org.rhwlab.image.ImageAllCentroids;
 import org.rhwlab.image.ImageWindow;
 import org.rhwlab.image.DepthViews;
+import org.rhwlab.image.management.ImageManager;
+import org.rhwlab.image.management.ImageWindowDelegate;
 import org.rhwlab.nucedit.EditLog;
 import org.rhwlab.nucedit.KillCellsDialog;
 //import org.rhwlab.nucedit.NucAddDialog;
@@ -162,9 +164,8 @@ public class AceTree extends JPanel
 //    private boolean     iRootEstablished;
     private int         iImageTime;
     private int         iImagePlane;
-    public  ImageWindow iImgWin;
+
     private boolean     iImgWinSet;
-    private NucleiMgr   iNucleiMgr;
     //private Parameters  iParameters;
     public AncesTree   iAncesTree;
     private String      iOrientation;
@@ -263,7 +264,20 @@ public class AceTree extends JPanel
     
     private int iStartTime;
     //private GeneralStartupError iGSE;
-	
+
+
+    /*
+     * Revisions 10/2018 to image loading pipeline - grouping these variables together
+     * because they figure heavily in the revised pipeline
+     */
+    public  ImageWindow iImgWin;
+    private ImageWindowDelegate imageWindowDelegate;
+
+    private Config configManager;
+    private ImageManager imageManager;
+    private NucleiMgr   iNucleiMgr;
+    // ********************************************************************************
+
     /**
      * The only constructor defined for this class.
      * Instantiated in the main program.
@@ -499,6 +513,18 @@ public class AceTree extends JPanel
     }
 
 
+    /**
+     * Revised 10/2018
+     * @author Braden Katzman
+     *
+     * Builds modularized components:
+     * - NucleiMgr
+     * - NucleiConfig
+     * - ImageManager
+     * - ImageConfig
+     *
+     * @param configFileName
+     */
     public void bringUpSeriesUI(String configFileName) {
         System.out.println("Bringing up series UI using file name: " + configFileName);
     	try {
@@ -507,12 +533,16 @@ public class AceTree extends JPanel
 	        System.out.println("ImageWindow stack flag reset to 0 in AceTree.");
 	        ImageWindow.setUseStack(0);
 
+	        // garbage collection call - just to keep things tidy and running with enough memory - doesn't hurt
 	        System.gc();
+
+
 	        // check to see if the series is already in the hash
 	        String shortName = Config.getShortName(configFileName);
 	        NucleiMgr nucMgr = iNucleiMgrHash.get(shortName);
 	        if (nucMgr == null) {
 	            // if not in hash then make sure there is such a file before proceeding
+
 	            try {
 	                FileInputStream fis = new FileInputStream(configFileName);
 	                fis.close();
@@ -520,7 +550,11 @@ public class AceTree extends JPanel
 	                new AceTreeHelp("/org/rhwlab/help/messages/ConfigError.html", 200, 200);
 	                return;
 	            }
+
+	            // if we've reached here, then the file exists, so open it up
 	            int k = bringUpSeriesData(configFileName);
+
+	            // if the return value from bringUpSeriesData wasn't 0, then a problem occurred opening the data, return
 	            if (k != 0) return; //problem finding the zipNuclei
 	        }
 	        iNucleiMgr = iNucleiMgrHash.get(shortName);
@@ -591,6 +625,9 @@ public class AceTree extends JPanel
 
     /**
      * Set up the series data. Process the nuclei via the NucleiMgr and build the AncesTree
+     *
+     * Revised 10/2018
+     * @author Braden Katzman
      * 
      * @param configFileName - the file path of the config file
      * @ return int indicating success or failure
@@ -598,20 +635,22 @@ public class AceTree extends JPanel
     public int bringUpSeriesData(String configFileName) {
         System.out.println("accessing the data from nuc.zip in bringUpSeriesData");
         File fx = new File(configFileName);
-		//String ss = TITLE + ": " + fx.getName();
-        //iMainFrame.setTitle(ss);
-       // if(iSeriesLabel==null){
-       // 	iSeriesLabel=new JLabel("AceTree");
-       // 	iSeriesLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        	//iSeriesLabel.setHorizontalAlignment(SwingConstants.LEFT);
-        	//iSeriesLabel.setHorizontalTextPosition(SwingConstants.LEFT);
-        //}
+
+        // UI stuff
         iSeriesLabel.setText(fx.getName());
         iMainFrame.setTitle(TITLE);
-        
-        // this is the only place where we construct a NucleiMgr
-        System.out.println("Building a NucleiMgr and setting ImageWindow useStack, splitMode flags: " + iUseStack + ", " + iSplit);
+
+        // Under the revisions, we want to create a top level Config class which will build separate ImageConfig and NucleiConfig objects
+        this.configManager = new Config(configFileName);
+
+        // now we have respective NucleiConfig and ImageConfig through the reference to configManager
+
+
+        // Let's build a NucleiMgr, then we'll move on the putting the images together
         NucleiMgr nucMgr = new NucleiMgr(configFileName);
+
+
+        // Image related stuff
         ImageWindow.setUseStack(iUseStack);
         ImageWindow.setSplitMode(iSplit);
         System.out.println("ImageWindow static stack set: "+ iUseStack);

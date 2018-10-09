@@ -30,23 +30,21 @@ public class XMLConfig implements DocHandler {
 
     boolean pathRefigured;
 
+
+    public static Hashtable<String, String> loadConfigDataFromXMLFile(String filename) {
+        Hashtable<String, String> xmlConfigData = new Hashtable<>();
+
+        // populate the xmlConfigData hashtable but using QDParser
+
+        return xmlConfigData;
+    }
+
     public static Config createConfigFromXMLFile(String fileName) {
         iConfigFileName = fileName;
         //println("XMLConfig: reading config file: " + iConfigFileName);
         new XMLConfig(fileName, null);
         // NB Config.setStartingParms was just called
         return iConfig;
-    }
-
-    public XMLConfig(String fileName) {
-        try {
-            FileReader fr = new FileReader(fileName);
-            QDParser.parse(this, fr);
-        } catch(FileNotFoundException fnfe) {
-            fnfe.printStackTrace();
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public XMLConfig(String fileName, Config config) {
@@ -59,12 +57,6 @@ public class XMLConfig implements DocHandler {
         } catch(Exception e) {
             e.printStackTrace();
         }
-    }
-
-
-
-
-    public static void main(String[] args) {
     }
 
     /* (non-Javadoc)
