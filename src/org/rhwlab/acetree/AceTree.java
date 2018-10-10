@@ -517,9 +517,13 @@ public class AceTree extends JPanel
 	        System.gc();
 
 
-	        // check to see if the series is already in the hash
+	        // check to see if the series is already in the hash (this is an optimization to support faster loading of multiple datasets in a single runtime)
 	        String shortName = Config.getShortName(configFileName);
 	        NucleiMgr nucMgr = iNucleiMgrHash.get(shortName);
+
+	        // in most cases, the user will only open a single dataset during a program execution, which means there will be no
+            // no NucleiMgr in the hash. In those instances, we proceed by checking if the configuration file to build the NucMgr
+            // exists, and then build it via bringUpSeriesUI
 	        if (nucMgr == null) {
 	            // if not in hash then make sure there is such a file before proceeding
 
@@ -537,23 +541,26 @@ public class AceTree extends JPanel
 	            // if the return value from bringUpSeriesData wasn't 0, then a problem occurred opening the data, return
 	            if (k != 0) return; //problem finding the zipNuclei
 	        }
+
+	        // after bringUpSeriesData() completes, the nucMgr should be in the hash
 	        iNucleiMgr = iNucleiMgrHash.get(shortName);
+
+	        // if it's not, we've got problems
 	        if (iNucleiMgr == null) {
 	            System.out.println(HELPMSG + configFileName);
 	            System.exit(1);
 	        }
+
+	        // TODO REVISE EVERYTHING UNDER HERE
 	        iEditLog = iNucleiMgr.getEditLog();
 	        iNucleiMgr.sendStaticParametersToImageWindow();
 	        ImageWindow.setNucleiMgr(iNucleiMgr);
-	        
-	        //clearTree();
+
 	        setConfigFileName(configFileName);
 	        grabConfigStuff();
 	        iPlaneEnd = iNucleiMgr.getPlaneEnd();
 	        iPlaneStart = iNucleiMgr.getPlaneStart();
 	        iZPixRes=iNucleiMgr.getZPixRes();
-	        //clearTree();
-	        //iTree.updateUI();
 	
 	        buildTree(false);
 	        setShowAnnotations(true);
@@ -624,27 +631,37 @@ public class AceTree extends JPanel
 
         System.out.println("building a config manager using file name" + configFileName);
         this.configManager = new Config(configFileName);
-
+        //System.out.println(configManager.configsToString());
         // now we have respective NucleiConfig and ImageConfig through the reference to configManager
 
+        // Let's build a NucleiMgr, then we'll move on the putting the images together (it will be a local copy that we then place in the NucleiMgr hash)
+        NucleiMgr nucMgr = new NucleiMgr(configManager.getNucleiConfig()); // post 10/2018 revisions
+        nucMgr = new NucleiMgr(configFileName); // pre 10/2018 revisions
+        // at this point, the nuclei have been read into the system
 
-        // Let's build a NucleiMgr, then we'll move on the putting the images together
-        NucleiMgr nucMgr = new NucleiMgr(configFileName);
+        if (!nucMgr.iGoodNucleiMgr) {
+            return -1;
+        }
 
+        // if we've reached here, the NucMgr is good to go, so we can process the nuclei (set the successors and build the AncesTree object)
+        nucMgr.processNuclei(true); // post 10/2018 revisions
+        nucMgr.processNuclei(true, nucMgr.getConfig().iNamingMethod); // pre 10/2018 revisions
+        System.exit(0);
 
         // Image related stuff
         ImageWindow.setUseStack(iUseStack);
         ImageWindow.setSplitMode(iSplit);
         System.out.println("ImageWindow static stack set: "+ iUseStack);
         System.out.println("ImageWindow static split mode: " + iSplit);
-        if (!nucMgr.iGoodNucleiMgr) {
-            return -1;
-        }
+
         
-        nucMgr.processNuclei(true, nucMgr.getConfig().iNamingMethod);
+
         //nucMgr.processNuclei(false, nucMgr.getConfig().iNamingMethod);
         String config = nucMgr.getConfig().getShortName();
         println("bringUpSeriesData, " + config);
+
+        // now that the local nucMgr has been successfully built, put it in the hash so it can be
+        // accessed in bringUpSeriesUI and later if the user comes back to this dataset
         if (!iNucleiMgrHash.containsKey(config)) {
             iNucleiMgrHash.put(config, nucMgr);
 		    if(fullGUI)

@@ -237,10 +237,12 @@ public class MeasureCSV {
 	public String toString() {
 		String r = get("name");
 		if (isAuxInfoV2()) {
+			System.out.println("*** AuxInfo v2.0 ***");
 			for (int i=1; i < att_v2.length; i++) {
 				r += C + get(att_v2[i]);
 			}
 		} else {
+			System.out.println("*** AuxInfo v1.0 ***");
 			for (int i=1; i < att_v1.length; i++) {
 				r += C + get(att_v1[i]);
 			}

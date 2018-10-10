@@ -81,6 +81,8 @@ public class NucleiMgr {
     public int iUseStack;
     public int iSplit;
 
+    private NucleiConfig nucConfig;
+
     PrintWriter				iPrintWriter;
 
     int				iStartTime;
@@ -88,9 +90,47 @@ public class NucleiMgr {
     static String p2 = "t";
     static String p3 = "-nuclei";
 
-
     public NucleiMgr() {
 
+    }
+
+    /**
+     * Revised constructor
+     * @author Braden Katzman
+     *
+     * Now that the configuration for the nuclei .zip has been modularized, the manager
+     * takes this object as an argument and manages nuclei processing
+     *
+     * @param nucConfig
+     */
+    public NucleiMgr(NucleiConfig nucConfig) {
+        System.out.println("Creating a NucleiMgr using a NucleiConfig object.");
+        this.nucConfig = nucConfig;
+
+        iEditLog = new EditLog("EditLog");
+
+        // configurations (NucleiConfig and MeasureCSV) are now modularized so the
+        // primary purpose of the manager now is to process the nuclei
+        // the normal case where we have zipped nuclei to use
+        iZipNuclei = new ZipNuclei(nucConfig.getZipFileName());
+        if (iZipNuclei.iZipFile != null) {
+
+            // NUCLEI PROCESSING
+            long timeStart = System.nanoTime();
+            readNuclei();
+            long timeEnd = System.nanoTime();
+            double timeDiff = (timeEnd - timeStart) / 1e6;
+            System.out.println("Time elapsed reading nuclei: " + timeDiff + " ms.");
+
+            // IMAGE PROCESSING
+            getScopeParameters();
+            findImageParameters();
+            iGoodNucleiMgr = true;
+        }
+
+        computeRWeights();
+        System.gc(); // clean up
+        System.out.println("FINISHED NUCLEIMGR CONSTRUCTOR THAT USES NUCLEICONFIG OBJECT\n");
     }
 
     // Timing commented out -was used for optimization
@@ -167,18 +207,9 @@ public class NucleiMgr {
         m = zipPath.length() - m;
         if (m == 4) {
             System.out.println(" Direct opening of images is no longer supported");
-	    /*
-	    //removed this ability in cleaning dependence on  no longer supported from gui -AS 2/14/2013
-            fakeNuclei();
-            iParameters = fakeParameters(iConfig.iZipTifFilePath, iConfig.iTifPrefix);
-            getScopeParameters();
-            findImageParameters();
-            iGoodNucleiMgr = true;
-	    */
             iGoodNucleiMgr=false;
         } else {
             // the normal case where we have zipped nuclei to use
-            //iParameters = readParameterInfo(zipPath);
             iParameters = dummyParameters();
             iZipNuclei = new ZipNuclei(zipPath);
             if (iZipNuclei.iZipFile != null) {
@@ -243,18 +274,9 @@ public class NucleiMgr {
         int m = zipPath.lastIndexOf("NULL");
         m = zipPath.length() - m;
         if (m == 4) {
-	    /*
-			// no longer supported to remove dependency on Acetree as 2/14/2013
-            fakeNuclei();
-            iParameters = fakeParameters(iConfig.iZipTifFilePath, iConfig.iTifPrefix);
-            getScopeParameters();
-            findImageParameters();
-            iGoodNucleiMgr = true;
-	    */
             iGoodNucleiMgr = false;
         } else {
-            // the normal case where we have zipped nuclei to use
-            //iParameters = readParameterInfo(zipPath);
+            // the normal case where we have zipped nuclei to us
             iParameters = dummyParameters();
             iZipNuclei = new ZipNuclei(zipPath);
             if (iZipNuclei.iZipFile != null) {
@@ -326,6 +348,7 @@ public class NucleiMgr {
         return 0;
     }
 
+    // TODO move this to ImageManager
     private void findImageParameters() {
         // save off existing ImageWindow parameters
         String zipTifFilePath = ImageWindow.cZipTifFilePath;
@@ -362,6 +385,7 @@ public class NucleiMgr {
         ImageWindow.iSplit = iSplit;
     }
 
+    // TODO move this to ImageNameLogic
     private String makeImageName(int time, int plane) {
         // typical name: t001-p15.tif
         // to be augmented later to something like: images/050405-t001-p15.tif
@@ -388,95 +412,30 @@ public class NucleiMgr {
     }
 
 
+    // TODO these are
     public Parameters dummyParameters() {
         iParameters = new Parameters();
         iMovie = iParameters.getMovie();
-        iMovie.xy_res = iConfig.iXy_res; //.09f;
-        iMovie.z_res = iConfig.iZ_res; //1;
-        iParameters.polar_size = iConfig.iPolar_size; //45;
-        iMovie.plane_start = iConfig.iPlaneStart;
-        iMovie.plane_end = iConfig.iPlaneEnd;
+        if (nucConfig == null) {
+            iMovie.xy_res = iConfig.iXy_res; //.09f;
+            iMovie.z_res = iConfig.iZ_res; //1;
+            iParameters.polar_size = iConfig.iPolar_size; //45;
+            iMovie.plane_start = iConfig.iPlaneStart;
+            iMovie.plane_end = iConfig.iPlaneEnd;
 
-        iUseStack = iConfig.iUseStack;
-
-        return iParameters;
-
-    }
-
-//    private void createDummies(Parameters p) {
-//        iMovie = p.getMovie();
-//        iMovie.xy_res = iConfig.iXy_res; //.09f;
-//        iMovie.z_res = iConfig.iZ_res; //1;
-//        p.polar_size = iConfig.iPolar_size; //45;
-//        iMovie.plane_start = iConfig.iPlaneStart;
-//        iMovie.plane_end = iConfig.iPlaneEnd;
-//
-//        iUseStack = iConfig.iUseStack;
-//    }
-
-
-    public Parameters readParameterInfo(String zipPath) {
-        iZipNuclei = new ZipNuclei(zipPath);
-        if (iZipNuclei.iZipFile != null) {
-            iParameters =  readParameterInfo(iZipNuclei, iParameterEntry);
+            iUseStack = iConfig.iUseStack;
         } else {
-            iParameters = null;
+            iMovie.xy_res = (float)nucConfig.getXyRes(); //.09f;
+            iMovie.z_res = (float)nucConfig.getZRes(); //1;
+            iParameters.polar_size = nucConfig.getPolarSize(); //45;
+            iMovie.plane_start = nucConfig.getPlaneStart();
+            iMovie.plane_end = nucConfig.getPlaneEnd();
+
+            //iUseStack = iConfig.iUseStack;
         }
-        iParameters = new Parameters();
-        iMovie = iParameters.getMovie();
-        iMovie.xy_res = .09f;
-        iMovie.z_res = 1;
-        iParameters.polar_size = 45;
 
 
         return iParameters;
-    }
-
-    private Parameters readParameterInfo(ZipNuclei zn, String testParams) {
-        iParameters = new Parameters();
-        //iParameters.setParameters(zn, testParams);
-        // here we allow the config file to override the parameters file
-        // this makes it possible to load and view a portion of a data set
-        iMovie = iParameters.getMovie();
-        //if (iMovie.time_start < iStartingIndex) {
-        //    iMovie.time_start = iStartingIndex;
-        //}
-        //if (iMovie.time_end > iEndingIndex) {
-        //    iMovie.time_end = iEndingIndex;
-        //}
-        //if (iEndingIndex > iMovie.time_end) iEndingIndex = iMovie.time_end;
-        iMovie.tp_number = iMovie.time_end - iMovie.time_start + 1;
-        println("readParameters: iMovie.tp_number: " + iMovie.tp_number);
-        iNumNucleiFiles = iMovie.time_end - iMovie.time_start + 1;
-        System.out.println("SN_time_start: " + iMovie.time_start);
-        System.out.println("SN_time_end: " + iMovie.time_end);
-        System.out.println("SN_plane_start: " + iMovie.plane_start);
-        System.out.println("SN_plane_end: " + iMovie.plane_end);
-        //System.out.println("readParameters: " + iMovie);
-        return iParameters;
-    }
-
-    public void readEditLog(Log editLog) {
-        ZipEntry ze = iZipNuclei.getZipEntry(PARAMETERS + C.Fileseparator + "EditLog.txt");
-        if (ze == null) {
-            System.out.println("no edit log found");
-            iEditLog.append("\nSTART: " + new GregorianCalendar().getTime().toString());
-            iEditLog.append("from config file: " + iConfig.iConfigFileName);
-            return;
-        }
-        //System.out.println("\nREADING EDITLOG");
-        String s = null;
-        //Log log = iAceTree.getEditLog();
-        if (ze != null) {
-            //log.append(NL + "READING STORED EDITLOG " + log.getTime());
-            while ((s = iZipNuclei.readLine(ze)) != null) {
-                //System.out.println("logline: " + s);
-                iEditLog.append(s);
-            }
-            //log.append("END OF STORED EDITLOG " + log.getTime() + NL);
-
-        }
-        //System.out.println("readEditLog exiting");
 
     }
 
@@ -491,8 +450,8 @@ public class NucleiMgr {
             iConfig.iEndingIndex = last;
         }
         System.out.println("last, iEndingIndex: " + last + CS + iEndingIndex + CS  + iConfig.iEndingIndex + CS + iMovie);
-        iUseStack = iConfig.iUseStack;
-        iSplit = iConfig.iSplit;
+//        iUseStack = iConfig.iUseStack;
+//        iSplit = iConfig.iSplit;
     }
 
     // here I want to read all the nuclei data in the zip file
@@ -899,11 +858,6 @@ public class NucleiMgr {
 
 
     private void getScopeParameters() {
-        //iMovie = iParameters.getMovie();
-        //iPlaneEnd = iMovie.plane_end;
-        //iZPixRes = iMovie.z_res/iMovie.xy_res*iParameters.z_res_fudge;
-        ////NucUtils.setZPixRes(iZPixRes);
-        //if (iEndingIndex > iMovie.time_end) iEndingIndex = iMovie.time_end;
 
         if (!iFakeNuclei) {
             iMovie = iParameters.getMovie();
@@ -917,11 +871,6 @@ public class NucleiMgr {
 
         }
         NucUtils.setZPixRes(iZPixRes);
-        //System.out.println("getScopeParameters: iEndingIndex=" + iEndingIndex);
-        //System.out.println("getScopeParameters: xy_res=" + iMovie.xy_res);
-        //System.out.println("getScopeParameters: z_res=" + iMovie.z_res);
-        //System.out.println("getScopeParameters: z_res_fudge=" + iParameters.z_res_fudge);
-        //System.out.println("getScopeParameters: iZPixRes=" + iZPixRes);
     }
 
     public void setParameterEntry(String parameterLocation) {
@@ -981,130 +930,33 @@ public class NucleiMgr {
         return iFakeNuclei;
     }
 
-    /*
-// I removed the image without config file code to escape dependence on acetree class
-// the feature is no longer used/supported from gui anyway 2/14/2013 -AS
-
-    public Parameters fakeParameters(String tifPath, String tifPrefix) {
-        Parameters p = new Parameters();
-        //Movie iMovie = p.getMovie();
-        createDummies(p);
-
-        String start = tifPath + C.Fileseparator + tifPrefix;
-        int i;
-        for (i=0; i <= 50; i++) {
-            String s = makeImageName(iStartingIndex, i + 1);
-            File f = new File(start + s);
-            if (!f.exists()) break;
-        }
-        int planeEnd = i;
-        System.out.println("iPlaneEnd: " + i);
-        for (i=0; i <= 1000; i++) {
-            String s =makeImageName(i + 1, 1);
-            File f = new File(start + s);
-            if (!f.exists()) break;
-
-        }
-        System.out.println("iTimeEnd: " + i);
-        int timeEnd = i;
-        iMovie.plane_start = 1;
-        iMovie.plane_end = planeEnd;
-        iMovie.time_start = iStartingIndex;
-        iMovie.time_end = timeEnd;
-        iMovie.xy_res = 0.09f;
-        iMovie.z_res = 1.0f;
-        p.z_res_fudge = 1.0f;
-        p.parameterFileData = new Vector();
-        p.parameterFileData.add("# faked parameters");
-        p.parameterFileData.add("time_start " + iMovie.time_start);
-        p.parameterFileData.add("time_end " + iMovie.time_end);
-        p.parameterFileData.add("plane_start " + iMovie.plane_start);
-        p.parameterFileData.add("plane_end " + iMovie.plane_end);
-        p.parameterFileData.add("xy_res " + iMovie.xy_res);
-        p.parameterFileData.add("z_res " + iMovie.z_res);
-        p.parameterFileData.add("z_res_fudge " + p.z_res_fudge);
-
-        return p;
-    }
-    */
-
-    public void reviewNuclei() {
-        Vector<Vector<Nucleus>> nr = nuclei_record;
-        for (int i=194; i < 195; i++) {
-            Vector<Nucleus> nuclei = nr.get(i);
-            for (int j=0; j < nuclei.size(); j++) {
-                Nucleus n = nuclei.get(j);
-                println("reviewNuclei, " + i + CS + j  + CS + n);
-            }
-        }
+    /**
+     * Revised 10/2018
+     *
+     * The manager (this) now contains
+     * @param doIdentity
+     */
+    public void processNuclei(boolean doIdentity) {
+        processNuclei(doIdentity, nucConfig.getNamingMethod());
     }
 
 
     // Timing commented out -was used for optimization
     public void processNuclei(boolean doIdentity, int namingMethod) {
         println("NucleiMgr processing nuclei including: assigning names, building AncesTree");
-        //println("reviewNuclei, 1");
-        //reviewNuclei();
         setAllSuccessors();
         if (iIdentity == null)
             iIdentity = new Identity3(this);
         iIdentity.setNamingMethod(getConfig().iNamingMethod);
         iIdentity.setPrintWriter(iPrintWriter);
-        //println("reviewNuclei, 2");
-        //reviewNuclei();
-//        println("about to create names");
         if (doIdentity) {
             iIdentity.identityAssignment();
         }
-//        println("about to create tree data structure");
-//    	println("reviewNuclei, 3");
-        // Debug here
-        // For debugging to see if all nuclei information was correctly read from zip file
-    	/*
-        for (int i = 0; i < nuclei_record.size(); i++) {
-        	System.out.println(i);
-        	Vector v = (Vector)nuclei_record.elementAt(i);
-        	Enumeration en = v.elements();
-        	while (en.hasMoreElements()) {
-        		Nucleus temp = (Nucleus)en.nextElement();
-        		System.out.println("("+temp.identity+")");
-        	}
-        }
-        */
-        //reviewNuclei();
-        //long timeStart = System.nanoTime();
         int newstart = iStartingIndex;
         if (iStartingIndex < iStartTime)
             newstart = iStartTime;
         iAncesTree = new AncesTree(null, this, newstart, iEndingIndex);
-//        Cell PP = (Cell)iAncesTree.getCellsByName().get("P");
-        //long timeEnd = System.nanoTime();
-        //double timeDiff = (timeEnd-timeStart)/1e6;
-        //System.out.println("Time to load entries: "+timeDiff+" ms");
-//        int kk = PP.getChildCount();
-
-        // For non-1 starting time, PP has a 0 child count
-        //iAncesTree.printCounts();
-        //println("NucleiMgr, constructor, " + kk + CS + PP.getName());
     }
-    /*
-      // removed this to eliminate dependence on AceTree -as 2/14/2013
-    //20051116 added this while debugging Analysis.java
-    // but I am worried that it could cause problems
-    // because of squirrely behavior of the DefaultMutableTreeNode
-    // basically I got the code from AceTree.updateRoot()
-    public Cell getRoot() {
-        Cell root = new Cell(AceTree.ROOTNAME);
-        Vector rootCells = iAncesTree.getRootCells();
-        Enumeration e = rootCells.elements();
-        while (e.hasMoreElements()) {
-            Cell c = (Cell)e.nextElement();
-            root.add(c);
-        }
-
-        return root;
-    }
-    */
     public Hashtable getCellsByName() {
         return iAncesTree.getCellsByName();
     }
@@ -1279,45 +1131,6 @@ public class NucleiMgr {
         return 0;
     }
 
-//    private void open(String s) {
-//        try {
-//            iFile = new File(s);
-//            iFOS = new FileOutputStream(iFile);
-//            iPWriter = new PrintWriter(iFOS);
-//
-//        } catch(IOException ioe) {
-//            ioe.printStackTrace();
-//        }
-//
-//    }
-//
-//    private void close() {
-//        try {
-//            iPWriter.close();
-//            iFOS.close();
-//        } catch(IOException ioe) {
-//            ioe.printStackTrace();
-//        }
-//    }
-//
-//    private void write(String s) {
-//        iPWriter.println(s);
-//    }
-
-//    private void printNuclei() {
-//    	System.out.println("Saving printNuclei loop end: "+iMovie.tp_number);
-//        for (int i = 0; i< iMovie.tp_number; i++) {
-//            String name = "t" + EUtils.makePaddedInt(i + 1) + "-nuclei";
-//            open(name);
-//            Vector<Nucleus> nuclei = nuclei_record.elementAt(i);
-//            for (int j=0; j<nuclei.size(); j++) {
-//                Nucleus nucleij = (Nucleus)nuclei.elementAt(j);
-//                write(nucleij.toString());
-//            }
-//            close();
-//        }
-//    }
-
     /**
      * Special tokenizing function adapted to the lines in nuclei files
      *
@@ -1380,62 +1193,7 @@ public class NucleiMgr {
             ,CS = ", "
             ;
 
-//    @SuppressWarnings({ "unused", "null" })
-//	public static void main(String[] args) {
-//        System.out.println("NucleiMgr test main entered");
-//        NucleiMgr test = null; //new NucleiMgr(0, 100);
-//        String testZip = "t220.zip";
-//        ZipNuclei zn = new ZipNuclei(testZip);
-//        String testParams = "parameters/t220-parameters";
-//        test.readParameterInfo(zn, testParams);;
-//        Movie Movie = test.iParameters.getMovie();
-//        int timePts = Movie.time_end - Movie.time_start + 1;
-//        Vector<Nucleus>[] na = new Vector<Nucleus>[timePts];
-//        timePts = 20;
-//        test.readNuclei(zn);
-//        int start = 7, end = 10;
-//        for (int i=start; i < end; i++) {
-//            Vector<Vector<Nucleus>> a = test.nuclei_record;
-//            Vector<Nucleus> b = a.elementAt(i);
-//            int c = b.size();
-//            for (int j=0; j < c; j++) {
-//                Nucleus n = (Nucleus)b.elementAt(j);
-//                n.identity = "";
-//            }
-//        }
-//        int [] lineage_ct_p = new int[1];
-//        lineage_ct_p[0] = 0;
-//        System.out.println("lineage_ct_p=" + lineage_ct_p[0]);
-//        test.printNuclei();
-//        System.out.println("main exiting");
-//    }
-
     private void println(String s) {System.out.println(s);}
     private void newLine() {System.out.println("");}
 
 }
-/**
- * default constructor
- * <br> this object should be a singleton
- *
- */
-/*
-public NucleiMgr(AceTree aceTree, int startingIndex, int endingIndex) {
-    super();
-    // the following are based on the current structure
-    // of the nuclei and parameters files
-    p1 = "nuclei/";
-    //p2 = "t";
-    //p3 = "-nuclei";
-    iStartingIndex = 1;
-    iEndingIndex = endingIndex - startingIndex + 1;
-    iIndexOffset = startingIndex - 1;
-    //iStartingIndex = startingIndex;
-    //iEndingIndex = endingIndex;
-    iAceTree = aceTree;
-    iFakeNuclei = false;
-    iDLog = iAceTree.getDebugLog();
-    System.out.println("NucleiMgr: " + iStartingIndex + ", " + iEndingIndex);
-
-}
-*/

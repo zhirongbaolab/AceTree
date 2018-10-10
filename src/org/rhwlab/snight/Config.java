@@ -32,12 +32,83 @@ import org.rhwlab.image.management.ImageConfig;
  */
 public class Config {
 
+    //******************************************************************************************************************
     // main vars
     private NucleiConfig nucConfig;
     private ImageConfig imageConfig;
 
     // helper vars
     private String XML_ext = ".xml";
+
+    /**
+     * Revised constructor
+     * @author Braden Katzman
+     *
+     * This constructor takes a file name, opens and parses it, and separates the contents into the
+     * respective NucleiConfig and ImageConfig objects
+     *
+     * @param configFileName
+     */
+    public Config(String configFileName) {
+        // error check
+        if (configFileName == null || configFileName.isEmpty()) return;
+
+        // check what kind of file it is
+        int test_idx = configFileName.lastIndexOf(".");
+        if (test_idx > 0) {
+            if (configFileName.substring(test_idx).equals(XML_ext)) {
+                XMLConfig xmlConfigLoader = new XMLConfig();
+                Hashtable<String, String> xmlConfigData = xmlConfigLoader.loadConfigDataFromXMLFile(configFileName);
+
+//                // TESTING *******************************************
+//                for (String s : xmlConfigData.keySet()) {
+//                    System.out.println("k, v: " + s + ", " + xmlConfigLoader.getXMLConfigDataHash().get(s));
+//                }
+//                // TESTING *******************************************
+
+                // use the data to populate the two config classes
+                this.nucConfig = new NucleiConfig(xmlConfigData);
+                this.imageConfig = new ImageConfig(xmlConfigData);
+
+
+            } else { // assume it's what kind of file? --> TODO put legacy support here
+
+            }
+        }
+    }
+
+    public void addMeasureCSVParametersToConfigurations(MeasureCSV measureCSV) {
+
+    }
+
+    public NucleiConfig getNucleiConfig() {
+        return this.nucConfig;
+    }
+
+    public ImageConfig getImageConfig() {
+        return this.imageConfig;
+    }
+
+    public String configsToString() {
+        return nucConfig.toString() + imageConfig.toString();
+    }
+    //******************************************************************************************************************
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // REVISE ALL OF THESE VARS
     public String       iConfigFileName;
@@ -79,42 +150,7 @@ public class Config {
     public int			iSplitChannelImage; // whether to split image into two channels for 16-bit mode
 
 
-    /**
-     * Revised constructor
-     * @author Braden Katzman
-     *
-     * This constructor takes a file name, opens and parses it, and separates the contents into the
-     * respective NucleiConfig and ImageConfig objects
-     *
-     * @param configFileName
-     */
-    public Config(String configFileName) {
-        // error check
-        if (configFileName == null || configFileName.isEmpty()) return;
 
-        // check what kind of file it is
-        int test_idx = configFileName.lastIndexOf(".");
-        if (test_idx > 0) {
-            if (configFileName.substring(test_idx).equals(XML_ext)) {
-                XMLConfig xmlConfigLoader = new XMLConfig();
-                Hashtable<String, String> xmlConfigData = xmlConfigLoader.loadConfigDataFromXMLFile(configFileName);
-
-                // TESTING *******************************************
-                for (String s : xmlConfigData.keySet()) {
-                    System.out.println("k, v: " + s + ", " + xmlConfigLoader.getXMLConfigDataHash().get(s));
-                }
-                // TESTING *******************************************
-
-                // use the data to populate the two config classes
-                this.nucConfig = new NucleiConfig();
-                this.imageConfig = new ImageConfig();
-
-
-            } else { // assume it's what kind of file? --> TODO put legacy support here
-
-            }
-        }
-    }
 
 
     public Config() {
