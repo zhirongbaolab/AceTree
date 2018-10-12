@@ -11,6 +11,12 @@ public class NucleiConfig {
     private int namingMethod;
     private String namingMethodKey = "namingMethod";
 
+    private int startingIndex;
+    private String startingIndexKey = "startIdx";
+
+    private int endingIndex;
+    private String endingIndexKey = "endIdx";
+
     private double xyRes;
     private String xyResKey = "xyRes";
 
@@ -51,6 +57,9 @@ public class NucleiConfig {
         namingMethod = polarSize = -1;
         angle = -1.;
 
+        // default to a value that won't break the program
+        planeStart = 1;
+
         if (configData == null) return;
 
         for (String s : configData.keySet()) {
@@ -62,6 +71,10 @@ public class NucleiConfig {
                 this.xyRes = Double.parseDouble(configData.get(s));
             } else if (s.toLowerCase().equals(zResKey.toLowerCase())) {
               this.zRes = Double.parseDouble(configData.get(s));
+            } else if (s.toLowerCase().equals(startingIndexKey.toLowerCase())) {
+                this.startingIndex = Integer.parseInt(configData.get(s));
+            } else if (s.toLowerCase().equals(endingIndexKey.toLowerCase())) {
+                this.endingIndex = Integer.parseInt(configData.get(s));
             } else if (s.toLowerCase().equals(planeEndKey.toLowerCase())) {
                 this.planeEnd = Integer.parseInt(configData.get(s));
             } else if (s.toLowerCase().equals(polarSizeKey.toLowerCase())) {
@@ -99,6 +112,10 @@ public class NucleiConfig {
     public void setXyRes(double xyRes) { this.xyRes = xyRes; }
     public void setZRes(String zRes) { setZRes(Double.parseDouble(zRes)); }
     public void setZRes(double zRes) { this.zRes = zRes; }
+    public void setStartingIndex(String startingIndex) { setStartingIndex(Integer.parseInt(startingIndex)); }
+    public void setStartingIndex(int startingIndex) { this.startingIndex = startingIndex; }
+    public void setEndingIndex(String endingIndex) { setEndingIndex(Integer.parseInt(endingIndex)); }
+    public void setEndingIndex(int endingIndex) { this.endingIndex = endingIndex; }
     public void setPlaneStart(String planeStart) { setPlaneStart(Integer.parseInt(planeStart)); }
     public void setPlaneStart(int planeStart) { this.planeStart = planeStart; }
     public void setPlaneEnd(String planeEnd) { setPlaneEnd(Integer.parseInt(planeEnd)); }
@@ -117,11 +134,14 @@ public class NucleiConfig {
     public int getNamingMethod() { return this.namingMethod; }
     public double getXyRes() { return this.xyRes; }
     public double getZRes() { return this.zRes; }
+    public int getStartingIndex() { return this.startingIndex; }
+    public int getEndingIndex() { return this.endingIndex; }
     public int getPlaneStart() { return this.planeStart; }
     public int getPlaneEnd() { return this.planeEnd; }
     public int getPolarSize() { return this.polarSize; }
     public String getAxisGiven() { return this.axisGiven; }
     public double getAngle() { return this.angle; }
+    public double getZPixRes() { return this.zRes/this.xyRes; } // this value is
     public MeasureCSV getMeasureCSV() { return this.measureCSV; }
 
     @Override

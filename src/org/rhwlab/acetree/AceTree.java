@@ -646,7 +646,7 @@ public class AceTree extends JPanel
         // if we've reached here, the NucMgr is good to go, so we can process the nuclei (set the successors and build the AncesTree object)
         nucMgr.processNuclei(true); // post 10/2018 revisions
         nucMgr.processNuclei(true, nucMgr.getConfig().iNamingMethod); // pre 10/2018 revisions
-        System.exit(0);
+        //System.exit(0);
 
         // Image related stuff
         ImageWindow.setUseStack(iUseStack);

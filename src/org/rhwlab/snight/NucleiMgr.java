@@ -122,12 +122,18 @@ public class NucleiMgr {
             double timeDiff = (timeEnd - timeStart) / 1e6;
             System.out.println("Time elapsed reading nuclei: " + timeDiff + " ms.");
 
-            // IMAGE PROCESSING
-            getScopeParameters();
-            findImageParameters();
+            // under the replaced configuration and loading pipeline, getScopeParameters() and findImageParameters()
+            // are unneccessary calls here (as compared to the other constructors). However, there are a few outstanding
+            // operations that still need to be performed, so we just call them here
+            NucUtils.setZPixRes(nucConfig.getZPixRes());
+
+            //findImageParameters(); --> left in here to show that in the other constructors, this is where the loading pipeline
+            // starts to bring up the image data. this is a major point of redirect. The nuclei manager will be passed back to
+            // AceTree.java and it will facilitate image opening
             iGoodNucleiMgr = true;
         }
 
+        // set the weights of the nuclei based on the expression correlation method specified in the XML
         computeRWeights();
         System.gc(); // clean up
         System.out.println("FINISHED NUCLEIMGR CONSTRUCTOR THAT USES NUCLEICONFIG OBJECT\n");
@@ -137,6 +143,8 @@ public class NucleiMgr {
     @SuppressWarnings("unused")
 	public NucleiMgr(String configFileName) {
         System.out.println("Creating NucleiMgr using config file name");
+
+        nucConfig = null; // used as a marker for the time being to indicate that this is a constructor from the old loading pipeline
 
         // this is deprecated and not used anymore. Kind of a tangled up class in other parts of the program but it can be safely removed
         iEditLog = new EditLog("EditLog");
@@ -241,8 +249,9 @@ public class NucleiMgr {
     @SuppressWarnings("unused")
 	public NucleiMgr(Config config) {
         System.out.println("Creating NucleiMgr using Config object made from: " + config.iConfigFileName);
-        //System.out.println("NucleiMgr(" + configFileName + ")" + CS + DBAccess.cDBLocation);
-        ////iAceTree = AceTree.getAceTree(null);
+
+        nucConfig = null; // indicates old loading pipeline
+
         iEditLog = new EditLog("EditLog");
         String configFileName = config.iConfigFileName;
         int k2 = configFileName.lastIndexOf(".");
@@ -340,11 +349,20 @@ public class NucleiMgr {
     }
 
     private int getWeightMethodIndex() {
-        String method = iConfig.iExprCorr;
-        if (method.equals("global")) return 1;
-        if (method.equals("local")) return 2;
-        if (method.equals("blot")) return 3;
-        if (method.equals("cross")) return 4;
+        if (nucConfig == null) {
+            String method = iConfig.iExprCorr;
+            if (method.equals("global")) return 1;
+            if (method.equals("local")) return 2;
+            if (method.equals("blot")) return 3;
+            if (method.equals("cross")) return 4;
+        } else {
+            String method = nucConfig.get;
+            if (method.equals("global")) return 1;
+            if (method.equals("local")) return 2;
+            if (method.equals("blot")) return 3;
+            if (method.equals("cross")) return 4;
+        }
+
         return 0;
     }
 
@@ -430,8 +448,6 @@ public class NucleiMgr {
             iParameters.polar_size = nucConfig.getPolarSize(); //45;
             iMovie.plane_start = nucConfig.getPlaneStart();
             iMovie.plane_end = nucConfig.getPlaneEnd();
-
-            //iUseStack = iConfig.iUseStack;
         }
 
 
@@ -442,16 +458,22 @@ public class NucleiMgr {
     // CURRENT VERSION
     public void readNuclei() {
         int last = readNuclei(iZipNuclei);
-        if (last < iEndingIndex) {
-            iEndingIndex = last;
-            iConfig.iEndingIndex = iEndingIndex;
+
+        if (nucConfig == null) {
+            if (last < iEndingIndex) {
+                iEndingIndex = last;
+                iConfig.iEndingIndex = iEndingIndex;
+            }
+            if (last < iConfig.iEndingIndex) {
+                iConfig.iEndingIndex = last;
+            }
+            System.out.println("last, iEndingIndex: " + last + CS + iEndingIndex + CS  + iConfig.iEndingIndex + CS + iMovie);
+        } else {
+            // update the nucConfig's ending index if we find that there are less zip entries than is listed in the XML file
+            if (last < nucConfig.getEndingIndex()) {
+                nucConfig.setEndingIndex(last);
+            }
         }
-        if (last < iConfig.iEndingIndex) {
-            iConfig.iEndingIndex = last;
-        }
-        System.out.println("last, iEndingIndex: " + last + CS + iEndingIndex + CS  + iConfig.iEndingIndex + CS + iMovie);
-//        iUseStack = iConfig.iUseStack;
-//        iSplit = iConfig.iSplit;
     }
 
     // here I want to read all the nuclei data in the zip file
@@ -463,25 +485,19 @@ public class NucleiMgr {
         // the following results in all nuclei files being read
         // regardless of 1StartTime and iEndTime
         newLine();
-        System.out.println("readNuclei:1 " + iMovie.time_end + CS + iMovie.time_start);
+        System.out.println("Reading Nuclei from .zip");
+        //System.out.println("readNuclei:1 " + iMovie.time_end + CS + iMovie.time_start);
         // Initializes vector to array of empty vectors
 
-        fakeNuclei();
-
-        // Try replacing fakeNuclei() with this:
-        // Increment vector size by VEC_INCREMENT_SIZE (20) each time it is resized up
-        //nuclei_record = new Vector(??, VEC_INCREMENT_SIZE);
+        fakeNuclei(); // for memory allocation purposes - I think?
 
         iFakeNuclei = false; //override this param
         Nucleus n = null;
         int debugCount = 0;
-        System.out.println("readNuclei:2 " + iMovie.time_end + CS + iMovie.time_start);
 
-        // Try this way of iterating through zip entries
-        //InputStream is = getInputStream
-        //ZipEntry ze = null;
+        //System.out.println("readNuclei:2 " + iMovie.time_end + CS + iMovie.time_start);
 
-        // Old way of iteration
+        // iterate over the contents of the zip file
         Enumeration<? extends ZipEntry> e = zn.iZipFile.entries();
         //int lastNonEmptyIndex = 0;
         while (e.hasMoreElements()) {
@@ -578,7 +594,7 @@ public class NucleiMgr {
 
         println("readNuclei: at end, nuclei_record.size: " + nuclei_record.size());
 
-        System.out.println("readNuclei:3 " + iMovie.time_end + CS + iMovie.time_start);
+        //System.out.println("readNuclei:3 " + iMovie.time_end + CS + iMovie.time_start);
 
         return nuclei_record.size();
     }
@@ -864,7 +880,7 @@ public class NucleiMgr {
             iPlaneEnd = iMovie.plane_end;
             iZPixRes = iMovie.z_res/iMovie.xy_res*iParameters.z_res_fudge;
             //println("getScopeParameters: iZPixRes: " + iZPixRes);
-        } else {
+        } else if (nucConfig == null) {
             iPlaneEnd = iConfig.iPlaneEnd;
             iPlaneStart = iConfig.iPlaneStart;
             iZPixRes = iConfig.iZ_res/iConfig.iXy_res;
