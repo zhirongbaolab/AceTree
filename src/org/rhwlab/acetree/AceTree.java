@@ -636,7 +636,7 @@ public class AceTree extends JPanel
 
         // Let's build a NucleiMgr, then we'll move on the putting the images together (it will be a local copy that we then place in the NucleiMgr hash)
         NucleiMgr nucMgr = new NucleiMgr(configManager.getNucleiConfig()); // post 10/2018 revisions
-        nucMgr = new NucleiMgr(configFileName); // pre 10/2018 revisions
+        //nucMgr = new NucleiMgr(configFileName); // pre 10/2018 revisions
         // at this point, the nuclei have been read into the system
 
         if (!nucMgr.iGoodNucleiMgr) {
@@ -645,8 +645,10 @@ public class AceTree extends JPanel
 
         // if we've reached here, the NucMgr is good to go, so we can process the nuclei (set the successors and build the AncesTree object)
         nucMgr.processNuclei(true); // post 10/2018 revisions
+        System.exit(0);
+
         nucMgr.processNuclei(true, nucMgr.getConfig().iNamingMethod); // pre 10/2018 revisions
-        //System.exit(0);
+
 
         // Image related stuff
         ImageWindow.setUseStack(iUseStack);
