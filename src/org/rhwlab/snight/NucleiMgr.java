@@ -315,12 +315,19 @@ public class NucleiMgr {
     public void computeRWeights() {
         int k = getWeightMethodIndex();
         try {
-            for (int i = iStartingIndex; i <= iEndingIndex; i++) {
-                //println("computeRWeight, " + i);
+            int firstIdx;
+            int lastIdx;
+            if (nucConfig == null) {
+                firstIdx = iStartingIndex;
+                lastIdx = iEndingIndex;
+            } else {
+                firstIdx = nucConfig.getStartingIndex();
+                lastIdx = nucConfig.getEndingIndex();
+            }
+            for (int i = firstIdx; i <= lastIdx; i++) {
                 Vector<Nucleus> v = nuclei_record.get(i - 1);
                 for (int j=0; j < v.size(); j++) {
                     Nucleus n = v.get(j);
-                    //println("computeRWeight, " + n.identity);
                     if (n.status >= 0) computeRWeight(n, k);
                 }
             }
@@ -356,7 +363,7 @@ public class NucleiMgr {
             if (method.equals("blot")) return 3;
             if (method.equals("cross")) return 4;
         } else {
-            String method = nucConfig.get;
+            String method = nucConfig.getExprCorr();
             if (method.equals("global")) return 1;
             if (method.equals("local")) return 2;
             if (method.equals("blot")) return 3;
@@ -963,15 +970,26 @@ public class NucleiMgr {
         setAllSuccessors();
         if (iIdentity == null)
             iIdentity = new Identity3(this);
-        iIdentity.setNamingMethod(getConfig().iNamingMethod);
+
+        int newStart;
+        if (nucConfig == null) {
+            iIdentity.setNamingMethod(getConfig().iNamingMethod);
+            newStart = iStartingIndex;
+
+        } else  {
+            iIdentity.setNamingMethod(nucConfig.getNamingMethod());
+            newStart = nucConfig.getStartingIndex();
+        }
+
         iIdentity.setPrintWriter(iPrintWriter);
         if (doIdentity) {
             iIdentity.identityAssignment();
         }
-        int newstart = iStartingIndex;
+
         if (iStartingIndex < iStartTime)
-            newstart = iStartTime;
-        iAncesTree = new AncesTree(null, this, newstart, iEndingIndex);
+            newStart = iStartTime;
+
+        iAncesTree = new AncesTree(null, this, newStart, iEndingIndex);
     }
     public Hashtable getCellsByName() {
         return iAncesTree.getCellsByName();
@@ -1094,16 +1112,14 @@ public class NucleiMgr {
     }
 
     public int setSuccessors(int i) {
-        //System.out.println("\nnucleimgr setsuccessors "+i);
-        //long timeStart = System.nanoTime();
-        if (iConfig.iNamingMethod == Identity3.MANUAL)
-            return 0;
+        if (nucConfig == null && iConfig.iNamingMethod == Identity3.MANUAL) { return 0; }
+        if (nucConfig != null && nucConfig.getNamingMethod() == Identity3.MANUAL) { return 0; }
+
         Vector<Nucleus> now = nuclei_record.elementAt(i);
         Nucleus n = null;
         int m1 = Nucleus.NILLI;
         for (int j=0; j < now.size(); j++) {
             n = now.elementAt(j);
-            //println("setSuccessors3: " + n.identity);
             n.successor1 = m1;
             n.successor2 = m1;
         }
@@ -1118,13 +1134,11 @@ public class NucleiMgr {
         // first set all successors to -1
         for (int j=0; j < next.size(); j++) {
             n = next.elementAt(j);
-            //println("setSuccessors: " + n.identity);
             if (n.status == Identity3.DEAD)
                 continue;
             int pred = n.predecessor;
             if (pred == Identity3.DEAD)
                 continue;
-            //println("setSuccessors2: " + j + CS + pred);
             Nucleus p = null;
             try {
                 p = now.elementAt(pred -1);
@@ -1138,12 +1152,7 @@ public class NucleiMgr {
             else {
                 System.out.println("error: MORE THAN 2 SUCCESSORS");
             }
-
-            //System.out.println("nucleimgr succ for "+p.identity+": "+p.successor1+" "+p.successor2);
         }
-        //long timeEnd = System.nanoTime();
-        //double timeDiff = (timeEnd-timeStart)/1e6;
-        //System.out.println("Time for NucleiMgr.setSuccessors(): "+timeDiff+" ms.");
         return 0;
     }
 

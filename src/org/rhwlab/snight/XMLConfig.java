@@ -68,7 +68,8 @@ public class XMLConfig implements DocHandler {
     }
 
     public XMLConfig(String fileName, Config config) {
-    	iConfig = config;
+    	xmlConfigData = new Hashtable<>();
+        iConfig = config;
         try {
             FileReader fr = new FileReader(fileName);
             QDParser.parse(this, fr);
@@ -129,7 +130,6 @@ public class XMLConfig implements DocHandler {
                 System.out.println("Reconfigured Image Path in XMLConfig.java is:" + typical);
             }
 
-            
             iConfig.iConfigHash.put("typical image", typical);
         } else if (tag.equals("start")) {
             String startIdx = (String)h.get("index");

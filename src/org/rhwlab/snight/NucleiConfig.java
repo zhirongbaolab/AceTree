@@ -23,6 +23,9 @@ public class NucleiConfig {
     private double zRes;
     private String zResKey = "zRes";
 
+    private String exprCorr;
+    private String exprCorrKey = "exprCorr";
+
     private int planeEnd;
     private String planeEndKey = "planeEnd";
 
@@ -59,6 +62,8 @@ public class NucleiConfig {
 
         // default to a value that won't break the program
         planeStart = 1;
+        startingIndex = 1;
+        endingIndex = 1;
 
         if (configData == null) return;
 
@@ -77,6 +82,8 @@ public class NucleiConfig {
                 this.endingIndex = Integer.parseInt(configData.get(s));
             } else if (s.toLowerCase().equals(planeEndKey.toLowerCase())) {
                 this.planeEnd = Integer.parseInt(configData.get(s));
+            } else if (s.toLowerCase().equals(exprCorrKey.toLowerCase())) {
+                this.exprCorr = configData.get(s);
             } else if (s.toLowerCase().equals(polarSizeKey.toLowerCase())) {
                 this.polarSize = Integer.parseInt(configData.get(s));
             } else if (s.toLowerCase().equals(axisGiven.toLowerCase())) {
@@ -120,6 +127,7 @@ public class NucleiConfig {
     public void setPlaneStart(int planeStart) { this.planeStart = planeStart; }
     public void setPlaneEnd(String planeEnd) { setPlaneEnd(Integer.parseInt(planeEnd)); }
     public void setPlaneEnd(int planeEnd) { this.planeEnd = planeEnd; }
+    public void setExprCorr(String exprCorr) { this.exprCorr = exprCorr; }
     public void setPolarSize(String polarSize) { setPolarSize(Integer.parseInt(polarSize)); }
     public void setPolarSize(int polarSize) { this.polarSize = polarSize; }
     public void setAxis(String axis) { this.axisGiven = axis; }
@@ -138,6 +146,7 @@ public class NucleiConfig {
     public int getEndingIndex() { return this.endingIndex; }
     public int getPlaneStart() { return this.planeStart; }
     public int getPlaneEnd() { return this.planeEnd; }
+    public String getExprCorr() { return this.exprCorr; }
     public int getPolarSize() { return this.polarSize; }
     public String getAxisGiven() { return this.axisGiven; }
     public double getAngle() { return this.angle; }
