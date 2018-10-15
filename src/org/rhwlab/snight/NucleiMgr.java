@@ -108,6 +108,7 @@ public class NucleiMgr {
         this.nucConfig = nucConfig;
 
         iEditLog = new EditLog("EditLog");
+        iParameters = dummyParameters();
 
         // configurations (NucleiConfig and MeasureCSV) are now modularized so the
         // primary purpose of the manager now is to process the nuclei
@@ -975,7 +976,6 @@ public class NucleiMgr {
         if (nucConfig == null) {
             iIdentity.setNamingMethod(getConfig().iNamingMethod);
             newStart = iStartingIndex;
-
         } else  {
             iIdentity.setNamingMethod(nucConfig.getNamingMethod());
             newStart = nucConfig.getStartingIndex();
@@ -986,10 +986,23 @@ public class NucleiMgr {
             iIdentity.identityAssignment();
         }
 
-        if (iStartingIndex < iStartTime)
-            newStart = iStartTime;
 
-        iAncesTree = new AncesTree(null, this, newStart, iEndingIndex);
+
+        // legacy vs. new configuration
+        if (isNucConfigNull()) {
+            if (iStartingIndex < iStartTime) {
+                System.out.println("updating start time after Identity assignment to: " + iStartTime);
+                newStart = iStartTime;
+            }
+            iAncesTree = new AncesTree(null, this, newStart, iEndingIndex);
+        } else {
+            if (nucConfig.getStartingIndex() < iStartTime) {
+                System.out.println("updating start time after Identity assignment to: " + iStartTime);
+                nucConfig.setStartingIndex(iStartTime);
+            }
+            iAncesTree = new AncesTree(null, this, nucConfig.getStartingIndex(), getNucConfig().getEndingIndex());
+        }
+
     }
     public Hashtable getCellsByName() {
         return iAncesTree.getCellsByName();
@@ -1102,9 +1115,21 @@ public class NucleiMgr {
 
     public void setAllSuccessors() {
         newLine();
-        System.out.println("setAllSuccessors: " + iStartingIndex + CS + iEndingIndex + ", " + nuclei_record.size());
+
+        int firstIdx;
+        int lastIdx;
+        if (nucConfig == null) {
+            firstIdx = iStartingIndex;
+            lastIdx = iEndingIndex;
+        } else {
+            firstIdx = nucConfig.getStartingIndex();
+            lastIdx = nucConfig.getEndingIndex();
+        }
+
+
+        System.out.println("setAllSuccessors: " + firstIdx + CS + lastIdx + ", " + nuclei_record.size());
         //for (int i=iStartingIndex - 1; i < iEndingIndex; i++) {
-        for (int i=iStartingIndex - 1; i < nuclei_record.size(); i++) {
+        for (int i=firstIdx - 1; i < nuclei_record.size(); i++) {
             int r = setSuccessors(i);
             if (r != 0)
                 break;
@@ -1199,6 +1224,9 @@ public class NucleiMgr {
         }
         return sa;
     }
+
+    public boolean isNucConfigNull() { return nucConfig == null; }
+    public NucleiConfig getNucConfig() { return nucConfig; }
 
     /**
      * pointers into the formatted lines of the nuclei files

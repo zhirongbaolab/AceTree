@@ -29,8 +29,16 @@ public class InitialID {
 		nuclei_record = iNucleiMgr.getNucleiRecord();
 		iParameters = parameters;
 		iNucCount = 1;
-		iEndingIndex = iNucleiMgr.iEndingIndex;
-		iMeasureCSV = measureCSV;
+
+		// distinguish between legacy conguration and revised 10/18
+		if (nucMgr.isNucConfigNull()) {
+			iEndingIndex = iNucleiMgr.iEndingIndex;
+			iMeasureCSV = measureCSV;
+		} else {
+			this.iEndingIndex = nucMgr.getNucConfig().getEndingIndex();
+			this.iMeasureCSV = nucMgr.getNucConfig().getMeasureCSV();
+		}
+
 		this.canTrans = canTrans;
 		getCoordinateParms();
 

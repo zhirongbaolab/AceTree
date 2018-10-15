@@ -78,10 +78,8 @@ public class AncesTree implements Comparator {
      */
     @SuppressWarnings("unused")
 	public AncesTree(Cell root, NucleiMgr nucleiMgr, int startingIndex, int endingIndex) {
-        //System.out.println("AncesTree constructor called");
         iRoot = new Cell(ROOTNAME, endingIndex, startingIndex);
         iRoot.setEndTime(1);
-        //System.out.println("AncesTree: " + iRoot.showStuff());
         iNucleiMgr = nucleiMgr;
         iStartingIndex = startingIndex;
         iEndingIndex = endingIndex;
@@ -144,41 +142,7 @@ public class AncesTree implements Comparator {
     		checkFirstGeneration();
     }
 
-    @SuppressWarnings("unused")
-	public AncesTree(Cell root, NucleiMgr nucleiMgr, int startingIndex, int endingIndex, boolean test) {
-        //System.out.println("AncesTree constructor called");
-        iRoot = new Cell(ROOTNAME, endingIndex, startingIndex);
-        iRoot.setEndTime(1);
-        //System.out.println("AncesTree: " + iRoot.showStuff());
-        iNucleiMgr = nucleiMgr;
-        iStartingIndex = startingIndex;
-        iEndingIndex = endingIndex;
-        iRootEstablished = false;
-        iTempV = new Vector();
-        iCells = new Hashtable();
-        iPolarCount = 1;
-        iShowDeathsAndDivisions = false;
-        iCellCounts = new int[endingIndex + 1];
 
-        //iRoot.add(createDummyNodes());
-        //System.out.println("AncesTree1 iCells.size: " + iCells.size());
-        processEntries();
-        //System.out.println("AncesTree2 iCells.size: " + iCells.size());
-        //adjustEarlyStartTimes();
-        //adjustEarlyEndTimes();
-        extractRootCells();
-        //System.out.println("AncesTree3 iCells.size: " + iCells.size());
-
-        Cell PP = (Cell)iCellsByName.get("P");
-        int kk = PP.getChildCount();
-        //println("AncesTree.constructor, " + kk + CS + PP.getName());
-    }
-
-
-
-    
-    
-    
     private void adjustEarlyStartTimes() {
     	if (this.sulstonmode) {
     		int tEnd = 0;
@@ -692,8 +656,14 @@ public class AncesTree implements Comparator {
         String rname = iRoot.getName();
         //println("AncesTree.makeCellsByNameHash.put, " + rname);
         iCellsByName.put(iRoot.getName(), iRoot); //20051007
-        //System.out.println("makeCellsByNameHash - iCells.size: " + iCells.size());
-        int namingMethod = iNucleiMgr.getConfig().iNamingMethod;
+
+        int namingMethod;
+        if (iNucleiMgr.isNucConfigNull()) {
+            namingMethod = iNucleiMgr.getConfig().iNamingMethod;
+        } else {
+            namingMethod = iNucleiMgr.getNucConfig().getNamingMethod();
+        }
+
         boolean b = (namingMethod == Identity3.MANUAL);
         Enumeration e = iCells.keys();
         while (e.hasMoreElements()) {
@@ -933,12 +903,6 @@ public class AncesTree implements Comparator {
     	if (sulstonmode)
     		checkFirstGeneration();
     		*/
-    }
-    
-    // Used for debugging long loading time from .xml file with many top level elements
-    public void printCounts() {
-    	//System.out.println("checkDaughters called: "+checkDaughtersCount+" times.");
-    	//System.out.println("processRootCell called: "+processRootCount+" times.");
     }
 
     private void checkForCellDeath(Nucleus n, int index, String hashKey) {

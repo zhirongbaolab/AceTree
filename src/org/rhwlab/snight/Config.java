@@ -34,6 +34,7 @@ public class Config {
 
     //******************************************************************************************************************
     // main vars
+    public String       iConfigFileName;
     private NucleiConfig nucConfig;
     private ImageConfig imageConfig;
 
@@ -53,6 +54,8 @@ public class Config {
         // error check
         if (configFileName == null || configFileName.isEmpty()) return;
 
+        this.iConfigFileName = configFileName;
+
         // check what kind of file it is
         int test_idx = configFileName.lastIndexOf(".");
         if (test_idx > 0) {
@@ -70,15 +73,22 @@ public class Config {
                 this.nucConfig = new NucleiConfig(xmlConfigData);
                 this.imageConfig = new ImageConfig(xmlConfigData);
 
-
+                // WHAT NEEDS TO BE DONE TO MAKE UP FOR SETSTARTINGPARMS ?
             } else { // assume it's what kind of file? --> TODO put legacy support here
 
             }
         }
     }
 
-    public void addMeasureCSVParametersToConfigurations(MeasureCSV measureCSV) {
+    public String getShortName() {
+        //System.out.println("Configuration file name: "+iConfigFileName);
+        String s = iConfigFileName;
+        return getShortName(s);
+    }
 
+    public static String getShortName(String longName) {
+        int k = longName.lastIndexOf("/");
+        return longName.substring(k + 1);
     }
 
     public NucleiConfig getNucleiConfig() {
@@ -111,7 +121,6 @@ public class Config {
 
 
     // REVISE ALL OF THESE VARS
-    public String       iConfigFileName;
     public String       iParent;
     public Hashtable    iConfigHash;
     public String       iZipFileName; // a full path to the zip with nuclei and parameters
@@ -193,12 +202,6 @@ public class Config {
             getStartingParms();
             setStartingParms();
         }
-
-        // COMMENTED THIS OUT 10/01/18 because if this is called with XML is true, then the XML config has already
-        // been made and populated the iConfigHash
-        // else {
-        	//new XMLConfig(configFile, this);
-        //}
 
         showStartingParms();
     }
@@ -669,18 +672,6 @@ public class Config {
         System.out.println("iSplit: " + iSplit);
 
         System.out.println("showStartingParms end");
-    }
-
-    public String getShortName() {
-    	//System.out.println("Configuration file name: "+iConfigFileName);
-        String s = iConfigFileName;
-        return getShortName(s);
-    }
-
-    public static String getShortName(String longName) {
-        int k = longName.lastIndexOf("/");
-        //System.out.println("Configuration file name (short): "+longName.substring(k + 1));
-        return longName.substring(k + 1);
     }
 
 

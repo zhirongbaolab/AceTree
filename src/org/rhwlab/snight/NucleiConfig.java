@@ -45,6 +45,8 @@ public class NucleiConfig {
 
     private MeasureCSV measureCSV; // this class stores the AuxInfo data
 
+
+    private static int NEWCANONICALID = 3;
     /**
      * Constructor called by Config constructor which has built a hashmap of configuration values
      * from an XML file
@@ -57,7 +59,8 @@ public class NucleiConfig {
 
         // prevent errors by initializing everything
         zipFileName = axisGiven = "";
-        namingMethod = polarSize = -1;
+        namingMethod = NEWCANONICALID; // the default naming method
+        polarSize = -1;
         angle = -1.;
 
         // default to a value that won't break the program

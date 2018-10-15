@@ -28,13 +28,22 @@ public class Identity3 {
     private CanonicalTransform canTransform;
 
     public Identity3(NucleiMgr nucleiMgr) {
-    	//System.out.println("Identity3 construtor called.");
-    	iNucleiMgr = nucleiMgr;
-        iNamingMethod = iNucleiMgr.getConfig().iNamingMethod;
+        iNucleiMgr = nucleiMgr;
+        if (nucleiMgr.isNucConfigNull()) { // the legacy loading pipeline
+            iNamingMethod = iNucleiMgr.getConfig().iNamingMethod;
+            iStartingIndex = iNucleiMgr.iStartingIndex;
+            iEndingIndex = iNucleiMgr.getEndingIndex();
+            iMeasureCSV = iNucleiMgr.getMeasureCSV();
+        } else { // the revised loading pipeline
+            iNamingMethod = iNucleiMgr.getNucConfig().getNamingMethod();
+            iStartingIndex = iNucleiMgr.getNucConfig().getStartingIndex();
+            iEndingIndex = iNucleiMgr.getNucConfig().getEndingIndex();
+            iMeasureCSV = iNucleiMgr.getNucConfig().getMeasureCSV();
+            //System.out.println("\n\nparams in Indentity3 queried from NucleiConfig:\n" + iNamingMethod + "\n" + iStartingIndex + "\n" + iEndingIndex + "\n" + iMeasureCSV.toString() + "\n");
+        }
+
         nuclei_record = iNucleiMgr.getNucleiRecord();
         iParameters = iNucleiMgr.getParameters();
-        iEndingIndex = iNucleiMgr.getEndingIndex();
-        iMeasureCSV = iNucleiMgr.getMeasureCSV();
     }
 
     public void setPrintWriter(PrintWriter pw) {
@@ -46,6 +55,8 @@ public class Identity3 {
      * As AceTree now handles uncompressed embryos in any 3D orientation, in the presence
      * of such an embryo, we'll start building the CanonicalTransform object here to rotate
      * the embryo into canonical orientation for spatially informed naming
+     *
+     * Revised 10/18 to handle revised configuration setup
      */
     // Called by NucleiMgr processNuclei method
     @SuppressWarnings("unused")
@@ -55,11 +66,11 @@ public class Identity3 {
     		println("identityAssignment, skip naming due to MANUAL naming method");
     		return;
     	}
-        iStartingIndex = iNucleiMgr.getConfig().iStartingIndex;
+        //iStartingIndex = iNucleiMgr.getConfig().iStartingIndex;
         clearAllNames();
         //System.out.println("identityAssignment iStartingIndex: " + iStartingIndex);
         
-       this.measureCSV = iNucleiMgr.getMeasureCSV();
+       //this.measureCSV = iNucleiMgr.getMeasureCSV();
        // check for presence of uncompressed embryo --> AuxInfo_v2
         if (MeasureCSV.isAuxInfoV2()) {
         	canTransform = new CanonicalTransform(measureCSV);
@@ -77,8 +88,9 @@ public class Identity3 {
         // you could still use NEWCANONICAL here if iStartingIndex is greater than one
         // but this should be phased out
         if (iStartingIndex >= 1) {
-            //if (iStartingIndex == 1) {
-            //int mm = initialID(start, lineage_ct_p);
+
+
+
             InitialID initID = new InitialID(iNucleiMgr, iParameters, iMeasureCSV, canTransform);
             int mm = initID.initialID(start, lineage_ct_p);
         	if (mm > 0) {
@@ -97,7 +109,6 @@ public class Identity3 {
             	//System.out.println("identityAssignment starting at: " + start[0]);
                 iNucCount = initID.getNucCount();
             	if (iNamingMethod == NEWCANONICAL && start[0] > 0) {
-            		//println("about to usecanonicalrules for newcanonical and start[0]>0");
             		useCanonicalRules(start, lineage_ct_p);
             		return;
             	}
@@ -182,18 +193,26 @@ public class Identity3 {
     @SuppressWarnings({ "unused", "rawtypes", "unchecked" })
 	public void useCanonicalRules(int [] start, int [] lineage_ct_p) {
 		Vector report = new Vector();
-    	String series = iNucleiMgr.getConfig().getShortName();
-    	//println("Identity3.useCanonicalRules, series = " + series + ", axis = " + iAxis);
-        double zPixRes = iNucleiMgr.getZPixRes();
 
+        double zPixRes;
+        int iEndingIndex;
+
+        // legacy vs. revised configuration
+        if (iNucleiMgr.isNucConfigNull()) {
+            zPixRes = iNucleiMgr.getZPixRes();
+            iEndingIndex = iNucleiMgr.getEndingIndex();;
+        } else {
+            zPixRes = iNucleiMgr.getNucConfig().getZPixRes();
+            iEndingIndex = iNucleiMgr.getNucConfig().getEndingIndex();
+        }
+
+        // initialize the DivisionCaller class to be used for assigning names after computing the axis of division
         if (MeasureCSV.isAuxInfoV2() && canTransform != null) {
         	iDivisionCaller = new DivisionCaller(iMeasureCSV, canTransform);
         } else {
         	iDivisionCaller = new DivisionCaller(iMeasureCSV, iAxis, zPixRes);
         }
-        
-    	//iNucCount = 1;
-        int iEndingIndex = iNucleiMgr.getEndingIndex();
+
         int k = iNucleiMgr.getNucleiRecord().size();
         int m = Math.min(k, iEndingIndex);
         newLine();
@@ -284,12 +303,6 @@ public class Identity3 {
             }
         }
         Collections.sort(report);
-//        for (int ii=0; ii < report.size(); ii++) {
-//        	//String s = (String)report.get(ii);
-//        	//if (iPrintWriter != null) iPrintWriter.println(s);
-//        	//println(s);
-//
-//        }
     }
 
     private void usePreassignedID(Nucleus dau1, Nucleus dau2) {
@@ -322,7 +335,12 @@ public class Identity3 {
     	if (MeasureCSV.isAuxInfoV2()) return ""; 
     	
     	String axis = "";
-    	axis = iNucleiMgr.getConfig().iAxisGiven;
+    	if (iNucleiMgr.isNucConfigNull()) {
+            axis = iNucleiMgr.getConfig().iAxisGiven;
+        } else {
+            axis = iNucleiMgr.getNucConfig().getAxisGiven();
+        }
+
         if (axis.length() > 0) iParameters.axis = 1;
         
         return axis;
@@ -348,25 +366,6 @@ public class Identity3 {
         else if (orientation.equals("PDR")) late = "PLD";
         else if (orientation.equals("PVL")) late = "PRV";
         return orientation;
-
-//        String orientation = "A";
-//        if (iParameters.ap < 0) {
-//        	orientation = "P";
-//        }
-//
-//        if (iParameters.dv > 0) {
-//        	orientation += "D";
-//        } else {
-//        	orientation += "V";
-//        }
-//
-//        if (iParameters.lr > 0) {
-//        	orientation += "L";
-//        } else {
-//        	orientation += "R";
-//        }
-//
-//        return orientation;
     }
 
     public String getAxis() {
@@ -492,13 +491,4 @@ public class Identity3 {
     private static void println(String s) {System.out.println(s);}
     private void newLine() {System.out.println("");}
     private static final String CS = ", ";// C = ",", TAB = "\t";
-//    private static void print(String s) {System.out.print(s);}
-
-//    private static final DecimalFormat DF0 = new DecimalFormat("####");
-//    private static final DecimalFormat DF1 = new DecimalFormat("####.#");
-//    private static final DecimalFormat DF4 = new DecimalFormat("####.####");
-//    private static String fmt4(double d) {return DF4.format(d);}
-//    private static String fmt1(double d) {return DF1.format(d);}
-//    private static String fmt0(double d) {return DF0.format(d);}
-
 }

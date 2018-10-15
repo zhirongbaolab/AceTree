@@ -120,7 +120,6 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
     Vector                  iAnnotsShown;
     MouseHandler            iMouseHandler;
     WinEventMgr 			wem;
-    boolean                 iMouseEventHandled;
     int                     iImageTime;
     int                     iTimeInc;
     int                     iImagePlane;
@@ -133,20 +132,13 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
     boolean                 iUseRobot;
     boolean                 iNewConstruction;
     PartsList iPartsList;
-    //private JTabbedPane     iTabbedPane;
     public static ColorSchemeDisplayProperty []     iDispProps;
-    private   JPanel        iControlPanel;
-    //protected JMenuBar      iMenuBar;
     protected JToolBar      iToolBar;
-    protected JButton	    iHelp;
-    protected JButton       iProperties;
 
     ImageZoomerFrame		iImageZoomerFrame;
     ImageZoomerPanel 		iImageZoomerPanel;
     static boolean         	cAcbTree = false;
-    
-    //static float contrast1a, contrast1b, contrast2a, contrast2b;
-    //static double contrastmin1, contrastmax1, contrastmin2, contrastmax2;
+
     public static int contrastmin1, contrastmax1, contrastmin2, contrastmax2;
     
     static byte []          iRpix;
@@ -242,22 +234,12 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         iSlider1min = iSlider1max = iSlider2min = iSlider2max = null;
         
         // Original contrast percentages
-        //System.out.println("ImageWindow set default contrast values: 0 to max16bit/max8bit");
         contrastmin1 = contrastmin2 = 0;
         if (imagewindowUseStack == 1) {
             contrastmax1 = contrastmax2 = MAX16BIT;
         } else {
             contrastmax1 = contrastmax2 = MAX8BIT;
         }
-        // Hardcoded contrast channel values to begin with for 16-bit to 8-bit conversion
-        /*
-        contrast1a = 1400;
-        contrast1b = 3000;
-        contrast2a = 20;
-        contrast2b = 235;
-        */
-        
-        //20, 235, 1400, 3000
     }
     
     public void removeHandlers() {
