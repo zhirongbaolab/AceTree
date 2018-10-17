@@ -21,8 +21,11 @@ public class ImageConfig {
     private int useStack;
     private String useStackKey = "useStack";
 
-    public int splitStack;
+    private int splitStack;
     private String splitStackKey = "split";
+
+    private int useZip;
+
 
     public ImageConfig(Hashtable<String, String> configData) {
         System.out.println("Configuring ImageConfig using .XML data");
@@ -30,7 +33,7 @@ public class ImageConfig {
         tifPrefix = "";
         startingIndex = endingIndex = -1;
 
-        useStack = 0; // assume 8 bit images
+        useStack = useZip = 0; // assume 8 bit tif images
         splitStack = 1; // assume that if we are working with 16bit images, they contain two channels that should be split
 
         if (configData == null) return;
@@ -38,6 +41,9 @@ public class ImageConfig {
         for (String s : configData.keySet()) {
             if (s.toLowerCase().equals(tifPrefixKey.toLowerCase())) {
                 this.tifPrefix = configData.get(s);
+                if (this.tifPrefix.toLowerCase().contains(("zip"))) {
+                    useZip = 2;
+                }
             } else if (s.toLowerCase().equals(startingIndexKey.toLowerCase())) {
                 this.startingIndex = Integer.parseInt(configData.get(s));
             } else if (s.toLowerCase().equals(endingIndexKey.toLowerCase())) {
@@ -68,6 +74,7 @@ public class ImageConfig {
     public int getEndingIndex() { return this.endingIndex; }
     public int getUseStack() { return this.useStack; }
     public int getSplitStack() { return this.splitStack; }
+    public int getUseZip() { return this.useZip; }
 
     @Override
     public String toString() {

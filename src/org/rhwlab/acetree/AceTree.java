@@ -257,10 +257,6 @@ public class AceTree extends JPanel
     private NucleiMgr   iNucleiMgr;
     // ********************************************************************************
 
-    /**
-     * The only constructor defined for this class.
-     * Instantiated in the main program.
-     */
     protected AceTree() {
          this(null,false);
          System.out.println("AceTree empty constructor");
@@ -282,12 +278,8 @@ public class AceTree extends JPanel
 
 
         this.iAceMenuBar = new AceMenuBar(this);
-//        this.iTempV = new Vector();
         iConfigFileName = configFileName;
-        //System.out.println("AceTree constructor using config file: " + iConfigFileName);
-        //NucUtils.setConfigFileName(iConfigFileName);
         this.iNucleiMgrHash = new Hashtable<String, NucleiMgr>();
-//        this.iRootEstablished = false;
         iImageTime = 0;
         iImagePlane = 0;
         iTimeInc = 0;
@@ -534,41 +526,40 @@ public class AceTree extends JPanel
 	        newLine();
 	        System.out.println("*** Starting Image configuration including: building ImageWindow and its components, and configuring the image data for view ***");
 
-
-            // first, let's build an ImageWindow
-
-            // next, we'll build an ImageManager and give it access to the ImageWindow (to control loading the images and refreshing the display)
-            if (configManager.getImageConfig() != null) {
+            // build an ImageManager (file parsing, name logic, image related runtime variables
+            if (configManager != null) {
                 imageManager = new ImageManager(configManager.getImageConfig());
             } else {
                 System.out.println("Can't build ImageManager in AceTree.bringUpSeriesUI() - Config didn't successfully build an ImageConfig");
-                System.exit(0);
+                //System.exit(0);
             }
 
-            // lastly, build an ImageWindowDelegate and give it access to the ImageWindow so it can carry out tasks such as: saving, annotation and 16bit to 8bit conversion
+            // build an ImageWindowDelegate (saving, annotation and 16bit to 8bit conversion)
 
+            // first, let's build an ImageWindow with the first processed image
 
-
-            // TODO -- unit tested up until here
             iEditLog = iNucleiMgr.getEditLog();
 
-            /* this isn't necessary with the revision of the configuration and image loading 10/2018 */
-            // iNucleiMgr.sendStaticParametersToImageWindow();
+            /* these calls are either unnecessary or refactored with the revision of the configuration and image loading 10/2018 */
+            if (configManager == null) {
+                iNucleiMgr.sendStaticParametersToImageWindow(); // unnecessary
+                ImageWindow.setNucleiMgr(iNucleiMgr); // this needs to be given to the ImageAnnotationManager (through the ImageWindowDelegate)
+                setConfigFileName(configFileName); // unnecessary
+                grabConfigStuff(); // unnecessary
+                iPlaneEnd = iNucleiMgr.getPlaneEnd(); // unnecessary
+                iPlaneStart = iNucleiMgr.getPlaneStart(); // unnecessary
+                iZPixRes=iNucleiMgr.getZPixRes(); // unnecessary
+            }
 
-	        ImageWindow.setNucleiMgr(iNucleiMgr);
+            // TODO -- unit tested up until here
 
-	        setConfigFileName(configFileName);
-	        grabConfigStuff();
-	        iPlaneEnd = iNucleiMgr.getPlaneEnd();
-	        iPlaneStart = iNucleiMgr.getPlaneStart();
-	        iZPixRes=iNucleiMgr.getZPixRes();
-	
-	        buildTree(false);
+            // the call to build tree is what triggers the ImageWindow to come up. The tree is build, the starting cell is
+            // set, and the ImageWindow.refreshDisplay() is called to show the set plane and time with the starting cell highlighted
+            buildTree(false);
 	        setShowAnnotations(true);
     	} catch (Throwable t) {
 			new GeneralStartupError(getMainFrame(), t);
     	}
-        
     }
 
     public void bringUpSeriesUI(Config config) {
@@ -632,7 +623,6 @@ public class AceTree extends JPanel
 
         System.out.println("building a config manager using file name" + configFileName);
         this.configManager = new Config(configFileName);
-        //System.out.println(configManager.configsToString());
         // now we have respective NucleiConfig and ImageConfig through the reference to configManager
 
         // Let's build a NucleiMgr, then we'll move on the putting the images together (it will be a local copy that we then place in the NucleiMgr hash)
@@ -651,13 +641,12 @@ public class AceTree extends JPanel
         //nucMgr.processNuclei(true, nucMgr.getConfig().iNamingMethod); // pre 10/2018 revisions
 
         // Image related stuff
-        ImageWindow.setUseStack(iUseStack);
-        ImageWindow.setSplitMode(iSplit);
-        System.out.println("ImageWindow static stack set: "+ iUseStack);
-        System.out.println("ImageWindow static split mode: " + iSplit);
-
-
+//        ImageWindow.setUseStack(iUseStack);
+//        ImageWindow.setSplitMode(iSplit);
+//        System.out.println("ImageWindow static stack set: "+ iUseStack);
+//        System.out.println("ImageWindow static split mode: " + iSplit);
         //nucMgr.processNuclei(false, nucMgr.getConfig().iNamingMethod);
+
         String config;
         if (configManager == null) {
             config = nucMgr.getConfig().getShortName();
@@ -811,56 +800,8 @@ public class AceTree extends JPanel
         iTree.updateUI();
     }
 
-//    private void clearTreeTest() {
-//        if (iAncesTree == null) {
-//            return;
-//        }
-//        Cell root = iAncesTree.getRoot();
-//        root = iRoot;
-//        System.out.println("\nAceTree.clearTree entered with root=" + root);
-//        int count = 0;
-//        /*
-//        println("clearTreeTest: leafcount: " + iRoot.getLeafCount());
-//        for (int i=0; i < 3000; i++) {
-//            int k = iRoot.getLeafCount();
-//            //println("clearTreeTest: " + i + CS + k);
-//            if (k == 1) break;
-//            Cell c = (Cell)iRoot.getFirstLeaf();
-//            //println("clearTreeTest: " + i + CS + k + CS + c.getName());
-//            c.removeFromParent();
-//            //c = null;
-//        }
-//        */
-//        int m = 0;
-//        Cell cc = null;
-//        while (iRoot.getChildCount() > 1) {
-//            //int k = iRoot.getChildCount();
-//            //println("clearTreeTest: childcount: " + k);
-//            Cell c = (Cell)iRoot.getFirstLeaf();
-//            while ((cc = (Cell)c.getNextLeaf()) != null) {
-//                c.removeFromParent();
-//                c = null;
-//                c = cc;
-//                count++;
-//            }
-//            m++;
-//        }
-//        println("clearTreeTest: removed: " + count + CS + m);
-//
-//
-//        if (root != null) root.removeAllChildren();
-//        Hashtable x = iAncesTree.getCells();
-//        if (x != null) x.clear();
-//        //iNucleiMgr.clearAllHashkeys(); //************ BOGUS
-//        iTree.updateUI();
-//    }
-
     @SuppressWarnings("unused")
 	private void reviewNuclei() {
-    	/*
-    	 * TODO
-    	 * figure out vector type from NucleiMgr
-    	 */
     	Vector nr = iNucleiMgr.getNucleiRecord();
     	for (int i=189; i < 195; i++) {
     		Vector nuclei = (Vector)nr.get(i);
@@ -871,76 +812,91 @@ public class AceTree extends JPanel
     	}
     }
 
-    // 
-    @SuppressWarnings("unused")
+
 	public void buildTree(boolean doIdentity) {
+        System.out.println("Building lineage tree");
+
         iShowAnnotationsSave = iShowAnnotations;
         setShowAnnotations(false);
         iShowCentroids = false;
         iShowC.setText(SHOWC);
-        if (doIdentity) 
-        	iNucleiMgr.processNuclei(doIdentity, iNamingMethod);
+
+        if (doIdentity && configManager == null) {
+            iNucleiMgr.processNuclei(doIdentity, iNamingMethod);
+        }
 
         if (iEditLog != null) {
-            //iEditLog.append(new GregorianCalendar().getTime().toString());
             iEditLog.append("buildTree(" + doIdentity +
                 ") start = " + iStartingIndex + " end = " + iEndingIndex
                 + iEditLog.getTime());
         }
 
-        grabConfigStuff();
-        System.out.println("StartingIndex: " + iStartingIndex);
-        System.out.println("EndingIndexX: " + iEndingIndex);
-        Cell.setEndingIndexS(iEndingIndex);
+        // legacy vs. revised pipeline
+        if (configManager == null) {
+            grabConfigStuff();
+
+            System.out.println("StartingIndex: " + iStartingIndex);
+            System.out.println("EndingIndexX: " + iEndingIndex);
+
+            Cell.setEndingIndexS(iEndingIndex);
+
+        } else {
+            Cell.setEndingIndexS(configManager.getNucleiConfig().getEndingIndex());
+        }
+
         iAncesTree = iNucleiMgr.getAncesTree();
-        
-        // AncesTree.getCellsByName() returns a HashTable of key cellname and value cell
         iCellsByName = iAncesTree.getCellsByName();
-        //Cell P = (Cell)iCellsByName.get("P");
-        //int kkk = P.getChildCount();
-        //println("AceTree.buildTree, 1, " + kkk + CS + P.getName());
 
+        // this should take the nuclei data that has been loaded into the AncesTree from the NucleiMgr and make a tree rooted at the iRoot cell (tree node)
         updateRoot(iAncesTree.getRootCells());
-
         iCellsByName = iAncesTree.getCellsByName();
-        //Cell PP = (Cell)iCellsByName.get("P"); 
-        //int kk = PP.getChildCount();
-        //println("AceTree.buildTree, 2, " + kk + CS + PP.getName());
-        //iAxis = getAxis();
-
-        //System.out.println("buildTree: " + iRoot + CS + iRoot.getChildCount());
-        int k = 0;
-        Cell c = walkUpToAGoodCell();
 
         iAceMenuBar.setEditEnabled(true);
         iAceMenuBar.setEnabled(true);
 
-        // 20050808 added in response to detected bug related to killCells
         iTree.updateUI();
         setTreeSelectionMode();
-        setStartingCell(c, iStartTime);
+
+        // assume that P0 is the root, and look for the first child present in the nuclei
+        Cell c = walkUpToAGoodCell();
+
+        // now we're ready to get the image series up into the image window. Start by setting the cell we just found to be the starting cell, along with the start time
+        if (configManager == null) {
+            setStartingCell(c, iStartTime);
+        } else {
+            setStartingCell(c, configManager.getNucleiConfig().getStartingIndex());
+        }
+
+        // set up the UI properties for the tree shown in the main AceTree tab so that cells in the tree can be selected and trigger a change in the ImageWindow
         iTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         ((DefaultTreeCellRenderer)(iTree.getCellRenderer())).setOpenIcon(null);
         ((DefaultTreeCellRenderer)(iTree.getCellRenderer())).setClosedIcon(null);
         ((DefaultTreeCellRenderer)(iTree.getCellRenderer())).setLeafIcon(null);
 
-        if (iEditTraverse != null) iEditTraverse.buildNotification();
-        setShowAnnotations(iShowAnnotationsSave);
+        if (iEditTraverse != null)  {
+            iEditTraverse.buildNotification();
+        }
 
+        setShowAnnotations(iShowAnnotationsSave);
     }
 
     private Cell walkUpToAGoodCell() {
         Cell c = null;
-        if (iRoot.getChildCount() <= 1) return iRoot;
+        System.out.println(iRoot.getName());
+        if (iRoot.getChildCount() <= 1) {
+            return iRoot;
+        }
+
         // assume the first child is P0
         // look for a real cell off of P0
         c = (Cell)iRoot.getChildAt(0);
+        System.out.println("child of root: " + c.getName());
+
         while (c.getTime() < 0 && c.getChildCount() > 0) {
-            //System.out.println("buildTree: " + c + CS + c.getChildCount() + CS + k);
-            //c = (Cell)iRoot.getChildAt(++k);
+            System.out.println("child: " + c.getName());
             c = (Cell)c.getChildAt(0);
-            //System.out.println("buildTree: " + c);
         }
+
         // if you don't find one, go back to the root and look
         // for a Nuc or something
         if (c.getTime() < 0) {
@@ -950,20 +906,12 @@ public class AceTree extends JPanel
             }
 
         }
+
+
+        System.out.println("returning: " + c.getName());
         return c;
 
     }
-
-    /*
-    private String getAxis() {
-        String axis = "adl";
-        Identity id = iNucleiMgr.getIdentity();
-        if (id.getParameters().dvInit < 0) axis = "avr";
-        println("\ngetAxis: " + axis);
-        //return axis;
-        return "sam";
-    }
-    */
 
     public void restoreTree(String shortName) {
         System.out.println("\n\nAceTree.restoreTree called: " + shortName);
@@ -1005,25 +953,15 @@ public class AceTree extends JPanel
         ((DefaultTreeCellRenderer)(iTree.getCellRenderer())).setOpenIcon(null);
         ((DefaultTreeCellRenderer)(iTree.getCellRenderer())).setClosedIcon(null);
         ((DefaultTreeCellRenderer)(iTree.getCellRenderer())).setLeafIcon(null);
-        //iAxis = getAxis();
     }
 
 
-    /*
-     * TODO
-     * figure out types --> getCells() from AncesTree.java
-     */
     @SuppressWarnings("unused")
 	private void updateRoot(Vector rootCells) {
         Cell PP = (Cell)iCellsByName.get("P");
         int kk = PP.getChildCount();
-        //println("AceTree.updateRoot, 1, " + kk + CS + PP.getName());
-        //System.out.println("\n#######updateRoot in: " + iRoot.showStuff());
         iRoot.removeAllChildren();
 
-        //PP = (Cell)iCellsByName.get("P");
-        //kk = PP.getChildCount();
-       // println("AceTree.updateRoot, 2, " + kk + CS + PP.getName());
 
 
         // struggled with what must be a bug in DefaultMutableTreeNode
@@ -1035,13 +973,9 @@ public class AceTree extends JPanel
             Cell c = (Cell)e.nextElement();
             v.add(c);
         }
-        //PP = (Cell)iCellsByName.get("P");
-        //kk = PP.getChildCount();
-        //println("AceTree.updateRoot, 3, " + kk + CS + PP.getName() + CS + iCellsByName.size());
 
         for (int i=0; i < v.size(); i++) {
             Cell cc = (Cell)v.elementAt(i);
-            //println("AceTree.updateRoot, " + i + CS + cc.getName() + CS + ((Cell)cc.getParent()).getName());
             cc.removeFromParent();
             iRoot.add(cc);
         }
@@ -1050,43 +984,71 @@ public class AceTree extends JPanel
         iCellsByName.put("P", iRoot);
 
 
-        //PP = (Cell)iCellsByName.get("P");
-        //kk = PP.getChildCount();
-        //println("AceTree.updateRoot, 4, " + kk + CS + PP.getName() + CS + iCellsByName.size());
-
 		iRoot.setEndTime(1);
-		//System.out.println("\n#######updateRoot out: " + iRoot.showStuff());
-		//Cell xx = (Cell)iAncesTree.getCellsByName().put(iRoot.getName(), iRoot);
-		//System.out.println("\n#######updateRoot out2: " + xx.showStuff());
     }
 
+    /**
+     * Revised 10/18
+     * @author Braden Katzman
+     *
+     * Previously, this method was the main trigger for bringing up the ImageWindow
+     *
+     * In the revised version, in an effort to tidy things up and group functionality more logically, this
+     * will set up the starting cell and time as variables that ImageManager will use to bring up the image series
+     * based on this information
+     *
+     * @param c
+     * @param time
+     */
     public void setStartingCell(Cell c, int time) {
-        // seem to need to exercise iAncesTree to start things off well
         System.out.println("setStartingCell, cell, time: " + c + CS + time);
 
-	    //new Throwable().printStackTrace();
+        // if the nuclei passed isn't the root of the tree
         if (c != iRoot) {
             if (c == null)
             	c = (Cell)iRoot.getChildAt(0);
+
             while (c.getChildCount() > 0 && c.getTime() < 1) {
-                //println("setStartingCell while loop: " + c + CS + c.getTime());
                 c = (Cell)c.getChildAt(0);
             }
 
-            //c.showParameters();
+
             time = Math.max(time, c.getTime());
             time = Math.min(time, c.getEndTime());
-            iImageTime = time;
+
+            if (configManager == null) {
+                iImageTime = time;
+                getTimeAndPlane(c);
+            } else {
+                imageManager.setCurrImageTime(time);
+                imageManager.setCurrImagePlane((int)((double)c.getPlane() + HALFROUND));
+                System.out.println("set current image time and plane: " + imageManager.getCurrImageTime() + ", " + imageManager.getCurrImagePlane());
+            }
+
             iTimeInc = 0;
-            getTimeAndPlane(c);
+            iPlaneInc = 0;
+            iCurrentCell = c;
+
             getCurrentCellParameters();
             showTreeCell(iCurrentCell);
-        } else {
-            iImageTime = 1;
-            iTimeInc = 0;
-            iImagePlane = 15;
-            iPlaneInc = 0;
+        } else { // the nuclei passed is the root of the tree
+
+            // legacy vs. revised pipeline
+            if (configManager == null) {
+                iImageTime = 1;
+                iTimeInc = 0;
+                iImagePlane = 15;
+                iPlaneInc = 0;
+            } else {
+                imageManager.setCurrImageTime(1);
+                imageManager.setCurrImagePlane(15);
+            }
+
+
         }
+
+        System.exit(0);
+
         handleCellSelectionChange(c, time - iImageTime); // this will bring up an image
         if (!c.getName().equals("P") && iRoot.getChildCount() > 0) {
             //setShowAnnotations(true);
@@ -1095,10 +1057,12 @@ public class AceTree extends JPanel
             addMainAnnotation();
         }
         iAceMenuBar.setClearEnabled(true);
-        //System.out.println("setStartingCell -iImgWin: " + iImgWin);
-		if(iImgWin!=null)
-	        iImgWin.refreshDisplay(null);
-	
+
+
+		if(iImgWin!=null) {
+            System.out.println("REFRESH DISPLAY CALLED FROM SET STARTING CELL");
+            iImgWin.refreshDisplay(null);
+        }
     }
 
     @Override
@@ -1247,47 +1211,17 @@ public class AceTree extends JPanel
         iSister.addActionListener(this);
         iColorToggle = new JButton(COLORTOGGLE);
         iColorToggle.addActionListener(this);
-        //iEdit = new JButton(EDIT);
-        //iEdit.addActionListener(this);
-
-	// p.setPreferredSize(new Dimension(WIDTH, HEIGHT75));
-	//	 p.setMaximumSize(new Dimension(WIDTH, HEIGHT75));
-	// old version of button panel
-       //  p.add(iShow);
-//         p.add(iUp);
-//         p.add(iClear);
-//         p.add(iPrev);
-//         p.add(iHome);
-//         p.add(iNext);
-//         p.add(iShowC);
-//         p.add(iDown);
-//         p.add(iCopy);
-//         p.add(iTrack);
-//         p.add(iSister);
-//         p.add(iColorToggle);
 
         p.add(iShow);
-	//p.add(iColorToggle);
-	//p.add(iUp);
 	
         p.add(iClear);
 
 	p.add(iShowC);
 	p.add(iDepthViews);
-	//p.add(new JSeparator(SwingConstants.VERTICAL));
-	//p.add(iDown);
-	
 
 	p.add(iTrack);
 	 p.add(iSister);
-	// p.add(iPrev);
 	p.add(iHome);
-	// p.add(iNext);
-	
-	
-	// p.add(iCopy);
-
-        //p.add(iEdit);
         return p;
     }
 
@@ -1956,10 +1890,19 @@ public class AceTree extends JPanel
     }
 
 
+    /**
+     * Revised 10/2018
+     * @author Braden Katzman
+     *
+     * This method is the main driver for updating the image window. Its progression is:
+     * - Based on the user input, query the ImageManager for the appropriate image
+     * - Feed the image through ImageWindowDelegate to make any necessary updates
+     * - pass the fully processed image to ImageWindow.refreshDisply() for display
+     *
+     */
     public void updateDisplay() {
-	//	println("updateDisplay:1 " + System.currentTimeMillis());
-        if (iDebugTest) 
-        	println("updateDisplay:1 " + System.currentTimeMillis());
+
+
         if ((iImageTime + iTimeInc) < iStartingIndex) 
         	return;
         
@@ -1978,10 +1921,7 @@ public class AceTree extends JPanel
         
         String s = makeDisplayText();
         iText.setText(s);
-        if (iDebugTest) {
-            debugTest(false);
-            println("updateDisplay:2 " + System.currentTimeMillis());
-        }
+
         
         if(iAddOneDialog!=null)
         	iAddOneDialog.updateCellInfo();
@@ -1989,7 +1929,7 @@ public class AceTree extends JPanel
 
     @SuppressWarnings("static-access")
 	public void handleImage() {
-    	//	System.out.println("handle image");
+        System.out.println("HANDLE IMAGE CALLED");
         String cfile = makeImageName();
         ImagePlus ip = null;
         ImageWindow.setUseStack(iUseStack);
@@ -2016,12 +1956,15 @@ public class AceTree extends JPanel
 				 //iImgWin = new ImageWindow( cfile, ip);
 				try {
 					iImgWin = new ImageWindow(iTifPrefix + cfile, ip, iPlayerControl);
-					//System.out.println("AceTree passing to ImageWindow title: "+iTifPrefix + cfile);
+
 	                iImgWin.setAceTree(this);
+
 	                // Pass list of bookmarked cells to ImageWindow
-	                if (iBookmarkJList != null)
-	                	iImgWin.setBookmarkList(iBookmarkJList.getModel());
-	                //iImgWin.refreshDisplay(iTifPrefix + makeImageName(iCurrentCell);
+	                if (iBookmarkJList != null) {
+                        iImgWin.setBookmarkList(iBookmarkJList.getModel());
+                    }
+
+
 	                iImgWin.add(iToolControls,BorderLayout.SOUTH);
 	                iImgWin.pack();
 	                iImgWinSet = true;
@@ -2169,7 +2112,9 @@ public class AceTree extends JPanel
         }
     }
 
-
+    /**
+     * Called by setStartingCell in bringing up the image series
+     */
     private void getCurrentCellParameters() {
     	//System.out.println("getCurrentCellParameters: " + iImageTime + CS + iTimeInc);
         if (iCurrentCell == null) 
@@ -2186,7 +2131,7 @@ public class AceTree extends JPanel
         } catch(Exception e) {
             System.out.println("AceTree.getCurrentCellParameters error at time=" + time);
         }
-        //System.out.println("getCurrentCellParameters: " + time + CS + iCurrentCell + CS + n);
+
         iCurrentCellXloc = -1;
         iCurrentCellYloc = -1;
         iCurrentCellZloc = -1;
@@ -2201,10 +2146,6 @@ public class AceTree extends JPanel
     }
 
 
-    /*
-     * TODO
-     * figure out types from NucleiMgr
-     */
     private String makeDisplayText() {
         int time = iImageTime + iTimeInc;
         //Vector nuclei = (Vector)iNucleiMgr.getNucleiRecord().elementAt(time - 1);
@@ -3491,8 +3432,6 @@ public class AceTree extends JPanel
     }
 
     public void setShowAnnotations(boolean show) {
-        //println("setShowAnnotations: " + show);
-        //new Throwable().printStackTrace();
         iShowAnnotations = show;
         if (iShow != null) {
             if (show) iShow.setText(HIDE);
@@ -3675,20 +3614,14 @@ public class AceTree extends JPanel
 
     protected void createAndShowGUI() {
         JFrame.setDefaultLookAndFeelDecorated(true);
-        //iMainFrame = new JFrame(TITLE);
         iMainFrame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        //JPanel newContentPane = this;
         iMainFrame.getContentPane().setLayout(new BorderLayout());
-        //int hInput = iInputCtrl.getY();
-        //System.out.println("hInput="+hInput);
         int height = HEIGHT200 + HEIGHT100 + HEIGHT100 + HEIGHT100 + 2*HEIGHT30;
         this.setMinimumSize(new Dimension(WIDTH, height));
         this.setOpaque(true); //content panes must be opaque
 
         // make this AceTree instance the content pane
-        //iAceMenuBar = new AceMenuBar(this);
         iMainFrame.setJMenuBar(iAceMenuBar);
-		// iMainFrame.getContentPane().add(this, BorderLayout.NORTH);
 		iMainFrame.getContentPane().add(this, BorderLayout.CENTER);
         iMainFrame.pack();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -3708,7 +3641,6 @@ public class AceTree extends JPanel
     }
 
     public void run(String arg0) {
-        println("AceTree created - creating and showing GUI");
         createAndShowGUI();
     }
 

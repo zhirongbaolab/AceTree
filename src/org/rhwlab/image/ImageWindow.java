@@ -112,114 +112,139 @@ import org.rhwlab.acetree.PartsList;
  * @version 1.0 January 25, 2005
  */
 public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
-	public ImageCanvas      iImgCanvas;
+	// variables to stay after revisions
+    public ImageCanvas      iImgCanvas;
     static ImagePlus        iImgPlus;
     String                  iTitle;
+    ImagePlus               currentImage;
+
     static Object []        iSpecialEffect;
-    AceTree                 iAceTree;
-    Vector                  iAnnotsShown;
-    MouseHandler            iMouseHandler;
+
     WinEventMgr 			wem;
-    int                     iImageTime;
-    int                     iTimeInc;
-    int                     iImagePlane;
-    int                     iPlaneInc;
     boolean                 iIsMainImgWindow;
+
+    MouseHandler            iMouseHandler;
     boolean                 iIsRightMouseButton;
-    boolean                 iSaveImage;
-    boolean                 iSaveInProcess;
-    String                  iSaveImageDirectory;
-    boolean                 iUseRobot;
-    boolean                 iNewConstruction;
-    PartsList iPartsList;
-    public static ColorSchemeDisplayProperty []     iDispProps;
-    protected JToolBar      iToolBar;
 
-    ImageZoomerFrame		iImageZoomerFrame;
-    ImageZoomerPanel 		iImageZoomerPanel;
-    static boolean         	cAcbTree = false;
-
-    public static int contrastmin1, contrastmax1, contrastmin2, contrastmax2;
-    
-    static byte []          iRpix;
-    static byte []          iGpix;
-    static byte []          iBpix;
-
-    public static int 			imagewindowPlaneNumber;//unlike iImagePlane this includes increment number used only for new image access
-    public static int 			imagewindowUseStack;
-    public static int           iSplit;
-
-    // static variables and functions
-
-    public static String        cZipTifFilePath;
-    public static String        cTifPrefix;
-    public static String        cTifPrefixR;
-    public static int           cUseZip;
-    static ZipImage             cZipImage;
-    public static NucleiMgr     cNucleiMgr;
-    public static int           cImageWidth;
-    public static int           cImageHeight;
-    public static int           cLineWidth;
-    public static String        cCurrentImageFile;
-    public static String        cCurrentImagePart;
-    
-    public static int			cSplitChannelImage;
-
-    ImagePlus                   currentImage;
-    
-    protected DefaultListModel	iBookmarkListModel;
+    // contrast controls
     protected ImageContrastTool ict;
     protected JButton			ictApplyButton;
     protected JSlider			iSlider1min;
     protected JSlider			iSlider1max;
     protected JSlider			iSlider2min;
     protected JSlider			iSlider2max;
-    
     protected static boolean	setOriginalContrastValues;
+    public static int contrastmin1, contrastmax1, contrastmin2, contrastmax2;
+
+    public static ColorSchemeDisplayProperty []     iDispProps;
+    protected JToolBar      iToolBar;
+
+    ImageZoomerFrame		iImageZoomerFrame;
+    ImageZoomerPanel 		iImageZoomerPanel;
+
+
+    // ****************************************************************************************************************
+    // variables to be removed for revisions
+    AceTree                 iAceTree;
+
+    /* these should go into ImageManager */
+    int                     iImageTime;
+    int                     iTimeInc;
+    int                     iImagePlane;
+    int                     iPlaneInc;
+    public static int 	    imagewindowPlaneNumber;//unlike iImagePlane this includes increment number used only for new image access
+    public static int 			imagewindowUseStack;
+    public static int           iSplit;
+    public static int			cSplitChannelImage;
+    public static int           cImageWidth;
+    public static int           cImageHeight;
+    public static String        cCurrentImageFile;
+    public static String        cCurrentImagePart;
+    public static String        cZipTifFilePath;
+    public static String        cTifPrefix;
+    public static String        cTifPrefixR;
+    public static int           cUseZip;
+    static ZipImage             cZipImage;
+    // ***********************************
+
+    /* these should go into ImageSavingManager */
+    boolean                 iSaveImage;
+    boolean                 iSaveInProcess;
+    String                  iSaveImageDirectory;
+    // *****************************************
+
+    /* this should go into ImageAnnotationManager */
+    Vector                  iAnnotsShown;
+    public static NucleiMgr     cNucleiMgr;
+    public static int           cLineWidth;
+    PartsList iPartsList; // likely used to show systematic names
+    // *****************************************
+
+    /* these probably belong in ImageConversionManager */
+    static byte []          iRpix;
+    static byte []          iGpix;
+    static byte []          iBpix;
+    // **************************************************
+
+    /* moved into ImageBookMarkManager */
+    protected DefaultListModel	iBookmarkListModel;
+    // *************************************
+
+    // NOT SURE WHAT THESE ARE OR WHAT THEY'RE USED FOR
+    boolean                 iUseRobot;
+    boolean                 iNewConstruction;
+    static boolean         	cAcbTree = false;
+
 
     /**
-     * this is the constructor that is actually used
-     * note that there are many static functions and class variables
+     * Construct an image window given a Title, an image and a controller for interaction
+     *
+     * @param title
+     * @param imgPlus
+     * @param playercontrol
      */
     public ImageWindow(String title, ImagePlus imgPlus, PlayerControl  playercontrol) {
         super(title.substring(4,title.length()));
         setOriginalContrastValues = true;
-        iPartsList = new PartsList();
         iTitle = title;
         iImgPlus = imgPlus;
-        ImageCanvas ic = new ImageCanvas(imgPlus);
-        iImgCanvas = ic;
+        iImgCanvas = new ImageCanvas(imgPlus);
         iDispProps = getDisplayProps();
 
-
-	    //custom icon
-	    URL imageURL = ImageWindow.class.getResource("/images/icon2.gif");
-	    ImageIcon test=new ImageIcon(imageURL, "x");	
-	    this.setIconImage(test.getImage());
+        //custom icon
+        URL imageURL = ImageWindow.class.getResource("/images/icon2.gif");
+        ImageIcon test=new ImageIcon(imageURL, "x");
+        this.setIconImage(test.getImage());
 
         Container c = getContentPane();
         JPanel jp = new JPanel();
         jp.setLayout(new BorderLayout());
 
-	    //added these 3
         BufferedImage image = BufferedImageCreator.create((ColorProcessor)iImgPlus.getProcessor());
         iImageZoomerPanel= new ImageZoomerPanel(this, image, 10.0, title,playercontrol);
-	    //izf.addKeyListener(this); //added to make zoom window respond to key events -AS 11/23/11
-	    jp.add(iImageZoomerPanel);
+        jp.add(iImageZoomerPanel);
         c.add(jp);
 
         pack();
+
+        // bring up the image
         setVisible(true);
+
+        // this keeps the ImageWindow from being destroyed when it is closed, since it may be reopened at another point during program execution
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+
         wem = new WinEventMgr();
         addWindowFocusListener(wem);
         addWindowListener(wem);
         iMouseHandler = new MouseHandler(this);
-	    //further changing of main to zoom 
-	    iImageZoomerPanel.getImage().addMouseMotionListener(iMouseHandler);
-	    iImageZoomerPanel.getImage().addMouseListener(iMouseHandler);
 
-	    setImageTimeAndPlaneFromTitle();
+
+        iImageZoomerPanel.getImage().addMouseMotionListener(iMouseHandler);
+        iImageZoomerPanel.getImage().addMouseListener(iMouseHandler);
+
+        setImageTimeAndPlaneFromTitle();
+
+
         iAnnotsShown = new Vector();
         iIsRightMouseButton = false;
         iSaveImage = false;
@@ -227,12 +252,12 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         iUseRobot = false;
 
         iImgCanvas.addKeyListener(this);
-        
+
         iBookmarkListModel = null;
         ict = null;
         ictApplyButton = null;
         iSlider1min = iSlider1max = iSlider2min = iSlider2max = null;
-        
+
         // Original contrast percentages
         contrastmin1 = contrastmin2 = 0;
         if (imagewindowUseStack == 1) {
@@ -240,6 +265,8 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         } else {
             contrastmax1 = contrastmax2 = MAX8BIT;
         }
+
+        iPartsList = new PartsList();
     }
     
     public void removeHandlers() {
@@ -270,6 +297,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         cUseZip = useZip;
         if (cUseZip == 1)
         	cZipImage = new ZipImage(cZipTifFilePath);
+
         cLineWidth = 1;//LINEWIDTH; //set to 1 default -AS 11/23/11
         String [] sa = cTifPrefix.split("/");
         if(sa.length > 1) cTifPrefixR = sa[0] + "R" + C.Fileseparator + sa[1];
@@ -993,34 +1021,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         return dispProps;
     }
 
-    private int getLineageNumber(String name) {
-        int num = iDispProps.length;
-        for (int i=0; i < iDispProps.length; i++) {
-            if (name.indexOf(iDispProps[i].iName) >= 0) {
-                num = iDispProps[i].iLineageNum;
-                break;
-            }
-        }
-        return num;
-    }
 
-    protected JMenuBar createMenuBar() {
-        JMenuBar menuBar = new JMenuBar();
-        //JMenu menu = new JMenu(FILE);
-        //menuBar.add(menu);
-        //JMenuItem test = new JMenuItem(SAVEAS);
-        //menu.add(test);
-        //test.addActionListener(this);
-        JMenu menu = null;
-        JMenuItem test = null;
-
-        menu = new JMenu("dummy");
-        menuBar.add(menu);
-        test = new JMenuItem("dummy");
-        menu.add(test);
-        return menuBar;
-
-    }
 
     public void setAceTree(AceTree aceTree) {
         iAceTree = aceTree;
@@ -1071,9 +1072,6 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         	imageName = imageName.substring(0, k + random.length() - 1 );
         ImagePlus ip = null;
 
-        //System.out.println("ImageWindow.refreshDisplay3: " + System.currentTimeMillis());
-        //new IOException().printStackTrace();
-        //System.out.println("Refresh Display "+imagewindowPlaneNumber+" "+iImagePlane+" "+iAceTree.getImagePlane()+" "+iPlaneInc);
 
         ip = makeImage(imageName);
         currentImage = ip;
@@ -1197,10 +1195,6 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         }
     }
 
-    public void quickRefresh() {
-        iImgCanvas.repaint();
-    }
-
     public void setSpecialEffect(Object [] specialEffect) {
         iSpecialEffect = specialEffect;
     }
@@ -1232,10 +1226,6 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         iproc.drawLine(x1, y1, x2, y2);
         iproc.drawPolygon(EUtils.pCircle(x2, y2, r2));
         iproc.drawString("    " + s + "(" + z2 + ")", x2, y2 + offset);
-    }
-
-    private void redrawMe() {
-        iImgCanvas.repaint();
     }
 
     protected void setImageTimeAndPlaneFromTitle() {
@@ -1615,19 +1605,6 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         }
 
         saveJpeg(image, title, 20);
-        /*
-        try {
-            //robot = new Robot();
-            //BufferedImage image = robot.createScreenCapture(screenRect);
-            //BufferedImage image = BufferedImageCreator.create((ColorProcessor)iImgPlus.getProcessor());
-            ImageIO.write(image, "jpeg", new File(title));
-            //ImageIO.write(image, "png", new File(title));
-        //} catch(AWTException awtex) {
-        //    awtex.printStackTrace();
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-        */
 
         System.out.println("file: " + title + " written");
         iSaveInProcess = false;

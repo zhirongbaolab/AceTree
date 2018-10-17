@@ -123,7 +123,7 @@ public class NucleiConfig {
     public void setZRes(String zRes) { setZRes(Double.parseDouble(zRes)); }
     public void setZRes(double zRes) { this.zRes = zRes; }
     public void setStartingIndex(String startingIndex) { setStartingIndex(Integer.parseInt(startingIndex)); }
-    public void setStartingIndex(int startingIndex) { this.startingIndex = startingIndex; }
+    public void setStartingIndex(int startingIndex) { System.out.println("setting starting index in nuc config: " + startingIndex); this.startingIndex = startingIndex; }
     public void setEndingIndex(String endingIndex) { setEndingIndex(Integer.parseInt(endingIndex)); }
     public void setEndingIndex(int endingIndex) { this.endingIndex = endingIndex; }
     public void setPlaneStart(String planeStart) { setPlaneStart(Integer.parseInt(planeStart)); }

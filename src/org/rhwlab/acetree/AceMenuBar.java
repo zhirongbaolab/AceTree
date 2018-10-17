@@ -636,15 +636,6 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
 
                 iAceTree.setConfigFileName(path);
                 iAceTree.bringUpSeriesUI(path);
-                //iAceTree.setConfigFileName(file.getName());
-                //boolean haveConfig = iAceTree.getStartingParms();
-                //if (haveConfig) {
-                //    iAceTree.readNuclei();
-                //    setEnabled(true);
-                //}
-
-            } else {
-                //System.out.println("Open command cancelled by user.");
             }
         } 
         else if (iBookmark == o) {
@@ -661,8 +652,6 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
                 File file = iFileChooser.getSelectedFile();
                 String path = file.getPath();
                 iAceTree.openSeveralConfigs(path);
-                //iAceTree.setConfigFileName(file.getPath());
-                //iAceTree.bringUpSeriesUI(path);
             }
 
         } else if (iOptions == o) {
@@ -713,10 +702,6 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
 		System.out.println("loading image "+iAceTree.getImageWindow().getCurrentImageName());
 		ImagePlus imp=ij.IJ.openImage(iAceTree.getImageWindow().getCurrentImageName());
 		imp.show();
-		//FileInfo fi = new FileInfo();
-		//fi.fileName = iAceTree.getImageWindow().getCurrentImageName();
-		//FileOpener test=new FileOpener(fi);
-		//	test.open();
 	    }
         } else if (iExit == o) {
             iAceTree.exit();
