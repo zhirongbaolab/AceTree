@@ -534,10 +534,6 @@ public class AceTree extends JPanel
                 //System.exit(0);
             }
 
-            // build an ImageWindowDelegate (saving, annotation and 16bit to 8bit conversion)
-
-            // first, let's build an ImageWindow with the first processed image
-
             iEditLog = iNucleiMgr.getEditLog();
 
             /* these calls are either unnecessary or refactored with the revision of the configuration and image loading 10/2018 */
@@ -553,9 +549,36 @@ public class AceTree extends JPanel
 
             // TODO -- unit tested up until here
 
-            // the call to build tree is what triggers the ImageWindow to come up. The tree is build, the starting cell is
-            // set, and the ImageWindow.refreshDisplay() is called to show the set plane and time with the starting cell highlighted
+            // in the revised loading pipeline, build tree will no longer bring up the image series as it did before
+            // Therefore, once the buildTree operation is done, we are in the clear for bringing up the images
             buildTree(false);
+            //System.exit(0);
+
+            // bring up the image series
+            // build an ImageWindowDelegate (saving, annotation and 16bit to 8bit conversion)
+
+            // first, let's build an ImageWindow with the first processed image
+
+
+//            handleCellSelectionChange(c, time - iImageTime); // this will bring up an image --> this is now already handled so we can skip it here
+
+            // if the current cell isn't P (not a cell in the lineage), and it has childen, we'll add appropriate annotation
+            if (!iCurrentCell.getName().equals("P") && iRoot.getChildCount() > 0) {
+                iShowCentroids = true;
+                iShowC.setText(HIDEC);
+                addMainAnnotation();
+            }
+            iAceMenuBar.setClearEnabled(true);
+//
+//
+//            if(iImgWin!=null) {
+//                System.out.println("REFRESH DISPLAY CALLED FROM SET STARTING CELL");
+//                iImgWin.refreshDisplay(null);
+//            }
+
+
+
+
 	        setShowAnnotations(true);
     	} catch (Throwable t) {
 			new GeneralStartupError(getMainFrame(), t);
@@ -621,24 +644,21 @@ public class AceTree extends JPanel
 
         // Under the revisions, we want to create a top level Config class which will build separate ImageConfig and NucleiConfig objects
 
-        System.out.println("building a config manager using file name" + configFileName);
-        this.configManager = new Config(configFileName);
+        //System.out.println("building a config manager using file name" + configFileName);
+        //this.configManager = new Config(configFileName);
         // now we have respective NucleiConfig and ImageConfig through the reference to configManager
 
         // Let's build a NucleiMgr, then we'll move on the putting the images together (it will be a local copy that we then place in the NucleiMgr hash)
-        NucleiMgr nucMgr = new NucleiMgr(configManager.getNucleiConfig()); // post 10/2018 revisions
-        //NucleiMgr nucMgr = new NucleiMgr(configFileName); // pre 10/2018 revisions
+        //NucleiMgr nucMgr = new NucleiMgr(configManager.getNucleiConfig()); // post 10/2018 revisions
+        NucleiMgr nucMgr = new NucleiMgr(configFileName); // pre 10/2018 revisions
         // at this point, the nuclei have been read into the system
 
         if (!nucMgr.iGoodNucleiMgr) {
             return -1;
         }
 
-
-
         // if we've reached here, the NucMgr is good to go, so we can process the nuclei (set the successors and build the AncesTree object)
         nucMgr.processNuclei(true); // post 10/2018 revisions
-        //nucMgr.processNuclei(true, nucMgr.getConfig().iNamingMethod); // pre 10/2018 revisions
 
         // Image related stuff
 //        ImageWindow.setUseStack(iUseStack);
@@ -839,7 +859,6 @@ public class AceTree extends JPanel
             System.out.println("EndingIndexX: " + iEndingIndex);
 
             Cell.setEndingIndexS(iEndingIndex);
-
         } else {
             Cell.setEndingIndexS(configManager.getNucleiConfig().getEndingIndex());
         }
@@ -860,7 +879,8 @@ public class AceTree extends JPanel
         // assume that P0 is the root, and look for the first child present in the nuclei
         Cell c = walkUpToAGoodCell();
 
-        // now we're ready to get the image series up into the image window. Start by setting the cell we just found to be the starting cell, along with the start time
+        // now we're ready to get the image series up into the image window.
+        // Start by setting the cell we just found to be the starting cell, along with the start time
         if (configManager == null) {
             setStartingCell(c, iStartTime);
         } else {
@@ -890,10 +910,8 @@ public class AceTree extends JPanel
         // assume the first child is P0
         // look for a real cell off of P0
         c = (Cell)iRoot.getChildAt(0);
-        System.out.println("child of root: " + c.getName());
 
         while (c.getTime() < 0 && c.getChildCount() > 0) {
-            System.out.println("child: " + c.getName());
             c = (Cell)c.getChildAt(0);
         }
 
@@ -1018,12 +1036,9 @@ public class AceTree extends JPanel
 
             if (configManager == null) {
                 iImageTime = time;
-                getTimeAndPlane(c);
-            } else {
-                imageManager.setCurrImageTime(time);
-                imageManager.setCurrImagePlane((int)((double)c.getPlane() + HALFROUND));
-                System.out.println("set current image time and plane: " + imageManager.getCurrImageTime() + ", " + imageManager.getCurrImagePlane());
             }
+
+            getTimeAndPlane(c);
 
             iTimeInc = 0;
             iPlaneInc = 0;
@@ -1031,7 +1046,7 @@ public class AceTree extends JPanel
 
             getCurrentCellParameters();
             showTreeCell(iCurrentCell);
-        } else { // the nuclei passed is the root of the tree
+        } else { // the nuclei passed is the root of the tree -- use default viewing parameters
 
             // legacy vs. revised pipeline
             if (configManager == null) {
@@ -1042,26 +1057,35 @@ public class AceTree extends JPanel
             } else {
                 imageManager.setCurrImageTime(1);
                 imageManager.setCurrImagePlane(15);
+                System.out.println("Setting default image time and plane: 1, 15. No starting cell");
             }
-
-
         }
 
-        System.exit(0);
+        /**
+         * In the revised configuration and loading method 10/2018, we want to keep setStartingCell limited
+         * strictly to query and setting the starting cell, and not also giving it the responsibility of bringing
+         * up the image series. The code left here below is done for legacy support purposes. In the revised pipeline,
+         * bring up series
+         *
+         * HandleCellSelection should still be used as a way to update the image window during runtime as it is a logical
+         * progression from user interaction to window update, but it should be deconvolved from the actual loading and
+         * initialization of the image window
+         */
+        if (configManager == null) {
+            handleCellSelectionChange(c, time - iImageTime); // this will bring up an image
+            if (!c.getName().equals("P") && iRoot.getChildCount() > 0) {
+                //setShowAnnotations(true);
+                iShowCentroids = true;
+                iShowC.setText(HIDEC);
+                addMainAnnotation();
+            }
+            iAceMenuBar.setClearEnabled(true);
 
-        handleCellSelectionChange(c, time - iImageTime); // this will bring up an image
-        if (!c.getName().equals("P") && iRoot.getChildCount() > 0) {
-            //setShowAnnotations(true);
-            iShowCentroids = true;
-            iShowC.setText(HIDEC);
-            addMainAnnotation();
-        }
-        iAceMenuBar.setClearEnabled(true);
 
-
-		if(iImgWin!=null) {
-            System.out.println("REFRESH DISPLAY CALLED FROM SET STARTING CELL");
-            iImgWin.refreshDisplay(null);
+            if(iImgWin!=null) {
+                System.out.println("REFRESH DISPLAY CALLED FROM SET STARTING CELL");
+                iImgWin.refreshDisplay(null);
+            }
         }
     }
 
@@ -1864,25 +1888,38 @@ public class AceTree extends JPanel
     /////////////////////////////////////////////////////////////
 
     private void handleCellSelectionChange(Cell c, int timeInc) {
-        //System.out.println("handleCellSelectionChange: " + c + CS + timeInc);
         if (c == null) return;
         //iAnnotsShown.clear();
         getTimeAndPlane(c);
         iTimeInc = timeInc;
-        iPlaneInc = 0;
-        //println("handleCellSelectionChange:2 " + iImageTime + CS + iImagePlane);
         if (iImageTime < 1 || iImagePlane < 1) return;
         updateDisplay();
     }
 
+    /**
+     * Deprecated under the configuration and loading revisions 10/2018 but left here for failure mode in which AceTree returns to previous method
+     * @param c
+     */
     private void getTimeAndPlane(Cell c) {
         if (c == null) return;
         if (c == iRoot) {
-            iImageTime = 1;
-            iImagePlane = 15;
+            if (configManager == null) {
+                iImageTime = 1;
+                iImagePlane = 15;
+            } else {
+                this.imageManager.setCurrImageTime(1);
+                this.imageManager.setCurrImagePlane(15);
+            }
+
         } else {
-            iImageTime = c.getTime();
-            iImagePlane = (int)((double)c.getPlane() + HALFROUND);
+            if (configManager == null) {
+                iImageTime = c.getTime();
+                iImagePlane = (int)((double)c.getPlane() + HALFROUND);
+            } else {
+                this.imageManager.setCurrImageTime(c.getTime());
+                this.imageManager.setCurrImagePlane((int)((double)c.getPlane() + HALFROUND));
+            }
+
         }
         iTimeInc = 0;
         iPlaneInc = 0;
@@ -1931,6 +1968,7 @@ public class AceTree extends JPanel
 	public void handleImage() {
         System.out.println("HANDLE IMAGE CALLED");
         String cfile = makeImageName();
+        System.out.println(cfile + " - " + iZipTifFilePath + ", " + iTifPrefix);
         ImagePlus ip = null;
         ImageWindow.setUseStack(iUseStack);
         ImageWindow.setSplitMode(iSplit);

@@ -6,23 +6,19 @@
 package org.rhwlab.snight;
 
 import java.io.File;
-//import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.Enumeration;
-import java.util.GregorianCalendar;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.zip.ZipEntry;
 
-
-//import org.rhwlab.acetree.*;
-//import org.rhwlab.acetree.AceTree;
 import org.rhwlab.acetree.NucUtils;
 import org.rhwlab.image.ImageWindow;
 import org.rhwlab.nucedit.EditLog;
 import org.rhwlab.tree.AncesTree;
+import org.rhwlab.tree.Cell;
 import org.rhwlab.utils.C;
 import org.rhwlab.utils.EUtils;
 import org.rhwlab.utils.Log;
@@ -38,26 +34,19 @@ import org.rhwlab.utils.Log;
  * @version 1.0
  */
 public class NucleiMgr {
-    ////   AceTree 		iAceTree;
     ZipNuclei 		iZipNuclei;
     File 					iFile;
     FileOutputStream 		iFOS;
     PrintWriter 			iPWriter;
     Vector<Vector<Nucleus>> nuclei_record;
     Vector<Vector<Nucleus>> nuclei_record_backup;
-    Parameters 				Parametersx;
     String 					iParameterEntry;
     int 					iStartingIndex;
     int 					iEndingIndex;
     int 					iImageWidth;
     int 					iImageHeight;
-    int 					iIndexOffset;
-    int 					iNumNucleiFiles;
-    String [] parameterFileData;
     boolean 				iFakeNuclei;
-    boolean 		iDebug;
 
-    //private Identity  iIdentity;
     Identity3  		iIdentity;
 
     AncesTree 		iAncesTree;
@@ -66,9 +55,7 @@ public class NucleiMgr {
     Parameters 		iParameters;
     Movie 			iMovie;
     EditLog     	iEditLog;
-    Log         	iDDLog;
     Log         	iDLog;
-    boolean     	iEditLogInitialized;
     double      	iZPixRes;
 
 
@@ -81,14 +68,18 @@ public class NucleiMgr {
     public int iUseStack;
     public int iSplit;
 
-    private NucleiConfig nucConfig;
+
 
     PrintWriter				iPrintWriter;
 
     int				iStartTime;
 
-    static String p2 = "t";
-    static String p3 = "-nuclei";
+
+    /**
+     * Revised variables
+     */
+    // config stuff
+    private NucleiConfig nucConfig;
 
     public NucleiMgr() {
 
@@ -104,7 +95,7 @@ public class NucleiMgr {
      * @param nucConfig
      */
     public NucleiMgr(NucleiConfig nucConfig) {
-        System.out.println("Creating a NucleiMgr using a NucleiConfig object.");
+        System.out.println("Creating a NucleiMgr using a NucleiConfig object. 10/2018 revisions");
         this.nucConfig = nucConfig;
 
         iEditLog = new EditLog("EditLog");
@@ -137,8 +128,11 @@ public class NucleiMgr {
         // set the weights of the nuclei based on the expression correlation method specified in the XML
         computeRWeights();
         System.gc(); // clean up
-        System.out.println("FINISHED NUCLEIMGR CONSTRUCTOR THAT USES NUCLEICONFIG OBJECT\n");
     }
+
+
+
+    // END REVISED 10/2018 METHODS SECTION
 
     // Timing commented out -was used for optimization
     @SuppressWarnings("unused")
@@ -471,16 +465,20 @@ public class NucleiMgr {
             if (last < iEndingIndex) {
                 iEndingIndex = last;
                 iConfig.iEndingIndex = iEndingIndex;
+                System.out.println("Updated iConfig.iEndingIndex to: " + last);
             }
             if (last < iConfig.iEndingIndex) {
                 iConfig.iEndingIndex = last;
+                System.out.println("Updated iConfig.iEndingIndex to: " + last);
             }
             System.out.println("last, iEndingIndex: " + last + CS + iEndingIndex + CS  + iConfig.iEndingIndex + CS + iMovie);
         } else {
             // update the nucConfig's ending index if we find that there are less zip entries than is listed in the XML file
             if (last < nucConfig.getEndingIndex()) {
+                System.out.println("Updated nucConfig.endingIndex from: " + nucConfig.getEndingIndex() + " to: " + last);
                 nucConfig.setEndingIndex(last);
             }
+            System.out.println("last, endingIndex: " + last + CS + nucConfig.getEndingIndex() + CS + iMovie);
         }
     }
 
@@ -490,7 +488,7 @@ public class NucleiMgr {
     // this should allow interative editing of the nuclei "files"
     @SuppressWarnings("unused")
     private int readNuclei(ZipNuclei zn) {
-        // the following results in all nuclei files being read
+        // the following results in all nuclei files being read\
         // regardless of 1StartTime and iEndTime
         newLine();
         System.out.println("Reading Nuclei from .zip");
@@ -509,7 +507,6 @@ public class NucleiMgr {
         Enumeration<? extends ZipEntry> e = zn.iZipFile.entries();
         //int lastNonEmptyIndex = 0;
         while (e.hasMoreElements()) {
-            //System.out.println("More elements...");
             ZipEntry ze = e.nextElement();
             Vector<Nucleus> v = new Vector<Nucleus>();
             String [] saa = zn.parseZipEntry(ze);
@@ -525,6 +522,7 @@ public class NucleiMgr {
                 String s = zn.readLine(ze);
                 if (s == null) {
                     if (nuclei_record.size() > index) {
+                        System.out.println("setting element in nuc record");
                         nuclei_record.setElementAt(v, index);
                         //lastNonEmptyIndex = index;
                         if (index > iLastNucleiFile)
@@ -585,19 +583,42 @@ public class NucleiMgr {
                 zn.closeEntry();
             }
         }
-        println("readNuclei: iEndingIndex=" + iEndingIndex + CS + iLastNucleiFile + CS + nuclei_record.size());
-        if (iEndingIndex == 1) {
-            iEndingIndex = iLastNucleiFile + 1;
-            iConfig.iEndingIndex = iEndingIndex;
-            for (int i=LAST - 1; i > iLastNucleiFile; i--) {
-                nuclei_record.remove(i);
+
+        if (isNucConfigNull()) {
+            println("readNuclei: iEndingIndex=" + iEndingIndex + CS + iLastNucleiFile + CS + nuclei_record.size());
+        } else {
+            println("readNuclei: iEndingIndex=" + nucConfig.getEndingIndex() + CS + iLastNucleiFile + CS + nuclei_record.size());
+        }
+
+        if (isNucConfigNull()) {
+            if (iEndingIndex == 1) {
+                iEndingIndex = iLastNucleiFile + 1;
+                iConfig.iEndingIndex = iEndingIndex;
+                for (int i=LAST - 1; i > iLastNucleiFile; i--) {
+                    nuclei_record.remove(i);
+                }
+            }
+        } else {
+            if (nucConfig.getEndingIndex() == 1) {
+                nucConfig.setEndingIndex(iLastNucleiFile + 1);
+                for (int i=LAST - 1; i > iLastNucleiFile; i--) {
+                    nuclei_record.remove(i);
+                }
             }
         }
 
+
         // Cut nuclei_record down to the latrer of the where the last nuclei file is or the iEndingIndex specified in the .xml
         int newSize = iLastNucleiFile+1;
-        if (newSize < iEndingIndex)
-            newSize = iEndingIndex+1;
+        if (isNucConfigNull()) {
+            if (newSize < iEndingIndex)
+                newSize = iEndingIndex+1;
+        } else {
+            if (newSize < nucConfig.getEndingIndex()) {
+                newSize = nucConfig.getEndingIndex() + 1;
+            }
+        }
+
         nuclei_record.setSize(newSize);
 
         println("readNuclei: at end, nuclei_record.size: " + nuclei_record.size());
@@ -907,7 +928,6 @@ public class NucleiMgr {
 
     public Vector<Nucleus> getParameterFileInfo() {
         Vector<Nucleus> v = iParameters.getParameterFileInfo();
-        //Vector v = iAceTree.getParameters().getParameterFileInfo();
         return v;
     }
 
@@ -928,27 +948,8 @@ public class NucleiMgr {
         //if (iEndingIndex > 1) last = iEndingIndex;
         for (int i=0; i < last; i++) {
             nuclei_record.add(new Vector<Nucleus>());
-            //n = new Nucleus(true); // a fake nucleus
-            //if (i == 0) n.predecessor = -1;
-            //n.setHashKey(NucUtils.makeHashKey(i + 1, n));
-            //((Vector)nuclei_record.elementAt(i)).add(n);
         }
     }
-
-//    private void addFakeNuclei(Vector<Vector<Nucleus>> nuclei_record, int iEndingIndex) {
-//        //iFakeNuclei = true;
-//        //nuclei_record = new Vector(); //[iEndingIndex - iStartingIndex + 1];
-//        Nucleus n = null;
-//        for (int i=0; i < iEndingIndex; i++) {
-//            nuclei_record.add(new Vector<Nucleus>());
-//            n = new Nucleus(true); // a fake nucleus
-//            if (i == 0) {
-//            	//System.out.println("NucleiMgr set predecessor to -1 for: "+n.identity);
-//            	n.predecessor = -1;
-//            }
-//            (nuclei_record.elementAt(i)).add(n);
-//        }
-//    }
 
     public boolean isFake() {
         return iFakeNuclei;
@@ -961,7 +962,12 @@ public class NucleiMgr {
      * @param doIdentity
      */
     public void processNuclei(boolean doIdentity) {
-        processNuclei(doIdentity, nucConfig.getNamingMethod());
+        if (isNucConfigNull()) {
+            processNuclei(doIdentity, getConfig().iNamingMethod);
+        } else {
+            processNuclei(doIdentity, nucConfig.getNamingMethod());
+        }
+
     }
 
 
@@ -994,13 +1000,15 @@ public class NucleiMgr {
                 System.out.println("updating start time after Identity assignment to: " + iStartTime);
                 newStart = iStartTime;
             }
+            System.out.println("Building AncesTree with times: " + newStart + ", " + iEndingIndex);
             iAncesTree = new AncesTree(null, this, newStart, iEndingIndex);
         } else {
             if (nucConfig.getStartingIndex() < iStartTime) {
                 System.out.println("updating start time after Identity assignment to: " + iStartTime);
                 nucConfig.setStartingIndex(iStartTime);
             }
-            iAncesTree = new AncesTree(null, this, nucConfig.getStartingIndex(), getNucConfig().getEndingIndex());
+            System.out.println("Building AncesTree with times: " + nucConfig.getStartingIndex() + nucConfig.getEndingIndex());
+            iAncesTree = new AncesTree(null, this, nucConfig.getStartingIndex(), nucConfig.getEndingIndex());
         }
 
     }
@@ -1034,9 +1042,6 @@ public class NucleiMgr {
         StringTokenizer st = new StringTokenizer(s, ",");
         int k = 0;
         while (st.hasMoreTokens()) {
-            //String ss = st.nextToken();
-            //System.out.println("getTokens: " + k + CS + ss);
-            //sa[k++] = ss.trim();
             sa[k++] = st.nextToken().trim();
         }
         return sa;
@@ -1052,26 +1057,7 @@ public class NucleiMgr {
     }
 
     public void makeBackupNucleiRecord() {
-
         System.out.println("Refusing to make backup, waste of memory");
-	/*
-        System.out.println("makeBackupNucleiRecord");
-        nuclei_record_backup = new Vector();
-        Vector nuclei = null;
-        Vector nucleiNew = null;
-        Nucleus n = null;
-        Nucleus nNew = null;
-        for (int i=0; i < nuclei_record.size(); i++) {
-            nuclei = (Vector)nuclei_record.elementAt(i);
-            nucleiNew = new Vector();
-            for (int j=0; j < nuclei.size(); j++) {
-                n = (Nucleus)nuclei.elementAt(j);
-                nNew = n.copy();
-                nucleiNew.add(nNew);
-            }
-            nuclei_record_backup.add(nucleiNew);
-        }
-	*/
     }
 
     public void restoreNucleiRecord() {
@@ -1148,8 +1134,14 @@ public class NucleiMgr {
             n.successor1 = m1;
             n.successor2 = m1;
         }
-        if (i == iEndingIndex - 1)
-            return 1;
+        if (isNucConfigNull()) {
+            if (i == iEndingIndex - 1)
+                return 1;
+        } else {
+            if (i == nucConfig.getEndingIndex() - 1)
+                return 1;
+        }
+
         Vector<Nucleus> next;
         try {
             next = nuclei_record.elementAt(i + 1);

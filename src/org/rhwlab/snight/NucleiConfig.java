@@ -83,6 +83,7 @@ public class NucleiConfig {
                 this.startingIndex = Integer.parseInt(configData.get(s));
             } else if (s.toLowerCase().equals(endingIndexKey.toLowerCase())) {
                 this.endingIndex = Integer.parseInt(configData.get(s));
+                System.out.println("SET ENDING INDEX: " + this.endingIndex);
             } else if (s.toLowerCase().equals(planeEndKey.toLowerCase())) {
                 this.planeEnd = Integer.parseInt(configData.get(s));
             } else if (s.toLowerCase().equals(exprCorrKey.toLowerCase())) {

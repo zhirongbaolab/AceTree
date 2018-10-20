@@ -1,16 +1,18 @@
 package org.rhwlab.image.management;
 
+import ij.IJ;
 import ij.ImagePlus;
+import ij.io.FileInfo;
+import ij.io.FileOpener;
 import ij.io.Opener;
-import ij.process.ColorProcessor;
-import ij.process.ImageProcessor;
+import ij.io.TiffDecoder;
 import org.rhwlab.image.ParsingLogic.ImageFileParser;
 import org.rhwlab.image.ParsingLogic.ImageNameLogic;
-import org.rhwlab.image.ZipImage;
 import org.rhwlab.utils.C;
-
+import org.rhwlab.utils.EUtils;
 import java.io.File;
-import java.util.zip.ZipEntry;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 /**
  * @javadoc
@@ -42,6 +44,7 @@ public class ImageManager {
 
     // runtime variables that are used to manage the image series data as it's viewed by the user (time, plane number, image height, etc.)
     private String currentImageFile;
+    private int fileNameType;
     private ImagePlus currentImage;
     private int currentImageTime;
     private int currentImagePlane;
@@ -93,74 +96,45 @@ public class ImageManager {
     }
     public int getCurrImagePlane() { return this.currentImagePlane; }
 
-    // METHODS TO MAKE IMAGES
-//    public ImagePlus makeImage(String s) {
-//        currentImageFile = s;
-//        ImagePlus ip;
-//
-//        switch(this.imageConfig.getUseZip()) {
-//            case 0:
-//            case 3:
-//                ip = doMakeImageFromTif(s);
-//                break;
-//            case 1:
-//                ip = doMakeImageFromZip(s);
-//                break;
-//            default:
-//                ip = doMakeImageFromZip2(s);
-//                break;
-//
-//        }
-//
-//        if (ip != null) {
-//            this.imageWidth = ip.getWidth();
-//            this.imageHeight = ip.getHeight();
-//        }
-////        if (ip == null)
-////            return iImgPlus;
-//        //else return ip;
-//
-//        return ip;
-//    }
+    /**
+     *
+     *
+     * @return
+     */
+    public ImagePlus buildAndFormatCurrentImage() {
+        return makeImage();
+    }
 
-//    public ImagePlus makeImage2(String s, int iplane, int ustack, int splitMode) {
-//        //System.out.println("ImageWindow.makeImage2: "+s);
-//         = s;
-//        ImagePlus ip = null;
-//
-//        imagewindowPlaneNumber = iplane;
-//        imagewindowUseStack = ustack;
-//        iSplit = splitMode;
-//        switch(cUseZip) {
-//            case 0:
-//            case 3:
-//                ip = doMakeImageFromTif(s);
-//                break;
-//            case 1:
-//                ip = doMakeImageFromZip(s);
-//                break;
-//            default:
-//                ip = doMakeImageFromZip2(s);
-//                break;
+    public ImagePlus makeImage() {
+        //System.out.println("ImageWindow.makeImage2: "+s);
+        ImagePlus ip = null;
+
+        switch(imageConfig.getUseZip()) {
+            case 0:
+            case 3:
+                ip = doMakeImageFromTif();
+                break;
+            case 1:
+                //ip = doMakeImageFromZip();
+                break;
+            default:
+                //ip = doMakeImageFromZip2();
+                break;
+        }
+
+        if (ip != null) {
+            this.imageWidth = ip.getWidth();
+            this.imageHeight = ip.getHeight();
+        }
+
+        return ip;
+    }
+
+//    public  ImagePlus doMakeImageFromZip() {
+//        if (cZipImage == null) {
+//            cZipImage = new ZipImage(cZipTifFilePath);
 //        }
 //
-//        if (ip != null) {
-//            cImageWidth = ip.getWidth();
-//            cImageHeight = ip.getHeight();
-//        }
-//
-//        if (ip == null) {
-//            return iImgPlus;
-//        }
-//        else {
-//            return ip;
-//        }
-//    }
-//
-//
-//
-//    public  ImagePlus doMakeImageFromZip(String s) {
-//        if (cZipImage == null) cZipImage = new ZipImage(cZipTifFilePath);
 //        ZipEntry ze = cZipImage.getZipEntry(s);
 //        ImagePlus ip;
 //        if (ze == null) {
@@ -172,10 +146,10 @@ public class ImageManager {
 //        //System.out.println("ImageWindow.makeImage exiting");
 //        return ip;
 //    }
-//
-//
-//
-//    public ImagePlus doMakeImageFromZip2(String s) {
+////
+////
+////
+//    public ImagePlus doMakeImageFromZip2() {
 //        cZipImage = new ZipImage(cZipTifFilePath + "/" + s);
 //        int k1 = s.indexOf("/") + 1;
 //        String ss = s.substring(k1);
@@ -209,44 +183,38 @@ public class ImageManager {
 //        iBpix = B;
 //        return ip;
 //    }
-//
-//    public ImagePlus doMakeImageFromTif(String s) {
-//        if (cUseZip == 3)
-//            s = s.replaceAll("tif", "jpg");
-//        //println("ImageWindow.doMakeImageFromTif entered: " + s);
-//        cCurrentImagePart = s;
-//        //FileInputStream fis;
-//        ImagePlus ip = null;
-//        String ss = cZipTifFilePath + C.Fileseparator + s;
-//        //println("ImageWindow.makeImage entered: " + ss);
-//
-//        //System.out.println("ImageWindow using stack: "+imagewindowUseStack);
-//        if (imagewindowUseStack == 1){
-//            System.out.println("ImageWindow doMakeImageFromTif using stack: 1");
-//            try {
-//                ip = new Opener().openImage(ss, imagewindowPlaneNumber);
-//            } catch (IllegalArgumentException iae) {
-//                System.out.println("Exception in ImageWindow.doMakeImageFromTif(String)");
-//                System.out.println("TIFF file required.");
-//            }
-//
-//        } else{
-//            //System.out.println("ImageWindow doMakeImageFromTif using stack: 0");
-//            ip = new Opener().openImage(ss);
-//        }
-//
-//        if (ip != null) {
-//            cImageWidth = ip.getWidth();
-//            cImageHeight = ip.getHeight();
-//            //System.out.println("Loaded image width, height: "+cImageWidth+CS+cImageHeight);
-//            ip = convertToRGB(ip);
-//        } else {
-//            ip = new ImagePlus();
-//            ImageProcessor iproc = new ColorProcessor(cImageWidth, cImageHeight);
-//            ip.setProcessor(s, iproc);
-//        }
-//
-//        return ip;
-//    }
+
+    public ImagePlus doMakeImageFromTif() {
+        String currImageFileLocal = this.currentImageFile;
+        if (imageConfig.getUseZip() == 3)
+            currImageFileLocal = currImageFileLocal.replaceAll("tif", "jpg");
+        ImagePlus ip = null;
+
+        if (imageConfig.getUseStack() == 1) { //16bit images are present
+            System.out.println("ImageWindow doMakeImageFromTif using stack: 1");
+            try {
+                ip = new Opener().openImage(currImageFileLocal, this.currentImagePlane);
+            } catch (IllegalArgumentException iae) {
+                System.out.println("Exception in ImageWindow.doMakeImageFromTif(String)");
+                System.out.println("TIFF file required.");
+            }
+
+        } else{ //8bit images
+            ip = new Opener().openImage(currImageFileLocal); // no need for other arguments, the file is just a single plane at a single timepoint
+        }
+
+        if (ip != null) {
+            this.imageWidth = ip.getWidth();
+            this.imageHeight = ip.getHeight();
+            //System.out.println("Loaded image width, height: "+cImageWidth+CS+cImageHeight);
+            ip = convertToRGB(ip);
+        } else {
+            ip = new ImagePlus();
+            ImageProcessor iproc = new ColorProcessor(cImageWidth, cImageHeight);
+            ip.setProcessor(s, iproc);
+        }
+
+        return ip;
+    }
 
 }
