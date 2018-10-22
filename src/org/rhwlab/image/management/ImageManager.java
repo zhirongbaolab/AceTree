@@ -1,18 +1,12 @@
 package org.rhwlab.image.management;
 
-import ij.IJ;
 import ij.ImagePlus;
-import ij.io.FileInfo;
-import ij.io.FileOpener;
 import ij.io.Opener;
-import ij.io.TiffDecoder;
+import ij.process.ColorProcessor;
+import ij.process.ImageProcessor;
 import org.rhwlab.image.ParsingLogic.ImageFileParser;
 import org.rhwlab.image.ParsingLogic.ImageNameLogic;
-import org.rhwlab.utils.C;
-import org.rhwlab.utils.EUtils;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 
 /**
  * @javadoc
@@ -51,6 +45,9 @@ public class ImageManager {
     private int imageHeight;
     private int imageWidth;
 
+    private boolean setOriginalContrastValues; // not quite sure what this is used for
+    private static int contrastMin1, contrastMin2, contrastMax1, contrastMax2;
+
     public ImageManager(ImageConfig imageConfig) {
         this.imageConfig = imageConfig;
 
@@ -83,6 +80,7 @@ public class ImageManager {
         // avoid errors by setting some default values
         this.currentImageTime = 1;
         this.currentImagePlane = 15; // usually about the middle of the stack
+        this.setOriginalContrastValues = true;
     }
 
     // methods to set runtime parameters
@@ -106,21 +104,9 @@ public class ImageManager {
     }
 
     public ImagePlus makeImage() {
-        //System.out.println("ImageWindow.makeImage2: "+s);
         ImagePlus ip = null;
 
-        switch(imageConfig.getUseZip()) {
-            case 0:
-            case 3:
-                ip = doMakeImageFromTif();
-                break;
-            case 1:
-                //ip = doMakeImageFromZip();
-                break;
-            default:
-                //ip = doMakeImageFromZip2();
-                break;
-        }
+        ip = doMakeImageFromTif();
 
         if (ip != null) {
             this.imageWidth = ip.getWidth();
@@ -130,91 +116,33 @@ public class ImageManager {
         return ip;
     }
 
-//    public  ImagePlus doMakeImageFromZip() {
-//        if (cZipImage == null) {
-//            cZipImage = new ZipImage(cZipTifFilePath);
-//        }
-//
-//        ZipEntry ze = cZipImage.getZipEntry(s);
-//        ImagePlus ip;
-//        if (ze == null) {
-//            ip = new ImagePlus();
-//            ImageProcessor iproc = new ColorProcessor(cImageWidth, cImageHeight);
-//            ip.setProcessor(s, iproc);
-//        }
-//        else ip = cZipImage.readData(ze);
-//        //System.out.println("ImageWindow.makeImage exiting");
-//        return ip;
-//    }
-////
-////
-////
-//    public ImagePlus doMakeImageFromZip2() {
-//        cZipImage = new ZipImage(cZipTifFilePath + "/" + s);
-//        int k1 = s.indexOf("/") + 1;
-//        String ss = s.substring(k1);
-//        int k2 = ss.indexOf(".");
-//        ss = ss.substring(0, k2);
-//        ZipEntry ze = null;
-//        if (cZipImage != null) ze = cZipImage.getZipEntry(ss + ".tif");
-//        //System.out.println("ZipEntry: " + ze);
-//        //if (cZipImage == null) cZipImage = new ZipImage(cZipTifFilePath);
-//        //ZipEntry ze = cZipImage.getZipEntry(s);
-//        ImagePlus ip;
-//        if (ze == null) {
-//            ip = new ImagePlus();
-//            ImageProcessor iproc = new ColorProcessor(cImageWidth, cImageHeight);
-//            ip.setProcessor(s, iproc);
-//        }
-//        else ip = cZipImage.readData(ze);
-//        //System.out.println("ImageWindow.makeImage exiting");
-//        //ip = convertToRGB(ip);
-//        ColorProcessor iprocColor = (ColorProcessor)ip.getProcessor();
-//        int [] all = (int [])iprocColor.getPixels();
-//        byte [] R = new byte[all.length];
-//        byte [] G = new byte[all.length];
-//        byte [] B = new byte[all.length];
-//        //ColorProcessor iproc3 = new ColorProcessor(iproc.getWidth(), iproc.getHeight());
-//        iprocColor.getRGB(R, G, B);
-//        //G = bpix;
-//        //R = getRedChannel(R);
-//        iRpix = R;
-//        iGpix = G;
-//        iBpix = B;
-//        return ip;
-//    }
-
     public ImagePlus doMakeImageFromTif() {
-        String currImageFileLocal = this.currentImageFile;
-        if (imageConfig.getUseZip() == 3)
-            currImageFileLocal = currImageFileLocal.replaceAll("tif", "jpg");
         ImagePlus ip = null;
 
         if (imageConfig.getUseStack() == 1) { //16bit images are present
             System.out.println("ImageWindow doMakeImageFromTif using stack: 1");
             try {
-                ip = new Opener().openImage(currImageFileLocal, this.currentImagePlane);
+                ip = new Opener().openImage(this.currentImageFile, this.currentImagePlane);
             } catch (IllegalArgumentException iae) {
                 System.out.println("Exception in ImageWindow.doMakeImageFromTif(String)");
                 System.out.println("TIFF file required.");
             }
 
         } else{ //8bit images
-            ip = new Opener().openImage(currImageFileLocal); // no need for other arguments, the file is just a single plane at a single timepoint
+            ip = new Opener().openImage(this.currentImageFile); // no need for other arguments, the file is just a single plane at a single timepoint
         }
 
         if (ip != null) {
             this.imageWidth = ip.getWidth();
             this.imageHeight = ip.getHeight();
-            //System.out.println("Loaded image width, height: "+cImageWidth+CS+cImageHeight);
-            ip = convertToRGB(ip);
+
+            ip = ImageConversionManager.convertToRGB(ip, this.imageConfig.getUseStack(), this.imageConfig.getSplitStack());
         } else {
             ip = new ImagePlus();
-            ImageProcessor iproc = new ColorProcessor(cImageWidth, cImageHeight);
-            ip.setProcessor(s, iproc);
+            ImageProcessor iproc = new ColorProcessor(this.imageWidth, this.imageHeight);
+            ip.setProcessor(this.currentImageFile, iproc);
         }
 
         return ip;
     }
-
 }

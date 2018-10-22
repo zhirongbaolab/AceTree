@@ -796,17 +796,9 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
     }
 
     private static String makeRedChannelName() {
-        // 20071108 rehacked this because windows vista was very picky
-        // and backslashes were plagueing me
-        // the green parsing was working so I created cCurrentImagePart
-        // to go from there to red by substituting "tifR" for "tif"
         String s = cCurrentImageFile;
-        //int k = s.indexOf(cTifPrefix) + cTifPrefix.length();
         String ss = cCurrentImagePart;
-        //System.out.println("getRedChannelName, " + ss);
         ss = ss.substring(3);
-        //System.out.println("getRedChannelName, " + ss);
-        //s = cZipTifFilePath + C.Fileseparator + cTifPrefixR + s.substring(k);
         s = cZipTifFilePath + C.Fileseparator + "/tifR/" + ss;
         if (cUseZip == 3) s = cZipTifFilePath + C.Fileseparator + "/jpgR/" + ss;
 
@@ -816,22 +808,6 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
     // end of static stuff
 
     public ImageWindow() {
-
-    }
-
-    /**
-     * this constructor for test purposes only
-     */
-    public ImageWindow(String title, ImagePlus imgPlus, boolean test) {
-        super(title);
-        iTitle = title;
-        iImgPlus = imgPlus;
-        ImageCanvas ic = new ImageCanvas(imgPlus);
-        iImgCanvas = ic;
-        getContentPane().add(ic);
-        pack();
-        setVisible(true);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
     }
 
