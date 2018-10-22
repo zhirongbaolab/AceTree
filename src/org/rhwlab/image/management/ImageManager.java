@@ -159,6 +159,8 @@ public class ImageManager {
             ip.setProcessor(this.currentImageFile, iproc);
         }
 
+        // TODO END STATEMENT
+
         return ip;
     }
 

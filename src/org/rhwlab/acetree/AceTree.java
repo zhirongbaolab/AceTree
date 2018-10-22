@@ -400,10 +400,6 @@ public class AceTree extends JPanel
 		    // no idea what it was for anyway
 		    System.out.println("about to call string boolean con");
 		    iAceTree = new AceTree(configs[0],true);
-                    //iAceTree = new AceTree(configs[1]);
-                    //for (int i=2; i < configs.length; i++) {
-		    //   iAceTree.setConfigFileName(configs[i]);
-		    //  iAceTree.bringUpSeriesUI(configs[i]);
 		}
 		iAceTree.setConfigFileName(configs[0]);
 		iAceTree.bringUpSeriesUI(configs[0]);
@@ -552,7 +548,7 @@ public class AceTree extends JPanel
             // in the revised loading pipeline, build tree will no longer bring up the image series as it did before
             // Therefore, once the buildTree operation is done, we are in the clear for bringing up the images
             buildTree(false);
-            //System.exit(0);
+
 
             // bring up the image series
             // build an ImageWindowDelegate (saving, annotation and 16bit to 8bit conversion)
@@ -562,16 +558,16 @@ public class AceTree extends JPanel
                                         this.imageManager.makeImage(),
                                             iPlayerControl);
 
-
-//            handleCellSelectionChange(c, time - iImageTime); // this will bring up an image --> this is now already handled so we can skip it here
+            // TODO unit tested up until here
+            //System.exit(0);
 
             // if the current cell isn't P (not a cell in the lineage), and it has childen, we'll add appropriate annotation
-            if (!iCurrentCell.getName().equals("P") && iRoot.getChildCount() > 0) {
-                iShowCentroids = true;
-                iShowC.setText(HIDEC);
-                addMainAnnotation();
-            }
-            iAceMenuBar.setClearEnabled(true);
+//            if (!iCurrentCell.getName().equals("P") && iRoot.getChildCount() > 0) {
+//                iShowCentroids = true;
+//                iShowC.setText(HIDEC);
+//                addMainAnnotation();
+//            }
+//            iAceMenuBar.setClearEnabled(true);
 //
 //
 //            if(iImgWin!=null) {
@@ -1996,7 +1992,7 @@ public class AceTree extends JPanel
 				ip = ImageWindow.makeImage2(iTifPrefix + cfile, getImagePlane(), getUseStack(), getiSplit());
 				 //iImgWin = new ImageWindow( cfile, ip);
 				try {
-					iImgWin = new ImageWindow(iTifPrefix + cfile, ip, iPlayerControl);
+					iImgWin = new ImageWindow(iTifPrefix + cfile, ip, iPlayerControl, true);
 
 	                iImgWin.setAceTree(this);
 
@@ -2277,7 +2273,7 @@ public class AceTree extends JPanel
     private void copyImage() {
         ImagePlus ip = iImgWin.getImagePlus();
         String s = iTifPrefix + makeImageName() + Math.random();
-        ImageWindow iw = new ImageWindow(s, ip,iPlayerControl);
+        ImageWindow iw = new ImageWindow(s, ip,iPlayerControl, true);
         iw.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         iw.setAceTree(this);
         //iw.refreshDisplay(s);

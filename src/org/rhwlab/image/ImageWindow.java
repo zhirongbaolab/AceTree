@@ -197,13 +197,81 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 
 
     /**
-     * Construct an image window given a Title, an image and a controller for interaction
+     * Revised ImageWindow constructor
+     * @author Braden Katzman
+     * Date revised: 10/2018
+     *
+     * This constructor has significantly less responsibility since its components have been modularized
      *
      * @param title
      * @param imgPlus
      * @param playercontrol
      */
     public ImageWindow(String title, ImagePlus imgPlus, PlayerControl playercontrol) {
+        super(title.substring(4,title.length()));
+        iTitle = title;
+        iImgPlus = imgPlus;
+        iImgCanvas = new ImageCanvas(imgPlus);
+        iDispProps = getDisplayProps();
+
+        //custom icon
+        URL imageURL = ImageWindow.class.getResource("/images/icon2.gif");
+        ImageIcon test=new ImageIcon(imageURL, "x");
+        this.setIconImage(test.getImage());
+
+        Container c = getContentPane();
+        JPanel jp = new JPanel();
+        jp.setLayout(new BorderLayout());
+
+        BufferedImage image = BufferedImageCreator.create((ColorProcessor)iImgPlus.getProcessor());
+        iImageZoomerPanel= new ImageZoomerPanel(this, image, 10.0, title,playercontrol);
+        jp.add(iImageZoomerPanel);
+        c.add(jp);
+
+        pack();
+
+        // bring up the image
+        setVisible(true);
+
+        // this keeps the ImageWindow from being destroyed when it is closed, since it may be reopened at another point during program execution
+        setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+
+        wem = new WinEventMgr();
+        addWindowFocusListener(wem);
+        addWindowListener(wem);
+        iMouseHandler = new MouseHandler(this);
+
+
+        iImageZoomerPanel.getImage().addMouseMotionListener(iMouseHandler);
+        iImageZoomerPanel.getImage().addMouseListener(iMouseHandler);
+
+        setImageTimeAndPlaneFromTitle();
+
+        iAnnotsShown = new Vector();
+        iIsRightMouseButton = false;
+        iSaveImage = false;
+        iSaveImageDirectory = null;
+        iUseRobot = false;
+
+        iImgCanvas.addKeyListener(this);
+
+        iBookmarkListModel = null;
+        ict = null;
+        ictApplyButton = null;
+        iSlider1min = iSlider1max = iSlider2min = iSlider2max = null;
+
+        iPartsList = new PartsList();
+    }
+
+    /**
+     * Construct an image window given a Title, an image and a controller for interaction
+     *
+     * @param title
+     * @param imgPlus
+     * @param playercontrol
+     * @param obselete
+     */
+    public ImageWindow(String title, ImagePlus imgPlus, PlayerControl playercontrol, boolean obselete) {
         super(title.substring(4,title.length()));
         setOriginalContrastValues = true;
         iTitle = title;
