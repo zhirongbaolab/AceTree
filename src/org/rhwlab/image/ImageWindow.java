@@ -203,7 +203,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
      * @param imgPlus
      * @param playercontrol
      */
-    public ImageWindow(String title, ImagePlus imgPlus, PlayerControl  playercontrol) {
+    public ImageWindow(String title, ImagePlus imgPlus, PlayerControl playercontrol) {
         super(title.substring(4,title.length()));
         setOriginalContrastValues = true;
         iTitle = title;

@@ -558,6 +558,9 @@ public class AceTree extends JPanel
             // build an ImageWindowDelegate (saving, annotation and 16bit to 8bit conversion)
 
             // first, let's build an ImageWindow with the first processed image
+            iImgWin = new ImageWindow(this.configManager.getImageConfig().getTifPrefix(),
+                                        this.imageManager.makeImage(),
+                                            iPlayerControl);
 
 
 //            handleCellSelectionChange(c, time - iImageTime); // this will bring up an image --> this is now already handled so we can skip it here
@@ -645,12 +648,12 @@ public class AceTree extends JPanel
         // Under the revisions, we want to create a top level Config class which will build separate ImageConfig and NucleiConfig objects
 
         //System.out.println("building a config manager using file name" + configFileName);
-        //this.configManager = new Config(configFileName);
+        this.configManager = new Config(configFileName);
         // now we have respective NucleiConfig and ImageConfig through the reference to configManager
 
         // Let's build a NucleiMgr, then we'll move on the putting the images together (it will be a local copy that we then place in the NucleiMgr hash)
-        //NucleiMgr nucMgr = new NucleiMgr(configManager.getNucleiConfig()); // post 10/2018 revisions
-        NucleiMgr nucMgr = new NucleiMgr(configFileName); // pre 10/2018 revisions
+        NucleiMgr nucMgr = new NucleiMgr(configManager.getNucleiConfig()); // post 10/2018 revisions
+        //NucleiMgr nucMgr = new NucleiMgr(configFileName); // pre 10/2018 revisions
         // at this point, the nuclei have been read into the system
 
         if (!nucMgr.iGoodNucleiMgr) {

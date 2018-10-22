@@ -38,15 +38,15 @@ public class ImageManager {
 
     // runtime variables that are used to manage the image series data as it's viewed by the user (time, plane number, image height, etc.)
     private String currentImageFile;
-    private int fileNameType;
     private ImagePlus currentImage;
     private int currentImageTime;
     private int currentImagePlane;
     private int imageHeight;
     private int imageWidth;
 
-    private boolean setOriginalContrastValues; // not quite sure what this is used for
+    private static boolean setOriginalContrastValues; // not quite sure what this is used for
     private static int contrastMin1, contrastMin2, contrastMax1, contrastMax2;
+    private static final int MAX8BIT = 255, MAX16BIT = 65535;
 
     public ImageManager(ImageConfig imageConfig) {
         this.imageConfig = imageConfig;
@@ -55,6 +55,7 @@ public class ImageManager {
         String imageFileFromConfig = imageConfig.getTifPrefix();
         if(!new File(imageFileFromConfig).exists()) {
             System.out.println("The image listed in the config file does not exist on the system. Checking if it's an 8bit image that no longer exists");
+
             // it doesn't exist. It's likely an 8bit image file name that no longer exists, so let's do a check on the
             // file type first (not completely reliable check) and if it's 8bit, we'll try and find a 16bit image
             if (ImageNameLogic.is8bitImage(imageFileFromConfig)) {
@@ -65,6 +66,7 @@ public class ImageManager {
                     if (new File(newFileNameAttempt).exists()) {
                         System.out.println("16bit image file exists. Updating file in ImageConfig to: " + newFileNameAttempt);
                         this.imageConfig.setTifPrefix(newFileNameAttempt);
+                        this.currentImageFile = this.imageConfig.getTifPrefix();
 
                         // because the image series is now known to be 16bit stacks, set the use stack flag to 1
                         this.imageConfig.setUseStack(1);
@@ -75,7 +77,19 @@ public class ImageManager {
                     System.out.println("Attempt to generate 16bit image file name from 8bit image file name failed. Can't bring up image series");
                 }
             }
+        } else {
+            // the supplied path is a real file
+            this.currentImageFile = this.imageConfig.getTifPrefix();
         }
+
+        // Original contrast percentages
+        contrastMin1 = contrastMin2 = 0;
+        if (imageConfig.getUseStack() == 1) {
+            contrastMax1 = contrastMax2 = MAX16BIT;
+        } else {
+            contrastMax1 = contrastMax2 = MAX8BIT;
+        }
+
 
         // avoid errors by setting some default values
         this.currentImageTime = 1;
@@ -94,34 +108,33 @@ public class ImageManager {
     }
     public int getCurrImagePlane() { return this.currentImagePlane; }
 
+
     /**
-     *
-     *
+     * Called by:
+     * - AceTree.bringUpSeriesUI() to bring up the first image in the series
      * @return
      */
-    public ImagePlus buildAndFormatCurrentImage() {
-        return makeImage();
-    }
-
     public ImagePlus makeImage() {
-        ImagePlus ip = null;
+        ImagePlus ip;
 
         ip = doMakeImageFromTif();
 
         if (ip != null) {
             this.imageWidth = ip.getWidth();
             this.imageHeight = ip.getHeight();
+            this.currentImage = ip;
         }
 
         return ip;
     }
 
-    public ImagePlus doMakeImageFromTif() {
+    private ImagePlus doMakeImageFromTif() {
         ImagePlus ip = null;
 
         if (imageConfig.getUseStack() == 1) { //16bit images are present
-            System.out.println("ImageWindow doMakeImageFromTif using stack: 1");
+            System.out.println("ImageManager doMakeImageFromTif using stack: 1");
             try {
+                System.out.println("trying to open: " + this.currentImageFile + " at plane: " + this.currentImagePlane);
                 ip = new Opener().openImage(this.currentImageFile, this.currentImagePlane);
             } catch (IllegalArgumentException iae) {
                 System.out.println("Exception in ImageWindow.doMakeImageFromTif(String)");
@@ -132,11 +145,14 @@ public class ImageManager {
             ip = new Opener().openImage(this.currentImageFile); // no need for other arguments, the file is just a single plane at a single timepoint
         }
 
+        // TODO - ask if this is the kind of thing we want to lift out of this image manager all together
+
+        // if the Image was correctly processed and open, we want to convert it to 8bit RGB for display in the window
         if (ip != null) {
             this.imageWidth = ip.getWidth();
             this.imageHeight = ip.getHeight();
 
-            ip = ImageConversionManager.convertToRGB(ip, this.imageConfig.getUseStack(), this.imageConfig.getSplitStack());
+            ip = ImageConversionManager.convertToRGB(ip, this.imageConfig, this.currentImagePlane);
         } else {
             ip = new ImagePlus();
             ImageProcessor iproc = new ColorProcessor(this.imageWidth, this.imageHeight);
@@ -145,4 +161,16 @@ public class ImageManager {
 
         return ip;
     }
+
+    // accessors and mutators for static variables
+    public static void setOriginContrastValuesFlag(boolean OCVF) { setOriginalContrastValues = OCVF; }
+    public static void setContrastMin1(int cMin1) { contrastMin1 = cMin1; }
+    public static void setContrastMin2(int cMin2) { contrastMin2 = cMin2; }
+    public static void setContrastMax1(int cMax1) { contrastMax1 = cMax1; }
+    public static void setContrastMax2(int cMax2) { contrastMax2 = cMax2; }
+    public static boolean getOriginalContrastValuesFlag() { return setOriginalContrastValues; }
+    public static int getContrastMin1() { return contrastMin1; }
+    public static int getContrastMin2() { return contrastMin2; }
+    public static int getContrastMax1() { return contrastMax1; }
+    public static int getContrastMax2() { return contrastMax2; }
 }
