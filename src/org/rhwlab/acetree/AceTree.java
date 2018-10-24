@@ -359,12 +359,8 @@ public class AceTree extends JPanel
     	return iPlayerControl;
     }
 
-//    private void testRoot() {
-//        System.out.println("testRoot: " + iRoot.getLeafCount());
-//    }
     public synchronized static AceTree getAceTree(String configFileName) {
 		if (iAceTree == null) {
-//		    System.out.println("AceTree.getAceTree making a new AceTree: " + configFileName);
 		    if (configFileName != null) {
 				if(configFileName.equals("-full")){
 				    iAceTree = new AceTree(null,true);	   
@@ -526,8 +522,7 @@ public class AceTree extends JPanel
             if (configManager != null) {
                 imageManager = new ImageManager(configManager.getImageConfig());
             } else {
-                System.out.println("Can't build ImageManager in AceTree.bringUpSeriesUI() - Config didn't successfully build an ImageConfig");
-                //System.exit(0);
+                System.out.println("Can't build ImageManager in AceTree.bringUpSeriesUI() - Config didn't successfully build an ImageConfig\n\n\n");
             }
 
             iEditLog = iNucleiMgr.getEditLog();
@@ -543,40 +538,30 @@ public class AceTree extends JPanel
                 iZPixRes=iNucleiMgr.getZPixRes(); // unnecessary
             }
 
-            // TODO -- unit tested up until here
-
             // in the revised loading pipeline, build tree will no longer bring up the image series as it did before
             // Therefore, once the buildTree operation is done, we are in the clear for bringing up the images
             buildTree(false);
 
-
-            // bring up the image series
-            // build an ImageWindowDelegate (saving, annotation and 16bit to 8bit conversion)
+            // ***** bring up the image series ************
 
             // first, let's build an ImageWindow with the first processed image
-            iImgWin = new ImageWindow(this.configManager.getImageConfig().getTifPrefix(),
+            this.iImgWin = new ImageWindow(this.configManager.getImageConfig().getTifPrefix(),
                                         this.imageManager.makeImage(),
                                             iPlayerControl);
+
+            // next, we'll build an ImageWindowDelegate with the ImageWindow just created so that it can facilitate annotating and saving
+            this.imageWindowDelegate = new ImageWindowDelegate(this.iImgWin, this.imageManager, this.iNucleiMgr);
 
             // TODO unit tested up until here
             //System.exit(0);
 
             // if the current cell isn't P (not a cell in the lineage), and it has childen, we'll add appropriate annotation
-//            if (!iCurrentCell.getName().equals("P") && iRoot.getChildCount() > 0) {
-//                iShowCentroids = true;
-//                iShowC.setText(HIDEC);
-//                addMainAnnotation();
-//            }
-//            iAceMenuBar.setClearEnabled(true);
-//
-//
-//            if(iImgWin!=null) {
-//                System.out.println("REFRESH DISPLAY CALLED FROM SET STARTING CELL");
-//                iImgWin.refreshDisplay(null);
-//            }
-
-
-
+            if (!iCurrentCell.getName().equals("P") && iRoot.getChildCount() > 0) {
+                iShowCentroids = true;
+                iShowC.setText(HIDEC);
+                addMainAnnotation();
+            }
+            iAceMenuBar.setClearEnabled(true);
 
 	        setShowAnnotations(true);
     	} catch (Throwable t) {
@@ -2012,11 +1997,29 @@ public class AceTree extends JPanel
         }
     }
 
+    /**
+     * Called by:
+     * - bringUpSeriesUI() to add annotation for the selecting cell at start time
+     */
     public void addMainAnnotation() {
-        //System.out.println("addMainAnnotation: " + iCurrentCellXloc + CS + iCurrentCellYloc);
-        if (iCurrentCellXloc <= 0) return;
-	if(iImgWin!=null)
-	    iImgWin.addAnnotation(iCurrentCellXloc, iCurrentCellYloc, true);
+        if (iCurrentCellXloc <= 0) {
+            return;
+        }
+
+        if (iImgWin != null) {
+            iImgWin.addAnnotation(iCurrentCellXloc, iCurrentCellYloc, true);
+        }
+
+//        if (configManager == null) {
+//            if (iImgWin != null) {
+//                iImgWin.addAnnotation(iCurrentCellXloc, iCurrentCellYloc, true);
+//            }
+//        } else {
+//            this.imageWindowDelegate.addMainAnnotation(iCurrentCellXloc, iCurrentCellYloc, true);
+//        }
+
+
+
     }
 
     public String makeImageName()

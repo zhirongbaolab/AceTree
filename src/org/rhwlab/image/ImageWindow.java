@@ -186,7 +186,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
     static byte []          iBpix;
     // **************************************************
 
-    /* moved into ImageBookMarkManager */
+    /* moved into ImageAnnotationManager */
     protected DefaultListModel	iBookmarkListModel;
     // *************************************
 
@@ -247,7 +247,6 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 
         setImageTimeAndPlaneFromTitle();
 
-        iAnnotsShown = new Vector();
         iIsRightMouseButton = false;
         iSaveImage = false;
         iSaveImageDirectory = null;
@@ -255,7 +254,6 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 
         iImgCanvas.addKeyListener(this);
 
-        iBookmarkListModel = null;
         ict = null;
         ictApplyButton = null;
         iSlider1min = iSlider1max = iSlider2min = iSlider2max = null;
@@ -1155,7 +1153,6 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         	iAceTree.addMainAnnotation();
         if (iAceTree.getShowCentroids())
         	showCentroids();
-        //System.out.println("AceTree show annotations: "+iAceTree.getShowAnnotations());
         if (iAceTree.getShowAnnotations())
         	showAnnotations();
         if (iSpecialEffect != null)
@@ -1719,12 +1716,45 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         return iSpecialEffect;
     }
 
+    /**
+     * Accessor method used by ImageAnnotationManager to determine the state of the user interaction
+     *
+     * Part of revisions: 10/2018
+     * @author Braden Katzman
+     * @return
+     */
+    public boolean isRightMouseButtonDown() {
+        return this.iIsRightMouseButton;
+    }
+
+    /**
+     * Mutator method used by ImageAnnotationManager to update the flag that checks for right click
+     *
+     * Part of revisions: 10/2018
+     * @author Braden Katzman
+     * @param value
+     */
+    public void setiIsRightMouseButton(boolean value) {
+        this.iIsRightMouseButton = value;
+    }
+
+    /**
+     * Accessor method used by ImageAnnotationManager to determine the state of the ImageWindow
+     *
+     * Part of revisions: 10/2018
+     * @author Braden Katzman
+     * @return
+     */
+    public boolean isMainImgWindow() {
+        return this.iIsMainImgWindow;
+    }
+
     private class WinEventMgr extends WindowAdapter {
         @Override
 		public void windowGainedFocus(WindowEvent e) {
             //System.out.println("windowGainedFocus, ");
             //refreshDisplay(null);
-        	iAceTree.requestFocus();
+        	//iAceTree.requestFocus();
         }
         
         @Override

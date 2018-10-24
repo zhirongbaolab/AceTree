@@ -108,6 +108,9 @@ public class ImageManager {
     }
     public int getCurrImagePlane() { return this.currentImagePlane; }
 
+    public void setCurrImage(ImagePlus currImg) { this.currentImage = currImg; }
+    public ImagePlus getCurrentImage() { return this.currentImage; }
+
 
     /**
      * Called by:
