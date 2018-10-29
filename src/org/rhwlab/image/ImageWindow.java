@@ -96,6 +96,7 @@ import org.rhwlab.acetree.AceTree;
 import org.rhwlab.acetree.AnnotInfo;
 //import org.rhwlab.image.Image3D.SublineageDisplayProperty;
 //import org.rhwlab.image.Image3D.PropertiesTab.SublineageUI;
+import org.rhwlab.image.management.ImageManager;
 import org.rhwlab.nucedit.AddOneDialog;
 import org.rhwlab.nucedit.UnifiedNucRelinkDialog;
 import org.rhwlab.snight.NucleiMgr;
@@ -196,6 +197,9 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
     static boolean         	cAcbTree = false;
 
 
+    // TODO this is only temporarily here to get new functionality working --> porting the code that has dependencies after
+    private ImageManager imageManager;
+
     /**
      * Revised ImageWindow constructor
      * @author Braden Katzman
@@ -207,7 +211,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
      * @param imgPlus
      * @param playercontrol
      */
-    public ImageWindow(String title, ImagePlus imgPlus, PlayerControl playercontrol) {
+    public ImageWindow(String title, ImagePlus imgPlus, PlayerControl playercontrol, ImageManager imageManager) {
         super(title.substring(4,title.length()));
         iTitle = title;
         iImgPlus = imgPlus;
@@ -259,6 +263,8 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         iSlider1min = iSlider1max = iSlider2min = iSlider2max = null;
 
         iPartsList = new PartsList();
+
+        this.imageManager = imageManager;
     }
 
     /**
@@ -1309,14 +1315,14 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 
     @SuppressWarnings("unused")
 	public void addAnnotation(int mx, int my, boolean dontRemove) {
-        if (iIsMainImgWindow) {
-            iTimeInc = iAceTree.getTimeInc();
-            iImageTime = iAceTree.getImageTime();
-            iPlaneInc = iAceTree.getPlaneInc();
-        } else {
-            iTimeInc = 0;
-            iPlaneInc = 0;
-        }
+//        if (iIsMainImgWindow) {
+//            iTimeInc = iAceTree.getTimeInc();
+//            iImageTime = iAceTree.getImageTime();
+//            iPlaneInc = iAceTree.getPlaneInc();
+//        } else {
+//            iTimeInc = 0;
+//            iPlaneInc = 0;
+//        }
         double x, y, r;
         boolean g;
         Nucleus n = cNucleiMgr.findClosestNucleus(mx, my, iImagePlane + iPlaneInc, iImageTime + iTimeInc);

@@ -1,6 +1,13 @@
 package org.rhwlab.image.ParsingLogic;
 
+import java.io.File;
+
 public class ImageNameLogic {
+
+    private static String DASH = "-";
+    private static String UNDERSCORE = "_";
+    private static String COLOR = "Color";
+    private static String SPIM = "SPIM";
 
     /**
      * @author Braden Katzman
@@ -110,6 +117,119 @@ public class ImageNameLogic {
     }
 
     /**
+     * Method to locate the second color channel of an iSIM dataset given the location of one color. This
+     * method expects the image files follow the native iSIM output format, which lists all image stacks
+     * in a single directory, with their filenames distinguishing between the two color channels. In short,
+     * this method parses the tokens of the given filename, identifies it's color, and then looks for a
+     * corresponding image stack with a different color channel token.
+     *
+     * Example:
+     * iSIM_image_directory/
+     *      researcherInitials_datasetIdentifier_w1iSIM - FITC - ###-##_s#_t#.TIF
+     *      researcherInitials_datasetIdentifier_w2iSIM - TxRed - ###-##_s#_t#.TIF
+     *
+     *
+     * @param iSIM_image_filename
+     * @return
+     */
+    public static String findSecondiSIMColorChannel(String iSIM_image_filename) {
+        //if (iSIM_image_filename == null || iSIM_image_filename.isEmpty() || !new File(iSIM_image_filename).exists()) {
+        if (iSIM_image_filename == null || iSIM_image_filename.isEmpty()) {
+            System.out.println("Can't locate second color channel in iSIM dataset. Invalid image file given.");
+            return "";
+        }
+
+        // extract the prefix before the w# identifier
+        int _wIdx = iSIM_image_filename.indexOf("_w");
+        if (_wIdx == -1) {
+            System.out.println("Couldn't extract channel identifier from iSIM image file name");
+            return "";
+        }
+
+        String prefix = iSIM_image_filename.substring(0, _wIdx);
+        char channelNumberIDChar = iSIM_image_filename.charAt(_wIdx+2);
+
+        // make sure the channel number ID is a digit
+        if (!Character.isDigit(channelNumberIDChar)) {
+            System.out.println("Couldn't extract channel identifier number from iSIM image file name");
+            return "";
+        }
+
+        int channelNumberID = Character.getNumericValue(channelNumberIDChar);
+
+
+
+        return "";
+
+
+    }
+
+    /**
+     * Method to locate the second channel of an diSPIM dataset given the location of one color. This
+     * method expects the image files and directories follow the native diSPIM output formats, either
+     * fused or single view stacks.
+     *
+     * Example (fused):
+     * diSPIM (fused)
+     *       Color1/
+     *           Decon/
+     *               Decon_#.tif
+     *       Color2/
+     *           Decon/
+     *               Decon_#.tif
+     *
+     *
+     * Example (single views):
+     * diSPIM_singleviews/
+     *       SPIMA/
+     *           ### nm/ the numbers here correspond the the length of the wavelength of light used by the scope (which corresponds to the excitation range of the fluorophore targeted)
+     *               SPIMA-#.tif
+     *           ### nm/
+     *               SPIMA-#.tif (names match that of other directory ^^^)
+     *       SPIMB/
+     *           ### nm/
+     *               SPIMB-#.tif
+     *           ### nm/ (note - 2 subfolders have matching name in SPIMA, SPIMB)
+     *               SPIMB-#.tif (names match that of other directory ^^^)
+     *
+     *  *Note: if an image in SPIMA/ is provided, it will return it's counterpart also in SPIMA/. AceTree does
+     *  not currently support fusing multiple views
+     *
+     * @param diSPIM_image_filename
+     * @return
+     */
+    public static String findSecondDiSPIMColorChannel(String diSPIM_image_filename) {
+        // figure out if this is a fused image (i.e both views fused) or a single view image
+        if (diSPIM_image_filename.contains(COLOR)) {
+            System.out.println("Locating second channel for diSPIM fused images");
+            // figure out if the image file is in the Color1 or Color2 directory
+            char colorNumber = diSPIM_image_filename.charAt(diSPIM_image_filename.indexOf(COLOR) + COLOR.length());
+
+            char colorNumberSwap = '0';
+            if (colorNumber == '1') {
+                colorNumberSwap = '2';
+            } else if (colorNumber == '2') {
+                colorNumberSwap = '1';
+            } else {
+                System.out.println("Color#/ directory containing diSPIM image needs to be either 1 or 2.");
+                return "";
+            }
+
+            // swap the colors
+            return diSPIM_image_filename.substring(0, diSPIM_image_filename.indexOf(COLOR) + COLOR.length())
+                    + colorNumberSwap
+                    + diSPIM_image_filename.substring(diSPIM_image_filename.indexOf(COLOR) + COLOR.length() + 1);
+        } else if (diSPIM_image_filename.contains(SPIM)) {
+            System.out.println("Locating second channel for diSPIM single view images (just using one scope view)");
+        } else {
+            System.out.println("diSPIM image file path doesn't contain 'Color' (fused views) or 'SPIM' (single views) so directory structure can't be inferred");
+            return "";
+        }
+
+        return "";
+    }
+
+    /**
      * This is only a semi-reliable way of determining an image type. Use it cautiously
      * @param imageName
      * @return
@@ -122,9 +242,17 @@ public class ImageNameLogic {
         return false;
     }
 
-//    public static void main(String[] args) {
+    public static void main(String[] args) {
 //        String test = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/09082016_lineage/image/tif/KB_BV395_09082016_1_s1-t001-p01.tif";
 //        String updatedStr = reconfigureImagePathFrom8bitTo16bit(test);
 //        System.out.println(updatedStr);
-//    }
+
+        //String test = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/09082016_lineage/researcherInitials_datasetIdentifier_w1iSIM - FITC - ###-##_s#_t#.TIF";
+        //findSecondiSIMColorChannel(test);
+
+        String test1 = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/09082016_lineage/Color1/Decon/Decon_1.TIF";
+        String result = findSecondDiSPIMColorChannel(test1);
+        System.out.println(result);
+
+    }
 }
