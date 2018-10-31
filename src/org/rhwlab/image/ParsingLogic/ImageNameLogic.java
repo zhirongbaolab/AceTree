@@ -2,12 +2,32 @@ package org.rhwlab.image.ParsingLogic;
 
 import java.io.File;
 
+/**
+ * Class of static methods used to look for images and manipulate image names based on known conventions
+ * for structuring image series data, and native scope output conventions
+ *
+ * Public Methods:
+ * 1. reconfigureImagePathFrom8bitTo16bit(String _8bitImagePath)
+ * 2. findSecondiSIMColorChannel(String iSIM_image_filename)
+ * 3. findSecondDiSPIMColorChannel(String diSPIM_image_filename)
+ */
 public class ImageNameLogic {
 
-    private static String DASH = "-";
-    private static String UNDERSCORE = "_";
+    // static variables for dealing with differing system naming conventions
+    private static String FORWARDSLASH = "/";
+    private static String BACKSLASH = "\"";
+
+    // static variables for iSIM data directory parsing
+    private static String endOfChannelTextIdentifier = "_s";
+
+    // static variables for diSPIM data directory parsing
     private static String COLOR = "Color";
     private static String SPIM = "SPIM";
+    private static String diSPIM_DIRECTORY_END_SUBSTR = " nm";
+    private static int diSPIM_DIRECTORY_NAME_LENGTH = 6;
+    private static int IDX_0 = 0;
+    private static int IDX_1 = 1;
+    private static int IDX_2 = 2;
 
     /**
      * @author Braden Katzman
@@ -40,7 +60,7 @@ public class ImageNameLogic {
      * (Note, the calling class should check if the update was successful, and if so, set the useStack flag to indicate that 16bit images are present)
      */
     public static String reconfigureImagePathFrom8bitTo16bit(String _8bitImagePath) {
-        System.out.println("Reconfiguring image path for an 8bit image to a 16bit TIF, if possible. ImageNameLogic.reconfigureImagePathFrom8BithTo16Bit()");
+        System.out.println("\nReconfiguring image path for an 8bit image to a 16bit TIF, if possible. ImageNameLogic.reconfigureImagePathFrom8BithTo16Bit()");
 
         //try using layered images two directories up
         int fileNameIdx = _8bitImagePath.lastIndexOf('/');
@@ -133,11 +153,12 @@ public class ImageNameLogic {
      * @return
      */
     public static String findSecondiSIMColorChannel(String iSIM_image_filename) {
-        //if (iSIM_image_filename == null || iSIM_image_filename.isEmpty() || !new File(iSIM_image_filename).exists()) {
-        if (iSIM_image_filename == null || iSIM_image_filename.isEmpty()) {
+        if (iSIM_image_filename == null || iSIM_image_filename.isEmpty() || !new File(iSIM_image_filename).exists()) {
             System.out.println("Can't locate second color channel in iSIM dataset. Invalid image file given.");
             return "";
         }
+
+        System.out.println("\nLooking for second iSIM color channel given: " + iSIM_image_filename);
 
         // extract the prefix before the w# identifier
         int _wIdx = iSIM_image_filename.indexOf("_w");
@@ -146,7 +167,7 @@ public class ImageNameLogic {
             return "";
         }
 
-        String prefix = iSIM_image_filename.substring(0, _wIdx);
+        String filename_before_channel_text = iSIM_image_filename.substring(0, _wIdx+2);
         char channelNumberIDChar = iSIM_image_filename.charAt(_wIdx+2);
 
         // make sure the channel number ID is a digit
@@ -155,13 +176,41 @@ public class ImageNameLogic {
             return "";
         }
 
+        // we'll use these vars to distinguish between this channel and others in the directory
         int channelNumberID = Character.getNumericValue(channelNumberIDChar);
+        int channelNumberID_idx = _wIdx + 2;
 
+        String filename_after_channel_text = iSIM_image_filename.substring(iSIM_image_filename.indexOf(endOfChannelTextIdentifier));
 
+        // iterate over the other files in the directory, looking for a file that has the same prefix and suffix as the given image and a different channel identifier
+        int containingDirLastCharIdx = iSIM_image_filename.lastIndexOf(FORWARDSLASH);
+        if (containingDirLastCharIdx == -1) {
+            containingDirLastCharIdx = iSIM_image_filename.lastIndexOf(BACKSLASH);
+            if (containingDirLastCharIdx == -1) {
+                System.out.println("Couldn't extract containing directory path from supplied image name. Make sure an absolute path has been supplied.");
+                return "";
+            }
+        }
+
+        String containingDir = iSIM_image_filename.substring(0, containingDirLastCharIdx);
+        File[] fList = new File(containingDir).listFiles();
+        if (fList != null) {
+            for (File file : fList) {
+                if (file.getAbsolutePath().startsWith(filename_before_channel_text) && file.getAbsolutePath().endsWith(filename_after_channel_text)) {
+                    // check if the channel number ID is different than the one supplied
+                    if (Character.isDigit(file.getAbsolutePath().charAt(channelNumberID_idx)) &&
+                        Character.getNumericValue(file.getAbsolutePath().charAt(channelNumberID_idx)) != channelNumberID) {
+                        System.out.println("Found second iSIM color channel image at: " + file.getAbsolutePath());
+                        return file.getAbsolutePath();
+                    }
+                }
+            }
+        } else {
+            System.out.println("Couldn't open containing directory to look for other color channel images. Check the path supplied.");
+            return "";
+        }
 
         return "";
-
-
     }
 
     /**
@@ -199,9 +248,12 @@ public class ImageNameLogic {
      * @return
      */
     public static String findSecondDiSPIMColorChannel(String diSPIM_image_filename) {
+
+        if (diSPIM_image_filename == null || diSPIM_image_filename.isEmpty()) { return ""; }
+
         // figure out if this is a fused image (i.e both views fused) or a single view image
         if (diSPIM_image_filename.contains(COLOR)) {
-            System.out.println("Locating second channel for diSPIM fused images");
+            System.out.println("\nLocating second channel for diSPIM fused images given: " + diSPIM_image_filename);
             // figure out if the image file is in the Color1 or Color2 directory
             char colorNumber = diSPIM_image_filename.charAt(diSPIM_image_filename.indexOf(COLOR) + COLOR.length());
 
@@ -215,12 +267,88 @@ public class ImageNameLogic {
                 return "";
             }
 
-            // swap the colors
-            return diSPIM_image_filename.substring(0, diSPIM_image_filename.indexOf(COLOR) + COLOR.length())
+            // swap the colors and return
+            String secondDiSPIMFusedChannel = diSPIM_image_filename.substring(0, diSPIM_image_filename.indexOf(COLOR) + COLOR.length())
                     + colorNumberSwap
                     + diSPIM_image_filename.substring(diSPIM_image_filename.indexOf(COLOR) + COLOR.length() + 1);
+            System.out.println("Second channel for fused diSPIM data found at: " + secondDiSPIMFusedChannel);
+
+            return secondDiSPIMFusedChannel;
         } else if (diSPIM_image_filename.contains(SPIM)) {
-            System.out.println("Locating second channel for diSPIM single view images (just using one scope view)");
+            System.out.println("\nLocating second channel for diSPIM single view images (just using one scope view) given: " + diSPIM_image_filename);
+
+            int lastSlashIdx = diSPIM_image_filename.lastIndexOf(FORWARDSLASH);
+            if (lastSlashIdx == -1) {
+                lastSlashIdx = diSPIM_image_filename.lastIndexOf(BACKSLASH);
+                if (lastSlashIdx == -1) {
+                    System.out.println("Image path not properly configured. Can't separate path and image name.");
+                    return "";
+                }
+            }
+
+            String imageNameNoPath = diSPIM_image_filename.substring(lastSlashIdx + 1);
+
+            // now we want to move up a directory and get the directory name that this image resides in (for the diSPIM, the directory is named
+            // by the scope parameters for this view - specifically, the wavelength of light with format ### nm/
+            int secondToLastSlashIdx = diSPIM_image_filename.substring(0, lastSlashIdx).lastIndexOf(FORWARDSLASH);
+            if (secondToLastSlashIdx == -1) {
+                secondToLastSlashIdx = diSPIM_image_filename.substring(0, lastSlashIdx).lastIndexOf(BACKSLASH);
+                if (secondToLastSlashIdx == -1) {
+                    System.out.println("Image path not properly configured. Can't identify containing directory.");
+                    return "";
+                }
+            }
+            // the path up until the second to last slash is the directory which contains both views and their images (of which one has been supplied
+            String directoryWithScopeViewSubfolders = diSPIM_image_filename.substring(0, secondToLastSlashIdx);
+
+            // extract the name of the containing directory of the image supplied so that we can use it to find the other directory with the second channel
+            String containingDirectoryName = diSPIM_image_filename.substring(secondToLastSlashIdx + 1, lastSlashIdx);
+
+            // iterate over all subfolders and files in the topmost level we have
+            File[] fList = new File(directoryWithScopeViewSubfolders).listFiles();
+            if (fList != null) {
+                for (File file : fList) {
+                    if (file.isDirectory()) {
+                        //System.out.println("Dir name: " + file.getName() + " -- against supplied dir name: " + containingDirectoryName);
+
+                        // check if we found a data directory which
+                        if (!file.getName().toLowerCase().equals(containingDirectoryName)) {
+                            // we'll do some basic checks here to make sure we're working with the right folder
+
+                            // make sure the directory name is 6 characters long, contains the substring " nm" at the end, and has digits in the first three positions (i.e. the wavelength of light used by this view to excite the fluorophore
+                            if (file.getName().length() == diSPIM_DIRECTORY_NAME_LENGTH &&
+                                    file.getName().endsWith(diSPIM_DIRECTORY_END_SUBSTR) &&
+                                    Character.isDigit(file.getName().charAt(IDX_0)) &&
+                                    Character.isDigit(file.getName().charAt(IDX_1)) &&
+                                    Character.isDigit(file.getName().charAt(IDX_2))) {
+                                // let's look for the same image name in this parallel folder
+                                File[] fList_secondChannelDir = new File(file.getAbsolutePath()).listFiles();
+                                if (fList_secondChannelDir != null) {
+                                    for (File file1 : fList_secondChannelDir) {
+                                        //System.out.println("File name in second channel directory: " + file1.getName() + " -- against supplied name: " + imageNameNoPath);
+                                        if (file1.getName().toLowerCase().equals(imageNameNoPath.toLowerCase())) {
+                                            System.out.println("Second channel for single views diSPIM data found at: " + file1.getAbsolutePath());
+                                            return file1.getAbsolutePath();
+                                        }
+                                    }
+                                } else {
+                                    System.out.println("Couldn't open directory and access files - " + file.getAbsolutePath());
+                                    return "";
+                                }
+                            } else {
+                                System.out.println("Directory in diSPIM data structure does not match naming criteria of '### nm/'. Please use unmodified structure in future.");
+                            }
+
+                        }
+                    } else if (file.isFile()) {
+                        System.out.println("Native diSPIM output data doesn't contain files in subdirectory with respective directories for each view. Please use unmodified structure in future.");
+                    }
+                }
+            } else {
+                System.out.println("Couldn't open directory to access subfolders pertaining to each scope view.");
+                return "";
+            }
+
         } else {
             System.out.println("diSPIM image file path doesn't contain 'Color' (fused views) or 'SPIM' (single views) so directory structure can't be inferred");
             return "";
@@ -234,7 +362,7 @@ public class ImageNameLogic {
      * @param imageName
      * @return
      */
-    public static boolean is8bitImage(String imageName) {
+    private static boolean is8bitImage(String imageName) {
         if (imageName.toLowerCase().contains("-p")) {
             return true;
         }
@@ -242,17 +370,18 @@ public class ImageNameLogic {
         return false;
     }
 
-    public static void main(String[] args) {
+//    public static void main(String[] args) {
 //        String test = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/09082016_lineage/image/tif/KB_BV395_09082016_1_s1-t001-p01.tif";
 //        String updatedStr = reconfigureImagePathFrom8bitTo16bit(test);
 //        System.out.println(updatedStr);
-
-        //String test = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/09082016_lineage/researcherInitials_datasetIdentifier_w1iSIM - FITC - ###-##_s#_t#.TIF";
-        //findSecondiSIMColorChannel(test);
-
-        String test1 = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/09082016_lineage/Color1/Decon/Decon_1.TIF";
-        String result = findSecondDiSPIMColorChannel(test1);
-        System.out.println(result);
-
-    }
+//
+//        String iSIM_test = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/ForBraden/iSIM_test data/KB_BV591_03192018_w1iSIM - FITC - 525-50_s1_t1.TIF";
+//        String iSIM_result = findSecondiSIMColorChannel(iSIM_test);
+//
+//        String diSPIM_fused_test = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/09082016_lineage/Color1/Decon/Decon_1.TIF";
+//        String diSPIM_fused_result = findSecondDiSPIMColorChannel(diSPIM_fused_test);
+//
+//        String diSPIM_singleview_test = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/ForBraden/diSPIM_singleviews/SPIMA/488 nm/SPIMA-0.tif";
+//        String diSPIM_singleview_result = findSecondDiSPIMColorChannel(diSPIM_singleview_test);
+//    }
 }
