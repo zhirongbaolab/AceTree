@@ -111,18 +111,30 @@ public class XMLConfig implements DocHandler {
             String file = (String)h.get("file");
             iConfig.iConfigHash.put("zipFileName", file);
         } else if (tag.equals("image")) {
+            /** there are two options for the image tag following the revisions in 10/2018
+             * 1. Legacy image defintion support: <image file="" />
+             * 2. Multi channel defintion: <image numChannels="" channel1="" channel2="" ... channelN="" />*/
             // get the image file name and put it in the hash (previously, there was processing on this name before adding)
             // but for tidyness sake, that should come later
-            String imageFileName = (String)h.get("file");
-            this.xmlConfigData.put("imageFileName", imageFileName);
+            if (h.keySet().contains("file")) {
+                String imageFileName = (String)h.get("file");
+                this.xmlConfigData.put("imageFileName", imageFileName);
+            } else if (h.keySet().contains("numChannels")) {
+                int numChannels = Integer.parseInt((String)h.get("numChannels"));
+                for (int i = 1; i <= numChannels; i++) {
+                    String tagID = "channel" + Integer.toString(i);
+                    if (h.keySet().contains(tagID)) {
+                        this.xmlConfigData.put(tagID, (String)h.get(tagID));
+                    }
+                }
+            }
 
-            // TODO - when specifying two channels in the image tag, add the support here (see resolution tag below for example)
 
             // **********************************************
 
             String typical = (String)h.get("file");
             System.out.println("");
-            
+
             //check if the file exists
             if(!new File(typical).exists()) {
                 typical = reconfigureImagePath(typical);

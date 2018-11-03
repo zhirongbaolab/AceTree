@@ -545,7 +545,7 @@ public class AceTree extends JPanel
             // ***** bring up the image series ************
 
             // first, let's build an ImageWindow with the first processed image
-            this.iImgWin = new ImageWindow(this.configManager.getImageConfig().getTifPrefix(),
+            this.iImgWin = new ImageWindow(this.configManager.getImageConfig().getProvidedImageFileName(),
                                         this.imageManager.makeImage(),
                                             iPlayerControl,
                     this.imageManager);

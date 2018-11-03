@@ -29,6 +29,10 @@ public class ImageNameLogic {
     private static int IDX_1 = 1;
     private static int IDX_2 = 2;
 
+    private static String t = "t";
+    private static String tID_8bitConvention = "-t";
+    private static String tID_16bitConvention = "_t";
+
     /**
      * @author Braden Katzman
      *
@@ -106,7 +110,7 @@ public class ImageNameLogic {
         }
 
 
-        int tIdx = fileName.indexOf("-t");
+        int tIdx = fileName.indexOf(tID_8bitConvention);
         if (tIdx > 0) {
             if (fileName.charAt(tIdx+2) == '0') {
                 tIdx+=2;
@@ -120,9 +124,9 @@ public class ImageNameLogic {
             return _8bitImagePath;
         }
 
-        String t = 't' + fileName.substring(tIdx, planeIdx);
+        String t_ = t + fileName.substring(tIdx, planeIdx);
 
-        String fileNameUpdate = filePrefix + t + ext;
+        String fileNameUpdate = filePrefix + t_ + ext;
 
         int removeDirsIdx = _8bitImagePath.indexOf("image/tif");
         if (removeDirsIdx > 0) {
@@ -362,12 +366,22 @@ public class ImageNameLogic {
      * @param imageName
      * @return
      */
-    private static boolean is8bitImage(String imageName) {
+    public static boolean is8bitImage(String imageName) {
         if (imageName.toLowerCase().contains("-p")) {
             return true;
         }
 
         return false;
+    }
+
+    public static String getImagePrefix(String imageName) {
+        if (imageName == null || imageName.isEmpty()) { return ""; }
+
+        if (is8bitImage(imageName)) {
+            return imageName.substring(0, imageName.indexOf(tID_8bitConvention) + tID_8bitConvention.length());
+        } else {
+            return imageName.substring(0, imageName.indexOf(tID_16bitConvention) + tID_16bitConvention.length());
+        }
     }
 
 //    public static void main(String[] args) {
