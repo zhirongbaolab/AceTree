@@ -450,7 +450,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         
         //System.out.println("ImageWindow using stack: "+imagewindowUseStack);
 	    if (imagewindowUseStack == 1){
-	    	System.out.println("ImageWindow doMakeImageFromTif using stack: 1");
+	    	//System.out.println("ImageWindow doMakeImageFromTif using stack: 1");
 	    	try {
 	    		ip = new Opener().openImage(ss, imagewindowPlaneNumber);
 	    	} catch (IllegalArgumentException iae) {
