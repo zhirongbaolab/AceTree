@@ -153,7 +153,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
     static byte []          iGpix;
     static byte []          iBpix;
 
-    public static int 			imagewindowPlaneNumber;//unlike iImagePlane this includes imcrement number used only for new image access
+    public static int 			imagewindowPlaneNumber;//unlike iImagePlane this includes increment number used only for new image access
     public static int 			imagewindowUseStack;
     public static int           iSplit;
 
@@ -208,9 +208,6 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         Container c = getContentPane();
         JPanel jp = new JPanel();
         jp.setLayout(new BorderLayout());
-
-	    //attempt to replace main view with zoomer A.S. 1/17/2013
-	    //remmed this out
 
 	    //added these 3
         BufferedImage image = BufferedImageCreator.create((ColorProcessor)iImgPlus.getProcessor());
@@ -862,6 +859,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
             iPanel.add(iCB);
             iPanel.setMaximumSize(new Dimension(200,10));
         }
+
         private String [] COLORS = {
                 "red"
                 ,"blue"

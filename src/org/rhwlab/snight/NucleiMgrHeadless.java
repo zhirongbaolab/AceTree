@@ -98,7 +98,7 @@ public class NucleiMgrHeadless extends NucleiMgr {
         if (s2.equals("xml")) {
             iConfig = Config.createConfigFromXMLFile(configFileName);
         } else {
-            iConfig = new Config(configFileName);
+            iConfig = new Config(configFileName, false);
         }
         //if (1 == 1) System.exit(0);
 

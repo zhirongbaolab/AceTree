@@ -104,14 +104,22 @@ public class NucleiMgr {
 
     // Timing commented out -was used for optimization
     @SuppressWarnings("unused")
-    public NucleiMgr(String configFileName) {
-        iUseStack = 0;
-        iSplit = 1;
+	public NucleiMgr(String configFileName) {
+        System.out.println("Creating NucleiMgr using config file name");
+
+        // ******************** SET THE DEFAULT FLAGS ***************
+    	iUseStack = 0; // indicates 8bit images
+    	iSplit = 1; // indicates split into two channels if 16bit images are used
+    	// **********************************************************
         //System.out.println("NucleiMgr(" + configFileName + ")" + CS + DBAccess.cDBLocation);
         //iAceTree = AceTree.getAceTree(null);
         iEditLog = new EditLog("EditLog");
 
-        int k2 = configFileName.lastIndexOf(".");
+
+        /* example format:
+         * /media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/09082016_lineage/09082016_lineage/KB_BV395_09082016_1_s1_emb_parameterset21_editedAuxInfo_v2.csv
+         */
+        int k2 = configFileName.lastIndexOf("."); // usually picks everything before the file extension
 
         /*
          * Revised 7/19/17 by @author Braden Katzman
@@ -120,14 +128,15 @@ public class NucleiMgr {
          * creation of the AuxInfo file path by appending AuxInfo.csv or AuxInfo_v2.csv
          * in order to handle both forms of file
          */
-        String measureCSVpath = configFileName.substring(0, k2);
+        String measureCSVpath = configFileName.substring(0, k2); // this either pulls the absolute path or the relative path and excludes the file extension
         iMeasureCSV = new MeasureCSV(measureCSVpath);
         println(iMeasureCSV.toString());
         String s2 = configFileName.substring(k2 + 1);
         if (s2.equals("xml")) {
+            System.out.println("\nCreating Config object from .xml file");
             iConfig = Config.createConfigFromXMLFile(configFileName);
         } else {
-            iConfig = new Config(configFileName);
+            iConfig = new Config(configFileName, false);
         }
 
 
@@ -138,9 +147,11 @@ public class NucleiMgr {
         String nucleiDir = iConfig.iZipNucDir + "/"; //"nuclei/";
         //println("NucleiMgr, nucleiDir=" + nucleiDir);
 
-        // set use stack flag
+        
+        // ******* THIS WILL UPDATE THE USE STACK AND SPLIT FLAGS IF THEY WERE SET BY THE USER *********************
         iUseStack = iConfig.iUseStack;
         iSplit = iConfig.iSplit;
+        // *********************************************************************************************************
 
         // Set start time
         iStartTime = iConfig.getStartTime();
@@ -152,6 +163,11 @@ public class NucleiMgr {
         setParameterEntry(s);
 
         iLastNucleiFile = 0;
+
+        /*
+            ASK ABOUT THIS - direct opening of images was removed from supported use cases in 2013
+         */
+
         // see if this is an image viewing run only
         int m = zipPath.lastIndexOf("NULL");
         //int m = zipPath.lastIndexOf("null");
@@ -174,11 +190,15 @@ public class NucleiMgr {
             iZipNuclei = new ZipNuclei(zipPath);
             if (iZipNuclei.iZipFile != null) {
                 //20060719 readEditLog(iEditLog);
+
+                // NUCLEI PROCESSING
                 long timeStart = System.nanoTime();
                 readNuclei();
                 long timeEnd = System.nanoTime();
                 double timeDiff = (timeEnd-timeStart)/1e6;
-                System.out.println("Time to read nuclei: "+timeDiff+" ms.");
+                System.out.println("Time elapsed reading nuclei: "+timeDiff+" ms.");
+
+                // IMAGE PROCESSING
                 getScopeParameters();
                 findImageParameters();
                 iGoodNucleiMgr = true;
@@ -195,7 +215,8 @@ public class NucleiMgr {
 
     // Timing commented out -was used for optimization
     @SuppressWarnings("unused")
-    public NucleiMgr(Config config) {
+	public NucleiMgr(Config config) {
+        System.out.println("Creating NucleiMgr using Config object made from: " + config.iConfigFileName);
         //System.out.println("NucleiMgr(" + configFileName + ")" + CS + DBAccess.cDBLocation);
         ////iAceTree = AceTree.getAceTree(null);
         iEditLog = new EditLog("EditLog");
@@ -320,18 +341,23 @@ public class NucleiMgr {
         int useZip = ImageWindow.cUseZip;
         int width = ImageWindow.cImageHeight;
         int height = ImageWindow.cImageWidth;
+        // ***************************************
 
         // now feed it my parameters
         sendStaticParametersToImageWindow();
+
         // make up a sample image name
         int plane = iMovie.plane_start;
         int time = iStartTime;
         String imageName = makeImageName(time, plane);
         // now "make" the image
-        //System.out.println("NucleiMgr calling ImageWindow.makeImage...");
+        System.out.println("\nNucleiMgr calling ImageWindow.makeImage on image: " + getConfig().iTifPrefix + imageName);
         ImageWindow.makeImage(getConfig().iTifPrefix + imageName);
         iImageWidth = ImageWindow.cImageWidth;
         iImageHeight = ImageWindow.cImageHeight;
+        // ********************************
+
+
         // now restore ImageWindow
         ImageWindow.cZipTifFilePath = zipTifFilePath;
         ImageWindow.cTifPrefix = tifPrefix;
