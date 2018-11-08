@@ -546,7 +546,7 @@ public class AceTree extends JPanel
 
             // first, let's build an ImageWindow with the first processed image
             this.iImgWin = new ImageWindow(this.configManager.getImageConfig().getProvidedImageFileName(),
-                                        this.imageManager.makeImage(),
+                                        this.imageManager.bringUpImageSeries(),
                                             iPlayerControl,
                     this.imageManager);
 
@@ -557,6 +557,10 @@ public class AceTree extends JPanel
             //System.exit(0);
 
             // if the current cell isn't P (not a cell in the lineage), and it has childen, we'll add appropriate annotation
+            if (iCurrentCell == null) {
+                iCurrentCell = new Cell("P");
+            }
+
             if (!iCurrentCell.getName().equals("P") && iRoot.getChildCount() > 0) {
                 iShowCentroids = true;
                 iShowC.setText(HIDEC);
@@ -1923,17 +1927,17 @@ public class AceTree extends JPanel
      *
      */
     public void updateDisplay() {
-
-
-        if ((iImageTime + iTimeInc) < iStartingIndex) 
-        	return;
+        if (this.imageManager.getCurrImageTime() < iStartingIndex) return;
         
         if ((iImagePlane + iPlaneInc) <= 0)
         	iPlaneInc = (-1*iImagePlane + 1);
         
         getCurrentCellParameters();
-        //System.out.println("AceTree using stack: "+iUseStack);
-        handleImage();
+
+        // refresh the ImageWindow by building the desired image in the series with ImageManager and passing it along
+        iImgWin.refreshDisplay("", this.imageManager.makeImage(this.imageManager.getCurrImageTime(), this.imageManager.getCurrImagePlane()));
+
+        //handleImage();
         
         if (iCallSaveImage) {
             iCallSaveImage = false;
@@ -1941,8 +1945,8 @@ public class AceTree extends JPanel
 		    	iImgWin.saveImageIfEnabled();
         }
         
-        String s = makeDisplayText();
-        iText.setText(s);
+        //String s = makeDisplayText();
+        //iText.setText(s);
 
         
         if(iAddOneDialog!=null)
@@ -1951,7 +1955,6 @@ public class AceTree extends JPanel
 
     @SuppressWarnings("static-access")
 	public void handleImage() {
-        System.out.println("HANDLE IMAGE CALLED");
         String cfile = makeImageName();
         System.out.println(cfile + " - " + iZipTifFilePath + ", " + iTifPrefix);
         ImagePlus ip = null;
@@ -2445,14 +2448,16 @@ public class AceTree extends JPanel
 
 
     public void imageUp() {
-        incPlane(-1);
+        this.imageManager.incrementImagePlaneNumber(-1);
+        //incPlane(-1);
         iTrackPosition = ImageWindow.NONE;
         iCallSaveImage = true;
         updateDisplay();
     }
 
     public void imageDown() {
-        incPlane(1);
+        this.imageManager.incrementImagePlaneNumber(1);
+        //incPlane(1);
         iTrackPosition = ImageWindow.NONE;
         iCallSaveImage = true;
         updateDisplay();
@@ -2754,10 +2759,8 @@ public class AceTree extends JPanel
     }
     
     public boolean nextTime() {
-	   if (iImageTime + iTimeInc == iEndingIndex)
-        	return false;
-        
-        iTimeInc++;
+	   this.imageManager.incrementImageTimeNumber(1);
+	   System.out.println("load image time: " + this.imageManager.getCurrImageTime());
 
         iCallSaveImage = true;
         int now = iImageTime + iTimeInc;
@@ -2782,9 +2785,7 @@ public class AceTree extends JPanel
     }
 
     public boolean prevTime() {
-        if (iImageTime + iTimeInc <= iStartingIndex)
-        	return false;
-        iTimeInc--;
+        this.imageManager.incrementImageTimeNumber(-1);
         
         iCallSaveImage = true;
         int now = iImageTime + iTimeInc;

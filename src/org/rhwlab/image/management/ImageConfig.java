@@ -27,6 +27,9 @@ public class ImageConfig {
     private int endingIndex;
     private String endingIndexKey = "endIdx";
 
+    private int planeEnd;
+    private String planeEndKey = "planeEnd";
+
     private int useStack;
     private String useStackKey = "useStack";
 
@@ -52,17 +55,21 @@ public class ImageConfig {
 
         if (configData == null) return;
 
+        // we need to check ahead of time if this xml uses the 2nd image tag definition option, where the number of channels are supplied.
+        // this is necessary because even if that subtag is defined before the channels in the .xml file, the numChannels key may not
+        // come before the channel keys do, and then there won't be an array to place the channels in
+        if (configData.keySet().contains(numChannelsKey)) {
+            this.numChannels = Integer.parseInt(configData.get(numChannelsKey));
+
+            this.imageChannels = new String[this.numChannels];
+        }
+
         for (String s : configData.keySet()) {
             if (s.toLowerCase().equals(this.imageFileNameKey.toLowerCase())) {
                 this.providedImageFileName = configData.get(s);
 
                 // this will indicate that the legacy image tag was given
                 this.numChannels = -1;
-            } else if (s.toLowerCase().equals(this.numChannelsKey.toLowerCase())) {
-                this.numChannels = Integer.parseInt(configData.get(s));
-
-                // initialize the channels array to hold this number of file IDs
-                this.imageChannels = new String[this.numChannels];
             } else if (s.toLowerCase().startsWith(this.imageChannelKeyPrefix.toLowerCase())) {
                 // extract the channel number from s (the last character)
                 int channelNumber = Character.getNumericValue(s.charAt(s.length()-OFFSET));
@@ -74,6 +81,8 @@ public class ImageConfig {
                 this.startingIndex = Integer.parseInt(configData.get(s));
             } else if (s.toLowerCase().equals(this.endingIndexKey.toLowerCase())) {
                 this.endingIndex = Integer.parseInt(configData.get(s));
+            } else if (s.toLowerCase().equals(this.planeEndKey.toLowerCase())) {
+                this.planeEnd = Integer.parseInt(configData.get(s));
             } else if (s.toLowerCase().equals(this.useStackKey.toLowerCase())) {
                 this.useStack = Integer.parseInt(configData.get(s));
             } else if (s.toLowerCase().equals(this.splitStackKey.toLowerCase())) {
@@ -152,7 +161,7 @@ public class ImageConfig {
     /**
      * This method processes the given image file name(s) and sets the prefix(es) so that other files in the series can be loaded
      */
-    private void setImagePrefixes() {
+    public void setImagePrefixes() {
         if (numChannels == -1) {
             // there is only one image prefix to set because the legacy tag <image file="" /> was used
             this.imagePrefixes = new String[1];
@@ -162,11 +171,14 @@ public class ImageConfig {
             for (int i = 0; i < numChannels; i++) {
                 this.imagePrefixes[i] = ImageNameLogic.getImagePrefix(imageChannels[i]);
             }
+
+            // also set the first file to the providedImageFileName variable so that it can be used to create a title for the ImageWindow
+            setProvidedImageFileName(imageChannels[0]);
         }
     }
 
     // mutator methods
-    public void setProvidedImageFileName(String providedImageFileName) { this.providedImageFileName = providedImageFileName; setImagePrefixes(); }
+    public void setProvidedImageFileName(String providedImageFileName) { this.providedImageFileName = providedImageFileName; }
     public void setStartingIndex(String startingIndex) { setStartingIndex(Integer.parseInt(startingIndex)); }
     public void setStartingIndex(int startingIndex) { this.startingIndex = startingIndex; }
     public void setEndingIndex(String endingIndex) { setEndingIndex(Integer.parseInt(endingIndex)); }
@@ -175,6 +187,8 @@ public class ImageConfig {
     public void setUseStack(int useStack) {this.useStack = useStack; }
     public void setSplitStack(String splitStack) {setSplitStack(Integer.parseInt(splitStack)); }
     public void setSplitStack(int splitStack) { this.splitStack = splitStack; }
+    public void setPlaneEnd(String planeEnd) { setPlaneEnd(Integer.parseInt(planeEnd)); }
+    public void setPlaneEnd(int planeEnd) { this.planeEnd = planeEnd; }
 
 
     // accessor methods
@@ -183,7 +197,9 @@ public class ImageConfig {
     public int getEndingIndex() { return this.endingIndex; }
     public int getUseStack() { return this.useStack; }
     public int getSplitStack() { return this.splitStack; }
+    public int getPlaneEnd() { return this.planeEnd; }
     public String[] getImageChannels() { return this.imageChannels; }
+    public String[] getImagePrefixes() { return this.imagePrefixes; }
 
     /**
      * This indicates whether or not the user supplied multiple image paths in the <image></image> tag

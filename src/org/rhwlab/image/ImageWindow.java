@@ -1079,6 +1079,10 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         return iAceTree;
     }
 
+    public void refreshDisplay(String imageName, ImagePlus image) {
+
+    }
+
     public ImagePlus refreshDisplay(String imageName) {
     	//println("refreshDisplay, ");
         if (imageName == null)

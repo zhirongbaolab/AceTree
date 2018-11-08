@@ -63,11 +63,11 @@ public class Config {
                 XMLConfig xmlConfigLoader = new XMLConfig();
                 Hashtable<String, String> xmlConfigData = xmlConfigLoader.loadConfigDataFromXMLFile(configFileName);
 
-//                // TESTING *******************************************
-//                for (String s : xmlConfigData.keySet()) {
-//                    System.out.println("k, v: " + s + ", " + xmlConfigLoader.getXMLConfigDataHash().get(s));
-//                }
-//                // TESTING *******************************************
+                // TESTING *******************************************
+                for (String s : xmlConfigData.keySet()) {
+                    System.out.println("k, v: " + s + ", " + xmlConfigLoader.getXMLConfigDataHash().get(s));
+                }
+                // TESTING *******************************************
 
                 // use the data to populate the two config classes
                 this.nucConfig = new NucleiConfig(xmlConfigData);

@@ -91,13 +91,13 @@ public class ImageConversionManager {
                 // Set contrast values from original image
                 int ipminred = (int)(croppedIPR.getDisplayRangeMin());
                 int ipmaxred = (int)(croppedIPR.getDisplayRangeMax());
-                System.out.println("ImageConversionManager set Red contrast minimum, maximum from image: " + ipminred + ", " + ipmaxred);
+                System.out.println("ImageConversionManager set channel 1 contrast minimum, maximum from image: " + ipminred + ", " + ipmaxred);
                 ImageManager.setContrastMin1(ipminred);
                 ImageManager.setContrastMax1(ipmaxred);
 
                 int ipmingre = (int)(croppedIPG.getDisplayRangeMin());
                 int ipmaxgre = (int)(croppedIPG.getDisplayRangeMax());
-                System.out.println("ImageConversionManager set Green contrast minimum, maximum from image: " + ipmingre + ", " + ipmaxgre);
+                System.out.println("ImageConversionManager set channel 2 contrast minimum, maximum from image: " + ipmingre + ", " + ipmaxgre);
                 ImageManager.setContrastMin2(ipmingre);
                 ImageManager.setContrastMax2(ipmaxgre);
 
@@ -124,7 +124,7 @@ public class ImageConversionManager {
                 int ipmingre = (int)(TIF_16bit.getDisplayRangeMin());
                 int ipmaxgre = (int)(TIF_16bit.getDisplayRangeMax());
 
-                System.out.println("ImageConversionManager set Green contrast minimum, maximum from image: " + ipmingre + ", " + ipmaxgre);
+                System.out.println("ImageConversionManager set color contrast minimum, maximum from image: " + ipmingre + ", " + ipmaxgre);
                 ImageManager.setContrastMin2(ipmingre);
                 ImageManager.setContrastMax2(ipmaxgre);
 
@@ -145,98 +145,141 @@ public class ImageConversionManager {
     }
 
     /**
-     * This is the method used when multiple images are supplied
-     * and they needs to be either split or left fused and converted to RGB for view
+     * This is the method used when multiple images are supplied. The split flag is used as an indication of whether
+     * or not there are two channels, and since we know in this case that there are more than 1 channels, we layer them
+     * and don't worry about the split stack flag
+     *
+     * This method assumes that each TIF in the array has only one color channel
      *
      * @param TIFs_16bit
      * @param imageConfig
      * @return
      */
     public static ImagePlus convertMultiple16BitTIFsToRGB(ImagePlus[] TIFs_16bit, ImageConfig imageConfig) {
-
-        ImageProcessor iproc = ip.getProcessor();
-
-        iproc.flipHorizontal();
-
-        int pixelCount = iproc.getPixelCount();
-        int ipwidth = iproc.getWidth();
-        int ipheight = iproc.getHeight();
-
-        if (imageConfig.getSplitStack() == 1) {
-            pixelCount /= 2;
-            ipwidth /= 2;
+        System.out.println("ImageConversionManager converting multiple 16bit TIFs to RGB.");
+        ImagePlus ip = new ImagePlus();
+        if (TIFs_16bit.length > 3) {
+            System.out.println("ImageConversionManager.convertMultiple16BitTIFsToRGB given > 3 image channels to process. " +
+                    "AceTree is presently limited to processing three color channels. All channels after the initial three " +
+                    "will be ignored");
         }
 
-        byte [] G = new byte[pixelCount];
-        byte [] R = new byte[pixelCount];
-        byte [] B = new byte[pixelCount];
+        ImageProcessor iproc_channel1 = TIFs_16bit[0].getProcessor();
+        ImageProcessor iproc_channel2 = TIFs_16bit[1].getProcessor();
+        ImageProcessor iproc_channel3;
 
-        ColorProcessor iproc3 = new ColorProcessor(ipwidth, ipheight);
+        iproc_channel1.flipHorizontal();
+        iproc_channel2.flipHorizontal();
 
-        /** this indicates 16bit images are present (because useStack = 1), *and* they should be split into two channels */
-        if (imageConfig.getSplitStack() == 1) {
-            iproc.setRoi(new Rectangle(ip.getWidth()/2, 0, ip.getWidth()/2, ip.getHeight()));
-            ImageProcessor croppedR = iproc.crop();
-            ImagePlus croppedIPR = new ImagePlus(ip.getTitle(), croppedR);
+        int pixelCount_channel1 = iproc_channel1.getPixelCount();
+        int ipwidth_channel1 = iproc_channel1.getWidth();
+        int ipheight_channel1 = iproc_channel1.getHeight();
 
-            iproc.setRoi(new Rectangle(0, 0, ip.getWidth()/2, ip.getHeight()));
-            ImageProcessor croppedG = iproc.crop();
-            ImagePlus croppedIPG = new ImagePlus(ip.getTitle(), croppedG);
+        int pixelCount_channel2 = iproc_channel2.getPixelCount();
+        int ipwidth_channel2 = iproc_channel2.getWidth();
+        int ipheight_channel2 = iproc_channel2.getHeight();
 
-            if (ImageManager.getOriginalContrastValuesFlag()) {
-                // Set contrast values from original image
-                int ipminred = (int)(croppedIPR.getDisplayRangeMin());
-                int ipmaxred = (int)(croppedIPR.getDisplayRangeMax());
-                System.out.println("ImageConversionManager set Red contrast minimum, maximum from image: " + ipminred + ", " + ipmaxred);
-                ImageManager.setContrastMin1(ipminred);
-                ImageManager.setContrastMax1(ipmaxred);
-
-                int ipmingre = (int)(croppedIPG.getDisplayRangeMin());
-                int ipmaxgre = (int)(croppedIPG.getDisplayRangeMax());
-                System.out.println("ImageConversionManager set Green contrast minimum, maximum from image: " + ipmingre + ", " + ipmaxgre);
-                ImageManager.setContrastMin2(ipmingre);
-                ImageManager.setContrastMax2(ipmaxgre);
-
-                ImageManager.setOriginContrastValuesFlag(false);
-            }
-
-            croppedIPR.setDisplayRange(ImageManager.getContrastMin1(), ImageManager.getContrastMax1());
-            croppedIPG.setDisplayRange(ImageManager.getContrastMin2(), ImageManager.getContrastMax2());
-
-            // convert the images to 8bit
-            ImageConverter ic1 = new ImageConverter(croppedIPR);
-            ImageConverter ic2 = new ImageConverter(croppedIPG);
-            ic1.convertToGray8();
-            ic2.convertToGray8();
-
-            // get the individual color pixels and set them to the color maps
-            ImageProcessor convertedR = croppedIPR.getProcessor();
-            ImageProcessor convertedG = croppedIPG.getProcessor();
-            R = (byte [])convertedR.getPixels();
-            G = (byte [])convertedG.getPixels();
-
-
-        } else { /** this option identifies the case where 16bit images should *not* be split */
-            if (ImageManager.getOriginalContrastValuesFlag()) {
-                // Set contrast values from original image
-                int ipmingre = (int)(ip.getDisplayRangeMin());
-                int ipmaxgre = (int)(ip.getDisplayRangeMax());
-
-                System.out.println("ImageConversionManager set Green contrast minimum, maximum from image: " + ipmingre + ", " + ipmaxgre);
-                ImageManager.setContrastMin2(ipmingre);
-                ImageManager.setContrastMax2(ipmaxgre);
-
-                ImageManager.setOriginContrastValuesFlag(false);
-            }
-
-            ip.setDisplayRange(ImageManager.getContrastMin2(), ImageManager.getContrastMax2());
-            ImageConverter ic = new ImageConverter(ip);
-            ic.convertToGray8();
-            ImageProcessor converted = ip.getProcessor();
-            G = (byte [])converted.getPixels();
+        // error checks
+        if (pixelCount_channel1 != pixelCount_channel2) {
+            System.err.println("Pixel counts in the first two color channel stacks are mismatched.");
+            return ip;
+        }
+        if (ipwidth_channel1 != ipwidth_channel2) {
+            System.err.println("Image widths in the first two color channel stacks are mismatched.");
+            return ip;
+        }
+        if (ipheight_channel1 != ipheight_channel2) {
+            System.err.println("Image heights in the first two color channel stacks are mismatched.");
+            return ip;
         }
 
-        iproc3.setRGB(R, G, B);
+        if (TIFs_16bit.length == 3) {
+            iproc_channel3 = TIFs_16bit[2].getProcessor();
+            iproc_channel3.flipHorizontal();
+
+            // propogate error checks to third channel
+            if (pixelCount_channel1 != iproc_channel3.getPixelCount()
+                || ipwidth_channel1 != iproc_channel3.getWidth()
+                || ipheight_channel1 != iproc_channel3.getHeight()) {
+                System.err.println("Pixel counts in the first three color channel stacks are mismatched.");
+                return ip;
+            }
+        }
+
+
+        // now these vars will pertain to the single resulting ImagePlus so just doing this for clarity - plenty of memory to go around
+        int pixelCount = pixelCount_channel1;
+        int ipWidth = ipwidth_channel1;
+        int ipHeight = ipheight_channel1;
+
+
+        byte[] colorChannel1;
+        byte[] colorChannel2;
+        byte[] colorChannel3 = new byte[pixelCount];
+
+
+        ColorProcessor iproc3 = new ColorProcessor(ipWidth, ipHeight);
+
+        // set the min and max contrast values if need be
+        // This can be lifted out of the splitStack conditional because in the case of multiple TIFs, we know we have two color channels
+        if (ImageManager.getOriginalContrastValuesFlag()) {
+            int ipMinChannel1 = (int)(TIFs_16bit[0].getDisplayRangeMin());
+            int ipMaxChannel1 = (int)(TIFs_16bit[0].getDisplayRangeMax());
+
+            ImageManager.setContrastMin1(ipMinChannel1);
+            ImageManager.setContrastMax1(ipMaxChannel1);
+
+            System.out.println("ImageConversionManager set channel contrast min, max for channel1: " + ipMinChannel1 + ", " + ipMaxChannel1);
+
+            int ipMinChannel2 = (int)(TIFs_16bit[1].getDisplayRangeMin());
+            int ipMaxChannel2 = (int)(TIFs_16bit[1].getDisplayRangeMax());
+
+            ImageManager.setContrastMin2(ipMinChannel2);
+            ImageManager.setContrastMax2(ipMaxChannel2);
+
+            System.out.println("ImageConversionManager set channel contrast min, max for channel2: " + ipMinChannel2 + ", " + ipMaxChannel2);
+
+            if (TIFs_16bit.length == 3) {
+                int ipMinChannel3 = (int)TIFs_16bit[2].getDisplayRangeMin();
+                int ipMaxChannel3 = (int)TIFs_16bit[2].getDisplayRangeMax();
+
+                ImageManager.setContrastMin3(ipMinChannel3);
+                ImageManager.setContrastMax3(ipMaxChannel3);
+
+                System.out.println("ImageConversionManager set channel contrast min, max for channel3: " + ipMinChannel3 + ", " + ipMaxChannel3);
+            }
+
+            ImageManager.setOriginContrastValuesFlag(false);
+        }
+
+        TIFs_16bit[0].setDisplayRange(ImageManager.getContrastMin1(), ImageManager.getContrastMax1());
+        TIFs_16bit[1].setDisplayRange(ImageManager.getContrastMin2(), ImageManager.getContrastMax2());
+
+        // convert the images to 8bit
+        ImageConverter ic1 = new ImageConverter(TIFs_16bit[0]);
+        ImageConverter ic2 = new ImageConverter(TIFs_16bit[1]);
+        ic1.convertToGray8();
+        ic2.convertToGray8();
+
+        // get the individual color pixels and set them to the color maps
+        ImageProcessor convertedChannel1 = TIFs_16bit[0].getProcessor();
+        ImageProcessor convertedChannel2 = TIFs_16bit[1].getProcessor();
+
+        colorChannel1 = (byte [])convertedChannel1.getPixels();
+        colorChannel2 = (byte [])convertedChannel2.getPixels();
+
+        if (TIFs_16bit.length == 3) {
+            TIFs_16bit[2].setDisplayRange(ImageManager.getContrastMin3(), ImageManager.getContrastMax3());
+
+            ImageConverter ic3 = new ImageConverter(TIFs_16bit[2]);
+            ic3.convertToGray8();
+
+            ImageProcessor convertedChannel3 = TIFs_16bit[2].getProcessor();
+
+            colorChannel3 = (byte [])convertedChannel3.getPixels();
+        }
+
+        iproc3.setRGB(colorChannel1, colorChannel2, colorChannel3);
         ip.setProcessor("test", iproc3);
 
         return ip;

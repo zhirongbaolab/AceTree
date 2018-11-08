@@ -449,7 +449,6 @@ public class NucleiMgr {
             iMovie.z_res = (float)nucConfig.getZRes(); //1;
             iParameters.polar_size = nucConfig.getPolarSize(); //45;
             iMovie.plane_start = nucConfig.getPlaneStart();
-            iMovie.plane_end = nucConfig.getPlaneEnd();
         }
 
 

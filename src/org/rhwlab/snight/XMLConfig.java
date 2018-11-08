@@ -105,6 +105,7 @@ public class XMLConfig implements DocHandler {
             // save the zip file name
             String f = (String)h.get("file");
             this.xmlConfigData.put("zipFileName", f);
+            System.out.println("saved nuclei zipFileName: " + f);
 
             // **********************************************
 
@@ -120,8 +121,9 @@ public class XMLConfig implements DocHandler {
                 String imageFileName = (String)h.get("file");
                 this.xmlConfigData.put("imageFileName", imageFileName);
             } else if (h.keySet().contains("numChannels")) {
-                int numChannels = Integer.parseInt((String)h.get("numChannels"));
-                for (int i = 1; i <= numChannels; i++) {
+                String numChannels = (String)h.get("numChannels");
+                this.xmlConfigData.put("numChannels", numChannels);
+                for (int i = 1; i <= Integer.parseInt(numChannels); i++) {
                     String tagID = "channel" + Integer.toString(i);
                     if (h.keySet().contains(tagID)) {
                         this.xmlConfigData.put(tagID, (String)h.get(tagID));
@@ -132,17 +134,11 @@ public class XMLConfig implements DocHandler {
 
             // **********************************************
 
-            String typical = (String)h.get("file");
-            System.out.println("");
-
-            //check if the file exists
-            if(!new File(typical).exists()) {
-                typical = reconfigureImagePath(typical);
-                pathRefigured = true;
-                System.out.println("Reconfigured Image Path in XMLConfig.java is:" + typical);
-            }
-
-            iConfig.iConfigHash.put("typical image", typical);
+//            String typical = (String)h.get("file");
+//            System.out.println("");
+//
+//
+//            iConfig.iConfigHash.put("typical image", typical);
         } else if (tag.equals("start")) {
             String startIdx = (String)h.get("index");
             this.xmlConfigData.put("startIdx", startIdx);
@@ -244,86 +240,11 @@ public class XMLConfig implements DocHandler {
         	iConfig.iConfigHash.put("y", y);
         } else if (tag.equals("Split")) { // TODO: pavak case has 16 bit and no 8, wants to use SplitMode to say don't split. Si0 case is has 8, 16, wants to use SplitMode so needs recongifuring
             String splitMode = (String)h.get("SplitMode");
-
             this.xmlConfigData.put("split", splitMode);
-            // **********************************************
-
-            // TODO - this will end up happening later on, not appropriate for it to be done in the parser
-            System.out.println("THE SPLIT MODE IS: " + splitMode);
-            iConfig.iConfigHash.put("splitMode", splitMode);
-            if (!pathRefigured && (!new File((String)iConfig.iConfigHash.get("typical image")).exists()))
-                iConfig.iConfigHash.put("typical image", reconfigureImagePath(iConfig.iConfigHash.get("typical image")));
         }
     }
 
     public Hashtable<String, String> getXMLConfigDataHash() { return this.xmlConfigData; }
-
-    /**
-     * Update the image path from the 8bit one listed in the .xml file
-     * to a 16bit one. This is used in the case of 8bit images not existing,
-     * or explicit need to use 16bit images in the presence of both types
-     *
-     * @return
-     */
-    private String reconfigureImagePath(Object t_) {
-        System.out.println("Reconfiguring Image Path in XMLConfig.java");
-        // look for 16 bit .TIFF files
-        String typical = (String)t_;
-
-        if (!new File(typical).exists()) {
-            System.out.println(typical + " doesn't exist on the system. Building new file path for layered images...");
-        }
-
-        if (iConfig.iConfigHash.get("splitMode").equals("0")) {
-            System.out.println(typical + " being updated to 16bit images to support non-split mode");
-        }
-
-
-        //try using layered images two directories up
-        int fileNameIdx = typical.lastIndexOf('/');
-        String fileName = typical.substring(fileNameIdx+1);
-        int planeIdx = fileName.indexOf("-p");
-
-        String fileNameNoPlane = fileName.substring(0, planeIdx - 1);
-
-        int extIdx = fileName.lastIndexOf('.');
-        String ext = fileName.substring(extIdx);
-        ext = ext.toUpperCase();
-
-        int lastDashIdx = fileNameNoPlane.lastIndexOf('-');
-        String filePrefix = fileNameNoPlane.substring(0, lastDashIdx) + '_';
-
-        int tIdx = fileName.indexOf("-t");
-        if (fileName.charAt(tIdx+2) == '0') {
-            tIdx+=2;
-
-            while(fileName.charAt(tIdx) == '0') {
-                tIdx++;
-            }
-        }
-
-        String t = 't' + fileName.substring(tIdx, planeIdx);
-
-        String fileNameUpdate = filePrefix + t + ext;
-
-//            	System.out.println("NEW FILE NAME: " + fileNameUpdate);
-
-        int removeDirsIdx = typical.indexOf("image/tif");
-        if (removeDirsIdx > 0) {
-            String filePre = typical.substring(0, removeDirsIdx);
-
-            String finalPath = filePre + fileNameUpdate;
-
-//                	System.out.println("Typical: " + typical);
-            typical = finalPath;
-//                	System.out.println("Typical became: " + typical);
-
-            String useStack = "1";
-            iConfig.iConfigHash.put("use stack", useStack);
-        }
-
-        return typical;
-    }
 
     /* (non-Javadoc)
      * @see qdxml.DocHandler#endElement(java.lang.String)
@@ -349,7 +270,7 @@ public class XMLConfig implements DocHandler {
     @Override
 	public void endDocument() throws Exception {
         //println("endDocument: ");
-        iConfig.setStartingParms();
+        //iConfig.setStartingParms();
     }
 
     /* (non-Javadoc)

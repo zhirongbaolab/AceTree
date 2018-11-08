@@ -32,6 +32,10 @@ public class ImageNameLogic {
     private static String t = "t";
     private static String tID_8bitConvention = "-t";
     private static String tID_16bitConvention = "_t";
+    private static String TIF_ext = ".TIF";
+    private static String tif_ext = ".tif";
+    private static String planeStr = "-p";
+    private static String ZERO_PAD = "0";
 
     /**
      * @author Braden Katzman
@@ -374,6 +378,12 @@ public class ImageNameLogic {
         return false;
     }
 
+    /**
+     * Used by ImageConfig to maintain the prefixes for the images series
+     *
+     * @param imageName
+     * @return
+     */
     public static String getImagePrefix(String imageName) {
         if (imageName == null || imageName.isEmpty()) { return ""; }
 
@@ -382,6 +392,39 @@ public class ImageNameLogic {
         } else {
             return imageName.substring(0, imageName.indexOf(tID_16bitConvention) + tID_16bitConvention.length());
         }
+    }
+
+    // mutator methods used by ImageManager to bring up different images in the time series
+    public static String[] appendTimeToMultiple16BitTifPrefixes(String[] TIFprefixes_16bit, int time) {
+        String[] formattedFileNames = new String[TIFprefixes_16bit.length];
+        for (int i = 0; i < TIFprefixes_16bit.length; i++) {
+            formattedFileNames[i] = appendTimeToSingle16BitTIFPrefix(TIFprefixes_16bit[i], time);
+        }
+
+        return formattedFileNames;
+    }
+
+    public static String appendTimeToSingle16BitTIFPrefix(String TIFprefix_16bit, int time) {
+        return TIFprefix_16bit + Integer.toString(time) + TIF_ext;
+    }
+
+    public static String appendTimeAndPlaneTo8BittifPrefix(String tifPrefix_8bit, int time, int plane) {
+        return tifPrefix_8bit + formatInteger(time) + planeStr + formatInteger(plane) + tif_ext;
+    }
+
+    private static String formatInteger(int integer) {
+        if (integer < 1) { return ""; }
+
+        if (integer < 10) {
+            return ZERO_PAD + ZERO_PAD + Integer.toString(integer);
+        } else if (integer >= 10 && integer < 100) {
+            return ZERO_PAD + Integer.toString(integer);
+        } else if (integer >= 100) {
+            // we'll assume that anything that is 3 or more digits doesn't have any zero padding
+            return Integer.toString(integer);
+        }
+
+        return "";
     }
 
 //    public static void main(String[] args) {
