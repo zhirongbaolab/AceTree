@@ -1,5 +1,7 @@
 package org.rhwlab.image.ParsingLogic;
 
+import org.rhwlab.image.management.ImageManager;
+
 import java.io.File;
 
 /**
@@ -365,15 +367,10 @@ public class ImageNameLogic {
         return "";
     }
 
-    /**
-     * This is only a semi-reliable way of determining an image type. Use it cautiously
-     * @param imageName
-     * @return
-     */
-    public static boolean is8bitImage(String imageName) {
-        if (imageName.toLowerCase().contains("-p")) {
-            return true;
-        }
+    public static boolean isSliceImage(String filename) {
+        if (filename == null || filename.isEmpty()) return false;
+
+        if (filename.toLowerCase().contains(("-p"))) return true;
 
         return false;
     }
@@ -387,11 +384,13 @@ public class ImageNameLogic {
     public static String getImagePrefix(String imageName) {
         if (imageName == null || imageName.isEmpty()) { return ""; }
 
-        if (is8bitImage(imageName)) {
+        if (ImageManager.getImageBitDepth(imageName) == ImageManager._8BIT_ID) {
             return imageName.substring(0, imageName.indexOf(tID_8bitConvention) + tID_8bitConvention.length());
-        } else {
+        } else if (ImageManager.getImageBitDepth(imageName) == ImageManager._16BIT_ID) {
             return imageName.substring(0, imageName.indexOf(tID_16bitConvention) + tID_16bitConvention.length());
         }
+
+        return "";
     }
 
     // mutator methods used by ImageManager to bring up different images in the time series

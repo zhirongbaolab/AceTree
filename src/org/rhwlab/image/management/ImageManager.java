@@ -1,11 +1,15 @@
 package org.rhwlab.image.management;
 
+import ij.IJ;
 import ij.ImagePlus;
+import ij.io.FileInfo;
+import ij.io.FileOpener;
 import ij.io.Opener;
 import ij.process.ColorProcessor;
 import ij.process.ImageProcessor;
 import org.rhwlab.image.ParsingLogic.ImageNameLogic;
 import java.io.File;
+import java.util.Hashtable;
 
 /**
  * @javadoc
@@ -113,7 +117,7 @@ public class ImageManager {
 
                 // it doesn't exist. It's likely an 8bit image file name that no longer exists, so let's do a check on the
                 // file type first (not completely reliable check) and if it's 8bit, we'll try and find a 16bit image
-                if (ImageNameLogic.is8bitImage(imageFile)) {
+                if (getImageBitDepth(imageFile) == _8BIT_ID) {
                     System.out.println("The image has an 8bit file naming convention -> try and find it's 16bit corollary");
                     String newFileNameAttempt = ImageNameLogic.reconfigureImagePathFrom8bitTo16bit(imageFile);
                     if (!newFileNameAttempt.equals(imageFile)) {
@@ -138,12 +142,12 @@ public class ImageManager {
                 }
             } else {
                 // if we've reached here, either the supplied file exists, or a 16bit corollary was found and we will now proceed with that
-                if (ImageNameLogic.is8bitImage(imageFile)) {
+                if (getImageBitDepth(imageFile) == _8BIT_ID) {
                     // load this image as the first in the image series
                     this.imageConfig.setUseStack(0); // in case it isn't correctly set
                     return makeImageFrom8Bittif(imageFile);
 
-                } else {
+                } else if (getImageBitDepth(imageFile) == _16BIT_ID){
                     // we now want to check whether this image file follows the iSIM or diSPIM data hierarchy conventions. If so,
                     // we'll take advantage of that knowledge and look for other files in the series
 
@@ -176,8 +180,14 @@ public class ImageManager {
                         return makeImageFromMultiple16BitTIFs(new String[]{imageFile, secondColorChannelFromdiSPIM});
                     }
 
-                    // if none of the above options produced a second image file containing the second color channel, we'll assume that the supplied image is a
-                    // stack that contains all color channels in it
+                    // check if this is a rare case of a 16bit slice that needs to be opened as if it was an 8bit image but with higher bit depth
+                    if (ImageNameLogic.isSliceImage(imageFile)) {
+                        this.imageConfig.setUseStack(0);
+                        return makeImageFrom16bitSliceTIF(imageFile);
+                    }
+
+                    // if none of the above options produced a second image file containing the second color channel or determined that we have a 16bit slide
+                    // we'll assume that the supplied image is a stack that contains all color channels in it
                     this.imageConfig.setUseStack(1);
                     return makeImageFromSingle16BitTIF(imageFile);
                 }
@@ -214,6 +224,22 @@ public class ImageManager {
             ip = new ImagePlus();
             ImageProcessor iproc = new ColorProcessor(this.imageWidth, this.imageHeight);
             ip.setProcessor(tif_8bit, iproc);
+        }
+
+        return ip;
+    }
+
+    private ImagePlus makeImageFrom16bitSliceTIF(String TIF_slice_16bit) {
+        ImagePlus ip = new Opener().openImage(TIF_slice_16bit);
+        if (ip != null) {
+            this.imageWidth = ip.getWidth();
+            this.imageHeight = ip.getHeight();
+
+            ip = ImageConversionManager.convert16bitSliceTIFToRGB(ip, this.imageConfig);
+        } else {
+            ip = new ImagePlus();
+            ImageProcessor iproc = new ColorProcessor(this.imageWidth, this.imageHeight);
+            ip.setProcessor(TIF_slice_16bit, iproc);
         }
 
         return ip;
@@ -306,4 +332,69 @@ public class ImageManager {
     public static int getContrastMax1() { return contrastMax1; }
     public static int getContrastMax2() { return contrastMax2; }
     public static int getContrastMax3() { return contrastMax3; }
+
+    /**
+     * Determines the bit depth of the image specified by filename and returns an int ID which uses the convention
+     * 8bit --> returns 8
+     * 16bit --> returns 16
+     *
+     * Also maintains a hash of previously looked up images and saves their results so that files are only opened when necessary
+     *
+     * @param filename
+     * @return 8 on 8bit image, 16 on 16bit image, -1 on failure
+     */
+    public static int getImageBitDepth(String filename) {
+        if (filename == null || filename.isEmpty()) {
+            return FAIL;
+        }
+
+        if (imagesPreviouslyBitDepthChecked == null) {
+            imagesPreviouslyBitDepthChecked = new Hashtable<>();
+        }
+
+        // check if a file that shares this image's prefix was already looked up
+        if (imagesPreviouslyBitDepthChecked.containsKey(ImageNameLogic.getImagePrefix(filename))) {
+            System.out.println("Found in hash");
+            return imagesPreviouslyBitDepthChecked.get(ImageNameLogic.getImagePrefix(filename));
+        }
+
+        // open the file, interrogate its metadata, and return its bit depth
+        ImagePlus ip = IJ.openImage(filename);
+        if (ip != null) {
+            // place the image prefix and bit depth in the hashtable
+            imagesPreviouslyBitDepthChecked.put(ImageNameLogic.getImagePrefix(filename), ip.getBitDepth());
+            return ip.getBitDepth();
+
+        }
+        return FAIL;
+    }
+    private static Hashtable<String, Integer> imagesPreviouslyBitDepthChecked;
+    public static int _8BIT_ID = 8;
+    public static int _16BIT_ID = 16;
+    private static int FAIL = -1;
+
+    public static void main(String[] args) {
+        String test16bit = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/20141022_JIM113_UNC-86myrGFP/20141022_JIM113_UNC-86myrGFP_1_s1_t1.TIF";
+        System.out.println(getImageBitDepth(test16bit));
+
+        String test8bit = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_pre2018/20141022_JIM113_UNC-86myrGFP/image/tif/20141022_JIM113_UNC-86myrGFP_1_s1-t001-p01.tif";
+        System.out.println(getImageBitDepth(test8bit));
+
+        // now test if they're being stored properly, with the original images themselves and others in the series
+        System.out.println(getImageBitDepth(test16bit));
+        System.out.println(getImageBitDepth(test8bit));
+
+        String test8bit1 = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_pre2018/20141022_JIM113_UNC-86myrGFP/image/tif/20141022_JIM113_UNC-86myrGFP_1_s1-t001-p05.tif";
+        String test8bit2 = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_pre2018/20141022_JIM113_UNC-86myrGFP/image/tif/20141022_JIM113_UNC-86myrGFP_1_s1-t002-p18.tif";
+
+        System.out.println(getImageBitDepth(test8bit1));
+        System.out.println(getImageBitDepth(test8bit2));
+
+        String test16bit1 = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/20141022_JIM113_UNC-86myrGFP/20141022_JIM113_UNC-86myrGFP_1_s1_t10.TIF";
+        String test16bit2 = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/20141022_JIM113_UNC-86myrGFP/20141022_JIM113_UNC-86myrGFP_1_s2_t1.TIF";
+
+        System.out.println(getImageBitDepth(test16bit1));
+        System.out.println(getImageBitDepth(test16bit2));
+
+    }
 }

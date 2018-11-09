@@ -28,14 +28,6 @@ public class ImageConversionManager {
      * @return
      */
     public static ImagePlus convert8bittifToRGB(ImagePlus tif_8bit, ImageConfig imageConfig) {
-        //original version
-        FileInfo fi;
-        fi = tif_8bit.getFileInfo();
-        if (fi.getBytesPerPixel() != 8) {
-            ImageConverter ic = new ImageConverter(tif_8bit);
-            ic.convertToGray8();
-        }
-
         ImageProcessor iproc = tif_8bit.getProcessor();
         byte [] bpix = (byte [])iproc.getPixels();
         byte [] R = new byte[bpix.length];
@@ -49,6 +41,25 @@ public class ImageConversionManager {
         R = getRedChannelIn8BitImage(R, imageConfig);
 
         return buildImagePlus(tif_8bit, R, G, B);
+    }
+
+    public static ImagePlus convert16bitSliceTIFToRGB(ImagePlus TIF_slice_16bit, ImageConfig imageConfig) {
+        ImageConverter ic = new ImageConverter(TIF_slice_16bit);
+        ic.convertToGray8();
+
+        ImageProcessor iproc = TIF_slice_16bit.getProcessor();
+        byte [] bpix = (byte [])iproc.getPixels();
+        byte [] R = new byte[bpix.length];
+        byte [] G = new byte[bpix.length];
+        byte [] B = new byte[bpix.length];
+        ColorProcessor iproc3 = new ColorProcessor(iproc.getWidth(), iproc.getHeight());
+        iproc3.getRGB(R, G, B);
+
+        // special test removal
+        G = bpix;
+        R = getRedChannelIn16BitImage(R, imageConfig);
+
+        return buildImagePlus(TIF_slice_16bit, R, G, B);
     }
 
     /**
@@ -287,23 +298,16 @@ public class ImageConversionManager {
 
 
 
-    private static byte[] getRedChannelInStack(byte[] R, ImageConfig imageConfig, int currentImagePlane) {
+    private static byte[] getRedChannelIn16BitImage(byte[] R, ImageConfig imageConfig) {
         String fileName = makeRedChannelName(imageConfig);
         File f = new File(fileName);
         if (f.exists()) {
             ImagePlus ip;
 
+            ip = new Opener().openImage(fileName);
 
-            ip = new Opener().openImage(fileName, currentImagePlane);
-
-            FileInfo fi;
-            fi = ip.getFileInfo();
-            if (fi.getBytesPerPixel() != 8)
-            {
-                //ip = convertTo8Bits(ip);
-                ImageConverter ic = new ImageConverter(ip);
-                ic.convertToGray8();
-            }
+            ImageConverter ic = new ImageConverter(ip);
+            ic.convertToGray8();
 
             if (ip != null) {
                 ByteProcessor bproc = (ByteProcessor)ip.getProcessor();
@@ -328,15 +332,6 @@ public class ImageConversionManager {
 
             ip = new Opener().openImage(fileName);
 
-            FileInfo fi;
-            fi = ip.getFileInfo();
-            if (fi.getBytesPerPixel() != 8)
-            {
-                //ip = convertTo8Bits(ip);
-                ImageConverter ic = new ImageConverter(ip);
-                ic.convertToGray8();
-            }
-
             if (ip != null) {
                 ByteProcessor bproc = (ByteProcessor)ip.getProcessor();
                 R = (byte [])bproc.getPixels();
@@ -348,7 +343,7 @@ public class ImageConversionManager {
     }
 
     /**
-     * The 8bit image name is something like /......./tif/image_name_t#_p#.tif
+     * The image name is something like /......./tif/image_name_t#_p#.tif
      *
      * This method replaces /tif/ with /tifR/, the directory which holds the Red channel images
      *
@@ -371,5 +366,4 @@ public class ImageConversionManager {
         return ip;
 
     }
-
 }
