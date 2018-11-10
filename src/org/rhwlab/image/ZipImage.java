@@ -220,8 +220,8 @@ public class ZipImage {
             if (zipImage != null) ze = zipImage.getEntry(ss + ".tif");
             if (ze == null) {
                 ip = new ImagePlus();
-                ImageProcessor iproc = new ColorProcessor(ImageWindow.cImageWidth, ImageWindow.cImageHeight);
-                ip.setProcessor(fileName, iproc);
+                //ImageProcessor iproc = new ColorProcessor(ImageWindow.cImageWidth, ImageWindow.cImageHeight);
+                ip.setProcessor(fileName, null);
             }
             else {
                 ip = readRedData(zipImage, ze);
@@ -278,7 +278,8 @@ public class ZipImage {
         return imp;
     }
     private static String makeRedChannelName() {
-        String s = ImageWindow.cCurrentImageFile;
+        //String s = ImageWindow.cCurrentImageFile;
+        String s = "DISABLED";
         int k = s.indexOf(ImageWindow.cTifPrefix) + ImageWindow.cTifPrefix.length();
         
         

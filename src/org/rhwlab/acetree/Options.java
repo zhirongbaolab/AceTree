@@ -268,14 +268,6 @@ public class Options extends JDialog implements ActionListener {
         return i;
     }
 
-    private int getZipChoice() {
-        int i = 0;
-        for (i=0; i < iZipChoice.length; i++) {
-            if (iZipChoice[i].isSelected()) break;
-        }
-        return i;
-    }
-
     private void addButtons(JPanel mp) {
         iApply = new JButton(APPLY);
         iCancel = new JButton(CANCEL);
@@ -337,11 +329,6 @@ public class Options extends JDialog implements ActionListener {
             if (k != iNucleiMgr.getConfig().getRedChoiceNumber()) {
                 iNucleiMgr.getConfig().iExprCorr = Config.REDCHOICE[k];
                 iNucleiMgr.computeRWeights();
-            }
-
-            k = getZipChoice();
-            if (k != iNucleiMgr.getConfig().iUseZip) {
-            	iAceTree.updateUseZip(k);
             }
 
         }

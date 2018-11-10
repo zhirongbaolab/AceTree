@@ -215,7 +215,7 @@ public class DeathsAdjacencies extends JDialog implements ActionListener, ListSe
 
             //println(i + CS + dd.id + CS + dd.d + CS + dd.x + CS + dd.y + CS + dd.z);
         }
-        imgWin.refreshDisplay(null);
+        imgWin.refreshDisplay();
         iNamesAvailable = true;
     }
 
@@ -290,7 +290,7 @@ public class DeathsAdjacencies extends JDialog implements ActionListener, ListSe
         if (nuclei2 != null) {
             iListModel.addElement("#nuclei at time " + (iTime - 1) + " near " + iCellName + " at time " + iTime);
             addItems(v2, imgWin);
-            imgWin.refreshDisplay(null);
+            imgWin.refreshDisplay();
         }
         iNamesAvailable = true;
     }

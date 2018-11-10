@@ -117,7 +117,6 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
     public ImageCanvas      iImgCanvas;
     static ImagePlus        iImgPlus;
     String                  iTitle;
-    ImagePlus               currentImage;
 
     static Object []        iSpecialEffect;
 
@@ -134,8 +133,6 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
     protected JSlider			iSlider1max;
     protected JSlider			iSlider2min;
     protected JSlider			iSlider2max;
-    protected static boolean	setOriginalContrastValues;
-    public static int contrastmin1, contrastmax1, contrastmin2, contrastmax2;
 
     public static ColorSchemeDisplayProperty []     iDispProps;
     protected JToolBar      iToolBar;
@@ -149,23 +146,13 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
     AceTree                 iAceTree;
 
     /* these should go into ImageManager */
-    int                     iImageTime;
     int                     iTimeInc;
-    int                     iImagePlane;
     int                     iPlaneInc;
     public static int 	    imagewindowPlaneNumber;//unlike iImagePlane this includes increment number used only for new image access
-    public static int 			imagewindowUseStack;
-    public static int           iSplit;
-    public static int			cSplitChannelImage;
-    public static int           cImageWidth;
-    public static int           cImageHeight;
-    public static String        cCurrentImageFile;
     public static String        cCurrentImagePart;
     public static String        cZipTifFilePath;
     public static String        cTifPrefix;
     public static String        cTifPrefixR;
-    public static int           cUseZip;
-    static ZipImage             cZipImage;
     // ***********************************
 
     /* these should go into ImageSavingManager */
@@ -249,7 +236,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         iImageZoomerPanel.getImage().addMouseMotionListener(iMouseHandler);
         iImageZoomerPanel.getImage().addMouseListener(iMouseHandler);
 
-        setImageTimeAndPlaneFromTitle();
+        //setImageTimeAndPlaneFromTitle();
 
         iIsRightMouseButton = false;
         iSaveImage = false;
@@ -264,93 +251,10 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 
         iPartsList = new PartsList();
 
+        // TODO - these are just temporary workarounds
         this.imageManager = imageManager;
-    }
-
-    /**
-     * Construct an image window given a Title, an image and a controller for interaction
-     *
-     * @param title
-     * @param imgPlus
-     * @param playercontrol
-     * @param obselete
-     */
-    public ImageWindow(String title, ImagePlus imgPlus, PlayerControl playercontrol, boolean obselete) {
-        super(title.substring(4,title.length()));
-        setOriginalContrastValues = true;
-        iTitle = title;
-        iImgPlus = imgPlus;
-        iImgCanvas = new ImageCanvas(imgPlus);
-        iDispProps = getDisplayProps();
-
-        //custom icon
-        URL imageURL = ImageWindow.class.getResource("/images/icon2.gif");
-        ImageIcon test=new ImageIcon(imageURL, "x");
-        this.setIconImage(test.getImage());
-
-        Container c = getContentPane();
-        JPanel jp = new JPanel();
-        jp.setLayout(new BorderLayout());
-
-        BufferedImage image = BufferedImageCreator.create((ColorProcessor)iImgPlus.getProcessor());
-        iImageZoomerPanel= new ImageZoomerPanel(this, image, 10.0, title,playercontrol);
-        jp.add(iImageZoomerPanel);
-        c.add(jp);
-
-        pack();
-
-        // bring up the image
-        setVisible(true);
-
-        // this keeps the ImageWindow from being destroyed when it is closed, since it may be reopened at another point during program execution
-        setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
-
-        wem = new WinEventMgr();
-        addWindowFocusListener(wem);
-        addWindowListener(wem);
-        iMouseHandler = new MouseHandler(this);
-
-
-        iImageZoomerPanel.getImage().addMouseMotionListener(iMouseHandler);
-        iImageZoomerPanel.getImage().addMouseListener(iMouseHandler);
-
-        setImageTimeAndPlaneFromTitle();
-
-
+        iPlaneInc = iTimeInc = 0;
         iAnnotsShown = new Vector();
-        iIsRightMouseButton = false;
-        iSaveImage = false;
-        iSaveImageDirectory = null;
-        iUseRobot = false;
-
-        iImgCanvas.addKeyListener(this);
-
-        iBookmarkListModel = null;
-        ict = null;
-        ictApplyButton = null;
-        iSlider1min = iSlider1max = iSlider2min = iSlider2max = null;
-
-        // Original contrast percentages
-        contrastmin1 = contrastmin2 = 0;
-        if (imagewindowUseStack == 1) {
-            contrastmax1 = contrastmax2 = MAX16BIT;
-        } else {
-            contrastmax1 = contrastmax2 = MAX8BIT;
-        }
-
-        iPartsList = new PartsList();
-    }
-    
-    public void removeHandlers() {
-    	// Remove mouse handler
-    	iImageZoomerPanel.getImage().removeMouseListener(iMouseHandler);
-	    iImageZoomerPanel.getImage().removeMouseListener(iMouseHandler);
-	    iMouseHandler = null;
-	    
-	    // Remove window event manager
-	    removeWindowFocusListener(wem);
-        removeWindowListener(wem);
-        wem = null;
     }
 
     public void setBookmarkList(ListModel list) {
@@ -361,202 +265,8 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
     	return iMouseHandler;
     }
 
-
-    public static void setStaticParameters(String zipTifFilePath, String tifPrefix, int useZip, int splitChannelImage, int splitMode) {
-        //System.out.println("ImageWindow.setStaticParameters entered");
-        cZipTifFilePath = zipTifFilePath;
-        cTifPrefix = tifPrefix;
-        cUseZip = useZip;
-        if (cUseZip == 1)
-        	cZipImage = new ZipImage(cZipTifFilePath);
-
-        cLineWidth = 1;//LINEWIDTH; //set to 1 default -AS 11/23/11
-        String [] sa = cTifPrefix.split("/");
-        if(sa.length > 1) cTifPrefixR = sa[0] + "R" + C.Fileseparator + sa[1];
-        //System.out.println("cZipTifFilePath, cTifPrefix, cTifPrefixR: " +
-        //        cZipTifFilePath + CS + cTifPrefix + CS + cTifPrefixR);
-        
-        cSplitChannelImage = splitChannelImage;
-        iSplit = splitMode;
-    }
-    public static void setNucleiMgr(NucleiMgr nucleiMgr) {
+    public void setNucleiMgr(NucleiMgr nucleiMgr) {
         cNucleiMgr = nucleiMgr;
-    }
-
-     public static ImagePlus makeImage(String s) {
-        cCurrentImageFile = s;
-        //new Throwable().printStackTrace();
-        ImagePlus ip = null;
-        //iSpecialEffect = null;
-        //if (iSpecialEffect != null) iSpecialEffect = null;
-
-        //println("makeImage, cUseZip=" + cUseZip);
-        switch(cUseZip) {
-        case 0:
-        case 3:
-            ip = doMakeImageFromTif(s);
-            break;
-        case 1:
-            ip = doMakeImageFromZip(s);
-            break;
-        default:
-            ip = doMakeImageFromZip2(s);
-            break;
-
-        }
-
-        if (ip != null) {
-            cImageWidth = ip.getWidth();
-            cImageHeight = ip.getHeight();
-            //System.out.println("***ImageWindow: " + cImageWidth + CS + cImageHeight);
-        }
-        if (ip == null)
-        	return iImgPlus;
-        else return ip;
-    } 
-     
-    public String getCurrentImageName(){
-	    return cZipTifFilePath +  C.Fileseparator +cTifPrefix + iAceTree.makeImageName();
-    }
-
-    public static ImagePlus makeImage2(String s, int iplane, int ustack, int splitMode) {
-    	//System.out.println("ImageWindow.makeImage2: "+s);
-        cCurrentImageFile = s;
-        ImagePlus ip = null;
-
-        imagewindowPlaneNumber = iplane;
-        imagewindowUseStack = ustack;
-        iSplit = splitMode;
-        switch(cUseZip) {
-            case 0:
-            case 3:
-               ip = doMakeImageFromTif(s);
-               break;
-            case 1:
-               ip = doMakeImageFromZip(s);
-               break;
-            default:
-               ip = doMakeImageFromZip2(s);
-               break;
-        }
-
-        if (ip != null) {
-            cImageWidth = ip.getWidth();
-            cImageHeight = ip.getHeight();
-        }
-
-        if (ip == null) {
-        	return iImgPlus;
-        }
-        else {
-        	return ip;
-        }
-    }
-        
-
-
-    public static ImagePlus doMakeImageFromZip(String s) {
-        //System.out.println("Calling doMakeImageFromZip");
-        //System.out.println("ImageWindow.doMakeImageFromZip entered: " + s);
-        if (cZipImage == null) cZipImage = new ZipImage(cZipTifFilePath);
-        ZipEntry ze = cZipImage.getZipEntry(s);
-        ImagePlus ip;
-        if (ze == null) {
-            ip = new ImagePlus();
-            ImageProcessor iproc = new ColorProcessor(cImageWidth, cImageHeight);
-            ip.setProcessor(s, iproc);
-        }
-        else ip = cZipImage.readData(ze);
-        //System.out.println("ImageWindow.makeImage exiting");
-        return ip;
-    }
-
-
-
-    public static ImagePlus doMakeImageFromZip2(String s) {
-        //System.out.println("Calling doMakeImageFromZip2");
-        cZipImage = new ZipImage(cZipTifFilePath + "/" + s);
-        int k1 = s.indexOf("/") + 1;
-        String ss = s.substring(k1);
-        int k2 = ss.indexOf(".");
-        ss = ss.substring(0, k2);
-        ZipEntry ze = null;
-        if (cZipImage != null) ze = cZipImage.getZipEntry(ss + ".tif");
-        //System.out.println("ZipEntry: " + ze);
-        //if (cZipImage == null) cZipImage = new ZipImage(cZipTifFilePath);
-        //ZipEntry ze = cZipImage.getZipEntry(s);
-        ImagePlus ip;
-        if (ze == null) {
-            ip = new ImagePlus();
-            ImageProcessor iproc = new ColorProcessor(cImageWidth, cImageHeight);
-            ip.setProcessor(s, iproc);
-        }
-        else ip = cZipImage.readData(ze);
-        //System.out.println("ImageWindow.makeImage exiting");
-        //ip = convertToRGB(ip);
-        ColorProcessor iprocColor = (ColorProcessor)ip.getProcessor();
-        int [] all = (int [])iprocColor.getPixels();
-        byte [] R = new byte[all.length];
-        byte [] G = new byte[all.length];
-        byte [] B = new byte[all.length];
-        //ColorProcessor iproc3 = new ColorProcessor(iproc.getWidth(), iproc.getHeight());
-        iprocColor.getRGB(R, G, B);
-        //G = bpix;
-        //R = getRedChannel(R);
-        iRpix = R;
-        iGpix = G;
-        iBpix = B;
-        return ip;
-    }
-
-    private static void showError(String fileName) {
-	new Throwable().printStackTrace();
-        String message = "Exiting: cannot find image\n";
-        message += fileName;
-        JOptionPane pane = new JOptionPane(message);
-        JDialog dialog = pane.createDialog(null, "Error");
-        dialog.setVisible(true);
-    }
-
-
-    public static ImagePlus doMakeImageFromTif(String s) {
-        //System.out.println("Calling doMakeImageFromTif");
-		if (cUseZip == 3)
-			s = s.replaceAll("tif", "jpg");
-        //println("ImageWindow.doMakeImageFromTif entered: " + s);
-        cCurrentImagePart = s;
-        //FileInputStream fis;
-        ImagePlus ip = null;
-        String ss = cZipTifFilePath + C.Fileseparator + s;
-        //println("ImageWindow.makeImage entered: " + ss);
-        
-        //System.out.println("ImageWindow using stack: "+imagewindowUseStack);
-	    if (imagewindowUseStack == 1){
-	    	System.out.println("ImageWindow doMakeImageFromTif using stack: 1");
-	    	try {
-	    		ip = new Opener().openImage(ss, imagewindowPlaneNumber);
-	    	} catch (IllegalArgumentException iae) {
-	    		System.out.println("Exception in ImageWindow.doMakeImageFromTif(String)");
-            	System.out.println("TIFF file required.");
-	    	}
-
-	    } else{
-	    	//System.out.println("ImageWindow doMakeImageFromTif using stack: 0");
-	    	ip = new Opener().openImage(ss);
-	    }
-   
-        if (ip != null) {
-            cImageWidth = ip.getWidth();
-            cImageHeight = ip.getHeight();
-            //System.out.println("Loaded image width, height: "+cImageWidth+CS+cImageHeight);
-            ip = convertToRGB(ip);
-        } else {
-            ip = new ImagePlus();
-            ImageProcessor iproc = new ColorProcessor(cImageWidth, cImageHeight);
-            ip.setProcessor(s, iproc);
-        }
-
-        return ip;
     }
 
     @SuppressWarnings("unused")
@@ -638,161 +348,6 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         return imp;
     }
 
-   /**
-       takes side by side tiff slice and returns half of it specified by
-       channel in the origian ImagePlus object
-     **/
-    public static ImagePlus splitImage(ImagePlus ip, int channel){
-	ImageProcessor iproc = ip.getProcessor();
-	iproc.flipHorizontal();
-	if (channel==2)
-	    iproc.setRoi(new Rectangle(ip.getWidth()/2, 0, ip.getWidth()/2, ip.getHeight()));
-	else
-	     iproc.setRoi(new Rectangle(0, 0, ip.getWidth()/2, ip.getHeight()));
-	ImageProcessor cropped = iproc.crop();
-	ip.setProcessor(cropped);
-	return ip;
-	
-    }
-
-
-    /**
-     * If the images in the zip archive are 8 bit tiffs,
-     * we use that as the green plane of an RGB image processor
-     * so the program is always showing RGB images
-     *
-     * @param ip an Image processor obtained from the image file
-     * @return
-     */
-    @SuppressWarnings("unused")
-	private static ImagePlus convertToRGB(ImagePlus ip) {
-    	//System.out.println("Image width, height: "+ip.getWidth()+CS+ip.getHeight());
-        //System.out.println("convertToRGB entered");
-    	// this is where ted put code for splitting which need to test
-
-        // this is a check for whether we are using 8bit (useStack = 0) or 16bit (useStack = 1)
-		if(imagewindowUseStack == 1) {
-			FileInfo fi = new FileInfo();
-	    	fi = ip.getFileInfo();
-			//need this
-			
-			ImageProcessor iproc = ip.getProcessor();
-			
-			iproc.flipHorizontal();
-			
-			int pixelCount = iproc.getPixelCount();
-			int ipwidth = iproc.getWidth();
-			int ipheight = iproc.getHeight();
-			//System.out.println("cSplitChannelImage: "+cSplitChannelImage);
-			if (cSplitChannelImage == 1 && iSplit == 1) {
-				pixelCount /= 2;
-				ipwidth /= 2;
-			}
-			
-			byte [] G = new byte[pixelCount];
-			byte [] R = new byte[pixelCount]; 
-			byte [] B = new byte[pixelCount];
-			
-			ColorProcessor iproc3 = new ColorProcessor(ipwidth, ipheight);
-
-			// this indicates 16bit images are present (because useStack = 1), *and* they should be split into two channels
-			if (cSplitChannelImage == 1 && iSplit == 1) {
-				iproc.setRoi(new Rectangle(ip.getWidth()/2, 0, ip.getWidth()/2, ip.getHeight()));
-				ImageProcessor croppedR = iproc.crop();
-				ImagePlus croppedIPR = new ImagePlus(ip.getTitle(), croppedR);
-				
-				iproc.setRoi(new Rectangle(0, 0, ip.getWidth()/2, ip.getHeight()));
-				ImageProcessor croppedG = iproc.crop();
-				ImagePlus croppedIPG = new ImagePlus(ip.getTitle(), croppedG);
-				
-				if (setOriginalContrastValues){
-	    			// Set contrast values from original image
-	    			int ipminred = (int)(croppedIPR.getDisplayRangeMin());
-	    			int ipmaxred = (int)(croppedIPR.getDisplayRangeMax());
-	                System.out.println("ImageWindow set Red min, max from image: "+ipminred+CS+ipmaxred);
-	                ImageWindow.contrastmin1 = ipminred;
-	                ImageWindow.contrastmax1 = ipmaxred;
-	                
-	                int ipmingre = (int)(croppedIPG.getDisplayRangeMin());
-	    			int ipmaxgre = (int)(croppedIPG.getDisplayRangeMax());
-	    			System.out.println("ImageWindow set Green min, max from image: "+ipmingre+CS+ipmaxgre);
-	                ImageWindow.contrastmin2 = ipmingre;
-	                ImageWindow.contrastmax2 = ipmaxgre;
-	                
-	                setOriginalContrastValues = false;
-	    		}
-				
-				croppedIPR.setDisplayRange(contrastmin1, contrastmax1);
-				croppedIPG.setDisplayRange(contrastmin2, contrastmax2);
-				ImageConverter ic1 = new ImageConverter(croppedIPR);
-				ImageConverter ic2 = new ImageConverter(croppedIPG);
-				ic1.convertToGray8();
-				ic2.convertToGray8();
-				
-				ImageProcessor convertedR = croppedIPR.getProcessor();
-				ImageProcessor convertedG = croppedIPG.getProcessor();
-				R = (byte [])convertedR.getPixels();
-				G = (byte [])convertedG.getPixels();
-			} else { // this option identifies the case where 16bit images should *not* be split
-				if (setOriginalContrastValues){
-	    			// Set contrast values from original image
-	    			int ipmingre = (int)(ip.getDisplayRangeMin());
-	    			int ipmaxgre = (int)(ip.getDisplayRangeMax());
-	                System.out.println("ImageWindow set Green min, max from image: "+ipmingre+CS+ipmaxgre);
-	                ImageWindow.contrastmin2 = ipmingre;
-	                ImageWindow.contrastmax2 = ipmaxgre;                
-	                setOriginalContrastValues = false;
-	    		}
-				ip.setDisplayRange(contrastmin2, contrastmax2);
-				ImageConverter ic = new ImageConverter(ip);
-				ic.convertToGray8();
-				ImageProcessor converted = ip.getProcessor();
-				G = (byte [])converted.getPixels();
-			}
-			
-			iRpix = R;
-			iGpix = G;
-			iBpix = B;
-		    iproc3.setRGB(iRpix, iGpix, iBpix);
-	        ip.setProcessor("test", iproc3);
-
-	        return ip;
-	    } else { // useStack = 0, so load the 8bit images
-	    	//original version
-    		FileInfo fi = new FileInfo();
-    		fi = ip.getFileInfo();
-    		if (fi.getBytesPerPixel() != 8) {
-    			//ip = convertTo8Bits(ip);
-    			ImageConverter ic = new ImageConverter(ip);
-    			ic.convertToGray8();
-    		}
-	            
-	        ImageProcessor iproc = ip.getProcessor();
-	        byte [] bpix = (byte [])iproc.getPixels();
-	        byte [] R = new byte[bpix.length];
-	        byte [] G = new byte[bpix.length];
-	        byte [] B = new byte[bpix.length];
-	        ColorProcessor iproc3 = new ColorProcessor(iproc.getWidth(), iproc.getHeight());
-	        iproc3.getRGB(R, G, B);
-	        // special test removal
-	        G = bpix;
-	        R = getRedChannel(R);
-	        // end special
-	        iRpix = R;
-	        iGpix = G;
-	        iBpix = B;
-	        return buildImagePlus(ip);
-		}
-    }
-
-    private static ImagePlus buildImagePlus(ImagePlus ip) {
-        ImageProcessor iproc = ip.getProcessor();
-        ColorProcessor iproc3 = new ColorProcessor(iproc.getWidth(), iproc.getHeight());
-        iproc3.setRGB(iRpix, iGpix, iBpix);
-        ip.setProcessor("test", iproc3);
-        return ip;
-
-    }
 
     protected static ImagePlus makeRedImagePlus(ImagePlus ip) {
         ImageProcessor iproc = ip.getProcessor();
@@ -829,53 +384,6 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         return ip;
     }
 
-
-
-    @SuppressWarnings("unused")
-	private static byte[] getRedChannel(byte [] R) {
-        String fileName = makeRedChannelName();
-        //System.out.println("getRedChannel: " + fileName);
-        File f = new File(fileName);
-        if (f.exists()) {
-            FileInputStream fis;
-            ImagePlus ip = null;
-           
-	    	if (imagewindowUseStack==1){
-	    ip = new Opener().openImage(fileName,imagewindowPlaneNumber);
-		}
-	    else{
-		    ip = new Opener().openImage(fileName);
-		}
-		FileInfo fi = new FileInfo();
-    		fi = ip.getFileInfo();		    		
-    	    if (fi.getBytesPerPixel() != 8)
-    	    {
-    	        //ip = convertTo8Bits(ip);
-    	    	ImageConverter ic = new ImageConverter(ip);
-    	    	ic.convertToGray8();
-    	    }
-
-            if (ip != null) {
-                ByteProcessor bproc = (ByteProcessor)ip.getProcessor();
-                R = (byte [])bproc.getPixels();
-            } else {
-                System.out.println("getRedChannel, Opener returned null ip");
-            }
-        } else {
-            //System.out.println("getRedChannel, file does not exist");
-        }
-        return R;
-    }
-
-    private static String makeRedChannelName() {
-        String s = cCurrentImageFile;
-        String ss = cCurrentImagePart;
-        ss = ss.substring(3);
-        s = cZipTifFilePath + C.Fileseparator + "/tifR/" + ss;
-        if (cUseZip == 3) s = cZipTifFilePath + C.Fileseparator + "/jpgR/" + ss;
-
-        return s;
-    }
 
     // end of static stuff
 
@@ -1083,50 +591,30 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 
     }
 
-    public ImagePlus refreshDisplay(String imageName) {
-    	//println("refreshDisplay, ");
-        if (imageName == null)
-        	imageName = iTitle;
-        else {
-            if (imageName.indexOf(cTifPrefix) == -1) {
-                imageName = cTifPrefix +imageName;
-            }
-            iTitle = imageName;
-            //setTitle(iTitle);
-            setTitle(imageName.substring(4,imageName.length()));
-        }
-        
-        //System.out.println("ImageWindow.refreshDisplay2: " + imageName);
+    public ImagePlus refreshDisplay() {
+        String imageName = iAceTree.getImageManager().getCurrentImageName();
+        iTitle = imageName;
+
+        setTitle(imageName.substring(4));
+
         if (iIsMainImgWindow) {
             iTimeInc = iAceTree.getTimeInc();
             iPlaneInc = iAceTree.getPlaneInc();
-            iImageTime = iAceTree.getImageTime();
-            iImagePlane = iAceTree.getImagePlane();
-            imagewindowPlaneNumber = iAceTree.getImagePlane()+iPlaneInc;
+            imagewindowPlaneNumber = iAceTree.getImageManager().getCurrImagePlane()+iPlaneInc;
         } else {
             iTimeInc = 0;
             iPlaneInc = 0;
-            setImageTimeAndPlaneFromTitle();
+            //setImageTimeAndPlaneFromTitle();
         }
-        
-        imagewindowUseStack = iAceTree.getUseStack();
         
         // Append plane number to ImageWindow title in stack mode
-        if (imagewindowUseStack == 1) {
-        	setTitle(imageName.substring(4,imageName.length()) + " (plane "+imagewindowPlaneNumber+")");
+        if (iAceTree.getUseStack() == 1) {
+        	setTitle(imageName.substring(4) + " (plane "+imagewindowPlaneNumber+")");
         }
-        
-        String random = RANDOMT;
-        if (cUseZip > 0)
-        	random = RANDOMF;
-        int k = imageName.indexOf(random);
-        if (k > -1)
-        	imageName = imageName.substring(0, k + random.length() - 1 );
-        ImagePlus ip = null;
 
 
-        ip = makeImage(imageName);
-        currentImage = ip;
+        ImagePlus ip = iAceTree.getImageManager().makeImage();
+        iAceTree.getImageManager().setCurrImage(ip);
 
         if (ip == null) {
             iAceTree.pausePlayerControl();
@@ -1150,11 +638,11 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         }
         //ip = makeGreenImagePlus(ip);
         // Set contrast values for red/green channels
-        if (ip != null && imagewindowUseStack != 1) {
+        if (ip != null && iAceTree.getUseStack() != 1) {
         	// red channel
-        	ip.setDisplayRange(contrastmin1, contrastmax1, 4);
+        	ip.setDisplayRange(iAceTree.getImageManager().getContrastMin1(), iAceTree.getImageManager().getContrastMax1(), 4);
         	// green channel
-        	ip.setDisplayRange(contrastmin2, contrastmax2, 2);
+        	ip.setDisplayRange(iAceTree.getImageManager().getContrastMin2(), iAceTree.getImageManager().getContrastMax2(), 2);
         }
 
         if (ip != null) 
@@ -1279,32 +767,30 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         iproc.drawString("    " + s + "(" + z2 + ")", x2, y2 + offset);
     }
 
-    protected void setImageTimeAndPlaneFromTitle() {
-        int k = iTitle.lastIndexOf(DASHT) + DASHT.length();
-        if (k <= 1) {
-            iImageTime = 1;
-            iImagePlane = 15;
-            iTimeInc = 0;
-            iPlaneInc = 0;
-            String random = RANDOMT;
-            if (cUseZip > 0)
-            	random = RANDOMF;
-            iIsMainImgWindow = iTitle.indexOf(random) == -1;
-            return;
-        }
-        System.out.println("setImage..: " + k);
-        String time = iTitle.substring(k, k + 3);
-        iImageTime = Integer.parseInt(time);
-        String s = iTitle.substring(k);
-        k = s.indexOf(DASHP) + DASHP.length();
-        String plane = s.substring(k, k + 2);
-        iImagePlane = Integer.parseInt(plane);
-        iTimeInc = 0;
-        iPlaneInc = 0;
-        String random = RANDOMT;
-        if (cUseZip > 0) random = RANDOMF;
-        iIsMainImgWindow = iTitle.indexOf(random) == -1;
-    }
+//    protected void setImageTimeAndPlaneFromTitle() {
+//        int k = iTitle.lastIndexOf(DASHT) + DASHT.length();
+//        if (k <= 1) {
+//            iAceTree.getImageManager().setCurrImageTime(1);
+//            iAceTree.getImageManager().setCurrImagePlane(15);
+//            iTimeInc = 0;
+//            iPlaneInc = 0;
+//            String random = RANDOMT;
+//            iIsMainImgWindow = iTitle.indexOf(random) == -1;
+//            return;
+//        }
+//        System.out.println("setImage..: " + k);
+//        String time = iTitle.substring(k, k + 3);
+//        iAceTree.getImageManager().setCurrImageTime(Integer.parseInt(time));
+//        String s = iTitle.substring(k);
+//        k = s.indexOf(DASHP) + DASHP.length();
+//        String plane = s.substring(k, k + 2);
+//        iImagePlane = Integer.parseInt(plane);
+//        iTimeInc = 0;
+//        iPlaneInc = 0;
+//        String random = RANDOMT;
+//        if (cUseZip > 0) random = RANDOMF;
+//        iIsMainImgWindow = iTitle.indexOf(random) == -1;
+//    }
 
 
     public ImageCanvas getCanvas() {
@@ -1329,9 +815,9 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 //        }
         double x, y, r;
         boolean g;
-        Nucleus n = cNucleiMgr.findClosestNucleus(mx, my, iImagePlane + iPlaneInc, iImageTime + iTimeInc);
+        Nucleus n = cNucleiMgr.findClosestNucleus(mx, my, iAceTree.getImageManager().getCurrImagePlane() + iPlaneInc, iAceTree.getImageManager().getCurrImageTime() + iTimeInc);
         if (n != null) {
-            if (cNucleiMgr.hasCircle(n, iImagePlane + iPlaneInc)) {
+            if (cNucleiMgr.hasCircle(n, iAceTree.getImageManager().getCurrImagePlane() + iPlaneInc)) {
                 String propername = PartsList.lookupSulston(n.identity);
                 String label = n.identity;
                 if (propername != null) {
@@ -1375,13 +861,13 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
     
     @SuppressWarnings("unused")
 	protected void showCentroids() {
-        int time = iImageTime + iTimeInc;
+        int time = iAceTree.getImageManager().getCurrImageTime() + iTimeInc;
         if (time < 0) {
-            iImageTime = 1;
+            iAceTree.getImageManager().setCurrImageTime(1);
             iTimeInc = 0;
         }
         
-        Vector v = cNucleiMgr.getElementAt(iImageTime + iTimeInc - 1);
+        Vector v = cNucleiMgr.getElementAt(iAceTree.getImageManager().getCurrImageTime() + iTimeInc - 1);
         
         ImageProcessor iproc = getImagePlus().getProcessor();
         iproc.setColor(COLOR[iDispProps[NCENTROID].iLineageNum]);
@@ -1396,7 +882,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
             	continue;
 
             double x = cNucleiMgr.nucDiameter(n,
-                    iImagePlane + iPlaneInc);
+                    iAceTree.getImageManager().getCurrImagePlane() + iPlaneInc);
             if (x > 0) {
             	// Manage bookmarked cells
                 if (iBookmarkListModel != null && !iBookmarkListModel.isEmpty()) {
@@ -1461,7 +947,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
     @SuppressWarnings("unused")
 	protected void showAnnotations() {
         //showWhichAnnotations();
-        Vector v = cNucleiMgr.getNucleiRecord().elementAt(iImageTime  + iTimeInc - 1);
+        Vector v = cNucleiMgr.getNucleiRecord().elementAt(iAceTree.getImageManager().getCurrImageTime()  + iTimeInc - 1);
         int size = v.size();
         int [] x = new int[size];
         int [] y = new int[size];
@@ -1479,7 +965,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
          
             if (n.status >= 0 && (isInList(label) != null)) {
                 ai = new AnnotInfo(label, n.x, n.y);
-                if (cNucleiMgr.hasCircle(n, iImagePlane + iPlaneInc)) {
+                if (cNucleiMgr.hasCircle(n, iAceTree.getImageManager().getCurrImagePlane() + iPlaneInc)) {
                     annots.add(ai);
                 }
             }
@@ -1819,21 +1305,21 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
                 iIsRightMouseButton = false;
             }
             if (button == MouseEvent.BUTTON3|e.isControlDown()) {
-                Nucleus n = cNucleiMgr.findClosestNucleus(x2,y2, iImagePlane + iPlaneInc, iImageTime + iTimeInc);
+                Nucleus n = cNucleiMgr.findClosestNucleus(x2,y2, iAceTree.getImageManager().getCurrImagePlane() + iPlaneInc, iAceTree.getImageManager().getCurrImageTime() + iTimeInc);
                 if (n == null) {
                 	//System.out.println("No nucleus selected to be active, cannot set current cell.");
                 	return;
                 }
                 Cell c = iAceTree.getCellByName(n.identity);
                 if (c != null) {
-	                iAceTree.setCurrentCell(c, iImageTime + iTimeInc, AceTree.RIGHTCLICKONIMAGE);
+	                iAceTree.setCurrentCell(c, iAceTree.getImageManager().getCurrImageTime() + iTimeInc, AceTree.RIGHTCLICKONIMAGE);
 	                //System.out.println("Current cell set to "+n.identity);
                 }
             } 
             else if (button == MouseEvent.BUTTON1){
                 //System.out.println("mouseClicked " + e.getX());
                 addAnnotation(x2, y2, false);
-                refreshDisplay(null);
+                refreshDisplay();
             }
             
             iAceTree.cellAnnotated(getClickedCellName(x2, y2));
@@ -1854,9 +1340,9 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
             planeInc = iAceTree.getPlaneInc();
         }
         String name = "";
-        Nucleus n = cNucleiMgr.findClosestNucleus(x, y, iImageTime + iTimeInc);
+        Nucleus n = cNucleiMgr.findClosestNucleus(x, y, iAceTree.getImageManager().getCurrImageTime() + iTimeInc);
         if (n != null) {
-            if (cNucleiMgr.hasCircle(n, iImagePlane + iPlaneInc)) {
+            if (cNucleiMgr.hasCircle(n, iAceTree.getImageManager().getCurrImagePlane() + iPlaneInc)) {
                 name = n.identity;
             }
         }
@@ -1952,16 +1438,16 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
     // Display channels contrast tool for 16-bit to 8-bit images
     public void launchContrastTool() {
     	if (ict == null) {
-    		ict = new ImageContrastTool(this, imagewindowUseStack);
+    		ict = new ImageContrastTool(this, iAceTree.getUseStack());
     		iSlider1min = ict.getSlider1min();
     		iSlider1max = ict.getSlider1max();
     		iSlider2min = ict.getSlider2min();
     		iSlider2max = ict.getSlider2max();
     		
-    		ict.setSlider1min(contrastmin1);
-        	ict.setSlider1max(contrastmax1);
-        	ict.setSlider2min(contrastmin2);
-        	ict.setSlider2max(contrastmax2);
+    		ict.setSlider1min(iAceTree.getImageManager().getContrastMin1());
+        	ict.setSlider1max(iAceTree.getImageManager().getContrastMax1());
+        	ict.setSlider2min(iAceTree.getImageManager().getContrastMin2());
+        	ict.setSlider2max(iAceTree.getImageManager().getContrastMax2());
     		
     		SliderListener sl = new SliderListener();
         	iSlider1min.addChangeListener(sl);
@@ -1970,10 +1456,10 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         	iSlider2max.addChangeListener(sl);
     	}
     	else {
-    		ict.setSlider1min(contrastmin1);
-        	ict.setSlider1max(contrastmax1);
-        	ict.setSlider2min(contrastmin2);
-        	ict.setSlider2max(contrastmax2);
+    		ict.setSlider1min(iAceTree.getImageManager().getContrastMin1());
+        	ict.setSlider1max(iAceTree.getImageManager().getContrastMax1());
+        	ict.setSlider2min(iAceTree.getImageManager().getContrastMin2());
+        	ict.setSlider2max(iAceTree.getImageManager().getContrastMax2());
         	
         	ict.setVisible(true);
     	}
@@ -1989,17 +1475,17 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 				int max1 = iSlider1max.getValue();
     			if (min1 <= max1) {
     				//System.out.println("ImageWindow set Red min, max: "+min1+CS+max1);
-    				contrastmin1 = min1;
-	    			contrastmax1 = max1;
+                    iAceTree.getImageManager().setContrastMin1(min1);
+                    iAceTree.getImageManager().setContrastMax1(max1);
     			}
     			int min2 = iSlider2min.getValue();
     			int max2 = iSlider2max.getValue();
     			if (min2 <= max2) {
     				//System.out.println("ImageWindow set Green min, max: "+min2+CS+max2);
-	    			contrastmin2 = min2;
-	    			contrastmax2 = max2;
+                    iAceTree.getImageManager().setContrastMin2(min2);
+                    iAceTree.getImageManager().setContrastMax2(max2);
     			}
-    			refreshDisplay(null);
+    			refreshDisplay();
     		}
     	}
     }
@@ -2033,15 +1519,4 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 			addOne.processMouseEvent(e);
 	    }
     }
-
-    public static void setUseStack(int x) {
-    	imagewindowUseStack = x;
-    }
-
-    public static void setSplitMode(int mode) {
-        iSplit = mode;
-    }
-    
-    private static final int MAX8BIT = 255, MAX16BIT = 65535;
-
 }

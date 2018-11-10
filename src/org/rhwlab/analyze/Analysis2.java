@@ -203,7 +203,8 @@ public class Analysis2 extends Log {
         double f = 180./Math.PI;
         double zfac = nucMgr.getZPixRes();
         double planeEnd = nucMgr.getPlaneEnd();
-        int height = ImageWindow.cImageHeight;
+        //int height = ImageWindow.cImageHeight;
+        int height = 1;
         //System.out.println("height=" + height);
         int first = 1;
         int last = nuclei_record.size() - 1;

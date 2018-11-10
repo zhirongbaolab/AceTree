@@ -155,8 +155,6 @@ public class AceTree extends JPanel
     private JTextPane   iText2;
     private JTextPane   iText3;
     protected JFrame      iMainFrame;
-    private int         iImageTime;
-    private int         iImagePlane;
 
     private boolean     iImgWinSet;
     public AncesTree   iAncesTree;
@@ -182,8 +180,11 @@ public class AceTree extends JPanel
     private JButton     iTrack;
     private JButton     iSister;
     private JButton     iColorToggle;
+
+    // increment values
     private int         iTimeInc;
     private int         iPlaneInc;
+
     private Cell        iCurrentCell;
     private boolean     iCurrentCellPresent;
     private int         iCurrentCellXloc;
@@ -191,42 +192,29 @@ public class AceTree extends JPanel
     private float       iCurrentCellZloc;
     protected InputCtrl   iInputCtrl;
 
-    // key run parameters
-    private String      iZipTifFilePath; // a full path to the zip file with tifs in it
-    private String      iTifPrefix;      // leading part of image file names also parameters file
-    private int         iStartingIndex;
-    private int         iEndingIndex;
-    private int         iNamingMethod;
     public Hashtable    iCellsByName;
-
-    private double      iZPixRes;
-    private int         iPlaneEnd;
-    private int         iPlaneStart;
 
     private boolean     iShowAnnotations;
     private boolean     iShowAnnotationsSave;
     private boolean     iShowCentroids;
-    //private Vector      iAnnotsShown;
     public Integer      iTrackPosition;
     public Integer      iTrackPositionSave;
     private boolean     iIgnoreValueChanged;
-    
+
     private Object      iDispProps3D;
     private Object      iDispProps3D2;
     private Object      iDispProps3D2Z;
     public boolean		iEditTools;
-    private CellMovementImage iCellMovementImage;
     private boolean     iCallSaveImage;
-    private int		iUseZip;
-    private int		iUseStack;
-    private int     iSplit;
+
+    private CellMovementImage iCellMovementImage;
+
     private int		iFileNameType;
 
     private CanonicalTree   iCanonicalTree;
     protected PlayerControl   iPlayerControl;
     private EditTraverse    iEditTraverse;
 
-    private boolean     iDebugTest;
     private int         iColor;
 
     public	NucRelinkDialog			iNucRelinkDialog;
@@ -267,7 +255,7 @@ public class AceTree extends JPanel
 	protected AceTree(String configFileName, boolean fullGUI) {
         super();
 		AceTree.fullGUI=fullGUI;
-//		System.out.println("string constructor");
+
         AceTree.iAceTree = this;
         this.iMainFrame = new JFrame(TITLE);
 
@@ -278,21 +266,24 @@ public class AceTree extends JPanel
 
 
         this.iAceMenuBar = new AceMenuBar(this);
+
         iConfigFileName = configFileName;
+
         this.iNucleiMgrHash = new Hashtable<String, NucleiMgr>();
-        iImageTime = 0;
-        iImagePlane = 0;
-        iTimeInc = 0;
-        iPlaneInc = 0;
+
         iCurrentCell = null;
         iCurrentCellXloc = 0;
         iCurrentCellYloc = 0;
+
         setShowAnnotations(false);
         iShowCentroids = false;
+
         iInputCtrl = null;
+
         iRoot = new Cell(ROOTNAME);
         iTree = new JTree(iRoot);
         iTree.addMouseListener(new TreeMouseAdapter());
+
         iEditLog = new EditLog("EditLog");
         iDLog = new Log("Debug Log");
 
@@ -301,7 +292,6 @@ public class AceTree extends JPanel
         try {
 	        iTrackPosition = ImageWindow.ANTERIOR;
 	        iTrackPositionSave = iTrackPosition;
-	        iDebugTest = false;
 	        iCanonicalTree = CanonicalTree.getCanonicalTree();
 	        iColor = 0;
 	        iTree.addMouseListener(new TreeMouseAdapter());
@@ -527,17 +517,6 @@ public class AceTree extends JPanel
 
             iEditLog = iNucleiMgr.getEditLog();
 
-            /* these calls are either unnecessary or refactored with the revision of the configuration and image loading 10/2018 */
-            if (configManager == null) {
-                iNucleiMgr.sendStaticParametersToImageWindow(); // unnecessary
-                ImageWindow.setNucleiMgr(iNucleiMgr); // this needs to be given to the ImageAnnotationManager (through the ImageWindowDelegate)
-                setConfigFileName(configFileName); // unnecessary
-                grabConfigStuff(); // unnecessary
-                iPlaneEnd = iNucleiMgr.getPlaneEnd(); // unnecessary
-                iPlaneStart = iNucleiMgr.getPlaneStart(); // unnecessary
-                iZPixRes=iNucleiMgr.getZPixRes(); // unnecessary
-            }
-
             // in the revised loading pipeline, build tree will no longer bring up the image series as it did before
             // Therefore, once the buildTree operation is done, we are in the clear for bringing up the images
             buildTree(false);
@@ -549,12 +528,12 @@ public class AceTree extends JPanel
                                         this.imageManager.bringUpImageSeries(),
                                             iPlayerControl,
                     this.imageManager);
+            this.iImgWin.setAceTree(this); // TODO - this is bad code practice how this is piped, but to get it to testable we'll settle for now 11/2018
+            this.iImgWin.setNucleiMgr(this.iNucleiMgr); // TODO - same
 
             // next, we'll build an ImageWindowDelegate with the ImageWindow just created so that it can facilitate annotating and saving
             this.imageWindowDelegate = new ImageWindowDelegate(this.iImgWin, this.imageManager, this.iNucleiMgr);
 
-            // TODO unit tested up until here
-            //System.exit(0);
 
             // if the current cell isn't P (not a cell in the lineage), and it has childen, we'll add appropriate annotation
             if (iCurrentCell == null) {
@@ -572,13 +551,13 @@ public class AceTree extends JPanel
     	} catch (Throwable t) {
 			new GeneralStartupError(getMainFrame(), t);
     	}
+
+    	System.gc();
     }
 
     public void bringUpSeriesUI(Config config) {
     	// Reset ImageWindow use stack flag
     	newLine();
-        System.out.println("ImageWindow stack flag reset to 0 in AceTree.");
-        ImageWindow.setUseStack(0);
         
     	String configFileName = config.iConfigFileName;
         System.out.println("bringUpSeriesUI: " + configFileName);
@@ -598,14 +577,10 @@ public class AceTree extends JPanel
             System.exit(1);
         }
         iEditLog = iNucleiMgr.getEditLog();
-        iNucleiMgr.sendStaticParametersToImageWindow();
-        ImageWindow.setNucleiMgr(iNucleiMgr);
+        iImgWin.setNucleiMgr(iNucleiMgr);
         
         //clearTree();
         setConfigFileName(configFileName);
-        grabConfigStuff();
-        iPlaneEnd = iNucleiMgr.getPlaneEnd();
-        iPlaneStart = iNucleiMgr.getPlaneStart();
 
         //clearTree();
         //iTree.updateUI();
@@ -639,7 +614,6 @@ public class AceTree extends JPanel
 
         // Let's build a NucleiMgr, then we'll move on the putting the images together (it will be a local copy that we then place in the NucleiMgr hash)
         NucleiMgr nucMgr = new NucleiMgr(configManager.getNucleiConfig()); // post 10/2018 revisions
-        //NucleiMgr nucMgr = new NucleiMgr(configFileName); // pre 10/2018 revisions
         // at this point, the nuclei have been read into the system
 
         if (!nucMgr.iGoodNucleiMgr) {
@@ -649,12 +623,6 @@ public class AceTree extends JPanel
         // if we've reached here, the NucMgr is good to go, so we can process the nuclei (set the successors and build the AncesTree object)
         nucMgr.processNuclei(true); // post 10/2018 revisions
 
-        // Image related stuff
-//        ImageWindow.setUseStack(iUseStack);
-//        ImageWindow.setSplitMode(iSplit);
-//        System.out.println("ImageWindow static stack set: "+ iUseStack);
-//        System.out.println("ImageWindow static split mode: " + iSplit);
-        //nucMgr.processNuclei(false, nucMgr.getConfig().iNamingMethod);
 
         String config;
         if (configManager == null) {
@@ -685,10 +653,6 @@ public class AceTree extends JPanel
 
         // this is the only place where we construct a NucleiMgr
         NucleiMgr nucMgr = new NucleiMgr(config);
-        ImageWindow.setUseStack(iUseStack);
-        ImageWindow.setSplitMode(iSplit);
-        System.out.println("ImageWindow static stack set: "+ iUseStack);
-        System.out.println("ImageWindow static stack set: " + iSplit);
         if (!nucMgr.iGoodNucleiMgr) {
             return -1;
         }
@@ -752,21 +716,6 @@ public class AceTree extends JPanel
         System.gc();
     }
 
-    private void grabConfigStuff() {
-        Config c = iNucleiMgr.getConfig();
-        iTifPrefix = c.iTifPrefix;
-        iStartingIndex = c.iStartingIndex;
-        iEndingIndex = c.iEndingIndex;
-        iUseZip = c.iUseZip;
-        iUseStack = c.iUseStack;
-        iSplit = c.iSplit;
-        iZipTifFilePath = c.iZipTifFilePath;
-        
-        // Get start time
-        iStartTime = c.getStartTime();
-    }
-
-
     // Removes all leaves from working tree
     public void clearTree() {
         //new Throwable().printStackTrace();
@@ -798,11 +747,7 @@ public class AceTree extends JPanel
         println("clearTree: memory: " + runtime.freeMemory() + CS + runtime.totalMemory() + CS + runtime.maxMemory());
         if (root != null)
         	root.removeAllChildren();
-        
-        /*
-         * TODO
-         * figure out parameters from tree/AncesTree.java
-         */
+
         Hashtable x = iAncesTree.getCells();
         if (x != null)
         	x.clear();
@@ -830,27 +775,14 @@ public class AceTree extends JPanel
         iShowCentroids = false;
         iShowC.setText(SHOWC);
 
-        if (doIdentity && configManager == null) {
-            iNucleiMgr.processNuclei(doIdentity, iNamingMethod);
-        }
-
         if (iEditLog != null) {
             iEditLog.append("buildTree(" + doIdentity +
-                ") start = " + iStartingIndex + " end = " + iEndingIndex
+                ") start = " + this.configManager.getImageConfig().getStartingIndex() + " end = " + this.configManager.getImageConfig().getEndingIndex()
                 + iEditLog.getTime());
         }
 
-        // legacy vs. revised pipeline
-        if (configManager == null) {
-            grabConfigStuff();
+        Cell.setEndingIndexS(configManager.getNucleiConfig().getEndingIndex());
 
-            System.out.println("StartingIndex: " + iStartingIndex);
-            System.out.println("EndingIndexX: " + iEndingIndex);
-
-            Cell.setEndingIndexS(iEndingIndex);
-        } else {
-            Cell.setEndingIndexS(configManager.getNucleiConfig().getEndingIndex());
-        }
 
         iAncesTree = iNucleiMgr.getAncesTree();
         iCellsByName = iAncesTree.getCellsByName();
@@ -931,18 +863,10 @@ public class AceTree extends JPanel
         }
         iNucleiMgr = nucMgr;
         iEditLog = iNucleiMgr.getEditLog();
-        grabConfigStuff();
-        iPlaneEnd = iNucleiMgr.getPlaneEnd();
-        iPlaneStart = iNucleiMgr.getPlaneStart();
         //NucUtils.setNucleiMgr(iNucleiMgr);
-        ImageWindow.setNucleiMgr(iNucleiMgr);
-        ImageWindow.setStaticParameters(iNucleiMgr.getConfig().iZipTifFilePath,
-                iNucleiMgr.getConfig().iTifPrefix, iNucleiMgr.getConfig().iUseZip,
-                iNucleiMgr.getConfig().iSplitChannelImage, iNucleiMgr.getConfig().iSplit);
+        iImgWin.setNucleiMgr(iNucleiMgr);
 
-        System.out.println("StartingIndex: " + iStartingIndex);
-        System.out.println("EndingIndex: " + iEndingIndex);
-        Cell.setEndingIndexS(iEndingIndex);
+        Cell.setEndingIndexS(this.configManager.getImageConfig().getEndingIndex());
         iAncesTree = iNucleiMgr.getAncesTree();
         updateRoot(iAncesTree.getRootCells());
         iCellsByName = iAncesTree.getCellsByName();
@@ -950,7 +874,7 @@ public class AceTree extends JPanel
         iShow.setText(SHOW);
         iShowCentroids = false;
         iShowC.setText(SHOWC);
-        Cell.setEndingIndexS(iEndingIndex); // what does this do?
+        Cell.setEndingIndexS(this.configManager.getImageConfig().getEndingIndex()); // what does this do?
 
         Cell c = walkUpToAGoodCell();
         iTree.updateUI();
@@ -1023,9 +947,6 @@ public class AceTree extends JPanel
             time = Math.max(time, c.getTime());
             time = Math.min(time, c.getEndTime());
 
-            if (configManager == null) {
-                iImageTime = time;
-            }
 
             getTimeAndPlane(c);
 
@@ -1037,17 +958,9 @@ public class AceTree extends JPanel
             showTreeCell(iCurrentCell);
         } else { // the nuclei passed is the root of the tree -- use default viewing parameters
 
-            // legacy vs. revised pipeline
-            if (configManager == null) {
-                iImageTime = 1;
-                iTimeInc = 0;
-                iImagePlane = 15;
-                iPlaneInc = 0;
-            } else {
-                imageManager.setCurrImageTime(1);
-                imageManager.setCurrImagePlane(15);
-                System.out.println("Setting default image time and plane: 1, 15. No starting cell");
-            }
+            imageManager.setCurrImageTime(1);
+            imageManager.setCurrImagePlane(15);
+            System.out.println("Setting default image time and plane: 1, 15. No starting cell");
         }
 
         /**
@@ -1060,22 +973,22 @@ public class AceTree extends JPanel
          * progression from user interaction to window update, but it should be deconvolved from the actual loading and
          * initialization of the image window
          */
-        if (configManager == null) {
-            handleCellSelectionChange(c, time - iImageTime); // this will bring up an image
-            if (!c.getName().equals("P") && iRoot.getChildCount() > 0) {
-                //setShowAnnotations(true);
-                iShowCentroids = true;
-                iShowC.setText(HIDEC);
-                addMainAnnotation();
-            }
-            iAceMenuBar.setClearEnabled(true);
-
-
-            if(iImgWin!=null) {
-                System.out.println("REFRESH DISPLAY CALLED FROM SET STARTING CELL");
-                iImgWin.refreshDisplay(null);
-            }
-        }
+//        if (configManager == null) {
+//            handleCellSelectionChange(c, time - iImageTime); // this will bring up an image
+//            if (!c.getName().equals("P") && iRoot.getChildCount() > 0) {
+//                //setShowAnnotations(true);
+//                iShowCentroids = true;
+//                iShowC.setText(HIDEC);
+//                addMainAnnotation();
+//            }
+//            iAceMenuBar.setClearEnabled(true);
+//
+//
+//            if(iImgWin!=null) {
+//                System.out.println("REFRESH DISPLAY CALLED FROM SET STARTING CELL");
+//                iImgWin.refreshDisplay(null);
+//            }
+//        }
     }
 
     @Override
@@ -1677,7 +1590,7 @@ public class AceTree extends JPanel
         	private static final long serialVersionUID = 1L;
         	@Override
 			public void actionPerformed(ActionEvent e) {
-                copyImage();
+                //copyImage();
             }
         };
         getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(s), s);
@@ -1881,7 +1794,7 @@ public class AceTree extends JPanel
         //iAnnotsShown.clear();
         getTimeAndPlane(c);
         iTimeInc = timeInc;
-        if (iImageTime < 1 || iImagePlane < 1) return;
+        if (this.imageManager.getCurrImageTime() < 1 || this.imageManager.getCurrImagePlane() < 1) return;
         updateDisplay();
     }
 
@@ -1892,22 +1805,12 @@ public class AceTree extends JPanel
     private void getTimeAndPlane(Cell c) {
         if (c == null) return;
         if (c == iRoot) {
-            if (configManager == null) {
-                iImageTime = 1;
-                iImagePlane = 15;
-            } else {
-                this.imageManager.setCurrImageTime(1);
-                this.imageManager.setCurrImagePlane(15);
-            }
+            this.imageManager.setCurrImageTime(1);
+            this.imageManager.setCurrImagePlane(15);
 
         } else {
-            if (configManager == null) {
-                iImageTime = c.getTime();
-                iImagePlane = (int)((double)c.getPlane() + HALFROUND);
-            } else {
-                this.imageManager.setCurrImageTime(c.getTime());
-                this.imageManager.setCurrImagePlane((int)((double)c.getPlane() + HALFROUND));
-            }
+            this.imageManager.setCurrImageTime(c.getTime());
+            this.imageManager.setCurrImagePlane((int)((double)c.getPlane() + HALFROUND));
 
         }
         iTimeInc = 0;
@@ -1927,10 +1830,10 @@ public class AceTree extends JPanel
      *
      */
     public void updateDisplay() {
-        if (this.imageManager.getCurrImageTime() < iStartingIndex) return;
+        if (this.imageManager.getCurrImageTime() < this.configManager.getImageConfig().getStartingIndex()) return;
         
-        if ((iImagePlane + iPlaneInc) <= 0)
-        	iPlaneInc = (-1*iImagePlane + 1);
+        if ((this.imageManager.getCurrImagePlane() + iPlaneInc) <= 0)
+        	iPlaneInc = (-1*this.imageManager.getCurrImagePlane() + 1);
         
         getCurrentCellParameters();
 
@@ -1954,52 +1857,52 @@ public class AceTree extends JPanel
     }
 
     @SuppressWarnings("static-access")
-	public void handleImage() {
-        String cfile = makeImageName();
-        System.out.println(cfile + " - " + iZipTifFilePath + ", " + iTifPrefix);
-        ImagePlus ip = null;
-        ImageWindow.setUseStack(iUseStack);
-        ImageWindow.setSplitMode(iSplit);
-        if (cfile == null) {
-            //IJ.error("no image available");
-        	//System.out.println("AceTree calling ImageWindow.makeImage(null)...");
-            ImageWindow.makeImage(null);
-            return;
-        } else {
-            if (iImgWin != null) {
-                try {
-                    ip = iImgWin.refreshDisplay(iTifPrefix + cfile);
-                } catch(Exception e) {
-                    System.out.println("handleImage -- no image available: " + iTifPrefix + cfile);
-                    System.out.println(e);
-                    e.printStackTrace();
-                    iPlayerControl.pause();
-                }
-            } else {
-                System.out.println("\nhandleImage making new one: " + ip + CS + iTifPrefix + CS + cfile);
-
-				ip = ImageWindow.makeImage2(iTifPrefix + cfile, getImagePlane(), getUseStack(), getiSplit());
-				 //iImgWin = new ImageWindow( cfile, ip);
-				try {
-					iImgWin = new ImageWindow(iTifPrefix + cfile, ip, iPlayerControl, true);
-
-	                iImgWin.setAceTree(this);
-
-	                // Pass list of bookmarked cells to ImageWindow
-	                if (iBookmarkJList != null) {
-                        iImgWin.setBookmarkList(iBookmarkJList.getModel());
-                    }
-
-
-	                iImgWin.add(iToolControls,BorderLayout.SOUTH);
-	                iImgWin.pack();
-	                iImgWinSet = true;
-				} catch (Throwable t) {
-					new GeneralStartupError(getMainFrame(), t);
-				}
-            }
-        }
-    }
+//	public void handleImage() {
+//        String cfile = makeImageName();
+//        System.out.println(cfile + " - " + iZipTifFilePath + ", " + iTifPrefix);
+//        ImagePlus ip = null;
+//        ImageWindow.setUseStack(iUseStack);
+//        ImageWindow.setSplitMode(iSplit);
+//        if (cfile == null) {
+//            //IJ.error("no image available");
+//        	//System.out.println("AceTree calling ImageWindow.makeImage(null)...");
+//            ImageWindow.makeImage(null);
+//            return;
+//        } else {
+//            if (iImgWin != null) {
+//                try {
+//                    ip = iImgWin.refreshDisplay(iTifPrefix + cfile);
+//                } catch(Exception e) {
+//                    System.out.println("handleImage -- no image available: " + iTifPrefix + cfile);
+//                    System.out.println(e);
+//                    e.printStackTrace();
+//                    iPlayerControl.pause();
+//                }
+//            } else {
+//                System.out.println("\nhandleImage making new one: " + ip + CS + iTifPrefix + CS + cfile);
+//
+//				ip = ImageWindow.makeImage2(iTifPrefix + cfile, getImagePlane(), getUseStack(), getiSplit());
+//				 //iImgWin = new ImageWindow( cfile, ip);
+//				try {
+//					iImgWin = new ImageWindow(iTifPrefix + cfile, ip, iPlayerControl, true);
+//
+//	                iImgWin.setAceTree(this);
+//
+//	                // Pass list of bookmarked cells to ImageWindow
+//	                if (iBookmarkJList != null) {
+//                        iImgWin.setBookmarkList(iBookmarkJList.getModel());
+//                    }
+//
+//
+//	                iImgWin.add(iToolControls,BorderLayout.SOUTH);
+//	                iImgWin.pack();
+//	                iImgWinSet = true;
+//				} catch (Throwable t) {
+//					new GeneralStartupError(getMainFrame(), t);
+//				}
+//            }
+//        }
+//    }
 
     /**
      * Called by:
@@ -2026,123 +1929,9 @@ public class AceTree extends JPanel
 
     }
 
-    public String makeImageName()
-    {
-    	return imageNameHandler(iImageTime + iTimeInc, iImagePlane + iPlaneInc);
-    }
-
-    public String makeImageName(int time, int plane)
-    {
-    	return imageNameHandler(time, plane);
-    }
-
     public boolean checkExists(File f)
     {
     	return f.exists();
-    }
-    
-    public String imageNameHandler(int time, int plane)
-    {
-    	StringBuffer namebuf = new StringBuffer("t");
-        namebuf.append(EUtils.makePaddedInt(time));
-
-        namebuf.append("-p");
-    	String p = EUtils.makePaddedInt(plane, 2);
-    	namebuf.append(p);
-    	
-        String original_name = namebuf.toString();
-      	StringBuffer namebuf2 = new StringBuffer("t");
-        namebuf2.append(String.valueOf(time));
-        String new_name = namebuf2.toString();
-
-        
-        if(iFileNameType == 0)
-        {
-        	switch(1)
-        	{
-        		case 0:
-        		default:
-        			if(checkExists(new File(iZipTifFilePath + C.Fileseparator + iTifPrefix + original_name + ".tif"))) {
-        				iFileNameType = 1;
-        				break;
-    				}
-        			if(checkExists(new File(iZipTifFilePath + C.Fileseparator + iTifPrefix + new_name + ".TIF"))) {
-        				iFileNameType = 8;
-        				break;
-    				}
-        			if(checkExists(new File(iZipTifFilePath + C.Fileseparator + iTifPrefix + original_name + ".TIF"))) {
-        				iFileNameType = 2;
-        				break;
-    				}
-        			if(checkExists(new File(iZipTifFilePath + C.Fileseparator + iTifPrefix + original_name + ".tiff"))) {
-        				iFileNameType = 3;
-        				break;
-    				}
-					if(checkExists(new File(iZipTifFilePath + C.Fileseparator + iTifPrefix + original_name + ".TIFF"))) {
-						iFileNameType = 4;
-						break;
-					}
-					if(checkExists(new File(iZipTifFilePath + C.Fileseparator + iTifPrefix + original_name + ".zip"))) {
-						iFileNameType = 5;
-						break;
-					}
-					if(checkExists(new File(iZipTifFilePath + C.Fileseparator + iTifPrefix + original_name + ".ZIP"))) {
-						iFileNameType = 6;
-						break;
-					}
-					if(checkExists(new File(iZipTifFilePath + C.Fileseparator + iTifPrefix + new_name + ".tif"))) {
-						iFileNameType = 7;
-						break;
-					}
-					if(checkExists(new File(iZipTifFilePath + C.Fileseparator + iTifPrefix + new_name + ".tiff"))) {
-						iFileNameType = 9;
-						break;
-					}
-					if(checkExists(new File(iZipTifFilePath + C.Fileseparator + iTifPrefix + new_name + ".TIFF"))) {
-						iFileNameType = 10;
-						break;
-					}
-					if(checkExists(new File(iZipTifFilePath + C.Fileseparator + iTifPrefix + new_name + ".zip"))) {
-						iFileNameType = 11;
-						break;
-					}
-					if(checkExists(new File(iZipTifFilePath + C.Fileseparator + iTifPrefix + new_name + ".ZIP"))) {
-						iFileNameType = 12;
-						break;
-					}
-        	}
-        }
-        
-        
-        switch(iFileNameType)
-        {
-        	case 1:
-        		return(original_name + ".tif");
-        	case 8:
-        		return(new_name + ".TIF");
-        	case 2:
-        		return(original_name + ".TIF");
-        	case 3:
-        		return(original_name + ".tiff");
-        	case 4:
-        		return(original_name + ".TIFF");
-        	case 5:
-        		return(original_name + ".zip");
-        	case 6:
-        		return(original_name + ".ZIP");
-        	case 7:
-        		return(new_name + ".tif");
-        	case 9:
-        		return(new_name + ".tiff");
-        	case 10:
-        		return(new_name + ".TIFF");
-        	case 11:
-        		return(new_name + ".zip");
-        	case 12:
-        		return(new_name + ".ZIP");
-       		default:
-       			return(null);
-        }
     }
 
 
@@ -2152,7 +1941,7 @@ public class AceTree extends JPanel
             return (int)(iCurrentCellZloc + 0.5);
         }
         else {
-            return iImagePlane;
+            return this.imageManager.getCurrImagePlane();
         }
     }
 
@@ -2163,10 +1952,10 @@ public class AceTree extends JPanel
     	//System.out.println("getCurrentCellParameters: " + iImageTime + CS + iTimeInc);
         if (iCurrentCell == null) 
         	return;
-        int time = iImageTime + iTimeInc;
+        int time = this.imageManager.getCurrImageTime() + iTimeInc;
         if (time == 0) {
             time = 1;
-            iImageTime = 1;
+            this.imageManager.setCurrImageTime(1);
         }
         Nucleus n = null;
         try {
@@ -2184,14 +1973,14 @@ public class AceTree extends JPanel
             iCurrentCellXloc = n.x;
             iCurrentCellYloc = n.y;
             iCurrentCellZloc = n.z;
-            iImagePlane = trackCellPlane();
+            this.imageManager.setCurrImagePlane(trackCellPlane());
             iCurrentCellPresent = true;
         }
     }
 
 
     private String makeDisplayText() {
-        int time = iImageTime + iTimeInc;
+        int time = this.imageManager.getCurrImageTime() + iTimeInc;
         //Vector nuclei = (Vector)iNucleiMgr.getNucleiRecord().elementAt(time - 1);
         Vector nuclei = iNucleiMgr.getElementAt(time - 1);
 
@@ -2204,13 +1993,13 @@ public class AceTree extends JPanel
         	iCurrentCellPresent = false;
         if (iCurrentCellPresent) {
             sb2.append(name + " is one of ");
-            sb2.append(NucUtils.countLiveCells(nuclei) + " cells at time " + (iImageTime + iTimeInc));
+            sb2.append(NucUtils.countLiveCells(nuclei) + " cells at time " + (this.imageManager.getCurrImageTime() + iTimeInc));
             Nucleus n = NucUtils.getCurrentCellNucleus(nuclei, iCurrentCell);
 	        if (n != null) {
             sb2.append("\nlocation: " + iCurrentCellXloc + ", " + iCurrentCellYloc + ", " + n.z);
 	        //sb2.append(CS + iAxis);
             double d = iNucleiMgr.nucDiameter(n,
-                    iImagePlane + iPlaneInc);
+                    this.imageManager.getCurrImagePlane() + iPlaneInc);
             String sd = (new DecimalFormat("###.#")).format(d);
             sb2.append("\nsize: " + n.size + " displayed diameter: " + sd);
             sb2.append("\ncurrent index: " + n.index);
@@ -2267,28 +2056,23 @@ public class AceTree extends JPanel
         new QuickOpen();
     }
 
-
-    public String getConfigFileName() {
-        //System.out.println("AceTree.getConfigFileName: " + iConfigFileName);
-        return iConfigFileName;
-    }
 ////////////////////////////////////////////////////////////////////
 ////////////  image handling ///////////////////////////////////////
 ////////////////////////////////////////////////////////////////////
 
 
-    private void copyImage() {
-        ImagePlus ip = iImgWin.getImagePlus();
-        String s = iTifPrefix + makeImageName() + Math.random();
-        ImageWindow iw = new ImageWindow(s, ip,iPlayerControl, true);
-        iw.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        iw.setAceTree(this);
-        //iw.refreshDisplay(s);
-        iw.setLocation(iw.getX() + XINC, iw.getY() + YINC);
-        iw.removeHandlers();
-        iw.setAceTree(null);
-        iw = null;
-    }
+//    private void copyImage() {
+//        ImagePlus ip = iImgWin.getImagePlus();
+//        String s = iTifPrefix + makeImageName() + Math.random();
+//        ImageWindow iw = new ImageWindow(s, ip,iPlayerControl, true);
+//        iw.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+//        iw.setAceTree(this);
+//        //iw.refreshDisplay(s);
+//        iw.setLocation(iw.getX() + XINC, iw.getY() + YINC);
+//        iw.removeHandlers();
+//        iw.setAceTree(null);
+//        iw = null;
+//    }
 
     public void editImage3() {
     }
@@ -2299,8 +2083,7 @@ public class AceTree extends JPanel
     	if (iAddOneDialog != null)
     		return;
     	iEditTools = true;
-    	iAddOneDialog = new AddOneDialog(this, iImgWin, false, iCurrentCell, iImageTime);
-    	//iAddOneDialog = new AddOneDialog(this, iEditImage3, false, iCurrentCell, iImageTime);
+    	iAddOneDialog = new AddOneDialog(this, iImgWin, false, iCurrentCell, this.imageManager.getCurrImageTime());
     	iImgWin.iDialog = iAddOneDialog;
     }
 
@@ -2363,13 +2146,9 @@ public class AceTree extends JPanel
 
 
     public void cellMovementImage() {
-        ImagePlus ip = iImgWin.getImagePlus();
-        String s1 = iTifPrefix + makeImageName();
-        String s = s1;
-        //String s1 = iTifPrefix + makeImageName();
-        //String s = s1 + Math.random();
-        //System.out.println("cellMovementImage: " + s);
-        iCellMovementImage = new CellMovementImage(s, ip);
+        ImagePlus ip = this.imageManager.makeImage(this.imageManager.getCurrImageTime(), this.imageManager.getCurrImagePlane());
+
+        iCellMovementImage = new CellMovementImage(ip.getFileInfo().fileName, ip);
 
     }
 
@@ -2688,10 +2467,6 @@ public class AceTree extends JPanel
         }
     }
 
-    /*
-     * TODO
-     * figure out types
-     */
     public void controlCallback(Vector v, int oldversion) {
         iImgWin.setSpecialEffect(null);
         String ctrl = (String)v.elementAt(0);
@@ -2763,7 +2538,7 @@ public class AceTree extends JPanel
 	   System.out.println("load image time: " + this.imageManager.getCurrImageTime());
 
         iCallSaveImage = true;
-        int now = iImageTime + iTimeInc;
+        int now = this.imageManager.getCurrImageTime() + iTimeInc;
         int end = 9999;
         if (iCurrentCell != null) 
         	end = iCurrentCell.getEnd();
@@ -2771,7 +2546,7 @@ public class AceTree extends JPanel
         	return true; // we will call updateDisplay next
         if (iCurrentCell.getFateInt() == Cell.DIED) {
             iCurrentCellPresent = false;
-            iImageTime += iTimeInc;
+            this.imageManager.setCurrImageTime(this.imageManager.getCurrImageTime() + iTimeInc);
             iTimeInc = 0;
             iTrackPosition = ImageWindow.NONE;
             return true;
@@ -2788,7 +2563,7 @@ public class AceTree extends JPanel
         this.imageManager.incrementImageTimeNumber(-1);
         
         iCallSaveImage = true;
-        int now = iImageTime + iTimeInc;
+        int now = this.imageManager.getCurrImageTime() + iTimeInc;
         int start = 0;
         if (iCurrentCell != null) start = iCurrentCell.getTime();
         if (now >= start)
@@ -2838,11 +2613,7 @@ public class AceTree extends JPanel
             return;
         }
 
-        /*
-         * TODO
-         * types from NucleiMgr
-         */
-        Vector nuclei = iNucleiMgr.getElementAt(iImageTime + iTimeInc - 1);
+        Vector nuclei = iNucleiMgr.getElementAt(this.imageManager.getCurrImageTime() + iTimeInc - 1);
         String currentName = parent.getName();
         StringBuffer dummy = new StringBuffer();
         Nucleus anterior = NucUtils.getCurrentCellData(nuclei, anteriorCell.getName());
@@ -2885,31 +2656,28 @@ public class AceTree extends JPanel
 
 
     private void trackingActionsOnCurrentCellChange() {
-        //System.out.println("trackingActionsOnCurrentCellChange");
         // set iImageTime and iTimeInc cleanly
         // set iImagePlane and iPlaneInc cleanly
         // assume initially that the transition was to a previous time
-        int time = iImageTime + iTimeInc;
-        iImageTime = iCurrentCell.getTime();
-        iTimeInc = time - iImageTime;
-        int plane = iImagePlane + iPlaneInc;
-        iImagePlane = iCurrentCell.getPlane();
-        iPlaneInc = plane - iImagePlane;
+        int time = this.imageManager.getCurrImageTime() + iTimeInc;
+        this.imageManager.setCurrImageTime(iCurrentCell.getTime());
+        iTimeInc = time - this.imageManager.getCurrImageTime();
+
+        int plane = this.imageManager.getCurrImagePlane() + iPlaneInc;
+        this.imageManager.setCurrImagePlane(iCurrentCell.getPlane());
+        iPlaneInc = plane - this.imageManager.getCurrImagePlane();
     }
 
     public void setCurrentCell(Cell c, int time, int source) {
     	if(iCellsByName == null)
     		return;
-    	
-        //println("AceTree.setCurrentCell: " + c + CS + time + CS + source);
+
         if (c == null) {
         	if (source == CONTROLCALLBACK) {
-        		//System.out.println("AceTree.setCurrentCell CONTROLCALLBACK.");
         		showSelectedCell(c, time);
         	}
         	return;
         }
-        //println("AceTree.setCurrentCell: " + c.getName() + CS + time + CS + source);
         if(iImgWin != null)
         	iImgWin.setSpecialEffect(null);
         //System.out.println("setCurrentCell: " + c + CS + time + CS + source);
@@ -2970,7 +2738,7 @@ public class AceTree extends JPanel
         } else if (source == CONTROLCALLBACK) {
             showSelectedCell(c, time);
         } else if (source == NEXTTIME) {
-            iImageTime = time;
+            this.imageManager.setCurrImageTime(time);
             iTimeInc = 0;
             Cell currentCellSave = iCurrentCell;
             doDaughterDisplayWork(iCurrentCell, null);
@@ -2981,12 +2749,8 @@ public class AceTree extends JPanel
             }
             showTreeCell(iCurrentCell);
         } else if (source == PREVTIME) {
-        	/*
-        	 * TODO
-        	 * NucleiMgr types
-        	 */
-        	Vector nuclei1 = iNucleiMgr.getElementAt(iImageTime + iTimeInc);
-            Vector nuclei0 = iNucleiMgr.getElementAt(iImageTime + iTimeInc - 1);
+        	Vector nuclei1 = iNucleiMgr.getElementAt(this.imageManager.getCurrImageTime() + iTimeInc);
+            Vector nuclei0 = iNucleiMgr.getElementAt(this.imageManager.getCurrImageTime() + iTimeInc - 1);
         	
         	Nucleus n = NucUtils.getParent(nuclei0, nuclei1, iCurrentCell.getName());
             Cell currentCellSave = iCurrentCell;
@@ -3023,11 +2787,14 @@ public class AceTree extends JPanel
     		return;
     	
         if (c == null) {
-            iImageTime = requestedTime;
+            this.imageManager.setCurrImageTime(requestedTime);
+            this.imageManager.setCurrImagePlane(15);
+
             iTimeInc = 0;
-            iImagePlane = 15;
             iPlaneInc = 0;
+
             iCurrentCell = iRoot;
+
             showTreeCell(iCurrentCell);
             updateDisplay();
 
@@ -3037,20 +2804,17 @@ public class AceTree extends JPanel
         String name = c.getName();
         //System.out.println("Selected name: "+name);
         Nucleus n = iNucleiMgr.getCurrentCellData(name, requestedTime);
-        //if (n == null) {
-        //    System.out.println("cell " + c + " not present at time " + requestedTime);
-        //    return;
-        //}
+
         if (n != null) {
             Cell old = iCurrentCell;
-            iImageTime = c.getTime();
-            iTimeInc = requestedTime - iImageTime;
-            iImagePlane = (int)(n.z + HALFROUND);
+            this.imageManager.setCurrImageTime(c.getTime());
+            iTimeInc = requestedTime - this.imageManager.getCurrImageTime();
+            this.imageManager.setCurrImagePlane((int)(n.z + HALFROUND));
             iPlaneInc = 0;
             iCurrentCell = c;
             //System.out.println("showSelectedCell: " + iCurrentCell + CS + c + CS + iImagePlane + CS + iPlaneInc);
             //if (iImageTime < 1 || iImagePlane < 1) return;
-            if (iImageTime < 1)
+            if (this.imageManager.getCurrImageTime() < 1)
             	return;
             iCurrentCellPresent = true;
             if (iCurrentCell.isAnterior())
@@ -3065,9 +2829,9 @@ public class AceTree extends JPanel
             updateDisplay();
         }
         else {
-            iImageTime = requestedTime;
+            this.imageManager.setCurrImageTime(requestedTime);
+            this.imageManager.setCurrImagePlane(15);
             iTimeInc = 0;
-            iImagePlane = 15;
             iPlaneInc = 0;
             iCurrentCell = c;
             showTreeCell(iCurrentCell);
@@ -3078,11 +2842,11 @@ public class AceTree extends JPanel
 
     private void incPlane(int inc) {
         if (inc > 0) {
-        	if (iImagePlane + iPlaneInc < iPlaneEnd)
+        	if (this.imageManager.getCurrImagePlane() + iPlaneInc < this.configManager.getImageConfig().getPlaneEnd())
         		iPlaneInc += inc;
         }
         else if (inc < 0) {
-        	if (iImagePlane + iPlaneInc > 1)
+        	if (this.imageManager.getCurrImagePlane() + iPlaneInc > 1)
         		iPlaneInc += inc;
         }
         	
@@ -3095,7 +2859,7 @@ public class AceTree extends JPanel
         Cell parent = (Cell)iCurrentCell.getParent();
         Cell anteriorCell = (Cell)parent.getChildAt(0);
         Cell posteriorCell = (Cell)parent.getChildAt(1);
-        int now = iImageTime + iTimeInc;
+        int now = this.imageManager.getCurrImageTime() + iTimeInc;
         Nucleus anterior = iNucleiMgr.getCurrentCellData(anteriorCell.getName(), now);
         Nucleus posterior = iNucleiMgr.getCurrentCellData(posteriorCell.getName(), now);
         if (anterior == null || posterior == null) {
@@ -3137,7 +2901,7 @@ public class AceTree extends JPanel
 
 
     public void relinkNucleus() {
-        int time = iImageTime + iTimeInc;
+        int time = this.imageManager.getCurrImageTime() + iTimeInc;
         if (iNucRelinkDialog == null) {
 	        iNucRelinkDialog = new UnifiedNucRelinkDialog(this, iMainFrame, false, iCurrentCell, time);
 			// this var is now always set to inucrelink or null
@@ -3152,7 +2916,7 @@ public class AceTree extends JPanel
     	println("killCell, ");
         //if (iTimeInc != 0 && iPlaneInc != 0) return;
         //Vector nuclei = iNucleiMgr.getNucleiRecord()[iImageTime + iTimeInc - 1];
-    	int currenttime=iImageTime + iTimeInc - 1;
+    	int currenttime = this.imageManager.getCurrImageTime() + iTimeInc - 1;
         //Vector nuclei = (Vector)iNucleiMgr.getNucleiRecord().elementAt(currenttime);
     	Vector nuclei = iNucleiMgr.getElementAt(currenttime);
     	
@@ -3186,29 +2950,12 @@ public class AceTree extends JPanel
     	new KillDeepNucsDialog(this, iMainFrame, true);
     }
 
-    public void killDeepNucs(int zLim) {
-        Vector nucRec = iNucleiMgr.getNucleiRecord();
-        for (int i=0; i < nucRec.size(); i++) {
-        	Vector nuclei = (Vector)nucRec.get(i);
-        	for (int j=0; j < nuclei.size(); j++) {
-        		Nucleus n = (Nucleus)nuclei.get(j);
-        		if (n.status == Nucleus.NILLI) continue;
-        		if (n.z < zLim) continue;
-        		println("killDeepNucs, " + i + CS + n);
-        		n.status = Nucleus.NILLI;
-        	}
-        }
-        clearTree();
-        buildTree(true);
-
-    }
-
     public void testWindow() {
     	new TestWindow(this, iMainFrame, false);
     }
 
     public void killCells() {
-        int time = iImageTime + iTimeInc;
+        int time = this.imageManager.getCurrImageTime() + iTimeInc;
         new KillCellsDialog(this, iMainFrame,true, iCurrentCell, time, iEditLog);
     }
 
@@ -3221,12 +2968,12 @@ public class AceTree extends JPanel
     }
 
     public void incrementEndTime() {
-        setEndingIndex(++iEndingIndex);
+        setEndingIndex(this.configManager.getImageConfig().getEndingIndex() + 1);
     }
 
     @SuppressWarnings("unused")
 	public void setEndingIndex(int endTime) {
-        iEndingIndex = endTime;
+        this.configManager.getImageConfig().setEndingIndex(endTime);
         iNucleiMgr.setEndingIndex(endTime);
         clearTree();
         Hashtable oldHash = iAncesTree.getCellsByName();
@@ -3320,10 +3067,6 @@ public class AceTree extends JPanel
         return iCanonicalTree;
     }
 
-    public String getTifPathWithPrefix() {
-    	return iTifPrefix+makeImageName();
-    }
-
     public void allCentroidsView() {
         String s = getImageTitle();
         new ImageAllCentroids(this, s);
@@ -3331,9 +3074,9 @@ public class AceTree extends JPanel
     }
 
 	  public String getImageTitle() {
-			String s = makeImageName();
+			String s = this.imageManager.getCurrentImage().getFileInfo().fileName;
 			if (s!=null) {
-			    if(iUseStack == 0)
+			    if(this.configManager.getImageConfig().getUseStack() == 0)
 				{
 				    int k = s.lastIndexOf("-");
 				    if (k != -1)
@@ -3341,7 +3084,7 @@ public class AceTree extends JPanel
 				}
 			}
 			//System.out.println("AceTree.java 2692: " + s);
-			String s2 = iTifPrefix;
+			String s2 = this.configManager.getImageConfig().getImagePrefixes()[0];
 			//System.out.println("AceTree.java 3243: " + iTifPrefix);
 			int j = s2.lastIndexOf(C.Fileseparator);
 			if (j > 0)
@@ -3355,10 +3098,6 @@ public class AceTree extends JPanel
     public void image2DSave(boolean saveIt) {
         iImgWin.setSaveImageState(saveIt);
         iImgWin.saveImageIfEnabled();
-    }
-
-    public void zoomView() {
-    	iImgWin.zoomView();
     }
 
 
@@ -3407,13 +3146,6 @@ public class AceTree extends JPanel
         return b;
     }
 
-    public void updateUseZip(int useZip) {
-    	iUseZip = useZip;
-    	println("updateUseZip, " + useZip);
-    	ImageWindow.cUseZip = useZip;
-    	iNucleiMgr.getConfig().iUseZip = useZip;
-    }
-
     @SuppressWarnings("unused")
 	public void exportNewick() {
         try {
@@ -3425,12 +3157,6 @@ public class AceTree extends JPanel
             new AceTreeHelp("/org/rhwlab/help/messages/ATVerror.html");
         }
     }
-/*
-    public Parameters getParameters() {
-        //System.out.println("getParameters: " + iParameters);
-        return iParameters;
-    }
-*/
     public EditLog getEditLog() {
         return iEditLog;
     }
@@ -3448,17 +3174,15 @@ public class AceTree extends JPanel
     }
 
     public int getUseStack() {
-        return iUseStack;
+        return this.configManager.getImageConfig().getUseStack();
     }
 
-    public int getiSplit() { return iSplit; }
-
     public int getImageTime() {
-        return iImageTime;
+        return this.imageManager.getCurrImageTime();
     }
 
     public int getImagePlane() {
-        return iImagePlane;
+        return this.imageManager.getCurrImagePlane();
     }
 
     public boolean getShowCentroids() {
@@ -3489,30 +3213,6 @@ public class AceTree extends JPanel
         return iMainFrame;
     }
 
-    public Object getDispProps3D() {
-        return iDispProps3D;
-    }
-
-    public Object getDispProps3D2() {
-        return iDispProps3D2;
-    }
-
-    public Object getDispProps3D2Z() {
-        return iDispProps3D2Z;
-    }
-
-    public void setDispProps3D(Object obj) {
-        iDispProps3D = obj;
-    }
-
-    public void setDispProps3D2(Object obj) {
-        iDispProps3D2 = obj;
-    }
-
-    public void setDispProps3D2Z(Object obj) {
-        iDispProps3D2Z = obj;
-    }
-
     public Cell getRoot() {
         return iRoot;
     }
@@ -3521,7 +3221,7 @@ public class AceTree extends JPanel
 	return fullGUI;
     }
     public double getiZPixRes(){
-	return iZPixRes;
+	return this.configManager.getNucleiConfig().getZPixRes();
     }
 
     public boolean isTracking() {
@@ -3553,31 +3253,9 @@ public class AceTree extends JPanel
     		iImgWin.setVisible(true);
     }
 
-    private void debugShow(int testTime) {
-        System.out.println();
-        System.out.println("setup for edit");
-        Vector nuclei = null;
-        //nuclei = (Vector)iNucleiMgr.getNucleiRecord().elementAt(testTime - 1);
-        nuclei = iNucleiMgr.getElementAt(testTime - 1);
-        
-        Enumeration e = nuclei.elements();
-        System.out.println("time: " + (testTime - 1));
-        while (e.hasMoreElements()) {
-            System.out.println(e.nextElement());
-        }
 
-        //nuclei = (Vector)iNucleiMgr.getNucleiRecord().elementAt(testTime);
-        nuclei = iNucleiMgr.getElementAt(testTime);
-        
-        e = nuclei.elements();
-        System.out.println("time: " + (testTime));
-        while (e.hasMoreElements()) {
-            System.out.println(e.nextElement());
-        }
-
-    }
-    public String getiTifPrefix(){
-    	return iTifPrefix;
+    public ImageManager getImageManager() {
+        return this.imageManager;
     }
 
 
@@ -3633,26 +3311,9 @@ public class AceTree extends JPanel
    ,DEPTHVIEWS="Depth View"
    ;
 
-
-    protected static final int
-         ZIPFILENAME = 0
-        ,TIFDIRECTORY = 1
-        ,TIFPREFIX = 2
-        ,NUCLEIDIRECTORY = 3
-        ,ROOTNAMEI = 4
-        ,STARTINGINDEX = 5
-        ,ENDINGINDEX = 6
-        ,USEZIP = 7
-        ,NAMINGMETHOD = 8
-        ;
-
     private static final float
          HALFROUND = 0.5f
         ;
-
-    public void debugTest(boolean b) {
-        iDebugTest = b;
-    }
 
     protected void createAndShowGUI() {
         JFrame.setDefaultLookAndFeelDecorated(true);
@@ -3785,7 +3446,6 @@ public class AceTree extends JPanel
         }
         else ot = getAceTree(null);
         ot.run("");
-        ot.debugTest(false);
         ot.iCmdLineRun = true;
         System.out.println("main exiting");
     }

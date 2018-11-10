@@ -95,6 +95,12 @@ public class ImageConfig {
         } else {
             System.out.println("Setting " + this.numChannels + " image prefixes for supplied images.");
         }
+
+        // set starting index if it was explicitly given or it's unreasonable
+        if (this.startingIndex < 0) {
+            setStartingIndex(ImageNameLogic.extractTimeFromImageFileName(providedImageFileName));
+        }
+
         setImagePrefixes();
     }
 

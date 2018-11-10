@@ -165,7 +165,7 @@ public class RedBkgComp extends JDialog implements ActionListener, Runnable {
      */
     @Override
 	public void run() {
-        iRedBkgComp2.test1();
+        //iRedBkgComp2.test1();
 
     }
     public void append(String s) {

@@ -315,7 +315,7 @@ public class EIDialog1 extends JDialog implements ActionListener, WindowFocusLis
                     println("recommending a rebuild:");
                 }
             }
-            iParent.refreshDisplay(null);
+            iParent.refreshDisplay();
 
 
         } else if (button == 1) {
@@ -361,28 +361,28 @@ public class EIDialog1 extends JDialog implements ActionListener, WindowFocusLis
         Nucleus n = ImageWindow.cNucleiMgr.getNucleusFromHashkey(iCurrentCell.getHashKey(), iImageTime + iTimeInc);
         if (o == iUp) {
             n.y--;
-            iParent.refreshDisplay(null);
+            iParent.refreshDisplay();
 
         }
         else if (o == iDown) {
             n.y++;
-            iParent.refreshDisplay(null);
+            iParent.refreshDisplay();
         }
         else if (o == iLeft) {
             n.x--;
-            iParent.refreshDisplay(null);
+            iParent.refreshDisplay();
         }
         else if (o == iRight) {
             n.x++;
-            iParent.refreshDisplay(null);
+            iParent.refreshDisplay();
         }
         else if (o == iBig) {
             n.size += 2;
-            iParent.refreshDisplay(null);
+            iParent.refreshDisplay();
         }
         else if (o == iSmall) {
             n.size -= 2;
-            iParent.refreshDisplay(null);
+            iParent.refreshDisplay();
         }
 
     }

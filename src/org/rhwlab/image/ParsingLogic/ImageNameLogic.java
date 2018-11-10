@@ -367,12 +367,66 @@ public class ImageNameLogic {
         return "";
     }
 
+    /**
+     * There is a convention of using old XML files for datasets that have since replaced their 8bit images with 16bit images.
+     * This structure has the 16bit images sitting two directories above the 8bit images that used to be present. Specifically,
+     * these two directories are image/tif/
+     *
+     *
+     * @param filename
+     * @return
+     */
+    public static boolean doesImageFollow8bitDeletedConvention(String filename) {
+        if (filename == null || filename.isEmpty()) return false;
+
+        return filename.contains("/image/tif/");
+    }
+
+    /**
+     * Determines if the image is a slice image by checking whether it has a plane identifier in the filename
+     *
+     * @param filename
+     * @return
+     */
     public static boolean isSliceImage(String filename) {
         if (filename == null || filename.isEmpty()) return false;
 
         if (filename.toLowerCase().contains(("-p"))) return true;
 
         return false;
+    }
+
+    /**
+     *
+     * @param filename
+     * @return
+     */
+    public static int extractTimeFromImageFileName(String filename) {
+       if (filename == null || filename.isEmpty()) return -1;
+
+       if (filename.contains(tID_8bitConvention) && filename.contains(planeStr)) {
+           // extract the number, assuming the format -t###-p
+           String numberSequenceStr = filename.substring(filename.indexOf(tID_8bitConvention) + tID_8bitConvention.length(), filename.indexOf(planeStr));
+
+           if (numberSequenceStr.length() < 3) return -1;
+
+           // remove any zero padding
+           if (Character.getNumericValue(numberSequenceStr.charAt(0)) == 0) {
+               if (Character.getNumericValue(numberSequenceStr.charAt(1)) == 0) {
+                   return Integer.parseInt(numberSequenceStr.substring(2));
+               } else {
+                return Integer.parseInt(numberSequenceStr.substring(1));
+               }
+           } else {
+               return Integer.parseInt(numberSequenceStr);
+           }
+       } else if (filename.contains(tID_16bitConvention) && filename.contains(TIF_ext)) {
+            // extract the number, assuming the format _t###.TIF
+           return Integer.parseInt(filename.substring(filename.indexOf(tID_16bitConvention) + tID_16bitConvention.length(), filename.indexOf(TIF_ext)));
+
+       }
+
+       return -1;
     }
 
     /**
@@ -384,13 +438,12 @@ public class ImageNameLogic {
     public static String getImagePrefix(String imageName) {
         if (imageName == null || imageName.isEmpty()) { return ""; }
 
-        if (ImageManager.getImageBitDepth(imageName) == ImageManager._8BIT_ID) {
+        if (isSliceImage(imageName)) {
+            // assume the 8bit naming convention, even though the image could in fact be 16bit
             return imageName.substring(0, imageName.indexOf(tID_8bitConvention) + tID_8bitConvention.length());
-        } else if (ImageManager.getImageBitDepth(imageName) == ImageManager._16BIT_ID) {
+        } else {
             return imageName.substring(0, imageName.indexOf(tID_16bitConvention) + tID_16bitConvention.length());
         }
-
-        return "";
     }
 
     // mutator methods used by ImageManager to bring up different images in the time series

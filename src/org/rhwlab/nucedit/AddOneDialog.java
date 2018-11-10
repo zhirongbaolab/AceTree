@@ -177,11 +177,11 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
         if (o == iRelink) {
             iAceTree.relinkNucleus();
             //iAdjust.setSelected(true);
-            iParent.refreshDisplay(null);
+            iParent.refreshDisplay();
         } else if (o == iKillCells) {
                 iAceTree.killCells();
 		//    iAdjust.setSelected(true);
-                iParent.refreshDisplay(null);
+                iParent.refreshDisplay();
 		//        } 
 // 	else if( o== iAddSeries){
 // 	    //added -as
@@ -309,7 +309,7 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
             	checkTimesAndPropogateValue("D");
             	
             }
-            iParent.refreshDisplay(null);
+            iParent.refreshDisplay();
         }
 
     }
@@ -436,7 +436,7 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
         iName.setText(n.identity);
 
 
-        iParent.refreshDisplay(null);
+        iParent.refreshDisplay();
         //System.out.println("addCell: " + iCurrentCell);
         //iAceTree.clearTree();
         //iAceTree.buildTree(true);

@@ -105,38 +105,38 @@ public class RedBkgComp2 extends Log {
 
 
     Vector iKeys;
-    public void test1() {
-        iRedBkgComp.append("beginning..");
-        long startTime = System.currentTimeMillis();
-        for (int time = iStartTime; time <= iEndTime; time++) {
-            Vector hashPlanes = new Vector();
-            for (int plane = 1; plane <= iNucleiMgr.getPlaneEnd(); plane++) {
-                Hashtable h = createHashForPlane(time, plane);
-                // hashtable h has one entry for each cell which has a large diameter
-                // intersection with this plane
-                // the entry is a Centroid object
-                // the plane member has the value of this plane
-                hashPlanes.add(h);
-            }
-            processHashPlanes(time, hashPlanes);
-            if (iFeedbackRequested) {
-                Collections.sort(iFeedbackVector);
-                for (int i=0; i < iFeedbackVector.size(); i++) {
-                    iRedBkgComp.append((String)iFeedbackVector.get(i));
-                }
-            }
-            if (iStopRequested) {
-                iStopRequested = false;
-                iRedBkgComp.append("at time=" + time + ", stopped at user request");
-                break;
-            }
-        }
-        long endTime = System.currentTimeMillis();
-
-        String s = "run elapsed millisec, " + (endTime - startTime);
-        iRedBkgComp.append(s);
-
-    }
+//    public void test1() {
+//        iRedBkgComp.append("beginning..");
+//        long startTime = System.currentTimeMillis();
+//        for (int time = iStartTime; time <= iEndTime; time++) {
+//            Vector hashPlanes = new Vector();
+//            for (int plane = 1; plane <= iNucleiMgr.getPlaneEnd(); plane++) {
+//                Hashtable h = createHashForPlane(time, plane);
+//                // hashtable h has one entry for each cell which has a large diameter
+//                // intersection with this plane
+//                // the entry is a Centroid object
+//                // the plane member has the value of this plane
+//                hashPlanes.add(h);
+//            }
+//            processHashPlanes(time, hashPlanes);
+//            if (iFeedbackRequested) {
+//                Collections.sort(iFeedbackVector);
+//                for (int i=0; i < iFeedbackVector.size(); i++) {
+//                    iRedBkgComp.append((String)iFeedbackVector.get(i));
+//                }
+//            }
+//            if (iStopRequested) {
+//                iStopRequested = false;
+//                iRedBkgComp.append("at time=" + time + ", stopped at user request");
+//                break;
+//            }
+//        }
+//        long endTime = System.currentTimeMillis();
+//
+//        String s = "run elapsed millisec, " + (endTime - startTime);
+//        iRedBkgComp.append(s);
+//
+//    }
 
     @SuppressWarnings("unused")
 	public void processHashPlanes(int time, Vector hashPlanes) {
@@ -186,45 +186,45 @@ public class RedBkgComp2 extends Log {
         */
     }
 
-    @SuppressWarnings("unused")
-	public Hashtable createHashForPlane(int time, int plane) {
-        Vector nuclei = (Vector)nuclei_record.elementAt(time - 1);
-        Vector circles = new Vector();
-        iKeys = new Vector();
-        Nucleus n = null;
-        Enumeration e = nuclei.elements();
-        Hashtable h = new Hashtable(); // vector to hold all centroids for this cell
-        for (int j=0; j < nuclei.size(); j++) {
-            n = (Nucleus)nuclei.elementAt(j);
-            if (n.status == Nucleus.NILLI) continue;
-
-            // hear take steps to guarantee that all cells having a
-            // large circle have a representative in the centroid hashtable
-            double dl = nucDiameter(n, plane, n.size * iKLarge);
-            if (dl > 0) {
-                //append(String.valueOf(plane) + C.CS + String.valueOf(d));
-                Centroid c = new Centroid();
-                c.index = j + 1;
-                c.time = time;
-                c.plane = plane;
-                c.x = n.x;
-                c.y = n.y;
-                c.d = nucDiameter(n, plane, n.size);
-                c.dl = dl;
-                c.dm = nucDiameter(n, plane, n.size * iKMedium);
-                c.name = n.identity;
-                c.weight = n.weight;
-                c.n = n;
-                h.put(n.identity, c);
-                iKeys.add(n.identity);
-                //println("test1, " + c);
-            }
-        }
-        process(h, time, plane);
-        Collections.sort(iKeys);
-        return h;
-
-    }
+//    @SuppressWarnings("unused")
+//	public Hashtable createHashForPlane(int time, int plane) {
+//        Vector nuclei = (Vector)nuclei_record.elementAt(time - 1);
+//        Vector circles = new Vector();
+//        iKeys = new Vector();
+//        Nucleus n = null;
+//        Enumeration e = nuclei.elements();
+//        Hashtable h = new Hashtable(); // vector to hold all centroids for this cell
+//        for (int j=0; j < nuclei.size(); j++) {
+//            n = (Nucleus)nuclei.elementAt(j);
+//            if (n.status == Nucleus.NILLI) continue;
+//
+//            // hear take steps to guarantee that all cells having a
+//            // large circle have a representative in the centroid hashtable
+//            double dl = nucDiameter(n, plane, n.size * iKLarge);
+//            if (dl > 0) {
+//                //append(String.valueOf(plane) + C.CS + String.valueOf(d));
+//                Centroid c = new Centroid();
+//                c.index = j + 1;
+//                c.time = time;
+//                c.plane = plane;
+//                c.x = n.x;
+//                c.y = n.y;
+//                c.d = nucDiameter(n, plane, n.size);
+//                c.dl = dl;
+//                c.dm = nucDiameter(n, plane, n.size * iKMedium);
+//                c.name = n.identity;
+//                c.weight = n.weight;
+//                c.n = n;
+//                h.put(n.identity, c);
+//                iKeys.add(n.identity);
+//                //println("test1, " + c);
+//            }
+//        }
+//        process(h, time, plane);
+//        Collections.sort(iKeys);
+//        return h;
+//
+//    }
 
     /*
      * this function processes the image associated with the plane
@@ -246,55 +246,55 @@ public class RedBkgComp2 extends Log {
      * and "area" of the two regions:
      * nucleus and annulus
      */
-    @SuppressWarnings("unused")
-	public void process(Hashtable h, int time, int plane) {
-        //int time = 200;
-        //int plane = 10;
-        String imageFile = ImageWindow.cZipTifFilePath;
-        imageFile += "/" + ImageWindow.cTifPrefixR;
-        imageFile += iAceTree.makeImageName(time, plane);
-        ImageProcessor ipData = getRedData(imageFile);
-
-        if (ipData == null) return;
-        // implies we are beyond the last plane
-        // even tho the NucleiMgr does not know that
-
-        ImagePlus iplus = new ImagePlus(iTitle, ipData);
-        //iImgCanvas = new ImageCanvas(iplus);
-        //ij.gui.ImageWindow iwin = new ij.gui.ImageWindow(iplus);
-        ImageProcessor ipCopy = getRedData(imageFile);
-        ImagePlus iplus2 = new ImagePlus(iTitle, ipCopy);
-        //iImgCanvas = new ImageCanvas(iplus);
-        //ij.gui.ImageWindow iwin2 = new ij.gui.ImageWindow(iplus2);
-
-        ByteProcessor ipTemplate = new ByteProcessor(ipData.getWidth(), ipData.getHeight());
-        ipTemplate.setValue(255);
-        ipTemplate.fill();
-        ImagePlus iplus3 = new ImagePlus(iTitle, ipTemplate);
-        //ij.gui.ImageWindow iwin3 = new ij.gui.ImageWindow(iplus3);
-
-        // now zero out inlarged nucleus in copy and template
-        Enumeration e = h.keys();
-        while (e.hasMoreElements()) {
-            String key = (String)e.nextElement();
-            Centroid c = (Centroid)h.get(key);
-            int r = (int)Math.round(c.dm / 2);
-            Polygon middle = EUtils.pCircle(c.x, c.y, r);
-            c.middle = middle;
-            ipCopy.setValue(0);
-            ipCopy.fillPolygon(middle);
-            ipTemplate.setValue(0);
-            ipTemplate.fillPolygon(middle);
-        }
-
-        // now obtain totals for nuclear red and "annulus" red
-        for (int i=0; i < iKeys.size(); i++) {
-            String key = (String)iKeys.get(i);
-            Centroid c = (Centroid)h.get(key);
-            getInfo(ipData, ipCopy, ipTemplate, c);
-        }
-
-    }
+    //@SuppressWarnings("unused")
+//	public void process(Hashtable h, int time, int plane) {
+//        //int time = 200;
+//        //int plane = 10;
+//        String imageFile = ImageWindow.cZipTifFilePath;
+//        imageFile += "/" + ImageWindow.cTifPrefixR;
+//        //imageFile += iAceTree.makeImageName(time, plane);
+//        ImageProcessor ipData = getRedData(imageFile);
+//
+//        if (ipData == null) return;
+//        // implies we are beyond the last plane
+//        // even tho the NucleiMgr does not know that
+//
+//        ImagePlus iplus = new ImagePlus(iTitle, ipData);
+//        //iImgCanvas = new ImageCanvas(iplus);
+//        //ij.gui.ImageWindow iwin = new ij.gui.ImageWindow(iplus);
+//        ImageProcessor ipCopy = getRedData(imageFile);
+//        ImagePlus iplus2 = new ImagePlus(iTitle, ipCopy);
+//        //iImgCanvas = new ImageCanvas(iplus);
+//        //ij.gui.ImageWindow iwin2 = new ij.gui.ImageWindow(iplus2);
+//
+//        ByteProcessor ipTemplate = new ByteProcessor(ipData.getWidth(), ipData.getHeight());
+//        ipTemplate.setValue(255);
+//        ipTemplate.fill();
+//        ImagePlus iplus3 = new ImagePlus(iTitle, ipTemplate);
+//        //ij.gui.ImageWindow iwin3 = new ij.gui.ImageWindow(iplus3);
+//
+//        // now zero out inlarged nucleus in copy and template
+//        Enumeration e = h.keys();
+//        while (e.hasMoreElements()) {
+//            String key = (String)e.nextElement();
+//            Centroid c = (Centroid)h.get(key);
+//            int r = (int)Math.round(c.dm / 2);
+//            Polygon middle = EUtils.pCircle(c.x, c.y, r);
+//            c.middle = middle;
+//            ipCopy.setValue(0);
+//            ipCopy.fillPolygon(middle);
+//            ipTemplate.setValue(0);
+//            ipTemplate.fillPolygon(middle);
+//        }
+//
+//        // now obtain totals for nuclear red and "annulus" red
+//        for (int i=0; i < iKeys.size(); i++) {
+//            String key = (String)iKeys.get(i);
+//            Centroid c = (Centroid)h.get(key);
+//            getInfo(ipData, ipCopy, ipTemplate, c);
+//        }
+//
+//    }
 
     /*
      * this function takes a Centroid representing one cell
@@ -414,26 +414,26 @@ public class RedBkgComp2 extends Log {
         ip.fill();
     }
 
-    private ImageProcessor getRedData(String greenName) {
-        //if (ImageWindow.cUseZip == 2) return getRedZipData(greenName);
-        println("getRedData, " + greenName);
-        FileInputStream fis;
-        ImagePlus ip = null;
-        try {
-            fis = new FileInputStream(greenName);
-            byte [] ba = ImageWindow.readByteArray(fis);
-            ip = ImageWindow.openTiff(new ByteArrayInputStream(ba), false);
-            fis.close();
-	     if(ImageWindow.imagewindowUseStack==1) {
-		int markerChannel=1;
-		ip=ImageWindow.splitImage(ip,markerChannel);
-	    }
-        } catch(IOException ioe) {
-            //System.out.println(ioe);
-        }
-        if (ip != null) return ip.getProcessor();
-        else return null;
-    }
+//    private ImageProcessor getRedData(String greenName) {
+//        //if (ImageWindow.cUseZip == 2) return getRedZipData(greenName);
+//        println("getRedData, " + greenName);
+//        FileInputStream fis;
+//        ImagePlus ip = null;
+//        try {
+//            fis = new FileInputStream(greenName);
+//            byte [] ba = ImageWindow.readByteArray(fis);
+//            ip = ImageWindow.openTiff(new ByteArrayInputStream(ba), false);
+//            fis.close();
+//	     if(ImageWindow.imagewindowUseStack==1) {
+//		int markerChannel=1;
+//		ip=ImageWindow.splitImage(ip,markerChannel);
+//	    }
+//        } catch(IOException ioe) {
+//            //System.out.println(ioe);
+//        }
+//        if (ip != null) return ip.getProcessor();
+//        else return null;
+//    }
 
     public void test2() {
         println("test2, ");
@@ -453,7 +453,7 @@ public class RedBkgComp2 extends Log {
 	public void actionPerformed(ActionEvent e) {
         String s = e.getActionCommand();
         if (s.equals(TEST1)) {
-            test1();
+            //test1();
         } else if (s.equals(TEST2)) {
             test2();
         } else if (s.equals(CLEAR)) {

@@ -694,15 +694,18 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
         } else if (iSaveConfig == o) {
             Config config = iAceTree.getNucleiMgr().getConfig();
             config.saveConfigXMLFile();
-	} else if(iJLaunch ==o){
+	} else if(iJLaunch == o) {
 	    //launch imagej
 	    ImageJ ijin = new ImageJ();// ij.Main.launch();
+
 	    //if image window exists open the current slice
-	    if  (iAceTree.getImageWindow()!=null){ 
-		System.out.println("loading image "+iAceTree.getImageWindow().getCurrentImageName());
-		ImagePlus imp=ij.IJ.openImage(iAceTree.getImageWindow().getCurrentImageName());
-		imp.show();
+	    if  (iAceTree.getImageWindow() != null){
+		    System.out.println("ImageJ loading image: " + iAceTree.getImageManager().getCurrentImageName());
+		    ImagePlus imp=ij.IJ.openImage(iAceTree.getImageManager().getCurrentImageName());
+		    imp.show();
 	    }
+
+
         } else if (iExit == o) {
             iAceTree.exit();
 
@@ -751,20 +754,16 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
             iAceTree.editTraverse();
         } else if (iAdjacencies == o) {
         	iAceTree.showDeathsAdjacencies();
-            //new DeathsAdjacencies("Deaths and Adjacencies Dialog");
         } else if (iLazarus == o) {
         	iAceTree.showLazarus();
             //new Lazarus();
         } else if (iSiamese == o) {
         	iAceTree.showSiamese();
-            //new Siamese("Siamese");
         } else if (iJuvenesence == o) {
         	iAceTree.showJuvenesence();
-            //new Juvenesence();
         } else if (iZafer1 == o) {
             iAceTree.showZafer1();
         } else if (iOrientation == o) {
-            //new Orientation();
             iAceTree.showOrientation();
         } else if (iOverlaps == o) {
             new Overlaps();
@@ -776,8 +775,6 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
             new SkipFalseNegatives();
         } else if (iKillCells == o) {
             iAceTree.killCells();
-	    // } else if (iKillDeepNucs == o) {
-	    //  iAceTree.killDeepNucs();
         } else if (iSetEndTime == o) {
             iAceTree.setEndTime();
         } else if (iIncrementEndTime == o) {
@@ -800,9 +797,7 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
         	WormGUIDESWindow view = new WormGUIDESWindow(iAceTree.getNucleiMgr());
         	view.initializeWormGUIDES();
         } else if (i3D2Z == o) {
-            
-	    //}else if (iAnnotationProperties ==o){
-	    //iAceTree.getImageWindow().launchImageParamsDialog();
+
         } else if (iViewEllipse == o) {
             new EllipseViewer();
         } else if (iDepthViews == o) {
@@ -811,10 +806,6 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
             iAceTree.allCentroidsView();
         } else if (iCellMovementImage == o) {
             iAceTree.cellMovementImage();
-            //int time = iAceTree.getImageTime();
-            //int timeinc = iAceTree.getTimeInc();
-            //int plane = iAceTree.getImagePlane();
-            //new CellMovementImage(time + timeinc, plane);
         } else if (iDebugLog == o) {
             iDLog.showMe();
         } else if (iAbout == o) {
@@ -836,9 +827,6 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
         } else if (iTestWindow == o) {
         	iAceTree.testWindow();
         }
-
-        //System.out.println("AceMenuBar.actionPerformed exiting");
-
     }
 
     @Override

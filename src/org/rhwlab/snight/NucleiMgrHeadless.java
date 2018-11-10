@@ -267,26 +267,16 @@ public class NucleiMgrHeadless extends NucleiMgr {
         String zipTifFilePath = ImageWindow.cZipTifFilePath;
         String tifPrefix = ImageWindow.cTifPrefix;
         String tifPrefixR = ImageWindow.cTifPrefixR;
-        int useZip = ImageWindow.cUseZip;
-        int width = ImageWindow.cImageHeight;
-        int height = ImageWindow.cImageWidth;
         // now feed it my parameters
-        sendStaticParametersToImageWindow();
         // make up a sample image name
         int plane = iMovie.plane_start;
         int time = iStartingIndex;
         String imageName = makeImageName(time, plane);
         // now "make" the image
-        ImageWindow.makeImage(getConfig().iTifPrefix + imageName);
-        iImageWidth = ImageWindow.cImageWidth;
-        iImageHeight = ImageWindow.cImageHeight;
         // now restore ImageWindow
         ImageWindow.cZipTifFilePath = zipTifFilePath;
         ImageWindow.cTifPrefix = tifPrefix;
         ImageWindow.cTifPrefixR = tifPrefixR;
-        ImageWindow.cUseZip = useZip;
-        ImageWindow.cImageWidth = width;
-        ImageWindow.cImageHeight = height;
     }
 
     private String makeImageName(int time, int plane) {
@@ -439,22 +429,6 @@ public class NucleiMgrHeadless extends NucleiMgr {
 
 
     }
-
-
-
-    @Override
-	public void sendStaticParametersToImageWindow() {
-        ImageWindow.setStaticParameters(
-                iConfig.iZipTifFilePath
-                ,iConfig.iTifPrefix
-                ,iConfig.iUseZip
-                ,iConfig.iSplitChannelImage
-                ,iConfig.iSplit);
-    }
-
-    //public Identity getIdentity() {
-    //    return iIdentity;
-    //}
 
     @Override
 	public Identity3 getIdentity() {
@@ -701,25 +675,15 @@ public class NucleiMgrHeadless extends NucleiMgr {
         return orientation;
     }
 
-    @Override
-	public String getConfigFileName() {
-        return iConfig.iConfigFileName;
-    }
-
 
     private void getScopeParameters() {
-        //iMovie = iParameters.getMovie();
-        //iPlaneEnd = iMovie.plane_end;
-        //iZPixRes = iMovie.z_res/iMovie.xy_res*iParameters.z_res_fudge;
-        ////NucUtils.setZPixRes(iZPixRes);
-        //if (iEndingIndex > iMovie.time_end) iEndingIndex = iMovie.time_end;
+
 
 
         if (!iFakeNuclei) {
             iMovie = iParameters.getMovie();
             iPlaneEnd = iMovie.plane_end;
             iZPixRes = iMovie.z_res/iMovie.xy_res*iParameters.z_res_fudge;
-            //println("getScopeParameters: iZPixRes: " + iZPixRes);
         } else {
                 iPlaneEnd = iConfig.iPlaneEnd;
                 iPlaneStart = iConfig.iPlaneStart;
@@ -727,11 +691,6 @@ public class NucleiMgrHeadless extends NucleiMgr {
 
         }
         NucUtils.setZPixRes(iZPixRes);
-        //System.out.println("getScopeParameters: iEndingIndex=" + iEndingIndex);
-        //System.out.println("getScopeParameters: xy_res=" + iMovie.xy_res);
-        //System.out.println("getScopeParameters: z_res=" + iMovie.z_res);
-        //System.out.println("getScopeParameters: z_res_fudge=" + iParameters.z_res_fudge);
-        //System.out.println("getScopeParameters: iZPixRes=" + iZPixRes);
     }
 
     @Override
@@ -798,22 +757,7 @@ public class NucleiMgrHeadless extends NucleiMgr {
         Parameters p = new Parameters();
         //Movie iMovie = p.getMovie();
         createDummies(p);
-        /*
-        System.out.println("fakeParameters: " + tifPath + CS + tifPrefix);
-        String s = iAceTree.makeImageName(1,15);
-        System.out.println("fakeParameters2: " + s);
-        String name = tifPath + File.separator + tifPrefix + s;
-        File f = new File(name);
-        System.out.println("fakeParameters3: " + f);
-        System.out.println("
 
-        public String makeImageName(int time, int plane)
-    {
-        return imageNameHandler(time, plane);
-    }
-
-    4: " + f.exists());
-        */
         String start = tifPath + C.Fileseparator + tifPrefix;
         int i;
         for (i=0; i <= 50; i++) {

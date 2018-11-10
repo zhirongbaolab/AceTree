@@ -199,11 +199,6 @@ public class NucleiMgr {
         setParameterEntry(s);
 
         iLastNucleiFile = 0;
-
-        /*
-            ASK ABOUT THIS - direct opening of images was removed from supported use cases in 2013
-         */
-
         // see if this is an image viewing run only
         int m = zipPath.lastIndexOf("NULL");
         //int m = zipPath.lastIndexOf("null");
@@ -227,7 +222,6 @@ public class NucleiMgr {
 
                 // IMAGE PROCESSING
                 getScopeParameters();
-                findImageParameters();
                 iGoodNucleiMgr = true;
             }
         }
@@ -291,7 +285,6 @@ public class NucleiMgr {
                 double timeDiff = (timeEnd-timeStart)/1e6;
                 System.out.println("Time to read nuclei in constructor(Config c): "+timeDiff+" ms.");
                 getScopeParameters();
-                findImageParameters();
                 iGoodNucleiMgr = true;
             }
         }
@@ -366,69 +359,6 @@ public class NucleiMgr {
         }
 
         return 0;
-    }
-
-    // TODO move this to ImageManager
-    private void findImageParameters() {
-        // save off existing ImageWindow parameters
-        String zipTifFilePath = ImageWindow.cZipTifFilePath;
-        String tifPrefix = ImageWindow.cTifPrefix;
-        String tifPrefixR = ImageWindow.cTifPrefixR;
-        int useZip = ImageWindow.cUseZip;
-        int width = ImageWindow.cImageHeight;
-        int height = ImageWindow.cImageWidth;
-        // ***************************************
-
-        // now feed it my parameters
-        sendStaticParametersToImageWindow();
-
-        // make up a sample image name
-        int plane = iMovie.plane_start;
-        int time = iStartTime;
-        String imageName = makeImageName(time, plane);
-        // now "make" the image
-        System.out.println("\nNucleiMgr calling ImageWindow.makeImage on image: " + getConfig().iTifPrefix + imageName);
-        ImageWindow.makeImage(getConfig().iTifPrefix + imageName);
-        iImageWidth = ImageWindow.cImageWidth;
-        iImageHeight = ImageWindow.cImageHeight;
-        // ********************************
-
-
-        // now restore ImageWindow
-        ImageWindow.cZipTifFilePath = zipTifFilePath;
-        ImageWindow.cTifPrefix = tifPrefix;
-        ImageWindow.cTifPrefixR = tifPrefixR;
-        ImageWindow.cUseZip = useZip;
-        ImageWindow.cImageWidth = width;
-        ImageWindow.cImageHeight = height;
-        ImageWindow.imagewindowUseStack = iUseStack;
-        ImageWindow.iSplit = iSplit;
-    }
-
-    // TODO move this to ImageNameLogic
-    private String makeImageName(int time, int plane) {
-        // typical name: t001-p15.tif
-        // to be augmented later to something like: images/050405-t001-p15.tif
-        // which specifies a path and prefix for the set
-        StringBuffer name = new StringBuffer("t");
-        name.append(EUtils.makePaddedInt(time));
-        name.append("-p");
-        String p = EUtils.makePaddedInt(plane, 2);
-        name.append(p);
-
-        switch(getConfig().iUseZip) {
-            case 0:
-            case 1:
-            case 3:
-                name.append(".tif");
-                break;
-            default:
-                name.append(".zip");
-        }
-
-        newLine();
-        System.out.println("NucleiMgr made Image Name: "+ name.toString());
-        return(name.toString());
     }
 
 
@@ -638,15 +568,6 @@ public class NucleiMgr {
                 nuclei_record.setElementAt(new Vector<Nucleus>(), j);
         }
         return nuclei_record.elementAt(i);
-    }
-
-    public void sendStaticParametersToImageWindow() {
-        ImageWindow.setStaticParameters(
-                iConfig.iZipTifFilePath
-                ,iConfig.iTifPrefix
-                ,iConfig.iUseZip
-                ,iConfig.iSplitChannelImage
-                ,iConfig.iSplit);
     }
 
     //public Identity getIdentity() {
@@ -896,10 +817,6 @@ public class NucleiMgr {
         return orientation;
     }
 
-    public String getConfigFileName() {
-        return iConfig.iConfigFileName;
-    }
-
 
     private void getScopeParameters() {
 
@@ -908,11 +825,6 @@ public class NucleiMgr {
             iPlaneEnd = iMovie.plane_end;
             iZPixRes = iMovie.z_res/iMovie.xy_res*iParameters.z_res_fudge;
             //println("getScopeParameters: iZPixRes: " + iZPixRes);
-        } else if (nucConfig == null) {
-            iPlaneEnd = iConfig.iPlaneEnd;
-            iPlaneStart = iConfig.iPlaneStart;
-            iZPixRes = iConfig.iZ_res/iConfig.iXy_res;
-
         }
         NucUtils.setZPixRes(iZPixRes);
     }

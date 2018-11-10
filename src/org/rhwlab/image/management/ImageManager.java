@@ -37,6 +37,7 @@ public class ImageManager {
 
     // runtime variables that are used to manage the image series data as it's viewed by the user (time, plane number, image height, etc.)
     private ImagePlus currentImage;
+    private String currentImageName;
     private int currentImageTime;
     private int currentImagePlane;
     private int imageHeight;
@@ -59,12 +60,14 @@ public class ImageManager {
 
 
         // avoid errors by setting some default values
+        this.currentImageName = "";
         this.currentImageTime = 1;
         this.currentImagePlane = 15; // usually about the middle of the stack
         this.setOriginalContrastValues = true;
     }
 
     // methods to set runtime parameters
+
     public void setCurrImageTime(int time) {
         this.currentImageTime = time;
     }
@@ -77,6 +80,9 @@ public class ImageManager {
 
     public void setCurrImage(ImagePlus currImg) { this.currentImage = currImg; }
     public ImagePlus getCurrentImage() { return this.currentImage; }
+
+    public void setCurrImageName(String currImgName) { this.currentImageName = currImgName; }
+    public String getCurrentImageName() { return this.currentImageName; }
 
     // methods for runtime updates
     public void incrementImageTimeNumber(int timeIncrement) {
@@ -116,8 +122,9 @@ public class ImageManager {
                 System.out.println("The image listed in the config file does not exist on the system. Checking if it's an 8bit image that no longer exists");
 
                 // it doesn't exist. It's likely an 8bit image file name that no longer exists, so let's do a check on the
-                // file type first (not completely reliable check) and if it's 8bit, we'll try and find a 16bit image
-                if (getImageBitDepth(imageFile) == _8BIT_ID) {
+                // file type first (not completely reliable check) and if it's 8bit, we'll try and find a 16bit image. We can't
+                // use the normal getImageBitDepth method because it assumes a real file, and we know this one does not exist
+                if (ImageNameLogic.doesImageFollow8bitDeletedConvention(imageFile)) {
                     System.out.println("The image has an 8bit file naming convention -> try and find it's 16bit corollary");
                     String newFileNameAttempt = ImageNameLogic.reconfigureImagePathFrom8bitTo16bit(imageFile);
                     if (!newFileNameAttempt.equals(imageFile)) {
@@ -130,7 +137,10 @@ public class ImageManager {
                             // because the image series is now known to be 16bit stacks, set the use stack flag to 1
                             this.imageConfig.setUseStack(1);
 
-                            return makeImageFromSingle16BitTIF(newFileNameAttempt);
+                            this.currentImageName = newFileNameAttempt;
+                            ImagePlus ip = makeImageFromSingle16BitTIF(newFileNameAttempt);
+                            this.currentImage = ip;
+                            return ip;
                         } else {
                             System.out.println("16bit image file name generated from 8bit image file name does not exist on the system. Can't bring up image series.");
                             return null;
@@ -145,7 +155,11 @@ public class ImageManager {
                 if (getImageBitDepth(imageFile) == _8BIT_ID) {
                     // load this image as the first in the image series
                     this.imageConfig.setUseStack(0); // in case it isn't correctly set
-                    return makeImageFrom8Bittif(imageFile);
+
+                    this.currentImageName = imageFile;
+                    ImagePlus ip = makeImageFrom8Bittif(imageFile);
+                    this.currentImage = ip;
+                    return ip;
 
                 } else if (getImageBitDepth(imageFile) == _16BIT_ID){
                     // we now want to check whether this image file follows the iSIM or diSPIM data hierarchy conventions. If so,
@@ -163,8 +177,10 @@ public class ImageManager {
                         // because we have the full paths in this instance, we'll call the makeImage method directly with the names. During runtime,
                         // as the user changes images, this will need to first be piped through a method to query the prefixes from ImageConfig and
                         // append the desired time
-                        return makeImageFromMultiple16BitTIFs(new String[]{imageFile, secondColorChannelFromiSIM});
-
+                        this.currentImageName = imageFile;
+                        ImagePlus ip = makeImageFromMultiple16BitTIFs(new String[]{imageFile, secondColorChannelFromiSIM});
+                        this.currentImage = ip;
+                        return ip;
                     }
 
                     // check if a second color channel can be found is we assume the diSPIM data output hierarchy and format
@@ -177,19 +193,30 @@ public class ImageManager {
                         this.imageConfig.addColorChannelImageToConfig(secondColorChannelFromdiSPIM);
 
                         // call the makeImage method directory with the image names
-                        return makeImageFromMultiple16BitTIFs(new String[]{imageFile, secondColorChannelFromdiSPIM});
+                        this.currentImageName = imageFile;
+                        ImagePlus ip = makeImageFromMultiple16BitTIFs(new String[]{imageFile, secondColorChannelFromdiSPIM});
+                        this.currentImage = ip;
+                        return ip;
                     }
 
                     // check if this is a rare case of a 16bit slice that needs to be opened as if it was an 8bit image but with higher bit depth
                     if (ImageNameLogic.isSliceImage(imageFile)) {
                         this.imageConfig.setUseStack(0);
-                        return makeImageFrom16bitSliceTIF(imageFile);
+
+                        this.currentImageName = imageFile;
+                        ImagePlus ip = makeImageFrom16bitSliceTIF(imageFile);
+                        this.currentImage = ip;
+                        return ip;
                     }
 
                     // if none of the above options produced a second image file containing the second color channel or determined that we have a 16bit slide
                     // we'll assume that the supplied image is a stack that contains all color channels in it
                     this.imageConfig.setUseStack(1);
-                    return makeImageFromSingle16BitTIF(imageFile);
+
+                    this.currentImageName = imageFile;
+                    ImagePlus ip = makeImageFromSingle16BitTIF(imageFile);
+                    this.currentImage = ip;
+                    return ip;
                 }
             }
         } else {
@@ -201,7 +228,11 @@ public class ImageManager {
 
             // multiple images were provided in the config file. we need to query them slightly differently and then check if they exist
             String[] images = imageConfig.getImageChannels();
-            return makeImageFromMultiple16BitTIFs(images);
+
+            this.currentImageName = images[0];
+            ImagePlus ip = makeImageFromMultiple16BitTIFs(images);
+            this.currentImage = ip;
+            return ip;
         }
 
         System.out.println("ImageManager.bringUpImageSeries reached code end. Returning null.");
@@ -287,6 +318,14 @@ public class ImageManager {
         this.imageHeight = TIFs_16bit[0].getHeight();
 
         return ImageConversionManager.convertMultiple16BitTIFsToRGB(TIFs_16bit, this.imageConfig);
+    }
+
+    /**
+     * Assumes that the desired time and plane are already set
+     * @return
+     */
+    public ImagePlus makeImage() {
+        return makeImage(this.currentImageTime, this.currentImagePlane);
     }
 
     /**
