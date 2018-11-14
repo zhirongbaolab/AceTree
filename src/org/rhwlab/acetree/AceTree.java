@@ -287,7 +287,10 @@ public class AceTree extends JPanel
         iEditLog = new EditLog("EditLog");
         iDLog = new Log("Debug Log");
 
+
         setKeyboardActions();
+        System.out.println("keyboard actions set");
+
         displayTree();
         try {
 	        iTrackPosition = ImageWindow.ANTERIOR;
@@ -1052,6 +1055,7 @@ public class AceTree extends JPanel
         }
        
         add(iSeriesLabel);
+
         //TREE
         JPanel treev = new JPanel();
         treev.setLayout(new BorderLayout());
@@ -1072,6 +1076,7 @@ public class AceTree extends JPanel
         textView.setPreferredSize(new Dimension(WIDTH,HEIGHT100));
         textv.add(textView);
         add(textv);
+
         // CELL TIME CHOOSER
         iInputCtrl = new InputCtrl(this);
         add(iInputCtrl);
@@ -1079,9 +1084,11 @@ public class AceTree extends JPanel
         //create panel for tools
         iToolControls=new JPanel();
 	 	iToolControls.setLayout(new BoxLayout(iToolControls,BoxLayout.PAGE_AXIS));
+
 	 	// PLAYER CONTROL
         iPlayerControl = new PlayerControl(this);
         iToolControls.add(iPlayerControl);
+
         //KEYPAD
         JPanel pad = createPad();
         iToolControls.add(pad);
@@ -1622,10 +1629,7 @@ public class AceTree extends JPanel
         	private static final long serialVersionUID = 1L;
             @Override
 			public void actionPerformed(ActionEvent e) {
-                //System.out.println("up key pressed");
-                incPlane(-1);
-                iTrackPosition = ImageWindow.NONE;
-                updateDisplay();
+                imageUp();
             }
         };
         getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(s), s);
@@ -1644,7 +1648,7 @@ public class AceTree extends JPanel
         	@Override
 			public void actionPerformed(ActionEvent e) {
         		//System.out.println("shift-up key pressed--skipping planes");
-        		incPlane(-5);
+        		imageManager.incrementImagePlaneNumber(5);
         		iTrackPosition = ImageWindow.NONE;
         		updateDisplay();
         	}
@@ -1657,10 +1661,7 @@ public class AceTree extends JPanel
         	private static final long serialVersionUID = 1L;
             @Override
 			public void actionPerformed(ActionEvent e) {
-                //System.out.println("down key pressed");
-                incPlane(1);
-                iTrackPosition = ImageWindow.NONE;
-                updateDisplay();
+                imageDown();
             }
         };
         getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(s), s);
@@ -1680,7 +1681,7 @@ public class AceTree extends JPanel
         	@Override
 			public void actionPerformed(ActionEvent e) {
         		//System.out.println("shift-down key pressed--skipping planes");
-        		incPlane(5);
+        		imageManager.incrementImagePlaneNumber(-5);
         		iTrackPosition = ImageWindow.NONE;
         		updateDisplay();
         	}
@@ -1690,11 +1691,10 @@ public class AceTree extends JPanel
 
 
         s = "LEFT";
-        Action left = new AbstractAction("LEFT") {
+        Action left = new AbstractAction(s) {
         	private static final long serialVersionUID = 1L;
 			@Override
 			public void actionPerformed(ActionEvent e) {
-            	System.out.println("LEFT pressed.");
                 prevImage();
             }
         };
@@ -1714,7 +1714,6 @@ public class AceTree extends JPanel
         	private static final long serialVersionUID = 1L;
         	@Override
 			public void actionPerformed(ActionEvent e) {
-        		//System.out.println("shift-left key pressed--skipping times");
         		prevImageFast();
         	}
         };
@@ -1726,7 +1725,6 @@ public class AceTree extends JPanel
         	private static final long serialVersionUID = 1L;
             @Override
 			public void actionPerformed(ActionEvent e) {
-            	System.out.println("RIGHT pressed.");
             	nextImage();
             }
         };
@@ -1846,7 +1844,7 @@ public class AceTree extends JPanel
         getCurrentCellParameters();
 
         if (iImgWin != null) {
-            System.out.println("Refreshing image window with new image, time: " + this.imageManager.getCurrImageTime() + ", plane: " + this.imageManager.getCurrImagePlane());
+            //System.out.println("Refreshing image window with new image, time: " + this.imageManager.getCurrImageTime() + ", plane: " + this.imageManager.getCurrImagePlane());
             // refresh the ImageWindow by building the desired image in the series with ImageManager and passing it along
             int planeNum = -1;
             if (this.configManager.getImageConfig().getUseStack() == 1) { planeNum = this.imageManager.getCurrImagePlane(); }
@@ -2222,7 +2220,7 @@ public class AceTree extends JPanel
 
 
     public void imageUp() {
-        this.imageManager.incrementImagePlaneNumber(-1);
+        this.imageManager.incrementImagePlaneNumber(1);
         //incPlane(-1);
         iTrackPosition = ImageWindow.NONE;
         iCallSaveImage = true;
@@ -2230,7 +2228,7 @@ public class AceTree extends JPanel
     }
 
     public void imageDown() {
-        this.imageManager.incrementImagePlaneNumber(1);
+        this.imageManager.incrementImagePlaneNumber(-1);
         //incPlane(1);
         iTrackPosition = ImageWindow.NONE;
         iCallSaveImage = true;
@@ -2559,7 +2557,6 @@ public class AceTree extends JPanel
     
     public boolean nextTime() {
 	   this.imageManager.incrementImageTimeNumber(1);
-	   System.out.println("load image time: " + this.imageManager.getCurrImageTime());
 
         iCallSaveImage = true;
         int now = this.imageManager.getCurrImageTime() + iTimeInc;

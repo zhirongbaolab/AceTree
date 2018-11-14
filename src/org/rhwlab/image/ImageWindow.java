@@ -215,7 +215,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         jp.setLayout(new BorderLayout());
 
         BufferedImage image = BufferedImageCreator.create((ColorProcessor)iImgPlus.getProcessor());
-        iImageZoomerPanel= new ImageZoomerPanel(this, image, 10.0, title,playercontrol);
+        iImageZoomerPanel= new ImageZoomerPanel(this, image, 10.0, title, playercontrol);
         jp.add(iImageZoomerPanel);
         c.add(jp);
 
@@ -711,6 +711,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
      */
     @Override
 	public void keyPressed(KeyEvent e) {
+        System.out.println("KEY PRESSED IN IMAGE WINDOW");
         int code = e.getKeyCode();
         int mods = e.getModifiers();
         boolean shift = (mods & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK;
@@ -729,6 +730,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
                 iAceTree.actionPerformed(new ActionEvent(this, 0, AceTree.PREV));
                 break;
             case KeyEvent.VK_RIGHT:
+                System.out.println("KEY EVENT RIGHT IN IMAGE WINDOW");
                 iAceTree.actionPerformed(new ActionEvent(this, 0, AceTree.NEXTT));
                 break;
             case KeyEvent.VK_F2:
@@ -1285,7 +1287,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 		public void windowGainedFocus(WindowEvent e) {
             //System.out.println("windowGainedFocus, ");
             //refreshDisplay(null);
-        	//iAceTree.requestFocus();
+        	iAceTree.requestFocus();
         }
         
         @Override
@@ -1351,7 +1353,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 	                //System.out.println("Current cell set to "+n.identity);
                 }
             } 
-            else if (button == MouseEvent.BUTTON1){
+            else if (button == MouseEvent.BUTTON1) {
                 //System.out.println("mouseClicked " + e.getX());
                 addAnnotation(x2, y2, false);
 
@@ -1363,7 +1365,6 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
             
             iAceTree.cellAnnotated(getClickedCellName(x2, y2));
             iAceTree.updateDisplay();
-            //if (cEditImage3 != null) cEditImage3.processEditMouseEvent(e);
             MouseEvent e2 = new MouseEvent(iw, 0, 0, 0, x2, y2, 0, false, e.getButton());
             processEditMouseEvent(e2);
         }
