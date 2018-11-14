@@ -158,10 +158,12 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
 	public void run() {
         boolean b; // enables run to exit when movie hits the wall
         while (iRunning) {
-            if (iForward) 
-            	b = iAceTree.nextImage();
-            else 
-            	b = iAceTree.prevImage();
+            if (iForward) {
+                b = iAceTree.nextImage();
+            } else {
+                b = iAceTree.prevImage();
+            }
+
             if (b) {
                 try {
                     Thread.sleep(iDwell);

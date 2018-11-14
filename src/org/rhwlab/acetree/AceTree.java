@@ -293,7 +293,7 @@ public class AceTree extends JPanel
 	        iTrackPosition = ImageWindow.ANTERIOR;
 	        iTrackPositionSave = iTrackPosition;
 	        iCanonicalTree = CanonicalTree.getCanonicalTree();
-	        iColor = 0;
+	        iColor = 1;
 	        iTree.addMouseListener(new TreeMouseAdapter());
 	        if (iConfigFileName != null) {
 		    //System.out.println("AceTree.java 350: " + iConfigFileName);
@@ -534,6 +534,16 @@ public class AceTree extends JPanel
             // next, we'll build an ImageWindowDelegate with the ImageWindow just created so that it can facilitate annotating and saving
             this.imageWindowDelegate = new ImageWindowDelegate(this.iImgWin, this.imageManager, this.iNucleiMgr);
 
+
+            // add the toolbar to the image window
+            if (iBookmarkJList != null) {
+                iImgWin.setBookmarkList(iBookmarkJList.getModel());
+            }
+
+
+            iImgWin.add(iToolControls,BorderLayout.SOUTH);
+            iImgWin.pack();
+            iImgWinSet = true;
 
             // if the current cell isn't P (not a cell in the lineage), and it has childen, we'll add appropriate annotation
             if (iCurrentCell == null) {
@@ -1541,7 +1551,6 @@ public class AceTree extends JPanel
     }
 
     private void setKeyboardActions() {
-
     	setSpecialKeyboardActions();
 
     	String actionKey = "";
@@ -1685,7 +1694,7 @@ public class AceTree extends JPanel
         	private static final long serialVersionUID = 1L;
 			@Override
 			public void actionPerformed(ActionEvent e) {
-            	//System.out.println("LEFT pressed.");
+            	System.out.println("LEFT pressed.");
                 prevImage();
             }
         };
@@ -1712,13 +1721,12 @@ public class AceTree extends JPanel
         getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(s), s);
         getActionMap().put(s, shift_left);
 
-
         s = "RIGHT";
         Action right = new AbstractAction(s) {
         	private static final long serialVersionUID = 1L;
             @Override
 			public void actionPerformed(ActionEvent e) {
-            	//System.out.println("RIGHT pressed.");
+            	System.out.println("RIGHT pressed.");
             	nextImage();
             }
         };
@@ -1837,10 +1845,13 @@ public class AceTree extends JPanel
         
         getCurrentCellParameters();
 
-        // refresh the ImageWindow by building the desired image in the series with ImageManager and passing it along
-        iImgWin.refreshDisplay("", this.imageManager.makeImage(this.imageManager.getCurrImageTime(), this.imageManager.getCurrImagePlane()));
-
-        //handleImage();
+        if (iImgWin != null) {
+            System.out.println("Refreshing image window with new image, time: " + this.imageManager.getCurrImageTime() + ", plane: " + this.imageManager.getCurrImagePlane());
+            // refresh the ImageWindow by building the desired image in the series with ImageManager and passing it along
+            int planeNum = -1;
+            if (this.configManager.getImageConfig().getUseStack() == 1) { planeNum = this.imageManager.getCurrImagePlane(); }
+            iImgWin.refreshDisplay(this.imageManager.makeImageNameForTitle(), this.imageManager.extractColorChannelFromImagePlus(this.imageManager.makeImage(), this.iColor), planeNum);
+        }
         
         if (iCallSaveImage) {
             iCallSaveImage = false;
@@ -1848,8 +1859,8 @@ public class AceTree extends JPanel
 		    	iImgWin.saveImageIfEnabled();
         }
         
-        //String s = makeDisplayText();
-        //iText.setText(s);
+        String s = makeDisplayText();
+        iText.setText(s);
 
         
         if(iAddOneDialog!=null)
@@ -1916,24 +1927,7 @@ public class AceTree extends JPanel
         if (iImgWin != null) {
             iImgWin.addAnnotation(iCurrentCellXloc, iCurrentCellYloc, true);
         }
-
-//        if (configManager == null) {
-//            if (iImgWin != null) {
-//                iImgWin.addAnnotation(iCurrentCellXloc, iCurrentCellYloc, true);
-//            }
-//        } else {
-//            this.imageWindowDelegate.addMainAnnotation(iCurrentCellXloc, iCurrentCellYloc, true);
-//        }
-
-
-
     }
-
-    public boolean checkExists(File f)
-    {
-    	return f.exists();
-    }
-
 
     private int trackCellPlane() {
         if (iTrackPosition != ImageWindow.NONE) {
@@ -2223,6 +2217,7 @@ public class AceTree extends JPanel
     /** Required by TreeSelectionListener interface.
      * */
     public void valueChanged(TreeSelectionEvent e) {
+
     }
 
 
@@ -2259,7 +2254,7 @@ public class AceTree extends JPanel
     		}
     		return;
         }
-    	println("AceTree.actionPerformed, " + e);
+    	//println("AceTree.actionPerformed, " + e);
         boolean doUpdate = true;
         if (!iImgWinSet) 
         	return;
@@ -2338,7 +2333,36 @@ public class AceTree extends JPanel
     }
 
     public void toggleColor() {
-        iColor = (iColor + 1) % 4;
+        if (iColor < 7) {
+            iColor += 1;
+        } else if (iColor == 7) {
+            iColor = 1;
+        }
+
+        switch(iColor) {
+            case 1:
+                System.out.println("*** Switched to RED channel mode ***");
+                break;
+            case 2:
+                System.out.println("*** Switched to GREEN channel mode ***");
+                break;
+            case 3:
+                System.out.println("*** Switched to BLUE channel mode ***");
+                break;
+            case 4:
+                System.out.println("*** Switched to RED and GREEN channel mode ***");
+                break;
+            case 5:
+                System.out.println("*** Switched to GREEN and BLUE channel mode ***");
+                break;
+            case 6:
+                System.out.println("*** Switched to RED and BLUE channel mode ***");
+                break;
+            case 7:
+                System.out.println("*** Switched to RED, GREEN, and BLUE channel mode ***");
+                break;
+            default:
+        }
     }
 
     public int getColor() {
@@ -2742,11 +2766,17 @@ public class AceTree extends JPanel
             iTimeInc = 0;
             Cell currentCellSave = iCurrentCell;
             doDaughterDisplayWork(iCurrentCell, null);
+
             if (currentCellSave != iCurrentCell) {
                 trackingActionsOnCurrentCellChange();
-		if(iImgWin!=null)
-		    iImgWin.updateCurrentCellAnnotation(iCurrentCell, currentCellSave, time);
+
+
+                if(iImgWin != null) {
+                    iImgWin.updateCurrentCellAnnotation(iCurrentCell, currentCellSave, time);
+                }
+
             }
+
             showTreeCell(iCurrentCell);
         } else if (source == PREVTIME) {
         	Vector nuclei1 = iNucleiMgr.getElementAt(this.imageManager.getCurrImageTime() + iTimeInc);
@@ -3109,12 +3139,15 @@ public class AceTree extends JPanel
     }
 
     public boolean nextImage() {
-		if(iImgWin!=null)
-		    iImgWin.setSpecialEffect(null);
+		if(iImgWin != null) {
+            iImgWin.setSpecialEffect(null);
+        }
+
         boolean b = nextTime();
         
-        updateDisplay();
-        return b;
+		updateDisplay();
+
+		return b;
     }
     
     public boolean nextImageFast() {
@@ -3447,7 +3480,6 @@ public class AceTree extends JPanel
         else ot = getAceTree(null);
         ot.run("");
         ot.iCmdLineRun = true;
-        System.out.println("main exiting");
     }
 
     private static void println(String s) {System.out.println(s);}

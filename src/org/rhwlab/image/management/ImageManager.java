@@ -46,6 +46,9 @@ public class ImageManager {
     private static boolean setOriginalContrastValues; // not quite sure what this is used for
     private static int contrastMin1, contrastMin2, contrastMax1, contrastMax2, contrastMin3, contrastMax3;
     private static final int MAX8BIT = 255, MAX16BIT = 65535;
+    private static final int GREEN_ID = 1;
+    private static final int RED_ID = 2;
+    private static final int BLUE_ID = 3;
 
     public ImageManager(ImageConfig imageConfig) {
         this.imageConfig = imageConfig;
@@ -88,7 +91,7 @@ public class ImageManager {
     public void incrementImageTimeNumber(int timeIncrement) {
         if (timeIncrement > 0
                 && this.currentImageTime + timeIncrement < this.imageConfig.getEndingIndex()) {
-            this.currentImagePlane += timeIncrement;
+            this.currentImageTime += timeIncrement;
         } else if (timeIncrement < 0
                     && this.currentImageTime + timeIncrement > 1) {
             this.currentImageTime += timeIncrement;
@@ -354,6 +357,174 @@ public class ImageManager {
 
         System.out.println("Couldn't determine if using 8bit or 16bit images in ImageManager.makeImage(), returning null. useStack: " + this.imageConfig.getUseStack());
         return null;
+    }
+
+    /**
+     * Build the image name given the current parameters to be used in setting the title in the ImageWindow
+     *
+     * @return
+     */
+    public String makeImageNameForTitle() {
+        // first check if we're dealing with 8 bit or 16 bit images
+        if (this.imageConfig.getUseStack() == 0) { // 8bit
+            String fullPath = ImageNameLogic.appendTimeAndPlaneTo8BittifPrefix(this.imageConfig.getImagePrefixes()[0], this.currentImageTime, this.currentImagePlane);
+            return fullPath.substring(fullPath.lastIndexOf("/"));
+
+        } else if (this.imageConfig.getUseStack() == 1) { //16bit
+            // check if there are multiple stacks defining the color channels of the image series, or if all channels are contained in a single stack
+            if (this.imageConfig.getNumChannels() == -1) {
+                // single stack with one or more color channels
+                String fullPath = ImageNameLogic.appendTimeToSingle16BitTIFPrefix(this.imageConfig.getImagePrefixes()[0], this.currentImageTime);
+                return fullPath.substring(fullPath.lastIndexOf("/"));
+                //return ImageNameLogic.appendTimeToSingle16BitTIFPrefix(this.imageConfig.getImagePrefixes()[0], this.currentImageTime);
+            } else if (this.imageConfig.getNumChannels() > 1) {
+                // multiple stacks containing multiple image channels for an image series
+                String fullPath = ImageNameLogic.appendTimeToSingle16BitTIFPrefix(this.imageConfig.getImagePrefixes()[0], this.currentImageTime);
+                return fullPath.substring(fullPath.lastIndexOf("/"));
+                //return ImageNameLogic.appendTimeToSingle16BitTIFPrefix(this.imageConfig.getImagePrefixes()[0], this.currentImageTime);
+            }
+        }
+
+        return "";
+    }
+
+
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
+    /////// METHODS FOR EXTRACTING SPECIFIC ////////
+    /////// COLOR CHANNELS BASED ON VIEWING ////////
+    ///////////// PARAMETERS //////////////////////
+    public ImagePlus extractColorChannelFromImagePlus(ImagePlus ip, int colorID) {
+        if (ip == null) return null;
+
+        switch(colorID) {
+            case 1:
+                ip = makeRedImagePlus(ip);
+                break;
+            case 2:
+                ip = makeGreenImagePlus(ip);
+                break;
+            case 3:
+                ip = makeBlueImagePlus(ip);
+                break;
+            case 4:
+                ip = makeGreenAndRedImagePlus(ip);
+                break;
+            case 5:
+                ip = makeGreenAndBlueImagePlus(ip);
+                break;
+            case 6:
+                ip = makeRedAndBlueImagePlus(ip);
+                break;
+            case 7:
+                ip = makeFullImagePlus(ip);
+                break;
+            default:
+        }
+
+        return ip;
+    }
+
+    /**
+     *
+     * @param ip
+     * @return
+     */
+    private ImagePlus makeRedImagePlus(ImagePlus ip) {
+        ImageProcessor iproc = ip.getProcessor();
+        ColorProcessor iproc3 = new ColorProcessor(iproc.getWidth(), iproc.getHeight());
+        iproc3.setRGB(ImageConversionManager.getCurrentRPixelMap(), new byte[ImageConversionManager.getCurrentGPixelMap().length], new byte[ImageConversionManager.getCurrentBPixelMap().length]);
+        ip.setProcessor("test", iproc3);
+        return ip;
+    }
+
+    /**
+     *
+     * @param ip
+     * @return
+     */
+    private ImagePlus makeGreenImagePlus(ImagePlus ip) {
+        ImageProcessor iproc = ip.getProcessor();
+        //System.out.println("makeGreenImagePlus: " + iproc);
+        ColorProcessor iproc3 = new ColorProcessor(iproc.getWidth(), iproc.getHeight());
+        //System.out.println("makeGreenImagePlus2: " + iproc + CS + iGpix  + CS + iRpix);
+        iproc3.setRGB(new byte[ImageConversionManager.getCurrentRPixelMap().length], ImageConversionManager.getCurrentGPixelMap(), new byte[ImageConversionManager.getCurrentBPixelMap().length]);
+        ip.setProcessor("test", iproc3);
+        return ip;
+    }
+
+    /**
+     *
+     * @param ip
+     * @return
+     */
+    private ImagePlus makeBlueImagePlus(ImagePlus ip) {
+        ImageProcessor iproc = ip.getProcessor();
+        //System.out.println("makeGreenImagePlus: " + iproc);
+        ColorProcessor iproc3 = new ColorProcessor(iproc.getWidth(), iproc.getHeight());
+        //System.out.println("makeGreenImagePlus2: " + iproc + CS + iGpix  + CS + iRpix);
+        iproc3.setRGB(new byte[ImageConversionManager.getCurrentRPixelMap().length], ImageConversionManager.getCurrentGPixelMap(), new byte[ImageConversionManager.getCurrentBPixelMap().length]);
+        ip.setProcessor("test", iproc3);
+        return ip;
+    }
+
+    /**
+     *
+     * @param ip
+     * @return
+     */
+    private ImagePlus makeGreenAndRedImagePlus(ImagePlus ip) {
+        ImageProcessor iproc = ip.getProcessor();
+        //System.out.println("makeGreenImagePlus: " + iproc);
+        ColorProcessor iproc3 = new ColorProcessor(iproc.getWidth(), iproc.getHeight());
+        //System.out.println("makeGreenImagePlus2: " + iproc + CS + iGpix  + CS + iRpix);
+        iproc3.setRGB(ImageConversionManager.getCurrentRPixelMap(), ImageConversionManager.getCurrentGPixelMap(), new byte[ImageConversionManager.getCurrentBPixelMap().length]);
+        ip.setProcessor("test", iproc3);
+        return ip;
+    }
+
+    /**
+     *
+     * @param ip
+     * @return
+     */
+    private ImagePlus makeGreenAndBlueImagePlus(ImagePlus ip) {
+        ImageProcessor iproc = ip.getProcessor();
+        //System.out.println("makeGreenImagePlus: " + iproc);
+        ColorProcessor iproc3 = new ColorProcessor(iproc.getWidth(), iproc.getHeight());
+        //System.out.println("makeGreenImagePlus2: " + iproc + CS + iGpix  + CS + iRpix);
+        iproc3.setRGB(new byte[ImageConversionManager.getCurrentRPixelMap().length], ImageConversionManager.getCurrentGPixelMap(), ImageConversionManager.getCurrentBPixelMap());
+        ip.setProcessor("test", iproc3);
+        return ip;
+    }
+
+    /**
+     *
+     * @param ip
+     * @return
+     */
+    private ImagePlus makeRedAndBlueImagePlus(ImagePlus ip) {
+        ImageProcessor iproc = ip.getProcessor();
+        //System.out.println("makeGreenImagePlus: " + iproc);
+        ColorProcessor iproc3 = new ColorProcessor(iproc.getWidth(), iproc.getHeight());
+        //System.out.println("makeGreenImagePlus2: " + iproc + CS + iGpix  + CS + iRpix);
+        iproc3.setRGB(ImageConversionManager.getCurrentRPixelMap(), new byte[ImageConversionManager.getCurrentGPixelMap().length], ImageConversionManager.getCurrentBPixelMap());
+        ip.setProcessor("test", iproc3);
+        return ip;
+    }
+
+    /**
+     * Not sure this method is necessary. Can just keep the image as is
+     *
+     * @param ip
+     * @return
+     */
+    private ImagePlus makeFullImagePlus(ImagePlus ip) {
+        ImageProcessor iproc = ip.getProcessor();
+        ColorProcessor iproc3 = new ColorProcessor(iproc.getWidth(), iproc.getHeight());
+        iproc3.setRGB(ImageConversionManager.getCurrentRPixelMap(), ImageConversionManager.getCurrentGPixelMap(), ImageConversionManager.getCurrentBPixelMap());
+        ip.setProcessor("test", iproc3);
+        return ip;
     }
 
     // accessors and mutators for static variables

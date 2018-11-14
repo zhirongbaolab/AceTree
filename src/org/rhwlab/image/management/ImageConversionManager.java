@@ -21,6 +21,10 @@ import java.io.File;
  */
 public class ImageConversionManager {
 
+    private static byte[] currentRPixelMap;
+    private static byte[] currentGPixelMap;
+    private static byte[] currentBPixelMap;
+
     /**
      *
      * @param tif_8bit
@@ -40,6 +44,10 @@ public class ImageConversionManager {
         G = bpix;
         R = getRedChannelIn8BitImage(R, imageConfig);
 
+        currentRPixelMap = R;
+        currentGPixelMap = G;
+        currentBPixelMap = B;
+
         return buildImagePlus(tif_8bit, R, G, B);
     }
 
@@ -58,6 +66,10 @@ public class ImageConversionManager {
         // special test removal
         G = bpix;
         R = getRedChannelIn16BitImage(R, imageConfig);
+
+        currentRPixelMap = R;
+        currentGPixelMap = G;
+        currentBPixelMap = B;
 
         return buildImagePlus(TIF_slice_16bit, R, G, B);
     }
@@ -151,6 +163,10 @@ public class ImageConversionManager {
 
         iproc3.setRGB(R, G, B);
         TIF_16bit.setProcessor("test", iproc3);
+
+        currentRPixelMap = R;
+        currentGPixelMap = G;
+        currentBPixelMap = B;
 
         return TIF_16bit;
     }
@@ -293,6 +309,10 @@ public class ImageConversionManager {
         iproc3.setRGB(colorChannel1, colorChannel2, colorChannel3);
         ip.setProcessor("test", iproc3);
 
+        currentRPixelMap = colorChannel1;
+        currentGPixelMap = colorChannel2;
+        currentBPixelMap = colorChannel3;
+
         return ip;
     }
 
@@ -366,4 +386,8 @@ public class ImageConversionManager {
         return ip;
 
     }
+
+    public static byte[] getCurrentRPixelMap() { return currentRPixelMap; }
+    public static byte[] getCurrentGPixelMap() { return currentGPixelMap; }
+    public static byte[] getCurrentBPixelMap() { return currentBPixelMap; }
 }

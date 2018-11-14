@@ -587,8 +587,43 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         return iAceTree;
     }
 
-    public void refreshDisplay(String imageName, ImagePlus image) {
+    /**
+     * Revised refresh method that is given a fully processed ImagePlus from the management classes
+     *
+     * @param imageName
+     * @param ip
+     * @param planeNumber
+     */
+    public void refreshDisplay(String imageName, ImagePlus ip, int planeNumber) {
+        if (imageName == null || ip == null) return;
 
+        if (planeNumber == -1) {
+            setTitle(imageName.substring(4));
+        } else {
+            setTitle(imageName.substring(4) + " (plane " + planeNumber + ")");
+        }
+
+        if (ip != null)
+            iImgPlus.setProcessor(imageName, ip.getProcessor());
+        if (iIsMainImgWindow && iAceTree.isTracking())
+            iAceTree.addMainAnnotation();
+        if (iAceTree.getShowCentroids())
+            showCentroids();
+        if (iAceTree.getShowAnnotations())
+            showAnnotations();
+        if (iSpecialEffect != null)
+            showSpecialEffect();
+
+        iImgCanvas.repaint();
+
+        if(iImageZoomerPanel!=null){
+            BufferedImage image = BufferedImageCreator.create((ColorProcessor)iImgPlus.getProcessor());
+            iImageZoomerPanel.updateImage(image);
+        }
+        if (iImageZoomerFrame != null) {
+            BufferedImage image = BufferedImageCreator.create((ColorProcessor)iImgPlus.getProcessor());
+            iImageZoomerFrame.updateImage(image);
+        }
     }
 
     public ImagePlus refreshDisplay() {
@@ -1319,7 +1354,11 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
             else if (button == MouseEvent.BUTTON1){
                 //System.out.println("mouseClicked " + e.getX());
                 addAnnotation(x2, y2, false);
-                refreshDisplay();
+
+                // TODO --> this is bad practice. shouldn't use a call back. The entire mouse handler should be lifted out of ImageWindow
+                iAceTree.updateDisplay();
+
+                //refreshDisplay();
             }
             
             iAceTree.cellAnnotated(getClickedCellName(x2, y2));
