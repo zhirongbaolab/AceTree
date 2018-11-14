@@ -842,19 +842,11 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 
     @SuppressWarnings("unused")
 	public void addAnnotation(int mx, int my, boolean dontRemove) {
-//        if (iIsMainImgWindow) {
-//            iTimeInc = iAceTree.getTimeInc();
-//            iImageTime = iAceTree.getImageTime();
-//            iPlaneInc = iAceTree.getPlaneInc();
-//        } else {
-//            iTimeInc = 0;
-//            iPlaneInc = 0;
-//        }
         double x, y, r;
         boolean g;
-        Nucleus n = cNucleiMgr.findClosestNucleus(mx, my, iAceTree.getImageManager().getCurrImagePlane() + iPlaneInc, iAceTree.getImageManager().getCurrImageTime() + iTimeInc);
+        Nucleus n = cNucleiMgr.findClosestNucleus(mx, my, iAceTree.getImageManager().getCurrImagePlane(), iAceTree.getImageManager().getCurrImageTime());
         if (n != null) {
-            if (cNucleiMgr.hasCircle(n, iAceTree.getImageManager().getCurrImagePlane() + iPlaneInc)) {
+            if (cNucleiMgr.hasCircle(n, iAceTree.getImageManager().getCurrImagePlane())) {
                 String propername = PartsList.lookupSulston(n.identity);
                 String label = n.identity;
                 if (propername != null) {
@@ -881,6 +873,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
                 }
 
                 if (!itemRemoved && !itemAlreadyPresent) {
+                    System.out.println("ADDING ANNOTATION TO VECTOR");
                     iAnnotsShown.add(ai);
                 }
                 // if this was a button 3 mouse click
@@ -1033,13 +1026,6 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
             imgProc.drawString(name);
         }
         imgPlus.updateAndDraw();
-    }
-
-    private void showWhichAnnotations() {
-        for (int i=0; i < iAnnotsShown.size(); i++) {
-            System.out.println(iAnnotsShown.elementAt(i));
-        }
-
     }
 
     public void updateCurrentCellAnnotation(Cell newCell, Cell old, int time) {
@@ -1506,6 +1492,10 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
     }
     
     // Change event listener implementation for sliders
+
+    /**
+     * TODO - revise so that callback to AceTree.updateDisplay isn't used in this way
+     */
     public class SliderListener implements ChangeListener {
     	@Override
 		public void stateChanged(ChangeEvent e) {
@@ -1525,7 +1515,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
                     iAceTree.getImageManager().setContrastMin2(min2);
                     iAceTree.getImageManager().setContrastMax2(max2);
     			}
-    			refreshDisplay();
+    			iAceTree.updateDisplay();
     		}
     	}
     }

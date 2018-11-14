@@ -289,8 +289,6 @@ public class AceTree extends JPanel
 
 
         setKeyboardActions();
-        System.out.println("keyboard actions set");
-
         displayTree();
         try {
 	        iTrackPosition = ImageWindow.ANTERIOR;
@@ -561,6 +559,7 @@ public class AceTree extends JPanel
             iAceMenuBar.setClearEnabled(true);
 
 	        setShowAnnotations(true);
+	        updateDisplay();
     	} catch (Throwable t) {
 			new GeneralStartupError(getMainFrame(), t);
     	}

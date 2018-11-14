@@ -422,6 +422,15 @@ public class ImageManager {
             default:
         }
 
+        // set the contrast values
+        if (this.imageConfig.getUseStack() == 0) {
+            // red
+            ip.setDisplayRange(contrastMin1, contrastMax1, 4);
+
+            // green
+            ip.setDisplayRange(contrastMin2, contrastMax2, 2);
+        }
+
         return ip;
     }
 
