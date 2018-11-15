@@ -223,12 +223,12 @@ public class ImageManager {
                 }
             }
         } else {
+            this.imageConfig.setUseStack(1);
             if (imageConfig.getNumChannels() > 3) {
                 System.out.println("WARNING: More than three image channels were supplied in the .XML file. At this point," +
                         "AceTree only supports viewing 3 channels. All image file names " +
                         "will be loaded, but only the first three will be processed and displayed.");
             }
-
             // multiple images were provided in the config file. we need to query them slightly differently and then check if they exist
             String[] images = imageConfig.getImageChannels();
 
@@ -472,7 +472,7 @@ public class ImageManager {
         //System.out.println("makeGreenImagePlus: " + iproc);
         ColorProcessor iproc3 = new ColorProcessor(iproc.getWidth(), iproc.getHeight());
         //System.out.println("makeGreenImagePlus2: " + iproc + CS + iGpix  + CS + iRpix);
-        iproc3.setRGB(new byte[ImageConversionManager.getCurrentRPixelMap().length], ImageConversionManager.getCurrentGPixelMap(), new byte[ImageConversionManager.getCurrentBPixelMap().length]);
+        iproc3.setRGB(new byte[ImageConversionManager.getCurrentRPixelMap().length], new byte[ImageConversionManager.getCurrentGPixelMap().length], ImageConversionManager.getCurrentBPixelMap());
         ip.setProcessor("test", iproc3);
         return ip;
     }

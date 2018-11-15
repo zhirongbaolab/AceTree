@@ -183,7 +183,6 @@ public class ImageConversionManager {
      * @return
      */
     public static ImagePlus convertMultiple16BitTIFsToRGB(ImagePlus[] TIFs_16bit, ImageConfig imageConfig) {
-        System.out.println("ImageConversionManager converting multiple 16bit TIFs to RGB.");
         ImagePlus ip = new ImagePlus();
         if (TIFs_16bit.length > 3) {
             System.out.println("ImageConversionManager.convertMultiple16BitTIFsToRGB given > 3 image channels to process. " +

@@ -32,6 +32,7 @@ public class ImageNameLogic {
     private static int IDX_2 = 2;
 
     private static String t = "t";
+    private static char tChar = 't';
     private static String tID_8bitConvention = "-t";
     private static String tID_16bitConvention = "_t";
     private static String TIF_ext = ".TIF";
@@ -404,6 +405,9 @@ public class ImageNameLogic {
     public static int extractTimeFromImageFileName(String filename) {
        if (filename == null || filename.isEmpty()) return -1;
 
+       // let's cut out the path and just use the filename in the event that some part of the path messes up the extraction algorithm
+        filename = filename.substring(filename.lastIndexOf("/"));
+
        if (filename.contains(tID_8bitConvention) && filename.contains(planeStr)) {
            // extract the number, assuming the format -t###-p
            String numberSequenceStr = filename.substring(filename.indexOf(tID_8bitConvention) + tID_8bitConvention.length(), filename.indexOf(planeStr));
@@ -423,14 +427,20 @@ public class ImageNameLogic {
        } else if (filename.contains(tID_16bitConvention) && filename.contains(TIF_ext)) {
             // extract the number, assuming the format _t###.TIF
            return Integer.parseInt(filename.substring(filename.indexOf(tID_16bitConvention) + tID_16bitConvention.length(), filename.indexOf(TIF_ext)));
-
        }
 
-       return -1;
+       return 0;
     }
 
     /**
      * Used by ImageConfig to maintain the prefixes for the images series
+     *
+     * Most 16bit TIFs follow the naming convention of ..._t###.TIF. However,
+     * native output diSPIM data does not follow this convention. Instead, it
+     * uses ..._###.tif in the cased of fused images, and ...-###.tif in the
+     * case of single view images. We'll assume, when finding the prefix for
+     * a 16bit TIF, that if the _t convention can't be found, then we're probably
+     * dealing with diSPIM data.
      *
      * @param imageName
      * @return
@@ -442,7 +452,40 @@ public class ImageNameLogic {
             // assume the 8bit naming convention, even though the image could in fact be 16bit
             return imageName.substring(0, imageName.indexOf(tID_8bitConvention) + tID_8bitConvention.length());
         } else {
-            return imageName.substring(0, imageName.indexOf(tID_16bitConvention) + tID_16bitConvention.length());
+            // distinguish between _t###.TIF and diSPIM conventions
+            if (imageName.indexOf(tID_16bitConvention) != -1) {
+                // more standard case
+                return imageName.substring(0, imageName.indexOf(tID_16bitConvention) + tID_16bitConvention.length());
+            } else {
+                // the most we'll do to check if it's diSPIM is see if the characters between the last _ or - and the extension
+                // are numbers
+
+                // see if it's a fused diSPIM image or a single view (restrict the search to only the filename, not the full path)
+                char timeAppendCharacterType = '0';
+                if ((imageName.substring(imageName.lastIndexOf("/"))).lastIndexOf('_') != -1) { // fused
+                    timeAppendCharacterType = '_';
+                } else if ((imageName.substring(imageName.lastIndexOf("/"))).lastIndexOf('-') != -1) { // single view
+                    timeAppendCharacterType = '-';
+                } else {
+                    System.out.println("Couldn't extract image prefix from: " + imageName + "\nUnable to find character type before time.");
+                    return "";
+                }
+
+                // now that we know whether it's fused or single view, use that correct character type to extract the prefix
+                String potentialTimeStr = imageName.substring(imageName.lastIndexOf(timeAppendCharacterType)+1, imageName.indexOf(tif_ext));
+
+                for (int i = 0; i < potentialTimeStr.length(); i++) {
+                    if (!Character.isDigit(potentialTimeStr.charAt(i))) {
+                        System.out.println("Couldn't extract image prefix from: " + imageName + "\nExpected " + potentialTimeStr.charAt(i) + " to be a digit.");
+                        return "";
+                    }
+                }
+
+                // if we've reached here, we know that the potentialTimeStr is all digits, so we'll treat this as the time and everything
+                // before it will be considered the image prefix
+                return imageName.substring(0, imageName.lastIndexOf(timeAppendCharacterType)+1);
+
+            }
         }
     }
 
@@ -456,8 +499,25 @@ public class ImageNameLogic {
         return formattedFileNames;
     }
 
+    /**
+     *
+     * Distinguish between the normal convention for 16bit ..._t###.TIF
+     * and the diSPIM convention of ...-###.tif or ..._###.tif by checking
+     * whether the last character in the prefix is a t
+     *
+     * This method should be used cautiously if modifying.
+     *
+     * @param TIFprefix_16bit
+     * @param time
+     * @return
+     */
     public static String appendTimeToSingle16BitTIFPrefix(String TIFprefix_16bit, int time) {
-        return TIFprefix_16bit + Integer.toString(time) + TIF_ext;
+        if (TIFprefix_16bit.charAt(TIFprefix_16bit.length()-1) == tChar) { // normal case
+            return TIFprefix_16bit + Integer.toString(time) + TIF_ext;
+        } else { // diSPIM case -- use .tif ext
+            return TIFprefix_16bit + Integer.toString(time) + tif_ext;
+        }
+
     }
 
     public static String appendTimeAndPlaneTo8BittifPrefix(String tifPrefix_8bit, int time, int plane) {

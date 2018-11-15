@@ -610,6 +610,9 @@ public class NucleiMgr {
 
 
     public double getZPixRes() {
+        if (this.nucConfig != null) {
+            iZPixRes = this.nucConfig.getZPixRes();
+        }
         return iZPixRes;
     }
 
@@ -648,14 +651,14 @@ public class NucleiMgr {
         Nucleus candidate = null;
         double d = 100000;
         double xyz;
-        mz *= iZPixRes;
+        mz *= getZPixRes();
         for (int j=0; j < nuclei.size(); j++) {
             Nucleus n = nuclei.elementAt(j);
             //System.out.print("findClosest..: " + n);
             if (n.status == -1) continue;
             x = n.x;
             y = n.y;
-            z = n.z * iZPixRes;
+            z = n.z * getZPixRes();
             r = n.size/2.;
             g = Math.abs(x - mx) < r;
             if (!g) continue;
@@ -719,14 +722,14 @@ public class NucleiMgr {
         Nucleus candidate = null;
         double d = 100000;
         double xy;
-        mz *= iZPixRes;
+        mz *= getZPixRes();
         for (int j=0; j < nuclei.size(); j++) {
             Nucleus n = nuclei.elementAt(j);
             //System.out.print(n);
             if (n.status == -1) continue;
             x = n.x;
             y = n.y;
-            z = (int)(n.z * iZPixRes);
+            z = (int)(n.z * getZPixRes());
             r = n.size/2.;
             xy = Math.abs(x - mx) + Math.abs(y - my) + Math.abs(z - mz);
             //System.out.print("findClosest: "  + j + CS + n.identity + CS + x + CS + y + CS
@@ -788,7 +791,7 @@ public class NucleiMgr {
         double r = -0.5;
         double cellPlane = n.z;
         double R = n.size/2.; //pixels
-        double y = (cellPlane - imgPlane)*iZPixRes/R;
+        double y = (cellPlane - imgPlane)*getZPixRes()/R;
         double r2 = 1 - y*y;
         if (r2 >= 0.) r = Math.sqrt(r2)*R;
         return 2*r;
@@ -823,7 +826,8 @@ public class NucleiMgr {
         if (!iFakeNuclei) {
             iMovie = iParameters.getMovie();
             iPlaneEnd = iMovie.plane_end;
-            iZPixRes = iMovie.z_res/iMovie.xy_res*iParameters.z_res_fudge;
+            //iZPixRes = iMovie.z_res/iMovie.xy_res*iParameters.z_res_fudge;
+            iZPixRes = this.nucConfig.getZPixRes();
             //println("getScopeParameters: iZPixRes: " + iZPixRes);
         }
         NucUtils.setZPixRes(iZPixRes);

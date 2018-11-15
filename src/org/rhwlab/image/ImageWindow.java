@@ -873,7 +873,6 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
                 }
 
                 if (!itemRemoved && !itemAlreadyPresent) {
-                    System.out.println("ADDING ANNOTATION TO VECTOR");
                     iAnnotsShown.add(ai);
                 }
                 // if this was a button 3 mouse click

@@ -96,7 +96,7 @@ public class ImageConfig {
             System.out.println("Setting " + this.numChannels + " image prefixes for supplied images.");
         }
 
-        // set starting index if it was explicitly given or it's unreasonable
+        // set starting index if it wasn't explicitly given or it's unreasonable
         if (this.startingIndex < 0) {
             setStartingIndex(ImageNameLogic.extractTimeFromImageFileName(providedImageFileName));
         }
@@ -127,16 +127,16 @@ public class ImageConfig {
            updateIdx = 1;
            updateImagePrefixes(updateIdx);
        } else {
-           // TODO - on second thought, it's not clear yet when this situation would arise (either it's explicitly defined or not) - leaving it here in case we find use in the future
+           // we'll assume this is the third channel that's being added because 3 channel image is all that is supported.
+           // If this is more than the third, it will replace whatever the current third channel is
+           numChannels = 3;
 
-           // the XML file used the new <image numChannels=n ... /> convention, but didn't explicitly list all of the color
-           // channel images. AceTree found one, so we increment the numChannels
+           String[] imageChannelsLocal = this.imageChannels;
 
-           // NOTE: AceTree will not properly handle a numChannels number provided in the XML that doesn't match the number
-           // of files actually supplied in the tag. E.g. numChannels=2 but only channel1="" is present. The XML file should
-           // either use the new convention and list them all, or use the legacy convention and allow AceTree to try and locate
-           // any other channels
-
+           this.imageChannels = new String[this.numChannels];
+           this.imageChannels[0] = imageChannelsLocal[0];
+           this.imageChannels[1] = imageChannelsLocal[1];
+           this.imageChannels[2] = newColorChannelImage;
        }
     }
 
