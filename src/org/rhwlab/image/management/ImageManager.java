@@ -90,10 +90,10 @@ public class ImageManager {
     // methods for runtime updates
     public void incrementImageTimeNumber(int timeIncrement) {
         if (timeIncrement > 0
-                && this.currentImageTime + timeIncrement < this.imageConfig.getEndingIndex()) {
+                && this.currentImageTime + timeIncrement <= this.imageConfig.getEndingIndex()) {
             this.currentImageTime += timeIncrement;
         } else if (timeIncrement < 0
-                    && this.currentImageTime + timeIncrement > 1) {
+                    && this.currentImageTime + timeIncrement >= 0) {
             this.currentImageTime += timeIncrement;
         }
     }
@@ -143,6 +143,10 @@ public class ImageManager {
                             this.currentImageName = newFileNameAttempt;
                             ImagePlus ip = makeImageFromSingle16BitTIF(newFileNameAttempt);
                             this.currentImage = ip;
+
+                            // set the starting time
+                            this.imageConfig.setStartingIndex(ImageNameLogic.extractTimeFromImageFileName(this.currentImageName));
+
                             return ip;
                         } else {
                             System.out.println("16bit image file name generated from 8bit image file name does not exist on the system. Can't bring up image series.");
@@ -162,6 +166,11 @@ public class ImageManager {
                     this.currentImageName = imageFile;
                     ImagePlus ip = makeImageFrom8Bittif(imageFile);
                     this.currentImage = ip;
+
+                    // set the starting time
+                    this.imageConfig.setStartingIndex(ImageNameLogic.extractTimeFromImageFileName(this.currentImageName));
+                    this.currentImageTime = this.imageConfig.getStartingIndex();
+
                     return ip;
 
                 } else if (getImageBitDepth(imageFile) == _16BIT_ID){
@@ -183,6 +192,11 @@ public class ImageManager {
                         this.currentImageName = imageFile;
                         ImagePlus ip = makeImageFromMultiple16BitTIFs(new String[]{imageFile, secondColorChannelFromiSIM});
                         this.currentImage = ip;
+
+                        // set the starting time
+                        this.imageConfig.setStartingIndex(ImageNameLogic.extractTimeFromImageFileName(this.currentImageName));
+                        this.currentImageTime = this.imageConfig.getStartingIndex();
+
                         return ip;
                     }
 
@@ -199,6 +213,11 @@ public class ImageManager {
                         this.currentImageName = imageFile;
                         ImagePlus ip = makeImageFromMultiple16BitTIFs(new String[]{imageFile, secondColorChannelFromdiSPIM});
                         this.currentImage = ip;
+
+                        // set the starting time
+                        this.imageConfig.setStartingIndex(ImageNameLogic.extractTimeFromImageFileName(this.currentImageName));
+                        this.currentImageTime = this.imageConfig.getStartingIndex();
+
                         return ip;
                     }
 
@@ -209,6 +228,11 @@ public class ImageManager {
                         this.currentImageName = imageFile;
                         ImagePlus ip = makeImageFrom16bitSliceTIF(imageFile);
                         this.currentImage = ip;
+
+                        // set the starting time
+                        this.imageConfig.setStartingIndex(ImageNameLogic.extractTimeFromImageFileName(this.currentImageName));
+                        this.currentImageTime = this.imageConfig.getStartingIndex();
+
                         return ip;
                     }
 
@@ -219,6 +243,11 @@ public class ImageManager {
                     this.currentImageName = imageFile;
                     ImagePlus ip = makeImageFromSingle16BitTIF(imageFile);
                     this.currentImage = ip;
+
+                    // set the starting time
+                    this.imageConfig.setStartingIndex(ImageNameLogic.extractTimeFromImageFileName(this.currentImageName));
+                    this.currentImageTime = this.imageConfig.getStartingIndex();
+
                     return ip;
                 }
             }
@@ -235,6 +264,11 @@ public class ImageManager {
             this.currentImageName = images[0];
             ImagePlus ip = makeImageFromMultiple16BitTIFs(images);
             this.currentImage = ip;
+
+            // set the starting time
+            this.imageConfig.setStartingIndex(ImageNameLogic.extractTimeFromImageFileName(this.currentImageName));
+            this.currentImageTime = this.imageConfig.getStartingIndex();
+
             return ip;
         }
 

@@ -532,6 +532,11 @@ public class AceTree extends JPanel
             this.iImgWin.setAceTree(this); // TODO - this is bad code practice how this is piped, but to get it to testable we'll settle for now 11/2018
             this.iImgWin.setNucleiMgr(this.iNucleiMgr); // TODO - same
 
+            // CHECK HERE FOR THE RARE CASE OF A ZERO INDEXED IMAGE SERIES AND UPDATE THE TIMEINC VARIABLE IF NECESSARY
+            if (this.imageManager.getCurrImageTime() == 0) {
+                iTimeInc = 1;
+            }
+
             // next, we'll build an ImageWindowDelegate with the ImageWindow just created so that it can facilitate annotating and saving
             this.imageWindowDelegate = new ImageWindowDelegate(this.iImgWin, this.imageManager, this.iNucleiMgr);
 
@@ -546,12 +551,12 @@ public class AceTree extends JPanel
             iImgWin.pack();
             iImgWinSet = true;
 
-            // if the current cell isn't P (not a cell in the lineage), and it has childen, we'll add appropriate annotation
-            if (iCurrentCell == null) {
-                iCurrentCell = new Cell("P");
-            }
+//            // if the current cell isn't P (not a cell in the lineage), and it has childen, we'll add appropriate annotation
+//            if (iCurrentCell == null) {
+//                iCurrentCell = new Cell("P");
+//            }
 
-            if (!iCurrentCell.getName().equals("P") && iRoot.getChildCount() > 0) {
+            if (iCurrentCell != null && !iCurrentCell.getName().equals("P") && iRoot.getChildCount() > 0) {
                 iShowCentroids = true;
                 iShowC.setText(HIDEC);
                 addMainAnnotation();
@@ -1810,7 +1815,7 @@ public class AceTree extends JPanel
     private void getTimeAndPlane(Cell c) {
         if (c == null) return;
         if (c == iRoot) {
-            this.imageManager.setCurrImageTime(1);
+            //this.imageManager.setCurrImageTime(1);
             this.imageManager.setCurrImagePlane(15);
 
         } else {
@@ -1818,7 +1823,7 @@ public class AceTree extends JPanel
             this.imageManager.setCurrImagePlane((int)((double)c.getPlane() + HALFROUND));
 
         }
-        iTimeInc = 0;
+        //iTimeInc = 0;
         iPlaneInc = 0;
         iCurrentCell = c;
     }
@@ -1856,8 +1861,8 @@ public class AceTree extends JPanel
 		    	iImgWin.saveImageIfEnabled();
         }
         
-        String s = makeDisplayText();
-        iText.setText(s);
+        //String s = makeDisplayText();
+        //iText.setText(s);
 
         
         if(iAddOneDialog!=null)
@@ -1940,14 +1945,14 @@ public class AceTree extends JPanel
      * Called by setStartingCell in bringing up the image series
      */
     private void getCurrentCellParameters() {
-    	//System.out.println("getCurrentCellParameters: " + iImageTime + CS + iTimeInc);
+    	//System.out.println("getCurrentCellParameters: " + this.imageManager.getCurrImageTime() + CS + iTimeInc);
         if (iCurrentCell == null) 
         	return;
         int time = this.imageManager.getCurrImageTime() + iTimeInc;
-        if (time == 0) {
-            time = 1;
-            this.imageManager.setCurrImageTime(1);
-        }
+//        if (time == 0) {
+//            time = 1;
+//            this.imageManager.setCurrImageTime(1);
+//        }
         Nucleus n = null;
         try {
         	Vector nuclei = iNucleiMgr.getElementAt(time - 1);
@@ -2562,9 +2567,11 @@ public class AceTree extends JPanel
         int end = 9999;
         if (iCurrentCell != null) 
         	end = iCurrentCell.getEnd();
-        if (now <= end) 
-        	return true; // we will call updateDisplay next
+        if (now <= end) {
+            return true; // we will call updateDisplay next
+        }
         if (iCurrentCell.getFateInt() == Cell.DIED) {
+            System.out.println("Current cell died. Setting time increment to 0.");
             iCurrentCellPresent = false;
             this.imageManager.setCurrImageTime(this.imageManager.getCurrImageTime() + iTimeInc);
             iTimeInc = 0;
@@ -2815,7 +2822,6 @@ public class AceTree extends JPanel
         if (c == null) {
             this.imageManager.setCurrImageTime(requestedTime);
             this.imageManager.setCurrImagePlane(15);
-
             iTimeInc = 0;
             iPlaneInc = 0;
 

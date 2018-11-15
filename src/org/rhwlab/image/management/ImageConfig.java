@@ -137,6 +137,8 @@ public class ImageConfig {
            this.imageChannels[0] = imageChannelsLocal[0];
            this.imageChannels[1] = imageChannelsLocal[1];
            this.imageChannels[2] = newColorChannelImage;
+           updateIdx = 2;
+           updateImagePrefixes(updateIdx);
        }
     }
 

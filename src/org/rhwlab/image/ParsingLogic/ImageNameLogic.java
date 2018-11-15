@@ -18,6 +18,8 @@ public class ImageNameLogic {
     // static variables for dealing with differing system naming conventions
     private static String FORWARDSLASH = "/";
     private static String BACKSLASH = "\"";
+    private static char UNDERSCORE = '_';
+    private static char DASH = '-';
 
     // static variables for iSIM data directory parsing
     private static String endOfChannelTextIdentifier = "_s";
@@ -74,7 +76,7 @@ public class ImageNameLogic {
         System.out.println("\nReconfiguring image path for an 8bit image to a 16bit TIF, if possible. ImageNameLogic.reconfigureImagePathFrom8BithTo16Bit()");
 
         //try using layered images two directories up
-        int fileNameIdx = _8bitImagePath.lastIndexOf('/');
+        int fileNameIdx = _8bitImagePath.lastIndexOf(FORWARDSLASH);
 
         // find the name of the file i.e. cut off everything having to do with either an absolute or relative path in the string passed
         String fileName;
@@ -86,7 +88,7 @@ public class ImageNameLogic {
         }
 
         // if this is an 8bit image, it is a slice and should have an identitier for the plane number. Let's look for it
-        int planeIdx = fileName.indexOf("-p");
+        int planeIdx = fileName.indexOf(planeStr);
 
         String fileNameNoPlane;
         if (planeIdx > 0) {
@@ -107,10 +109,10 @@ public class ImageNameLogic {
         }
 
 
-        int lastDashIdx = fileNameNoPlane.lastIndexOf('-');
+        int lastDashIdx = fileNameNoPlane.lastIndexOf(DASH);
         String filePrefix;
         if (lastDashIdx > 0) {
-           filePrefix = fileNameNoPlane.substring(0, lastDashIdx) + '_';
+           filePrefix = fileNameNoPlane.substring(0, lastDashIdx) + UNDERSCORE;
         } else {
             System.out.println("No dash in file name separating shared prefix with 16bit images with 8bit specific naming conventions. Returning 8bit image filename");
             return _8bitImagePath;
@@ -392,12 +394,13 @@ public class ImageNameLogic {
     public static boolean isSliceImage(String filename) {
         if (filename == null || filename.isEmpty()) return false;
 
-        if (filename.toLowerCase().contains(("-p"))) return true;
+        if (filename.toLowerCase().contains((planeStr))) return true;
 
         return false;
     }
 
     /**
+     * Special distinguishing between normal 16bit convention and native diSPIM output
      *
      * @param filename
      * @return
@@ -406,7 +409,7 @@ public class ImageNameLogic {
        if (filename == null || filename.isEmpty()) return -1;
 
        // let's cut out the path and just use the filename in the event that some part of the path messes up the extraction algorithm
-        filename = filename.substring(filename.lastIndexOf("/"));
+        filename = filename.substring(filename.lastIndexOf(FORWARDSLASH));
 
        if (filename.contains(tID_8bitConvention) && filename.contains(planeStr)) {
            // extract the number, assuming the format -t###-p
@@ -427,9 +430,20 @@ public class ImageNameLogic {
        } else if (filename.contains(tID_16bitConvention) && filename.contains(TIF_ext)) {
             // extract the number, assuming the format _t###.TIF
            return Integer.parseInt(filename.substring(filename.indexOf(tID_16bitConvention) + tID_16bitConvention.length(), filename.indexOf(TIF_ext)));
+       } else if (!filename.contains(tID_8bitConvention) && !filename.contains(tID_16bitConvention) && filename.contains(tif_ext)) {
+           // assume it's diSPIM and extract the numbers that immediately proceed the .tif extension
+           String timeStr = "";
+           filename = filename.substring(0, filename.indexOf(tif_ext)); // cut out the extension so that we can start iterating from the last character in the string
+           for (int i = filename.length()-1; i >= 0; i--) {
+               if (Character.isDigit(filename.charAt(i))) {
+                   timeStr = filename.charAt(i) + timeStr; // append the new character at the front since we're iterating from the back of the string
+               } else if (filename.charAt(i) == UNDERSCORE || filename.charAt(i) == DASH) {
+                   return Integer.parseInt(timeStr);
+               }
+           }
        }
 
-       return 0;
+       return -1;
     }
 
     /**
@@ -462,10 +476,10 @@ public class ImageNameLogic {
 
                 // see if it's a fused diSPIM image or a single view (restrict the search to only the filename, not the full path)
                 char timeAppendCharacterType = '0';
-                if ((imageName.substring(imageName.lastIndexOf("/"))).lastIndexOf('_') != -1) { // fused
-                    timeAppendCharacterType = '_';
-                } else if ((imageName.substring(imageName.lastIndexOf("/"))).lastIndexOf('-') != -1) { // single view
-                    timeAppendCharacterType = '-';
+                if ((imageName.substring(imageName.lastIndexOf(FORWARDSLASH))).lastIndexOf(UNDERSCORE) != -1) { // fused
+                    timeAppendCharacterType = UNDERSCORE;
+                } else if ((imageName.substring(imageName.lastIndexOf(FORWARDSLASH))).lastIndexOf('-') != -1) { // single view
+                    timeAppendCharacterType = DASH;
                 } else {
                     System.out.println("Couldn't extract image prefix from: " + imageName + "\nUnable to find character type before time.");
                     return "";
@@ -483,6 +497,7 @@ public class ImageNameLogic {
 
                 // if we've reached here, we know that the potentialTimeStr is all digits, so we'll treat this as the time and everything
                 // before it will be considered the image prefix
+                System.out.println("Found image prefix: " + imageName.substring(0, imageName.lastIndexOf(timeAppendCharacterType)+1));
                 return imageName.substring(0, imageName.lastIndexOf(timeAppendCharacterType)+1);
 
             }

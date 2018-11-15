@@ -255,6 +255,12 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         this.imageManager = imageManager;
         iPlaneInc = iTimeInc = 0;
         iAnnotsShown = new Vector();
+
+        // we need to check for the case here where the images are zero indexed, which is rare, but happens in the case of some diSPIM data.
+        // If this is the case, we need to deal with it so that we don't index improperly into the NucleiMgr
+        if (this.imageManager.getCurrImageTime() == 0) {
+            iTimeInc = 1;
+        }
     }
 
     public void setBookmarkList(ListModel list) {
@@ -975,7 +981,6 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 
     @SuppressWarnings("unused")
 	protected void showAnnotations() {
-        //showWhichAnnotations();
         Vector v = cNucleiMgr.getNucleiRecord().elementAt(iAceTree.getImageManager().getCurrImageTime()  + iTimeInc - 1);
         int size = v.size();
         int [] x = new int[size];
