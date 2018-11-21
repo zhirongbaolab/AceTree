@@ -38,6 +38,7 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
    JButton iStepUp;
    JButton iStepDown;
    JButton iStepChannel;
+   JButton maximumIntensityProjection;
    JButton iProperties;
    JButton iContrast;
    JLabel iZoomLabel;
@@ -94,6 +95,9 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
 	  iStepChannel = makeButton("/images/StepChannel16");
 	  iStepChannel.setToolTipText("Channel Visibility");
 	  iToolBar.add(iStepChannel);
+      maximumIntensityProjection = makeButton("/images/mip");
+      maximumIntensityProjection.setToolTipText("Maximum Intensity Projection");
+      iToolBar.add(maximumIntensityProjection);
 	  iProperties = makeButton("/images/Properties");
 	  iProperties.setToolTipText("Annotation Display");
 	  iToolBar.add(iProperties);
@@ -102,7 +106,7 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
 	  iContrast.setToolTipText("Adjust Contrast");
 	  iToolBar.add(iContrast);
 	  iToolBar.add(new JToolBar.Separator());
-	  
+
 	  iZoomPlus = makeButton("/images/ZoomPlus16");
 	  iZoomPlus.setToolTipText("Zoom In");
 	  iToolBar.add(iZoomPlus);
@@ -235,7 +239,9 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
 		} else if (o == iStepChannel) {
 		    iAceTree.toggleColor();
 		    iAceTree.updateDisplay();
-		} else if (o == iProperties) {
+		} else if (o == maximumIntensityProjection) {
+            iAceTree.bringUpMaximumIntensityProjectionWindow();
+        } else if (o == iProperties) {
 		    iAceTree.getImageWindow().launchImageParamsDialog();
 		} else if (o == iContrast) {
 			iAceTree.getImageWindow().launchContrastTool();

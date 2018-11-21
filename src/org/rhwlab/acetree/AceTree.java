@@ -18,13 +18,10 @@ import org.rhwlab.acetree.ControlCallback;
 import org.rhwlab.help.AceTreeHelp;
 import org.rhwlab.help.GeneralStartupError;
 import org.rhwlab.help.TestWindow;
-import org.rhwlab.image.CellMovementImage;
+import org.rhwlab.image.*;
 //import org.rhwlab.image.EditImage;
 //import org.rhwlab.image.EditImage3;
 
-import org.rhwlab.image.ImageAllCentroids;
-import org.rhwlab.image.ImageWindow;
-import org.rhwlab.image.DepthViews;
 import org.rhwlab.image.management.ImageManager;
 import org.rhwlab.image.management.ImageWindowDelegate;
 import org.rhwlab.nucedit.EditLog;
@@ -180,6 +177,7 @@ public class AceTree extends JPanel
     private JButton     iTrack;
     private JButton     iSister;
     private JButton     iColorToggle;
+    private JButton     maximumIntensityProjectionToggle;
 
     // increment values
     private int         iTimeInc;
@@ -243,6 +241,8 @@ public class AceTree extends JPanel
     private Config configManager;
     private ImageManager imageManager;
     private NucleiMgr   iNucleiMgr;
+
+    private MaxIntensityProjectionWindow MIP_window;
     // ********************************************************************************
 
     protected AceTree() {
@@ -1158,6 +1158,8 @@ public class AceTree extends JPanel
         iSister.addActionListener(this);
         iColorToggle = new JButton(COLORTOGGLE);
         iColorToggle.addActionListener(this);
+        maximumIntensityProjectionToggle = new JButton(MAXPROJ);
+        maximumIntensityProjectionToggle.addActionListener(this);
 
         p.add(iShow);
 	
@@ -2329,9 +2331,17 @@ public class AceTree extends JPanel
         }
         else if (e.getSource() == iColorToggle) {
             toggleColor();
+        } else if (e.getSource() == maximumIntensityProjectionToggle) {
+            bringUpMaximumIntensityProjectionWindow();
         }
         if (doUpdate)
         	updateDisplay();
+    }
+
+    public void bringUpMaximumIntensityProjectionWindow() {
+        if (this.imageManager == null) return;
+
+        this.MIP_window = new MaxIntensityProjectionWindow(this.imageManager.makeMaxProjection());
     }
 
     public void toggleColor() {
@@ -3342,6 +3352,7 @@ public class AceTree extends JPanel
    ,TRACK = "Track"
    ,SISTER = "Sister"
    ,COLORTOGGLE = "Channel"
+            ,MAXPROJ = "Maximum Intensity Projection"
    ,CS = ", "
    ,DEPTHVIEWS="Depth View"
    ;

@@ -2,9 +2,8 @@ package org.rhwlab.image.management;
 
 import ij.IJ;
 import ij.ImagePlus;
-import ij.io.FileInfo;
-import ij.io.FileOpener;
 import ij.io.Opener;
+import ij.plugin.ZProjector;
 import ij.process.ColorProcessor;
 import ij.process.ImageProcessor;
 import org.rhwlab.image.ParsingLogic.ImageNameLogic;
@@ -294,9 +293,17 @@ public class ImageManager {
             ip.setProcessor(tif_8bit, iproc);
         }
 
+
+
         return ip;
     }
+    private ImagePlus makeImageFrom8Bittif() { return makeImageFrom8Bittif(this.currentImageName); }
 
+    /**
+     *
+     * @param TIF_slice_16bit
+     * @return
+     */
     private ImagePlus makeImageFrom16bitSliceTIF(String TIF_slice_16bit) {
         ImagePlus ip = new Opener().openImage(TIF_slice_16bit);
         if (ip != null) {
@@ -312,6 +319,7 @@ public class ImageManager {
 
         return ip;
     }
+    private ImagePlus makeImageFrom16bitSliceTIF() { return makeImageFrom16bitSliceTIF(this.currentImageName); }
 
     /**
      *
@@ -334,6 +342,7 @@ public class ImageManager {
 
         return ip;
     }
+    private ImagePlus makeImageFromSingle16BitTIF() { return makeImageFromSingle16BitTIF(this.currentImageName); }
 
     /**
      *
@@ -362,12 +371,13 @@ public class ImageManager {
      * @return
      */
     public ImagePlus makeImage() {
-        return makeImage(this.currentImageTime, this.currentImagePlane);
+        this.currentImage = makeImage(this.currentImageTime, this.currentImagePlane);
+        return this.currentImage;
     }
 
     /**
      * This is the method called from AceTree during runtime when the UI is triggered to update the images
-     * e.g. when the user changes the time/plane
+     * e.g. when the user chan\ges the time/plane
      *
      * @param time
      * @param plane
@@ -376,16 +386,20 @@ public class ImageManager {
     public ImagePlus makeImage(int time, int plane) {
         // first check if we're dealing with 8 bit or 16 bit images
         if (this.imageConfig.getUseStack() == 0) { // 8bit
-            return makeImageFrom8Bittif(ImageNameLogic.appendTimeAndPlaneTo8BittifPrefix(this.imageConfig.getImagePrefixes()[0], time, plane));
+            this.currentImageName = ImageNameLogic.appendTimeAndPlaneTo8BittifPrefix(this.imageConfig.getImagePrefixes()[0], time, plane);
+            return makeImageFrom8Bittif();
 
         } else if (this.imageConfig.getUseStack() == 1) { //16bit
             // check if there are multiple stacks defining the color channels of the image series, or if all channels are contained in a single stack
             if (this.imageConfig.getNumChannels() == -1) {
                 // single stack with one or more color channels
-                return makeImageFromSingle16BitTIF(ImageNameLogic.appendTimeToSingle16BitTIFPrefix(this.imageConfig.getImagePrefixes()[0], time));
+                this.currentImageName = ImageNameLogic.appendTimeToSingle16BitTIFPrefix(this.imageConfig.getImagePrefixes()[0], time);
+                return makeImageFromSingle16BitTIF();
             } else if (this.imageConfig.getNumChannels() > 1) {
                 // multiple stacks containing multiple image channels for an image series
-                return makeImageFromMultiple16BitTIFs(ImageNameLogic.appendTimeToMultiple16BitTifPrefixes(this.imageConfig.getImagePrefixes(), time));
+                String[] images = ImageNameLogic.appendTimeToMultiple16BitTifPrefixes(this.imageConfig.getImagePrefixes(), time);
+                this.currentImageName = images[0];
+                return makeImageFromMultiple16BitTIFs(images);
             }
         }
 
@@ -568,6 +582,18 @@ public class ImageManager {
         iproc3.setRGB(ImageConversionManager.getCurrentRPixelMap(), ImageConversionManager.getCurrentGPixelMap(), ImageConversionManager.getCurrentBPixelMap());
         ip.setProcessor("test", iproc3);
         return ip;
+    }
+
+    ///////////////////////////////////////////////////
+    /////////// METHODS FOR OTHER ////////////////////
+    ////////// IMAGE MANIPULATIONS //////////////////
+    public ImagePlus makeMaxProjection() {
+        ImagePlus ip = new Opener().openImage(this.currentImageName);
+        ZProjector zproj = new ZProjector();
+        zproj.setMethod(ZProjector.MAX_METHOD);
+        zproj.setImage(ip);
+        zproj.doProjection();
+        return zproj.getProjection();
     }
 
     // accessors and mutators for static variables
