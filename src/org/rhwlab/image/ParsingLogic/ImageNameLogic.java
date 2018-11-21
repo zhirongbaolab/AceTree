@@ -119,7 +119,7 @@ public class ImageNameLogic {
         }
 
 
-        int tIdx = fileName.indexOf(tID_8bitConvention);
+        int tIdx = fileName.lastIndexOf(tID_8bitConvention);
         if (tIdx > 0) {
             if (fileName.charAt(tIdx+2) == '0') {
                 tIdx+=2;
@@ -413,7 +413,7 @@ public class ImageNameLogic {
 
        if (filename.contains(tID_8bitConvention) && filename.contains(planeStr)) {
            // extract the number, assuming the format -t###-p
-           String numberSequenceStr = filename.substring(filename.indexOf(tID_8bitConvention) + tID_8bitConvention.length(), filename.indexOf(planeStr));
+           String numberSequenceStr = filename.substring(filename.lastIndexOf(tID_8bitConvention) + tID_8bitConvention.length(), filename.lastIndexOf(planeStr));
 
            if (numberSequenceStr.length() < 3) return -1;
 
@@ -429,7 +429,7 @@ public class ImageNameLogic {
            }
        } else if (filename.contains(tID_16bitConvention) && filename.contains(TIF_ext)) {
             // extract the number, assuming the format _t###.TIF
-           return Integer.parseInt(filename.substring(filename.indexOf(tID_16bitConvention) + tID_16bitConvention.length(), filename.indexOf(TIF_ext)));
+           return Integer.parseInt(filename.substring(filename.lastIndexOf(tID_16bitConvention) + tID_16bitConvention.length(), filename.indexOf(TIF_ext)));
        } else if (!filename.contains(tID_8bitConvention) && !filename.contains(tID_16bitConvention) && filename.contains(tif_ext)) {
            // assume it's diSPIM and extract the numbers that immediately proceed the .tif extension
            String timeStr = "";
@@ -464,12 +464,12 @@ public class ImageNameLogic {
 
         if (isSliceImage(imageName)) {
             // assume the 8bit naming convention, even though the image could in fact be 16bit
-            return imageName.substring(0, imageName.indexOf(tID_8bitConvention) + tID_8bitConvention.length());
+            return imageName.substring(0, imageName.lastIndexOf(tID_8bitConvention) + tID_8bitConvention.length());
         } else {
             // distinguish between _t###.TIF and diSPIM conventions
             if (imageName.indexOf(tID_16bitConvention) != -1) {
                 // more standard case
-                return imageName.substring(0, imageName.indexOf(tID_16bitConvention) + tID_16bitConvention.length());
+                return imageName.substring(0, imageName.lastIndexOf(tID_16bitConvention) + tID_16bitConvention.length());
             } else {
                 // the most we'll do to check if it's diSPIM is see if the characters between the last _ or - and the extension
                 // are numbers

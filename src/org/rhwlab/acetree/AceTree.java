@@ -2341,7 +2341,8 @@ public class AceTree extends JPanel
     public void bringUpMaximumIntensityProjectionWindow() {
         if (this.imageManager == null) return;
 
-        this.MIP_window = new MaxIntensityProjectionWindow(this.imageManager.makeMaxProjection());
+        this.MIP_window = new MaxIntensityProjectionWindow(this.imageManager.getCurrentImageName(),
+                this.imageManager.makeMaxProjection());
     }
 
     public void toggleColor() {
@@ -2581,7 +2582,6 @@ public class AceTree extends JPanel
             return true; // we will call updateDisplay next
         }
         if (iCurrentCell.getFateInt() == Cell.DIED) {
-            System.out.println("Current cell died. Setting time increment to 0.");
             iCurrentCellPresent = false;
             this.imageManager.setCurrImageTime(this.imageManager.getCurrImageTime() + iTimeInc);
             iTimeInc = 0;
