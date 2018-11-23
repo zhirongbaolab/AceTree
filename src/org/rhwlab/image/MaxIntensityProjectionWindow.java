@@ -18,8 +18,7 @@ public class MaxIntensityProjectionWindow extends JFrame {
 
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 
-        MIP_ip.setDisplayRange(1470, 7
-                000);
+        MIP_ip.setDisplayRange(1470, 7000);
 
         ImageCanvas imageCanvas = new ImageCanvas(MIP_ip);
 
@@ -38,5 +37,4 @@ public class MaxIntensityProjectionWindow extends JFrame {
         // bring up the image
         setVisible(true);
     }
-
 }
