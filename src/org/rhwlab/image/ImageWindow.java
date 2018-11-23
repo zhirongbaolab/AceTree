@@ -224,6 +224,8 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         // bring up the image
         setVisible(true);
 
+        requestFocus();
+
         // this keeps the ImageWindow from being destroyed when it is closed, since it may be reopened at another point during program execution
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 
@@ -261,6 +263,18 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         if (this.imageManager.getCurrImageTime() == 0) {
             iTimeInc = 1;
         }
+    }
+
+    public void removeHandlers() {
+        // Remove mouse handler
+        iImageZoomerPanel.getImage().removeMouseListener(iMouseHandler);
+        iImageZoomerPanel.getImage().removeMouseListener(iMouseHandler);
+        iMouseHandler = null;
+
+        // Remove window event manager
+        removeWindowFocusListener(wem);
+        removeWindowListener(wem);
+        wem = null;
     }
 
     public void setBookmarkList(ListModel list) {
