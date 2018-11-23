@@ -151,7 +151,7 @@ public class AceTree extends JPanel
     private JTextPane   iText;
     private JTextPane   iText2;
     private JTextPane   iText3;
-    protected JFrame      iMainFrame;
+    public JFrame      iMainFrame;
 
     private boolean     iImgWinSet;
     public AncesTree   iAncesTree;
@@ -163,7 +163,7 @@ public class AceTree extends JPanel
 
     protected WindowEventHandler  iWinEvtHandler;
 
-    private JPanel iToolControls;
+    public JPanel iToolControls;
     private JButton     iCopy;
     private JButton     iShow;
     private JButton     iClear;
@@ -171,7 +171,7 @@ public class AceTree extends JPanel
     private JButton     iPrev;
     private JButton     iUp;
     private JButton     iDown;
-    protected JButton     iHome;
+    public JButton     iHome;
     private JButton		iDefault;
     private JButton     iShowC;
     private JButton     iTrack;
@@ -1455,13 +1455,13 @@ public class AceTree extends JPanel
         	private static final long serialVersionUID = 1L;
     		@Override
 			public void actionPerformed(ActionEvent e) {
-    			//println("AceTree.setSpecialKeyBoardActions, DELETE");
+    			println("AceTree.setSpecialKeyBoardActions, DELETE");
     			if (iAddOneDialog == null) return;
     			killCell(0);
     		}
     	};
         key = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0, false);
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(key, xxx);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(key, xxx);
         getActionMap().put(xxx, DELETE );
 
         // this one is a delete cell special
@@ -1470,13 +1470,13 @@ public class AceTree extends JPanel
         	private static final long serialVersionUID = 1L;
     		@Override
 			public void actionPerformed(ActionEvent e) {
-    			//println("AceTree.setSpecialKeyBoardActions, BACKSPACE");
+    			println("AceTree.setSpecialKeyBoardActions, BACKSPACE");
     			if (iAddOneDialog == null) return;
     			killCell(0);
     		}
     	};
         key = KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0, false);
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(key, xxx);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(key, xxx);
         getActionMap().put(xxx, BACKSPACE);
 
 
@@ -3358,8 +3358,9 @@ public class AceTree extends JPanel
          HALFROUND = 0.5f
         ;
 
-    protected void createAndShowGUI() {
+    private void createAndShowGUI() {
         JFrame.setDefaultLookAndFeelDecorated(true);
+
         iMainFrame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         iMainFrame.getContentPane().setLayout(new BorderLayout());
         int height = HEIGHT200 + HEIGHT100 + HEIGHT100 + HEIGHT100 + 2*HEIGHT30;
@@ -3370,11 +3371,14 @@ public class AceTree extends JPanel
         iMainFrame.setJMenuBar(iAceMenuBar);
 		iMainFrame.getContentPane().add(this, BorderLayout.CENTER);
         iMainFrame.pack();
+
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension windowSize = iMainFrame.getSize();
+
         //System.out.println("windowSize: " + windowSize);
         iMainFrame.setLocation(Math.max(0,(screenSize.width -windowSize.width)/2),
                 Math.max(0,(screenSize.height-windowSize.height)/2));
+
         iWinEvtHandler = new WindowEventHandler();
         iMainFrame.addWindowListener(iWinEvtHandler);
 
@@ -3383,6 +3387,7 @@ public class AceTree extends JPanel
                         , iInputCtrl.getTimeField()
                         , iInputCtrl.getNameField()
                         ));
+
         iMainFrame.setVisible(true);
     }
 

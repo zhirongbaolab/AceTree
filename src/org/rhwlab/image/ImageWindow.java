@@ -4,16 +4,7 @@
  */
 package org.rhwlab.image;
 
-import java.awt.AWTException;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.Polygon;
-import java.awt.Rectangle;
-import java.awt.Robot;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -224,7 +215,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         // bring up the image
         setVisible(true);
 
-        requestFocus();
+        setFocusable(true);
 
         // this keeps the ImageWindow from being destroyed when it is closed, since it may be reopened at another point during program execution
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
@@ -731,7 +722,6 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
      */
     @Override
 	public void keyPressed(KeyEvent e) {
-        System.out.println("KEY PRESSED IN IMAGE WINDOW");
         int code = e.getKeyCode();
         int mods = e.getModifiers();
         boolean shift = (mods & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK;
@@ -739,27 +729,26 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         //println("ImageWindow.keyPressed, " + code + CS + shift + CS + ctrl + CS + e);
         if (shift || ctrl) sendToEIDialog2(code, shift, ctrl);
         else {
-        switch(code) {
-            case KeyEvent.VK_UP:
-                iAceTree.actionPerformed(new ActionEvent(this, 0, AceTree.UP));
-                break;
-            case KeyEvent.VK_DOWN:
-                iAceTree.actionPerformed(new ActionEvent(this, 0, AceTree.DOWN));
-                break;
-            case KeyEvent.VK_LEFT:
-                iAceTree.actionPerformed(new ActionEvent(this, 0, AceTree.PREV));
-                break;
-            case KeyEvent.VK_RIGHT:
-                System.out.println("KEY EVENT RIGHT IN IMAGE WINDOW");
-                iAceTree.actionPerformed(new ActionEvent(this, 0, AceTree.NEXTT));
-                break;
-            case KeyEvent.VK_F2:
-                iAceTree.actionPerformed(new ActionEvent(this, 0, "F2"));
-                break;
-            default:
-                return;
-
-        }
+            switch(code) {
+                case KeyEvent.VK_UP:
+                    iAceTree.actionPerformed(new ActionEvent(this, 0, AceTree.UP));
+                    break;
+                case KeyEvent.VK_DOWN:
+                    iAceTree.actionPerformed(new ActionEvent(this, 0, AceTree.DOWN));
+                    break;
+                case KeyEvent.VK_LEFT:
+                    iAceTree.actionPerformed(new ActionEvent(this, 0, AceTree.PREV));
+                    break;
+                case KeyEvent.VK_RIGHT:
+                    System.out.println("KEY EVENT RIGHT IN IMAGE WINDOW");
+                    iAceTree.actionPerformed(new ActionEvent(this, 0, AceTree.NEXTT));
+                    break;
+                case KeyEvent.VK_F2:
+                    iAceTree.actionPerformed(new ActionEvent(this, 0, "F2"));
+                    break;
+                default:
+                    return;
+            }
         }
     }
 
@@ -1291,7 +1280,10 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 		public void windowGainedFocus(WindowEvent e) {
             //System.out.println("windowGainedFocus, ");
             //refreshDisplay(null);
-        	iAceTree.requestFocus();
+
+            // TODO - why whould this always shift focus back to the AceTreeMenuBar???
+
+        	//iAceTree.requestFocus();
         }
         
         @Override
@@ -1306,6 +1298,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
     	ImageWindow iw;
         public MouseHandler(ImageWindow iw) {
             super();
+
             this.iw=iw;
         }
 
