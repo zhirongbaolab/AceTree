@@ -13,7 +13,7 @@ public class MaxIntensityProjectionWindow extends JFrame {
 
     public MaxIntensityProjectionWindow(ImagePlus MIP_ip) {
         super("Maximum Intensity Projection");
-        setSize(100, 100);
+        setSize(MIP_ip.getWidth(), MIP_ip.getHeight());
         this.imageCanvas = new ImageCanvas(MIP_ip);
 
         Container c = getContentPane();

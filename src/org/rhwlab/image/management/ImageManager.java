@@ -41,6 +41,7 @@ public class ImageManager {
     private int currentImagePlane;
     private int imageHeight;
     private int imageWidth;
+    private boolean isCurrImageMIP;
 
     private static boolean setOriginalContrastValues; // not quite sure what this is used for
     private static int contrastMin1, contrastMin2, contrastMax1, contrastMax2, contrastMin3, contrastMax3;
@@ -66,6 +67,7 @@ public class ImageManager {
         this.currentImageTime = 1;
         this.currentImagePlane = 15; // usually about the middle of the stack
         this.setOriginalContrastValues = true;
+        this.isCurrImageMIP = false;
     }
 
     // methods to set runtime parameters
@@ -293,8 +295,6 @@ public class ImageManager {
             ip.setProcessor(tif_8bit, iproc);
         }
 
-
-
         return ip;
     }
     private ImagePlus makeImageFrom8Bittif() { return makeImageFrom8Bittif(this.currentImageName); }
@@ -372,6 +372,7 @@ public class ImageManager {
      */
     public ImagePlus makeImage() {
         this.currentImage = makeImage(this.currentImageTime, this.currentImagePlane);
+        this.isCurrImageMIP = false;
         return this.currentImage;
     }
 
@@ -387,6 +388,7 @@ public class ImageManager {
         // first check if we're dealing with 8 bit or 16 bit images
         if (this.imageConfig.getUseStack() == 0) { // 8bit
             this.currentImageName = ImageNameLogic.appendTimeAndPlaneTo8BittifPrefix(this.imageConfig.getImagePrefixes()[0], time, plane);
+            this.isCurrImageMIP = false;
             return makeImageFrom8Bittif();
 
         } else if (this.imageConfig.getUseStack() == 1) { //16bit
@@ -394,11 +396,13 @@ public class ImageManager {
             if (this.imageConfig.getNumChannels() == -1) {
                 // single stack with one or more color channels
                 this.currentImageName = ImageNameLogic.appendTimeToSingle16BitTIFPrefix(this.imageConfig.getImagePrefixes()[0], time);
+                this.isCurrImageMIP = false;
                 return makeImageFromSingle16BitTIF();
             } else if (this.imageConfig.getNumChannels() > 1) {
                 // multiple stacks containing multiple image channels for an image series
                 String[] images = ImageNameLogic.appendTimeToMultiple16BitTifPrefixes(this.imageConfig.getImagePrefixes(), time);
                 this.currentImageName = images[0];
+                this.isCurrImageMIP = false;
                 return makeImageFromMultiple16BitTIFs(images);
             }
         }
@@ -593,8 +597,13 @@ public class ImageManager {
         zproj.setMethod(ZProjector.MAX_METHOD);
         zproj.setImage(ip);
         zproj.doProjection();
+
+        this.currentImage = zproj.getProjection();
+        this.isCurrImageMIP = true;
         return zproj.getProjection();
     }
+
+    public boolean isCurrImageMIP() { return this.isCurrImageMIP; }
 
     // accessors and mutators for static variables
     public static void setOriginContrastValuesFlag(boolean OCVF) { setOriginalContrastValues = OCVF; }

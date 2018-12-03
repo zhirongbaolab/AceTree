@@ -604,9 +604,12 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         if (imageName == null || ip == null) return;
 
         if (planeNumber == -1) {
-            setTitle(imageName.substring(4));
+            setTitle(imageName.substring(imageName.lastIndexOf("/")));
+        } else if (planeNumber == Integer.MAX_VALUE) {
+            // this will be the hook used to identify that a MAXIMUM INTESITY PROJECTION is being used
+            setTitle(imageName.substring(imageName.lastIndexOf("/")) + " - Maximum Intensity Projection");
         } else {
-            setTitle(imageName.substring(4) + " (plane " + planeNumber + ")");
+            setTitle(imageName.substring(imageName.lastIndexOf("/")) + " (plane " + planeNumber + ")");
         }
 
         if (ip != null)
@@ -622,13 +625,15 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 
         iImgCanvas.repaint();
 
-        if(iImageZoomerPanel!=null){
-            BufferedImage image = BufferedImageCreator.create((ColorProcessor)iImgPlus.getProcessor());
-            iImageZoomerPanel.updateImage(image);
-        }
-        if (iImageZoomerFrame != null) {
-            BufferedImage image = BufferedImageCreator.create((ColorProcessor)iImgPlus.getProcessor());
-            iImageZoomerFrame.updateImage(image);
+        if (planeNumber != Integer.MAX_VALUE) {
+            if(iImageZoomerPanel!=null){
+                BufferedImage image = BufferedImageCreator.create((ColorProcessor)iImgPlus.getProcessor());
+                iImageZoomerPanel.updateImage(image);
+            }
+            if (iImageZoomerFrame != null) {
+                BufferedImage image = BufferedImageCreator.create((ColorProcessor)iImgPlus.getProcessor());
+                iImageZoomerFrame.updateImage(image);
+            }
         }
     }
 

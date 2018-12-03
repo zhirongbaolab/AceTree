@@ -2332,16 +2332,16 @@ public class AceTree extends JPanel
         else if (e.getSource() == iColorToggle) {
             toggleColor();
         } else if (e.getSource() == maximumIntensityProjectionToggle) {
-            bringUpMaximumIntensityProjectionWindow();
+            showMaximumIntensityProjection();
         }
         if (doUpdate)
         	updateDisplay();
     }
 
-    public void bringUpMaximumIntensityProjectionWindow() {
+    public void showMaximumIntensityProjection() {
         if (this.imageManager == null) return;
 
-        this.MIP_window = new MaxIntensityProjectionWindow(this.imageManager.makeMaxProjection());
+        this.iImgWin.refreshDisplay(this.imageManager.getCurrentImageName(), this.imageManager.makeMaxProjection(), Integer.MAX_VALUE);
     }
 
     public void toggleColor() {
