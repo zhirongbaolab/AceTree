@@ -315,6 +315,31 @@ public class ImageConversionManager {
         return ip;
     }
 
+    /**
+     * Maximum Intensity Projections are shown in the ImageWindow in red
+     * @param MIP_ip
+     * @return
+     */
+    public static ImagePlus convertMIPImageToRGB(ImagePlus MIP_ip) {
+
+
+        ImageProcessor iproc = MIP_ip.getProcessor();
+        byte [] rpix = (byte [])iproc.getPixels();
+        byte [] R = new byte[rpix.length];
+        byte [] G = new byte[rpix.length];
+        byte [] B = new byte[rpix.length];
+        ColorProcessor iproc3 = new ColorProcessor(iproc.getWidth(), iproc.getHeight());
+        iproc3.getRGB(R, G, B);
+
+        R = rpix;
+
+        currentRPixelMap = R;
+        currentGPixelMap = G;
+        currentBPixelMap = B;
+
+        return buildImagePlus(MIP_ip, R, G, B);
+    }
+
 
 
     private static byte[] getRedChannelIn16BitImage(byte[] R, ImageConfig imageConfig) {

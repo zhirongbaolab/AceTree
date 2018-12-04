@@ -429,40 +429,10 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
 		menu = new JMenu("3D Rendering");
 		menu.addActionListener(this);
 		add(menu);
-		
-		// add to 3d submenu
-		//if(fullgui){
-	    //    i3D = new JMenuItem(THREED);
-	    //    i3D.addActionListener(this);
-	    //    menu.add(i3D);
-		//}
+
 		i3D3 = new JMenuItem(THREED4);
         i3D3.addActionListener(this);
         menu.add(i3D3);
-		
-//        i3D2 = new JMenuItem(THREED2);
-//        i3D2.addActionListener(this);
-//        menu.add(i3D2);
-//
-//        i3DViewer =new JMenuItem(NEWTHREEDVIEW);
-//        i3DViewer.addActionListener(this);
-//        menu.add(i3DViewer);
-
-	//if(fullgui){      
- 	// i3Dsave = new JCheckBoxMenuItem(THREEDSAVE);
-   //     i3Dsave.addItemListener(this);
-   //     menu.add(i3Dsave);
-	//}
-     //  i3D2save = new JCheckBoxMenuItem(THREEDTWOSAVE);
-     //  i3D2save.addItemListener(this);
-    //    menu.add(i3D2save);
-      //  i3D2Zsave = new JCheckBoxMenuItem(THREEDTWOZSAVE);
-      //  i3D2Zsave.addItemListener(this);
-      //  menu.add(i3D2Zsave);
-	//end 3d submenu
-
-
-
 
 		if(fullgui){ 
 	        // the view
@@ -475,17 +445,6 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
 	        iViewEllipse.addActionListener(this);
 	        menu.add(iViewEllipse);
 		}
- 
-	//iZoomView = new JMenuItem(ZOOMVIEW);
-        //iZoomView.addActionListener(this);
-	// menu.add(iZoomView);
-	
-	//	iDepthViews = new JMenuItem(DEPTHVIEWS);
-        //iDepthViews.addActionListener(this);
-	// menu.add(iDepthViews);
-	//iAnnotationProperties = new JMenuItem(ANNOTATIONPROPERTIES);
-        //iAnnotationProperties.addActionListener(this);
-        //menu.add(iAnnotationProperties);
 
 		if(fullgui){
 	        iAllCentroids = new JMenuItem(ALLCENTROIDS);
@@ -511,9 +470,6 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
 	        iTestWindow = new JMenuItem("TestWindow");
 	        iTestWindow.addActionListener(this);
 	        menu.add(iTestWindow);
-	        //iDebugLog = new JMenuItem(DEBUGLOG);
-	        //iDebugLog.addActionListener(this);
-	        //menu.add(iDebugLog);
 	        setEnabled(false);
 	        iClearTree.setEnabled(false);
 		}

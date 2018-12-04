@@ -598,9 +598,14 @@ public class ImageManager {
         zproj.setImage(ip);
         zproj.doProjection();
 
+        //this.currentImage = ImageConversionManager.convertMIPImageToRGB(zproj.getProjection());
         this.currentImage = zproj.getProjection();
+        System.out.println("MIP is: " + this.currentImage.getBitDepth() + ", " + this.currentImage.getBytesPerPixel() + ", " + this.currentImage.getNChannels());
+        // 16bit
+
+
         this.isCurrImageMIP = true;
-        return zproj.getProjection();
+        return this.currentImage;
     }
 
     public boolean isCurrImageMIP() { return this.isCurrImageMIP; }
