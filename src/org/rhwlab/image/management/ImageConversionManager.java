@@ -1,5 +1,6 @@
 package org.rhwlab.image.management;
 
+import com.sun.org.apache.bcel.internal.generic.MULTIANEWARRAY;
 import ij.ImagePlus;
 import ij.io.FileInfo;
 import ij.io.Opener;
@@ -10,6 +11,7 @@ import ij.process.ImageProcessor;
 
 import java.awt.*;
 import java.io.File;
+import java.util.Collections;
 
 /**
  * Handles 16bit to 8bit conversion and image splitting
@@ -316,28 +318,183 @@ public class ImageConversionManager {
     }
 
     /**
-     * Maximum Intensity Projections are shown in the ImageWindow in red
+     * Maximum Intensity Projections are shown in the ImageWindow
      * @param MIP_ip
+     * @param colorChannelIdx - 1 (red), 2 (green), 3 (blue)
      * @return
      */
-    public static ImagePlus convertMIPImageToRGB(ImagePlus MIP_ip) {
-
-
+    public static ImagePlus convertMIPToRGB(ImagePlus MIP_ip, int colorChannelIdx, ImageConfig imageConfig) {
         ImageProcessor iproc = MIP_ip.getProcessor();
-        byte [] rpix = (byte [])iproc.getPixels();
-        byte [] R = new byte[rpix.length];
-        byte [] G = new byte[rpix.length];
-        byte [] B = new byte[rpix.length];
-        ColorProcessor iproc3 = new ColorProcessor(iproc.getWidth(), iproc.getHeight());
-        iproc3.getRGB(R, G, B);
+        //System.out.println(iproc.getNChannels() + ", " + iproc.getSliceNumber() + ", " + iproc.getBitDepth() + ", " + iproc.getPixelCount() + ", " + iproc.getPixelValue(30, 30));
 
-        R = rpix;
+        // flip the projection
+        iproc.flipHorizontal();
+
+        int ipWidth = iproc.getWidth();
+        int ipHeight = iproc.getHeight();
+        int pixelCount = iproc.getPixelCount();
+
+        if (imageConfig.getSplitStack() == 1) {
+            pixelCount /= 2;
+            ipWidth /= 2;
+        }
+
+
+        byte [] R = new byte[pixelCount];
+        byte [] G = new byte[pixelCount];
+        byte [] B = new byte[pixelCount];
+
+        ColorProcessor iproc3 = new ColorProcessor(ipWidth, iproc.getHeight());
+
+        if (imageConfig.getSplitStack() == 1) {
+            // crop the image so we just have the right side (originally the left, but we flipped the image horizontally)
+            iproc.setRoi(MIP_ip.getWidth()/2, 0, MIP_ip.getWidth()/2, MIP_ip.getHeight());
+            ImagePlus croppedIP = new ImagePlus("", iproc.crop());
+
+            //croppedIP.setDisplayRange(min, max);
+
+            // convert the image to 8 bit
+            ImageConverter ic = new ImageConverter(croppedIP);
+            ic.convertToGray8();
+
+
+            byte[] pix = (byte [])croppedIP.getProcessor().getPixels();
+
+            //iproc3.getRGB(R, G, B);
+
+            if (colorChannelIdx == RED) {
+                R = pix;
+            } else if (colorChannelIdx == GREEN) {
+                G = pix;
+            } else if (colorChannelIdx == BLUE) {
+                B = pix;
+            }
+        } else {
+            ImageConverter ic = new ImageConverter(MIP_ip);
+            ic.convertToGray8();
+
+            ImageProcessor converted = MIP_ip.getProcessor();
+
+            byte[] pix = (byte [])converted.getPixels();
+
+            //iproc3.getRGB(R, G, B);
+
+            if (colorChannelIdx == RED) {
+                R = pix;
+            } else if (colorChannelIdx == GREEN) {
+                G = pix;
+            } else if (colorChannelIdx == BLUE) {
+                B = pix;
+            }
+        }
+
+
+        ImagePlus ip = new ImagePlus();
+        iproc3.setRGB(R, G, B);
+        ip.setProcessor("test", iproc3);
 
         currentRPixelMap = R;
         currentGPixelMap = G;
         currentBPixelMap = B;
 
-        return buildImagePlus(MIP_ip, R, G, B);
+        //System.out.println("Contrast min, max for MIP 8bit: " + ip.getDisplayRangeMin() + ", " + ip.getDisplayRangeMax());
+
+
+        return ip;
+    }
+
+    /**
+     * Similar to convertMIPToRGB, but takes multiple max projections and create a single, multi-color
+     * max projection image plus. The indices in colorChannelIndices must be parallel to MIP_ips and
+     * indicate the respective color of each max projection in MIP_ips
+     * @param MIP_ips
+     * @param colorChannelIndices
+     * @return
+     */
+    public static ImagePlus convertMultipleMIPsToRGB(ImagePlus[] MIP_ips, int[] colorChannelIndices, ImageConfig imageConfig) {
+        if (MIP_ips.length != colorChannelIndices.length) return null;
+
+        // use the first max projection to set up the variables
+        ImageProcessor iproc = MIP_ips[0].getProcessor();
+        //System.out.println(iproc.getNChannels() + ", " + iproc.getSliceNumber() + ", " + iproc.getBitDepth() + ", " + iproc.getPixelCount() + ", " + iproc.getPixelValue(30, 30));
+
+        int ipWidth = iproc.getWidth();
+        int ipHeight = iproc.getHeight();
+        int pixelCount = iproc.getPixelCount();
+
+        if (imageConfig.getSplitStack() == 1) {
+            pixelCount /= 2;
+            ipWidth /= 2;
+        }
+
+
+        byte [] R = new byte[pixelCount];
+        byte [] G = new byte[pixelCount];
+        byte [] B = new byte[pixelCount];
+
+
+        ColorProcessor iproc3 = new ColorProcessor(ipWidth, ipHeight);
+
+        // two inner conditions because more than 3 channel imaging is not currently supported
+        for (int i = 0; i < MIP_ips.length && i < 3; i++) {
+            ImageProcessor iprocN = MIP_ips[i].getProcessor();
+
+            // flip the projection
+            iprocN.flipHorizontal();
+
+            if (imageConfig.getSplitStack() == 1) {
+                // crop the image so we just have the right side (originally the left, but we flipped the image horizontally)
+                iprocN.setRoi(MIP_ips[0].getWidth()/2, 0, MIP_ips[0].getWidth()/2, MIP_ips[0].getHeight());
+                ImagePlus croppedIP = new ImagePlus("", iprocN.crop());
+
+                //croppedIP.setDisplayRange(min, max);
+
+                // convert the image to 8 bit
+                ImageConverter ic = new ImageConverter(croppedIP);
+                ic.convertToGray8();
+
+
+                byte[] pix = (byte [])croppedIP.getProcessor().getPixels();
+
+                int colorChannelIdx = colorChannelIndices[i];
+                if (colorChannelIdx == RED) {
+                    R = pix;
+                } else if (colorChannelIdx == GREEN) {
+                    G = pix;
+                } else if (colorChannelIdx == BLUE) {
+                    B = pix;
+                }
+            } else {
+                ImageConverter ic = new ImageConverter(MIP_ips[i]);
+                ic.convertToGray8();
+
+                ImageProcessor converted = MIP_ips[i].getProcessor();
+
+                byte[] pix = (byte [])converted.getPixels();
+
+                int colorChannelIdx = colorChannelIndices[i];
+                if (colorChannelIdx == RED) {
+                    R = pix;
+                } else if (colorChannelIdx == GREEN) {
+                    G = pix;
+                } else if (colorChannelIdx == BLUE) {
+                    B = pix;
+                }
+            }
+        }
+
+        ImagePlus ip = new ImagePlus();
+        iproc3.setRGB(R, G, B);
+        ip.setProcessor("test", iproc3);
+
+        currentRPixelMap = R;
+        currentGPixelMap = G;
+        currentBPixelMap = B;
+
+        //System.out.println("Contrast min, max for MIP 8bit: " + ip.getDisplayRangeMin() + ", " + ip.getDisplayRangeMax());
+
+
+        return ip;
     }
 
 
@@ -414,4 +571,8 @@ public class ImageConversionManager {
     public static byte[] getCurrentRPixelMap() { return currentRPixelMap; }
     public static byte[] getCurrentGPixelMap() { return currentGPixelMap; }
     public static byte[] getCurrentBPixelMap() { return currentBPixelMap; }
+
+    private static int RED = 1;
+    private static int GREEN = 2;
+    private static int BLUE = 3;
 }

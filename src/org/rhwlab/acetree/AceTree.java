@@ -22,6 +22,7 @@ import org.rhwlab.image.*;
 //import org.rhwlab.image.EditImage;
 //import org.rhwlab.image.EditImage3;
 
+import org.rhwlab.image.management.ImageConversionManager;
 import org.rhwlab.image.management.ImageManager;
 import org.rhwlab.image.management.ImageWindowDelegate;
 import org.rhwlab.nucedit.EditLog;
@@ -2321,6 +2322,7 @@ public class AceTree extends JPanel
             toggleColor();
         } else if (e.getSource() == maximumIntensityProjectionToggle) {
             showMaximumIntensityProjection();
+            doUpdate = false;
         }
         if (doUpdate)
         	updateDisplay();
@@ -2329,7 +2331,11 @@ public class AceTree extends JPanel
     public void showMaximumIntensityProjection() {
         if (this.imageManager == null) return;
 
-        this.iImgWin.refreshDisplay(this.imageManager.getCurrentImageName(), this.imageManager.makeMaxProjection(), Integer.MAX_VALUE);
+
+
+        this.iImgWin.refreshDisplay(this.imageManager.getCurrentImageName(),
+                this.imageManager.makeMaxProjection(),
+                Integer.MAX_VALUE);
 
         this.MIP_window = new MaxIntensityProjectionWindow(this.imageManager.getCurrentImageName(),
                 this.imageManager.makeMaxProjection());

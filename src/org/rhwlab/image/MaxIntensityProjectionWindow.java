@@ -2,12 +2,9 @@ package org.rhwlab.image;
 
 import ij.ImagePlus;
 import ij.gui.ImageCanvas;
-import ij.process.ColorProcessor;
-import net.sf.ij.jaiio.BufferedImageCreator;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 
 public class MaxIntensityProjectionWindow extends JFrame {
 
@@ -17,10 +14,9 @@ public class MaxIntensityProjectionWindow extends JFrame {
 
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 
-        MIP_ip.setDisplayRange(1470, 7000);
+        MIP_ip.setDisplayRange(0, 50);
 
         ImageCanvas imageCanvas = new ImageCanvas(MIP_ip);
-
 
 //        // create components and put them in the frame
         Container c = getContentPane();
@@ -31,7 +27,7 @@ public class MaxIntensityProjectionWindow extends JFrame {
         c.add(jp);
 
         // size the frame
-        setSize(MIP_ip.getWidth()/2, MIP_ip.getHeight());
+        setSize(MIP_ip.getWidth(), MIP_ip.getHeight());
 
         // bring up the image
         setVisible(true);

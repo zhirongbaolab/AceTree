@@ -591,21 +591,61 @@ public class ImageManager {
     ///////////////////////////////////////////////////
     /////////// METHODS FOR OTHER ////////////////////
     ////////// IMAGE MANIPULATIONS //////////////////
+
+    /**
+     * Makes max projection(s)
+     *
+     * @return
+     */
     public ImagePlus makeMaxProjection() {
-        ImagePlus ip = new Opener().openImage(this.currentImageName);
         ZProjector zproj = new ZProjector();
         zproj.setMethod(ZProjector.MAX_METHOD);
-        zproj.setImage(ip);
-        zproj.doProjection();
 
-        //this.currentImage = ImageConversionManager.convertMIPImageToRGB(zproj.getProjection());
-        this.currentImage = zproj.getProjection();
-        System.out.println("MIP is: " + this.currentImage.getBitDepth() + ", " + this.currentImage.getBytesPerPixel() + ", " + this.currentImage.getNChannels());
-        // 16bit
+        if (this.imageConfig.getUseStack() == 0) { // 8bit
+
+            // we'll need to load all of the planes in the stack before making this max projection so hold off on this for now
 
 
-        this.isCurrImageMIP = true;
-        return this.currentImage;
+        } else if (this.imageConfig.getUseStack() == 1) { //16bit
+            // check if there are multiple stacks defining the color channels of the image series, or if all channels are contained in a single stack
+            if (this.imageConfig.getNumChannels() == -1 || this.imageConfig.getNumChannels() == 1) { // legacy .XML config
+                // single stack with one or more color channels
+                this.currentImageName = ImageNameLogic.appendTimeToSingle16BitTIFPrefix(this.imageConfig.getImagePrefixes()[0], this.currentImageTime);
+
+                // set the image and do the projection
+                zproj.setImage(new Opener().openImage(this.currentImageName));
+                zproj.doProjection();
+
+                // convert the projection to 8bit RGB (shown in red by default)
+                this.currentImage = ImageConversionManager.convertMIPToRGB(zproj.getProjection(), 1, this.imageConfig);
+
+                this.isCurrImageMIP = true;
+                return this.currentImage;
+            } else if (this.imageConfig.getNumChannels() > 1) {
+                // multiple stacks containing multiple image channels for an image series
+                String[] images = ImageNameLogic.appendTimeToMultiple16BitTifPrefixes(this.imageConfig.getImagePrefixes(), this.currentImageTime);
+                this.currentImageName = images[0];
+
+                ImagePlus[] MIP_ips = new ImagePlus[images.length];
+                for (int i = 0; i < images.length; i++) {
+                    zproj.setImage(new Opener().openImage(images[i]));
+                    zproj.doProjection();
+                    MIP_ips[i] = zproj.getProjection();
+                }
+
+                int[] colorChannelIndices = new int[images.length];
+                for (int i = 0; i < images.length; i++) {
+                    colorChannelIndices[i] = i+1;
+                }
+
+                // convert the MIPs into an 8bit RGB image
+                this.currentImage = ImageConversionManager.convertMultipleMIPsToRGB(MIP_ips, colorChannelIndices, this.imageConfig);
+
+                this.isCurrImageMIP = true;
+                return this.currentImage;
+            }
+        }
+        return null;
     }
 
     public boolean isCurrImageMIP() { return this.isCurrImageMIP; }
