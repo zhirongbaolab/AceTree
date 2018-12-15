@@ -68,6 +68,7 @@ public class ImageManager {
         this.currentImagePlane = 15; // usually about the middle of the stack
         this.setOriginalContrastValues = true;
         this.isCurrImageMIP = false;
+        numChannelsForLegacyXMLTag = -1;
     }
 
     // methods to set runtime parameters
@@ -677,18 +678,16 @@ public class ImageManager {
      */
     public int getNextValidColorToggleIndex(int currentToggle) {
 
-        if (this.imageConfig.getNumChannels() == -1 && this.imageConfig.getSplitStack() == 1) {
-            // legacy .XML defition case. There can be two channels for this tag if the split tag == 1
-
-
-            if (currentToggle == 1) { return 2; } // if red, return green
-            if (currentToggle == 2) { return 4; } // if green, return red/green
-            if (currentToggle == 4) { return 1; } // if red/green, return red
-            return 1; // if we got an invalid number, return 1
-
-        } else if (this.imageConfig.getNumChannels() == -1 && this.imageConfig.getSplitStack() == 0) {
-            // legacy .XML defition case with just one image channel
-            return 1; // only valid color toggle index so it doesn't matter what was passed to this
+        if (this.imageConfig.getNumChannels() == -1) {
+            // legacy .XML defition case. Figure out the number of channels first
+            int nChannels = getNumChannelsForLegacyXMLTag();
+            if (nChannels == 2) {
+                if (currentToggle == 1) { return 2; } // if red, return green
+                if (currentToggle == 2) { return 4; } // if green, return red/green
+                if (currentToggle == 4) { return 1; } // if red/green, return red
+            } else { // if it's 1 or anything else, just return 1
+                return 1;
+            }
         } else if (this.imageConfig.getNumChannels() == 1) {
             return 1; // only valid color toggle index so it doesn't matter what was passed to this
         } else if (this.imageConfig.getNumChannels() == 2) {
@@ -701,7 +700,7 @@ public class ImageManager {
         }
 
 
-        return 0;
+        return 1;
     }
 
     // accessors and mutators for static variables
@@ -757,6 +756,26 @@ public class ImageManager {
     }
 
     public ImageConfig getImageConfig() { return this.imageConfig; }
+
+    /**
+     * The legacy image tag in the XML doesn't specify the number of color channels in the image series
+     * so this method and is used to figure that out by opening the provided image and using the ImageJ
+     * API to check its channel number
+     * @return
+     */
+    public int getNumChannelsForLegacyXMLTag() {
+        // if it has already been set, return the value
+        if (this.numChannelsForLegacyXMLTag != 1) { return this.numChannelsForLegacyXMLTag; }
+
+        // open the image to determine the number of channels the first time this is called
+        if (this.imageConfig.getProvidedImageFileName() != null) {
+            this.numChannelsForLegacyXMLTag = new Opener().openImage(this.imageConfig.getProvidedImageFileName()).getNChannels();
+            return this.numChannelsForLegacyXMLTag;
+        }
+
+        return 1;
+    }
+    private int numChannelsForLegacyXMLTag;
 
     private static Hashtable<String, Integer> imagesPreviouslyBitDepthChecked;
     public static int _8BIT_ID = 8;
