@@ -124,6 +124,8 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
     protected JSlider			iSlider1max;
     protected JSlider			iSlider2min;
     protected JSlider			iSlider2max;
+    protected JSlider           iSlider3min;
+    protected JSlider           iSlider3max;
 
     public static ColorSchemeDisplayProperty []     iDispProps;
     protected JToolBar      iToolBar;
@@ -240,7 +242,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 
         ict = null;
         ictApplyButton = null;
-        iSlider1min = iSlider1max = iSlider2min = iSlider2max = null;
+        iSlider1min = iSlider1max = iSlider2min = iSlider2max = iSlider3min = iSlider3max = null;
 
         iPartsList = new PartsList();
 
@@ -630,7 +632,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 
         iImgCanvas.repaint();
 
-        if (planeNumber != Integer.MAX_VALUE) {
+        //if (planeNumber != Integer.MAX_VALUE) {
             if(iImageZoomerPanel!=null){
                 BufferedImage image = BufferedImageCreator.create((ColorProcessor)iImgPlus.getProcessor());
                 iImageZoomerPanel.updateImage(image);
@@ -639,7 +641,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
                 BufferedImage image = BufferedImageCreator.create((ColorProcessor)iImgPlus.getProcessor());
                 iImageZoomerFrame.updateImage(image);
             }
-        }
+        //}
     }
 
     public ImagePlus refreshDisplay() {
@@ -1485,23 +1487,32 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
     		iSlider1max = ict.getSlider1max();
     		iSlider2min = ict.getSlider2min();
     		iSlider2max = ict.getSlider2max();
+    		iSlider3min = ict.getSlider3min();
+    		iSlider3max = ict.getSlider3max();
+
     		
     		ict.setSlider1min(iAceTree.getImageManager().getContrastMin1());
         	ict.setSlider1max(iAceTree.getImageManager().getContrastMax1());
         	ict.setSlider2min(iAceTree.getImageManager().getContrastMin2());
         	ict.setSlider2max(iAceTree.getImageManager().getContrastMax2());
+        	ict.setSlider3min(iAceTree.getImageManager().getContrastMin3());
+        	ict.setSlider3max(iAceTree.getImageManager().getContrastMax3());
     		
     		SliderListener sl = new SliderListener();
         	iSlider1min.addChangeListener(sl);
         	iSlider1max.addChangeListener(sl);
         	iSlider2min.addChangeListener(sl);
         	iSlider2max.addChangeListener(sl);
+        	iSlider3min.addChangeListener(sl);
+        	iSlider3max.addChangeListener(sl);
     	}
     	else {
     		ict.setSlider1min(iAceTree.getImageManager().getContrastMin1());
         	ict.setSlider1max(iAceTree.getImageManager().getContrastMax1());
         	ict.setSlider2min(iAceTree.getImageManager().getContrastMin2());
         	ict.setSlider2max(iAceTree.getImageManager().getContrastMax2());
+        	ict.setSlider3min(iAceTree.getImageManager().getContrastMin3());
+        	ict.setSlider3max(iAceTree.getImageManager().getContrastMax3());
         	
         	ict.setVisible(true);
     	}
@@ -1531,6 +1542,13 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
                     iAceTree.getImageManager().setContrastMin2(min2);
                     iAceTree.getImageManager().setContrastMax2(max2);
     			}
+    			int min3 = iSlider3min.getValue();
+    			int max3 = iSlider3max.getValue();
+    			if (min3 <= max3) {
+    			    iAceTree.getImageManager().setContrastMin3(min3);
+    			    iAceTree.getImageManager().setContrastMax3(max3);
+                }
+
     			iAceTree.updateDisplay();
     		}
     	}

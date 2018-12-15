@@ -351,7 +351,15 @@ public class ImageConversionManager {
             iproc.setRoi(MIP_ip.getWidth()/2, 0, MIP_ip.getWidth()/2, MIP_ip.getHeight());
             ImagePlus croppedIP = new ImagePlus("", iproc.crop());
 
-            //croppedIP.setDisplayRange(min, max);
+            // set the display range from the sliders
+            if (colorChannelIdx == RED) {
+                croppedIP.setDisplayRange(ImageManager.getContrastMin1(), ImageManager.getContrastMax1());
+            } else if (colorChannelIdx == GREEN) {
+                croppedIP.setDisplayRange(ImageManager.getContrastMin2(), ImageManager.getContrastMax2());
+            } else if (colorChannelIdx == BLUE) {
+                croppedIP.setDisplayRange(ImageManager.getContrastMin3(), ImageManager.getContrastMax3());
+            }
+
 
             // convert the image to 8 bit
             ImageConverter ic = new ImageConverter(croppedIP);
@@ -370,6 +378,15 @@ public class ImageConversionManager {
                 B = pix;
             }
         } else {
+            // set the display range from the sliders
+            if (colorChannelIdx == RED) {
+                MIP_ip.setDisplayRange(ImageManager.getContrastMin1(), ImageManager.getContrastMax1());
+            } else if (colorChannelIdx == GREEN) {
+                MIP_ip.setDisplayRange(ImageManager.getContrastMin2(), ImageManager.getContrastMax2());
+            } else if (colorChannelIdx == BLUE) {
+                MIP_ip.setDisplayRange(ImageManager.getContrastMin3(), ImageManager.getContrastMax3());
+            }
+
             ImageConverter ic = new ImageConverter(MIP_ip);
             ic.convertToGray8();
 
@@ -447,7 +464,17 @@ public class ImageConversionManager {
                 iprocN.setRoi(MIP_ips[0].getWidth()/2, 0, MIP_ips[0].getWidth()/2, MIP_ips[0].getHeight());
                 ImagePlus croppedIP = new ImagePlus("", iprocN.crop());
 
-                //croppedIP.setDisplayRange(min, max);
+                int colorChannelIdx = colorChannelIndices[i];
+
+                // set the display ranges
+                if (colorChannelIdx == RED) {
+                    croppedIP.setDisplayRange(ImageManager.getContrastMin1(), ImageManager.getContrastMax1());
+                } else if (colorChannelIdx == GREEN) {
+                    croppedIP.setDisplayRange(ImageManager.getContrastMin2(), ImageManager.getContrastMax2());
+                } else if (colorChannelIdx == BLUE) {
+                    croppedIP.setDisplayRange(ImageManager.getContrastMin3(), ImageManager.getContrastMax3());
+                }
+
 
                 // convert the image to 8 bit
                 ImageConverter ic = new ImageConverter(croppedIP);
@@ -456,7 +483,7 @@ public class ImageConversionManager {
 
                 byte[] pix = (byte [])croppedIP.getProcessor().getPixels();
 
-                int colorChannelIdx = colorChannelIndices[i];
+
                 if (colorChannelIdx == RED) {
                     R = pix;
                 } else if (colorChannelIdx == GREEN) {
@@ -465,6 +492,16 @@ public class ImageConversionManager {
                     B = pix;
                 }
             } else {
+                // set the display ranges
+                int colorChannelIdx = colorChannelIndices[i];
+                if (colorChannelIdx == RED) {
+                    MIP_ips[i].setDisplayRange(ImageManager.getContrastMin1(), ImageManager.getContrastMax1());
+                } else if (colorChannelIdx == GREEN) {
+                    MIP_ips[i].setDisplayRange(ImageManager.getContrastMin2(), ImageManager.getContrastMax2());
+                } else if (colorChannelIdx == BLUE) {
+                    MIP_ips[i].setDisplayRange(ImageManager.getContrastMin3(), ImageManager.getContrastMax3());
+                }
+
                 ImageConverter ic = new ImageConverter(MIP_ips[i]);
                 ic.convertToGray8();
 
@@ -472,7 +509,7 @@ public class ImageConversionManager {
 
                 byte[] pix = (byte [])converted.getPixels();
 
-                int colorChannelIdx = colorChannelIndices[i];
+
                 if (colorChannelIdx == RED) {
                     R = pix;
                 } else if (colorChannelIdx == GREEN) {
