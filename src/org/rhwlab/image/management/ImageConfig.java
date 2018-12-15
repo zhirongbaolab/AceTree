@@ -215,7 +215,7 @@ public class ImageConfig {
      * @return
      */
     public boolean areMultipleImageChannelsGiven() {
-        if (numChannels != -1) {
+        if (numChannels != -1 || numChannels > 1) {
             return true;
         }
         return false;

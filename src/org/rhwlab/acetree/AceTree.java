@@ -533,6 +533,9 @@ public class AceTree extends JPanel
             this.iImgWin.setAceTree(this); // TODO - this is bad code practice how this is piped, but to get it to testable we'll settle for now 11/2018
             this.iImgWin.setNucleiMgr(this.iNucleiMgr); // TODO - same
 
+            // update the PlayerControl tab with an color channel toggle that matches the config of this image series
+            this.getPlayerControl().updateColorChannelToggleButton();
+
             // CHECK HERE FOR THE RARE CASE OF A ZERO INDEXED IMAGE SERIES AND UPDATE THE TIMEINC VARIABLE IF NECESSARY
             if (this.imageManager.getCurrImageTime() == 0) {
                 iTimeInc = 1;
@@ -1853,10 +1856,17 @@ public class AceTree extends JPanel
         if (iImgWin != null) {
             //System.out.println("Refreshing image window with new image, time: " + this.imageManager.getCurrImageTime() + ", plane: " + this.imageManager.getCurrImagePlane());
             // refresh the ImageWindow by building the desired image in the series with ImageManager and passing it along
-            int planeNum = -1;
-            if (this.configManager.getImageConfig().getUseStack() == 1) { planeNum = this.imageManager.getCurrImagePlane(); }
+            if (this.imageManager.isCurrImageMIP()) {
+                // rebuild a maximum intensity projection (most likely the contrast slider was updated and ImageWindow has called back to updateDisplay())
+                showMaximumIntensityProjection(); // will pass the max projection to ImageWindow
+            } else {
+                int planeNum = -1;
+                if (this.configManager.getImageConfig().getUseStack() == 1) { planeNum = this.imageManager.getCurrImagePlane(); }
 
-            iImgWin.refreshDisplay(this.imageManager.makeImageNameForTitle(), this.imageManager.extractColorChannelFromImagePlus(this.imageManager.makeImage(), this.iColor), planeNum);
+                iImgWin.refreshDisplay(this.imageManager.makeImageNameForTitle(), this.imageManager.extractColorChannelFromImagePlus(this.imageManager.makeImage(), this.iColor), planeNum);
+
+            }
+
         }
         
         if (iCallSaveImage) {
@@ -2232,6 +2242,10 @@ public class AceTree extends JPanel
         //incPlane(-1);
         iTrackPosition = ImageWindow.NONE;
         iCallSaveImage = true;
+
+        // flip the MIP flag if AceTree is showing a MIP right now
+        this.imageManager.setCurrImageMIP(false);
+
         updateDisplay();
     }
 
@@ -2240,6 +2254,10 @@ public class AceTree extends JPanel
         //incPlane(1);
         iTrackPosition = ImageWindow.NONE;
         iCallSaveImage = true;
+
+        // flip the MIP flag if AceTree is showing a MIP right now
+        this.imageManager.setCurrImageMIP(false);
+
         updateDisplay();
     }
 
@@ -2331,23 +2349,23 @@ public class AceTree extends JPanel
     public void showMaximumIntensityProjection() {
         if (this.imageManager == null) return;
 
-
-
         this.iImgWin.refreshDisplay(this.imageManager.getCurrentImageName(),
-                this.imageManager.makeMaxProjection(),
+                this.imageManager.makeMaxProjection(this.iColor),
                 Integer.MAX_VALUE);
 
-        this.MIP_window = new MaxIntensityProjectionWindow(this.imageManager.getCurrentImageName(),
-                this.imageManager.makeMaxProjection());
+        //this.MIP_window = new MaxIntensityProjectionWindow(this.imageManager.getCurrentImageName(),
+                //this.imageManager.makeMaxProjection(this.iColor));
     }
 
     public void toggleColor() {
-        if (iColor < 7) {
-            iColor += 1;
-        } else if (iColor == 7) {
-            iColor = 1;
-        }
+        this.iColor = this.imageManager.getNextValidColorToggleIndex(this.iColor);
 
+//        if (iColor < 7) {
+//            iColor += 1;
+//        } else if (iColor == 7) {
+//            iColor = 1;
+//        }
+//
         switch(iColor) {
             case 1:
                 System.out.println("*** Switched to RED channel mode ***");
@@ -2571,6 +2589,9 @@ public class AceTree extends JPanel
     public boolean nextTime() {
 	   this.imageManager.incrementImageTimeNumber(1);
 
+        // flip the MIP flag if AceTree is showing a MIP right now
+        this.imageManager.setCurrImageMIP(false);
+
         iCallSaveImage = true;
         int now = this.imageManager.getCurrImageTime() + iTimeInc;
         int end = 9999;
@@ -2595,7 +2616,10 @@ public class AceTree extends JPanel
 
     public boolean prevTime() {
         this.imageManager.incrementImageTimeNumber(-1);
-        
+
+        // flip the MIP flag if AceTree is showing a MIP right now
+        this.imageManager.setCurrImageMIP(false);
+
         iCallSaveImage = true;
         int now = this.imageManager.getCurrImageTime() + iTimeInc;
         int start = 0;
@@ -3162,7 +3186,9 @@ public class AceTree extends JPanel
         }
 
         boolean b = nextTime();
-        
+
+
+
 		updateDisplay();
 
 		return b;

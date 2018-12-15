@@ -367,10 +367,13 @@ public class ImageManager {
     }
 
     /**
-     * Assumes that the desired time and plane are already set
+     * Assumes that the desired time and plane are already set, unless we're in MAX PROJECTION mode, in which case
+     * the contrast sliders were probably changed and we just want to return the current image
      * @return
      */
     public ImagePlus makeImage() {
+        if (isCurrImageMIP) { return this.currentImage; }
+
         this.currentImage = makeImage(this.currentImageTime, this.currentImagePlane);
         this.isCurrImageMIP = false;
         return this.currentImage;
@@ -595,9 +598,12 @@ public class ImageManager {
     /**
      * Makes max projection(s)
      *
+     * @param colorToggleValue - the current value of the color toggle in the ImageWindow. The max projection
+     *                         will always match the color configuration of the current image
+     *
      * @return
      */
-    public ImagePlus makeMaxProjection() {
+    public ImagePlus makeMaxProjection(int colorToggleValue) {
         ZProjector zproj = new ZProjector();
         zproj.setMethod(ZProjector.MAX_METHOD);
 
@@ -649,6 +655,54 @@ public class ImageManager {
     }
 
     public boolean isCurrImageMIP() { return this.isCurrImageMIP; }
+    public void setCurrImageMIP(boolean b) { this.isCurrImageMIP = b; }
+
+    /**
+     * This method produce the next valid color toggle index based on the image series that was loaded.
+     * The list of all possible options and their corresponding indices is as follows:
+     * 1. Red
+     * 2. Green
+     * 3. Blue
+     * 4. Red/Green
+     * 5. Green/Blue
+     * 6. Red/Blue
+     * 7. Red/Green/Blue
+     *
+     * For example, if a dataset with red and green images is loaded, and it's currently in red mode,
+     * this method will return:
+     * 2
+     *
+     *
+     * @return
+     */
+    public int getNextValidColorToggleIndex(int currentToggle) {
+
+        if (this.imageConfig.getNumChannels() == -1 && this.imageConfig.getSplitStack() == 1) {
+            // legacy .XML defition case. There can be two channels for this tag if the split tag == 1
+
+
+            if (currentToggle == 1) { return 2; } // if red, return green
+            if (currentToggle == 2) { return 4; } // if green, return red/green
+            if (currentToggle == 4) { return 1; } // if red/green, return red
+            return 1; // if we got an invalid number, return 1
+
+        } else if (this.imageConfig.getNumChannels() == -1 && this.imageConfig.getSplitStack() == 0) {
+            // legacy .XML defition case with just one image channel
+            return 1; // only valid color toggle index so it doesn't matter what was passed to this
+        } else if (this.imageConfig.getNumChannels() == 1) {
+            return 1; // only valid color toggle index so it doesn't matter what was passed to this
+        } else if (this.imageConfig.getNumChannels() == 2) {
+            if (currentToggle == 1) { return 2; }
+            if (currentToggle == 2) { return 4; }
+            if (currentToggle == 4) { return 1; }
+        } else if (this.imageConfig.getNumChannels() == 3) {
+            if (currentToggle == 7) { return 1; } // go back around
+            else { return currentToggle+1; } // all options valid so increment by 1
+        }
+
+
+        return 0;
+    }
 
     // accessors and mutators for static variables
     public static void setOriginContrastValuesFlag(boolean OCVF) { setOriginalContrastValues = OCVF; }
@@ -701,6 +755,9 @@ public class ImageManager {
         }
         return FAIL;
     }
+
+    public ImageConfig getImageConfig() { return this.imageConfig; }
+
     private static Hashtable<String, Integer> imagesPreviouslyBitDepthChecked;
     public static int _8BIT_ID = 8;
     public static int _16BIT_ID = 16;

@@ -92,10 +92,13 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
 	  iStepDown.setToolTipText("Slice Down");
 	  iToolBar.add(iStepDown);
 	  iToolBar.add(new JToolBar.Separator());
-	  iStepChannel = makeButton("/images/StepChannel16");
+
+	  // assume the image series will be RG
+	  iStepChannel = makeButton("/images/StepChannelRG");
 	  iStepChannel.setToolTipText("Channel Visibility");
 	  iToolBar.add(iStepChannel);
-      maximumIntensityProjection = makeButton("/images/mip");
+
+	  maximumIntensityProjection = makeButton("/images/mip");
       maximumIntensityProjection.setToolTipText("Maximum Intensity Projection");
       iToolBar.add(maximumIntensityProjection);
 	  iProperties = makeButton("/images/Properties");
@@ -246,6 +249,27 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
 		} else if (o == iContrast) {
 			iAceTree.getImageWindow().launchContrastTool();
 		}
+    }
+
+    public void updateColorChannelToggleButton() {
+        String imageName = "";
+
+        int numChannels = this.iAceTree.getImageManager().getImageConfig().getNumChannels();
+        if (numChannels == -1) {
+            // assume red
+            imageName = "/images/StepChannelR";
+        } else if (numChannels == 1) {
+            imageName = "/images/StepChannelR";
+        } else if (numChannels == 2) {
+            imageName = "/images/StepChannelRG";
+        } else if (numChannels >= 3) {
+            imageName = "/images/StepChannelRGB";
+        }
+
+
+        String imgLoc = imageName + ".gif";
+        URL imageURL = PlayerControl.class.getResource(imgLoc);
+        iStepChannel.setIcon(new ImageIcon(imageURL, "x"));
     }
 
     public static void main(String[] args) { }
