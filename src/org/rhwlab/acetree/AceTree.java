@@ -1199,7 +1199,7 @@ public class AceTree extends JPanel
     		}
     	};
         key = KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, InputEvent.CTRL_MASK, false);
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(key, xxx);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(key, xxx);
         getActionMap().put(xxx, ctrl_left );
 
     	xxx = "ctrl_left_a";
@@ -1216,7 +1216,7 @@ public class AceTree extends JPanel
     		}
     	};
         key = KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_MASK, false);
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(key, xxx);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(key, xxx);
         getActionMap().put(xxx, ctrl_left );
 
     	xxx = "ctrl_right";
@@ -1233,7 +1233,7 @@ public class AceTree extends JPanel
     		}
     	};
         key = KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, InputEvent.CTRL_MASK, false);
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(key, xxx);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(key, xxx);
         getActionMap().put(xxx, ctrl_right );
 
     	xxx = "ctrl_right_d";
@@ -1250,7 +1250,7 @@ public class AceTree extends JPanel
     		}
     	};
         key = KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_MASK, false);
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(key, xxx);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(key, xxx);
         getActionMap().put(xxx, ctrl_right );
 
         xxx = "ctrl_up";
@@ -1267,7 +1267,7 @@ public class AceTree extends JPanel
     		}
     	};
         key = KeyStroke.getKeyStroke(KeyEvent.VK_UP, InputEvent.CTRL_MASK, false);
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(key, xxx);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(key, xxx);
         getActionMap().put(xxx, ctrl_up );
 
         xxx = "ctrl_up_w";
@@ -1284,7 +1284,7 @@ public class AceTree extends JPanel
     		}
     	};
         key = KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_MASK, false);
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(key, xxx);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(key, xxx);
         getActionMap().put(xxx, ctrl_up );
 
     	xxx = "ctrl_down";
@@ -1301,7 +1301,7 @@ public class AceTree extends JPanel
     		}
     	};
         key = KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, InputEvent.CTRL_MASK, false);
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(key, xxx);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(key, xxx);
         getActionMap().put(xxx, ctrl_down );
 
     	xxx = "ctrl_down_s";
@@ -1318,7 +1318,7 @@ public class AceTree extends JPanel
     		}
     	};
         key = KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK, false);
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(key, xxx);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(key, xxx);
         getActionMap().put(xxx, ctrl_down );
 
     	xxx = "shift_left";
@@ -1334,7 +1334,7 @@ public class AceTree extends JPanel
     		}
     	};
         key = KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, InputEvent.SHIFT_MASK, false);
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(key, xxx);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(key, xxx);
         getActionMap().put(xxx, shift_left );
 
     	xxx = "shift_left_a";
@@ -1350,7 +1350,7 @@ public class AceTree extends JPanel
     		}
     	};
         key = KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.SHIFT_MASK, false);
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(key, xxx);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(key, xxx);
         getActionMap().put(xxx, shift_left );
 
     	xxx = "shift_right";
@@ -1366,7 +1366,7 @@ public class AceTree extends JPanel
     		}
     	};
         key = KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, InputEvent.SHIFT_MASK, false);
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(key, xxx);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(key, xxx);
         getActionMap().put(xxx, shift_right );
 
     	xxx = "shift_right_d";
@@ -1382,7 +1382,7 @@ public class AceTree extends JPanel
     		}
     	};
         key = KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.SHIFT_MASK, false);
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(key, xxx);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(key, xxx);
         getActionMap().put(xxx, shift_right );
 
         xxx = "shift_up";
@@ -1399,7 +1399,7 @@ public class AceTree extends JPanel
     		}
     	};
         key = KeyStroke.getKeyStroke(KeyEvent.VK_UP, InputEvent.SHIFT_MASK, false);
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(key, xxx);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(key, xxx);
         getActionMap().put(xxx, shift_up );
 
         xxx = "shift_up_w";
@@ -1416,7 +1416,7 @@ public class AceTree extends JPanel
     		}
     	};
         key = KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.SHIFT_MASK, false);
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(key, xxx);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(key, xxx);
         getActionMap().put(xxx, shift_up );
 
     	xxx = "shift_down";
@@ -1433,7 +1433,7 @@ public class AceTree extends JPanel
     		}
     	};
         key = KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, InputEvent.SHIFT_MASK, false);
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(key, xxx);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(key, xxx);
         getActionMap().put(xxx, shift_down );
 
     	xxx = "shift_down_s";
@@ -1450,7 +1450,7 @@ public class AceTree extends JPanel
     		}
     	};
         key = KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.SHIFT_MASK, false);
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(key, xxx);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(key, xxx);
         getActionMap().put(xxx, shift_down );
 
         // this one is a delete cell special
@@ -1497,7 +1497,7 @@ public class AceTree extends JPanel
     		}
     	};
         key = KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0, false);
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(key, xxx);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(key, xxx);
         getActionMap().put(xxx, F5 );
 
         // these go to the NucRelinkDialog
@@ -1515,7 +1515,7 @@ public class AceTree extends JPanel
     		}
     	};
         key = KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0, false);
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(key, xxx);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(key, xxx);
         getActionMap().put(xxx, F1 );
 
     	xxx = "F2";
@@ -1531,7 +1531,7 @@ public class AceTree extends JPanel
     		}
     	};
         key = KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0, false);
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(key, xxx);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(key, xxx);
         getActionMap().put(xxx, F2 );
 
     	xxx = "F3";
@@ -1547,7 +1547,7 @@ public class AceTree extends JPanel
     		}
     	};
         key = KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0, false);
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(key, xxx);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(key, xxx);
         getActionMap().put(xxx, F3 );
 
     	xxx = "F4";
@@ -1563,7 +1563,7 @@ public class AceTree extends JPanel
     		}
     	};
         key = KeyStroke.getKeyStroke(KeyEvent.VK_F4, 0, false);
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(key, xxx);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(key, xxx);
         getActionMap().put(xxx, F4 );
     }
 
@@ -1589,7 +1589,7 @@ public class AceTree extends JPanel
                 updateDisplay();
             }
         };
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("PAGE_UP"), "PAGE_UP");
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("PAGE_UP"), "PAGE_UP");
         getActionMap().put(s, PageUp );
 
         s = "PAGE_DOWN";
@@ -1607,7 +1607,7 @@ public class AceTree extends JPanel
                 updateDisplay();
             }
         };
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).
             put(KeyStroke.getKeyStroke(s), s);
         getActionMap().put(s, PageDn );
 
@@ -1619,7 +1619,7 @@ public class AceTree extends JPanel
                 //copyImage();
             }
         };
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(s), s);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(s), s);
         getActionMap().put(s, end );
 
         s = "HOME";
@@ -1631,7 +1631,7 @@ public class AceTree extends JPanel
                 updateDisplay();
             }
         };
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(s), s);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(s), s);
         getActionMap().put(s, home );
 
         s = "UP";
@@ -1642,12 +1642,12 @@ public class AceTree extends JPanel
                 imageUp();
             }
         };
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(s), s);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(s), s);
         getActionMap().put(s, up );
 
         actionKey = "w_up";
         stroke = KeyStroke.getKeyStroke("typed w");
-        inputMap = this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        inputMap = this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         inputMap.put(stroke, actionKey);
         getActionMap().put(actionKey, up);
         
@@ -1663,7 +1663,7 @@ public class AceTree extends JPanel
         		updateDisplay();
         	}
         };
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(s), s);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(s), s);
         getActionMap().put(s, shift_up);
 
         s = "DOWN";
@@ -1674,12 +1674,12 @@ public class AceTree extends JPanel
                 imageDown();
             }
         };
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(s), s);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(s), s);
         getActionMap().put(s, down );
 
         actionKey = "s_down";
         stroke = KeyStroke.getKeyStroke("typed s");
-        inputMap = this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        inputMap = this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         inputMap.put(stroke, actionKey);
         actionMap = this.getActionMap();
         actionMap.put(actionKey, down);
@@ -1696,7 +1696,7 @@ public class AceTree extends JPanel
         		updateDisplay();
         	}
         };
-    	getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(s), s);
+    	getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(s), s);
     	getActionMap().put(s, shift_down);
 
 
@@ -1708,12 +1708,12 @@ public class AceTree extends JPanel
                 prevImage();
             }
         };
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(s), s);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(s), s);
         getActionMap().put(s, left );
 
         actionKey = "a_left";
         stroke = KeyStroke.getKeyStroke("typed a");
-        inputMap = this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        inputMap = this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         inputMap.put(stroke, actionKey);
         actionMap = this.getActionMap();
         actionMap.put(actionKey, left);
@@ -1727,7 +1727,7 @@ public class AceTree extends JPanel
         		prevImageFast();
         	}
         };
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(s), s);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(s), s);
         getActionMap().put(s, shift_left);
 
         s = "RIGHT";
@@ -1740,12 +1740,12 @@ public class AceTree extends JPanel
         };
 
         //AceTreeActions right = new AceTreeActions("RIGHT", 12345);
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(s), s);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(s), s);
         getActionMap().put(s, right );
 
         actionKey = "d_right";
         stroke = KeyStroke.getKeyStroke("typed d");
-        inputMap = this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        inputMap = this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         inputMap.put(stroke, actionKey);
         actionMap = this.getActionMap();
         actionMap.put(actionKey, right);
@@ -1760,7 +1760,7 @@ public class AceTree extends JPanel
         		nextImageFast();
         	}
         };
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(s), s);
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(s), s);
         getActionMap().put(s, shift_right);
 
         s = "ENTER";
@@ -1772,7 +1772,7 @@ public class AceTree extends JPanel
                 updateDisplay();
             }
         };
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).
             put(KeyStroke.getKeyStroke(s), s);
         getActionMap().put(s, get );
 

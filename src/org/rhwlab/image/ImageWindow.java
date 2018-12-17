@@ -1310,8 +1310,8 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
             //refreshDisplay(null);
 
             // TODO - why whould this always shift focus back to the AceTreeMenuBar???
-
-        	//iAceTree.requestFocus();
+            //requestFocus();
+        	iAceTree.requestFocus();
         }
         
         @Override
