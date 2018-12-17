@@ -676,6 +676,14 @@ public class NucleiMgr {
         return candidate;
     }
 
+    /**
+     * Finds the closest nucleus in a stack
+     *
+     * @param mx
+     * @param my
+     * @param time
+     * @return
+     */
     public Nucleus findClosestNucleus(int mx, int my, int time) {
         //System.out.println("findClosestNucleus: " + mx + CS + my + CS + time);
         Vector<Nucleus> nuclei = nuclei_record.elementAt(time - 1);
@@ -708,6 +716,15 @@ public class NucleiMgr {
         return candidate;
     }
 
+    /**
+     * Finds closest nuclei in a given plane mz
+     *
+     * @param mx
+     * @param my
+     * @param mz
+     * @param time
+     * @return
+     */
     public Nucleus findClosestNucleus(int mx, int my, int mz, int time) {
         //System.out.println("findClosestNucleus: " + mx + CS + my + CS + mz + CS + time);
         if (time < 1) time = 1;
