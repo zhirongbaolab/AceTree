@@ -2349,7 +2349,13 @@ public class AceTree extends JPanel
     public void showMaximumIntensityProjection() {
         if (this.imageManager == null) return;
 
+        // assume that we want to show centroids
         this.iShowCentroids = true;
+
+        // update the centroids flag if the button has been toggled
+        if (iShowC.getText().equals(SHOWC)) {
+            this.iShowCentroids = false;
+        }
 
         this.iImgWin.refreshDisplay(this.imageManager.getCurrentImageName(),
                 this.imageManager.makeMaxProjection(this.iColor),

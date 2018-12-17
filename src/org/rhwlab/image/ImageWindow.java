@@ -862,9 +862,19 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 	public void addAnnotation(int mx, int my, boolean dontRemove) {
         double x, y, r;
         boolean g;
-        Nucleus n = cNucleiMgr.findClosestNucleus(mx, my, iAceTree.getImageManager().getCurrImagePlane(), iAceTree.getImageManager().getCurrImageTime());
+
+        // if in max projection mode, we'll find the closest nuc by iterating through the stack.
+        // if not in max projection mode, we'll use the current plane info to find the closest nucleus to the click point
+        Nucleus n;
+        if (iAceTree.getImageManager().isCurrImageMIP()) {
+            n = cNucleiMgr.findClosestNucleus(mx, my, iAceTree.getImageManager().getCurrImageTime());
+        } else {
+            n = cNucleiMgr.findClosestNucleus(mx, my, iAceTree.getImageManager().getCurrImagePlane(), iAceTree.getImageManager().getCurrImageTime());
+        }
+
+
         if (n != null) {
-            if (cNucleiMgr.hasCircle(n, iAceTree.getImageManager().getCurrImagePlane())) {
+            if (cNucleiMgr.hasCircle(n, iAceTree.getImageManager().getCurrImagePlane()) || iAceTree.getImageManager().isCurrImageMIP()) {
                 String propername = PartsList.lookupSulston(n.identity);
                 String label = n.identity;
                 if (propername != null) {
@@ -1019,7 +1029,6 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 
                 // if we're in max projection mode, then we want to show all annotations so we'll add all annotations
                 if (inMaxProjectionMode) {
-                    System.out.println("adding text annotation in max proj mode for: " + ai.iName);
                     annots.add(ai);
                 } else if (cNucleiMgr.hasCircle(n, iAceTree.getImageManager().getCurrImagePlane() + iPlaneInc)) {
                     annots.add(ai);
@@ -1375,8 +1384,6 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 
                 // TODO --> this is bad practice. shouldn't use a call back. The entire mouse handler should be lifted out of ImageWindow
                 iAceTree.updateDisplay();
-
-                //refreshDisplay();
             }
             
             iAceTree.cellAnnotated(getClickedCellName(x2, y2));
@@ -1398,7 +1405,10 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         String name = "";
         Nucleus n = cNucleiMgr.findClosestNucleus(x, y, iAceTree.getImageManager().getCurrImageTime() + iTimeInc);
         if (n != null) {
-            if (cNucleiMgr.hasCircle(n, iAceTree.getImageManager().getCurrImagePlane() + iPlaneInc)) {
+            if (iAceTree.getImageManager().isCurrImageMIP()) {
+                //System.out.println("setting name: " + n.identity);
+              name = n.identity;
+            } else if (cNucleiMgr.hasCircle(n, iAceTree.getImageManager().getCurrImagePlane() + iPlaneInc)) {
                 name = n.identity;
             }
         }
