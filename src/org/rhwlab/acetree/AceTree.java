@@ -2349,6 +2349,8 @@ public class AceTree extends JPanel
     public void showMaximumIntensityProjection() {
         if (this.imageManager == null) return;
 
+        this.iShowCentroids = true;
+
         this.iImgWin.refreshDisplay(this.imageManager.getCurrentImageName(),
                 this.imageManager.makeMaxProjection(this.iColor),
                 Integer.MAX_VALUE);
@@ -2368,25 +2370,25 @@ public class AceTree extends JPanel
 //
         switch(iColor) {
             case 1:
-                System.out.println("*** Switched to RED channel mode ***");
+                System.out.println("*** RED channel mode ***");
                 break;
             case 2:
-                System.out.println("*** Switched to GREEN channel mode ***");
+                System.out.println("*** GREEN channel mode ***");
                 break;
             case 3:
-                System.out.println("*** Switched to BLUE channel mode ***");
+                System.out.println("*** BLUE channel mode ***");
                 break;
             case 4:
-                System.out.println("*** Switched to RED and GREEN channel mode ***");
+                System.out.println("*** RED/GREEN channel mode ***");
                 break;
             case 5:
-                System.out.println("*** Switched to GREEN and BLUE channel mode ***");
+                System.out.println("*** GREEN/BLUE channel mode ***");
                 break;
             case 6:
-                System.out.println("*** Switched to RED and BLUE channel mode ***");
+                System.out.println("*** RED/BLUE channel mode ***");
                 break;
             case 7:
-                System.out.println("*** Switched to RED, GREEN, and BLUE channel mode ***");
+                System.out.println("*** RED/GREEN/BLUE channel mode ***");
                 break;
             default:
         }

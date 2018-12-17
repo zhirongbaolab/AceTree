@@ -610,11 +610,13 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
     public void refreshDisplay(String imageName, ImagePlus ip, int planeNumber) {
         if (imageName == null || ip == null) return;
 
+        boolean inMaxProjectionMode = false;
         if (planeNumber == -1) {
             setTitle(imageName.substring(imageName.lastIndexOf("/")));
         } else if (planeNumber == Integer.MAX_VALUE) {
             // this will be the hook used to identify that a MAXIMUM INTESITY PROJECTION is being used
             setTitle(imageName.substring(imageName.lastIndexOf("/")) + " - Maximum Intensity Projection");
+            inMaxProjectionMode = true;
         } else {
             setTitle(imageName.substring(imageName.lastIndexOf("/")) + " (plane " + planeNumber + ")");
         }
@@ -624,9 +626,9 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         if (iIsMainImgWindow && iAceTree.isTracking())
             iAceTree.addMainAnnotation();
         if (iAceTree.getShowCentroids())
-            showCentroids();
+            showCentroids(inMaxProjectionMode);
         if (iAceTree.getShowAnnotations())
-            showAnnotations();
+            showAnnotations(inMaxProjectionMode);
         if (iSpecialEffect != null)
             showSpecialEffect();
 
@@ -703,9 +705,9 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         if (iIsMainImgWindow && iAceTree.isTracking()) 
         	iAceTree.addMainAnnotation();
         if (iAceTree.getShowCentroids())
-        	showCentroids();
+        	//showCentroids();
         if (iAceTree.getShowAnnotations())
-        	showAnnotations();
+        	//showAnnotations();
         if (iSpecialEffect != null)
         	showSpecialEffect();
         
@@ -905,7 +907,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
     public static final int [] WIDTHS = {1,2,3,4,5,6,7,8,9,10};
     
     @SuppressWarnings("unused")
-	protected void showCentroids() {
+	protected void showCentroids(boolean isInMaxProjectionMode) {
         int time = iAceTree.getImageManager().getCurrImageTime() + iTimeInc;
         if (time < 0) {
             iAceTree.getImageManager().setCurrImageTime(1);
@@ -926,8 +928,14 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
             if (n.status < 0) 
             	continue;
 
-            double x = cNucleiMgr.nucDiameter(n,
-                    iAceTree.getImageManager().getCurrImagePlane() + iPlaneInc);
+            double x;
+            if (isInMaxProjectionMode) {
+                // instead of passing an image plane, we'll pass the z component of the nucleus itself which in effect gives us the actual diameter of the cell
+                x = cNucleiMgr.nucDiameter(n, n.z);
+            } else {
+                x = cNucleiMgr.nucDiameter(n,
+                        iAceTree.getImageManager().getCurrImagePlane() + iPlaneInc);
+            }
             if (x > 0) {
             	// Manage bookmarked cells
                 if (iBookmarkListModel != null && !iBookmarkListModel.isEmpty()) {
@@ -990,7 +998,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
     }
 
     @SuppressWarnings("unused")
-	protected void showAnnotations() {
+	protected void showAnnotations(boolean inMaxProjectionMode) {
         Vector v = cNucleiMgr.getNucleiRecord().elementAt(iAceTree.getImageManager().getCurrImageTime()  + iTimeInc - 1);
         int size = v.size();
         int [] x = new int[size];
@@ -1002,14 +1010,18 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
             Nucleus n = (Nucleus)e.nextElement();
             String propername = PartsList.lookupSulston(n.identity);
 			String label = n.identity;
-			//System.out.println("name is "+label+" "+propername);
 			if(propername != null){
 			    label = label + " " + propername;
 			}
          
             if (n.status >= 0 && (isInList(label) != null)) {
                 ai = new AnnotInfo(label, n.x, n.y);
-                if (cNucleiMgr.hasCircle(n, iAceTree.getImageManager().getCurrImagePlane() + iPlaneInc)) {
+
+                // if we're in max projection mode, then we want to show all annotations so we'll add all annotations
+                if (inMaxProjectionMode) {
+                    System.out.println("adding text annotation in max proj mode for: " + ai.iName);
+                    annots.add(ai);
+                } else if (cNucleiMgr.hasCircle(n, iAceTree.getImageManager().getCurrImagePlane() + iPlaneInc)) {
                     annots.add(ai);
                 }
             }
