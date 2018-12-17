@@ -1306,11 +1306,6 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
     private class WinEventMgr extends WindowAdapter {
         @Override
 		public void windowGainedFocus(WindowEvent e) {
-            //System.out.println("windowGainedFocus, ");
-            //refreshDisplay(null);
-
-            // TODO - why whould this always shift focus back to the AceTreeMenuBar???
-            //requestFocus();
         	iAceTree.requestFocus();
         }
         

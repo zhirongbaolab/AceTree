@@ -106,7 +106,7 @@ public class ImageManager {
             this.currentImagePlane += planeIncrement;
         }
         else if (planeIncrement < 0
-                    && this.currentImagePlane + planeIncrement > 1) {
+                    && this.currentImagePlane + planeIncrement >= 1) {
             this.currentImagePlane += planeIncrement;
         }
     }
