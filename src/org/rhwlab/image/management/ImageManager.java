@@ -6,6 +6,8 @@ import ij.io.Opener;
 import ij.plugin.ZProjector;
 import ij.process.ColorProcessor;
 import ij.process.ImageProcessor;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import org.rhwlab.image.ParsingLogic.ImageNameLogic;
 import java.io.File;
 import java.util.Hashtable;
@@ -43,6 +45,8 @@ public class ImageManager {
     private int imageWidth;
     private boolean isCurrImageMIP;
 
+    private IntegerProperty timeProperty;
+
     private static boolean setOriginalContrastValues; // not quite sure what this is used for
     private static int contrastMin1, contrastMin2, contrastMax1, contrastMax2, contrastMin3, contrastMax3;
     private static final int MAX8BIT = 255, MAX16BIT = 65535;
@@ -62,6 +66,7 @@ public class ImageManager {
         }
 
 
+
         // avoid errors by setting some default values
         this.currentImageName = "";
         this.currentImageTime = 1;
@@ -69,12 +74,16 @@ public class ImageManager {
         this.setOriginalContrastValues = true;
         this.isCurrImageMIP = false;
         numChannelsForLegacyXMLTag = -1;
+
+        // timeProperty is a variable that is needed for the 3D Window and harmless when not used
+        this.timeProperty = new SimpleIntegerProperty(this.currentImageTime);
     }
 
     // methods to set runtime parameters
 
     public void setCurrImageTime(int time) {
         this.currentImageTime = time;
+        this.timeProperty.set(this.currentImageTime);
     }
     public int getCurrImageTime() { return this.currentImageTime; }
 
@@ -89,14 +98,18 @@ public class ImageManager {
     public void setCurrImageName(String currImgName) { this.currentImageName = currImgName; }
     public String getCurrentImageName() { return this.currentImageName; }
 
+    public IntegerProperty getTimeProperty() { return this.timeProperty; }
+
     // methods for runtime updates
     public void incrementImageTimeNumber(int timeIncrement) {
         if (timeIncrement > 0
                 && this.currentImageTime + timeIncrement <= this.imageConfig.getEndingIndex()) {
-            this.currentImageTime += timeIncrement;
+            setCurrImageTime(this.currentImageTime + timeIncrement);
+            //this.currentImageTime += timeIncrement;
         } else if (timeIncrement < 0
                     && this.currentImageTime + timeIncrement >= 0) {
-            this.currentImageTime += timeIncrement;
+            setCurrImageTime(this.currentImageTime + timeIncrement);
+            //this.currentImageTime += timeIncrement;
         }
     }
 
@@ -171,7 +184,8 @@ public class ImageManager {
 
                     // set the starting time
                     this.imageConfig.setStartingIndex(ImageNameLogic.extractTimeFromImageFileName(this.currentImageName));
-                    this.currentImageTime = this.imageConfig.getStartingIndex();
+                    setCurrImageTime(this.imageConfig.getStartingIndex());
+                    //this.currentImageTime = this.imageConfig.getStartingIndex();
 
                     return ip;
 
@@ -197,7 +211,8 @@ public class ImageManager {
 
                         // set the starting time
                         this.imageConfig.setStartingIndex(ImageNameLogic.extractTimeFromImageFileName(this.currentImageName));
-                        this.currentImageTime = this.imageConfig.getStartingIndex();
+                        setCurrImageTime(this.imageConfig.getStartingIndex());
+                        //this.currentImageTime = this.imageConfig.getStartingIndex();
 
                         return ip;
                     }
@@ -218,7 +233,8 @@ public class ImageManager {
 
                         // set the starting time
                         this.imageConfig.setStartingIndex(ImageNameLogic.extractTimeFromImageFileName(this.currentImageName));
-                        this.currentImageTime = this.imageConfig.getStartingIndex();
+                        setCurrImageTime(this.imageConfig.getStartingIndex());
+                        //this.currentImageTime = this.imageConfig.getStartingIndex();
 
                         return ip;
                     }
@@ -233,7 +249,8 @@ public class ImageManager {
 
                         // set the starting time
                         this.imageConfig.setStartingIndex(ImageNameLogic.extractTimeFromImageFileName(this.currentImageName));
-                        this.currentImageTime = this.imageConfig.getStartingIndex();
+                        setCurrImageTime(this.imageConfig.getStartingIndex());
+                        //this.currentImageTime = this.imageConfig.getStartingIndex();
 
                         return ip;
                     }
@@ -248,7 +265,8 @@ public class ImageManager {
 
                     // set the starting time
                     this.imageConfig.setStartingIndex(ImageNameLogic.extractTimeFromImageFileName(this.currentImageName));
-                    this.currentImageTime = this.imageConfig.getStartingIndex();
+                    setCurrImageTime(this.imageConfig.getStartingIndex());
+                    //this.currentImageTime = this.imageConfig.getStartingIndex();
 
                     return ip;
                 }
@@ -275,7 +293,8 @@ public class ImageManager {
 
             // set the starting time
             this.imageConfig.setStartingIndex(ImageNameLogic.extractTimeFromImageFileName(this.currentImageName));
-            this.currentImageTime = this.imageConfig.getStartingIndex();
+            setCurrImageTime(this.imageConfig.getStartingIndex());
+            //this.currentImageTime = this.imageConfig.getStartingIndex();
 
             return ip;
         }

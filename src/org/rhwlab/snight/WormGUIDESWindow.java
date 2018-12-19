@@ -2,13 +2,17 @@ package org.rhwlab.snight;
 
 
 import application_src.MainApp;
+import application_src.Observe;
 import application_src.application_model.resources.NucleiMgrAdapterResource;
+import org.rhwlab.image.management.ImageManager;
 
 /**
  * Class to open WormGUIDES via AceTree
  *
  * Created: Oct. 2, 2015
  * Author: Braden Katzman
+ *
+ * Revised: December 2018
  */
 
 
@@ -16,10 +20,14 @@ public class WormGUIDESWindow extends MainApp {
 	private NucleiMgrAdapter nucleiMgrAdapter;
 	private NucleiMgrAdapterResource nmar;
 
-	public WormGUIDESWindow(NucleiMgr nucleiMgr, Config config) {
+	private ImageManager imageManager;
+
+	public WormGUIDESWindow(NucleiMgr nucleiMgr, Config config, ImageManager imageManager) {
 		super();
 		nucleiMgrAdapter = new NucleiMgrAdapter(nucleiMgr, config);
 		nmar = new NucleiMgrAdapterResource(nucleiMgrAdapter);
+
+		this.imageManager = imageManager;
 	}
 
 	public void initializeWormGUIDES() {
@@ -37,5 +45,14 @@ public class WormGUIDESWindow extends MainApp {
 			}
 		});
 		t.start();
+
+		// set up a change listener on the time property and call observe when it's changed
+        this.imageManager.getTimeProperty().addListener((observable, oldValue, newValue) -> {
+            //System.out.println("New time property value: " + newValue.intValue() + ", old value: " + oldValue.intValue());
+            updateTime(newValue.intValue());
+        });
+
+        // set WormGUIDES start time to current image time in AceTree
+        updateTime(this.imageManager.getCurrImageTime());
 	}
 }

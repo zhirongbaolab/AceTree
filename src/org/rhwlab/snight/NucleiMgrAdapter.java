@@ -1,9 +1,12 @@
 package org.rhwlab.snight;
 
 import application_src.application_model.data.LineageData;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import org.rhwlab.image.management.ImageManager;
 
 import java.util.*;
-/*
+/**
  * Adapter to interface AceTree 3D Viewing with WormGUIDES
  *
  * Created: Oct. 2, 2015
@@ -19,18 +22,16 @@ public class NucleiMgrAdapter implements LineageData {
 	private boolean isSulston;
 	private double[] xyzScale;
 
-	int currentTime;
-
 
 	public NucleiMgrAdapter(NucleiMgr nucleiMgr, Config config) {
 		this.nucleiMgr = nucleiMgr;
-		this.cellOccurences = new Hashtable<String, int[]>();
+		this.cellOccurences = new Hashtable<>();
 		this.realTimePoints = config.getNucleiConfig().getEndingIndex(); // initialize to this to avoid errors
-		this.allPositions = new ArrayList<ArrayList<double[]>>();
+		this.allPositions = new ArrayList<>();
 		preprocessCellOccurrences();
 		preprocessCellPositions();
 		setIsSulstonModeFlag(nucleiMgr.iAncesTree.sulstonmode);
-		System.out.println("NucleiMgrAdapter has isSulstonMode: " + isSulston);
+		//System.out.println("NucleiMgrAdapter has isSulstonMode: " + isSulston);
 		this.xyzScale = new double[3];
 		this.xyzScale[0] = this.xyzScale[1] = config.getNucleiConfig().getXyRes();
 		this.xyzScale[2] = config.getNucleiConfig().getZRes();
@@ -47,7 +48,7 @@ public class NucleiMgrAdapter implements LineageData {
 
 			if (names.length == 0) {
 				this.realTimePoints = i;
-				System.out.println("Real time points is: " + i);
+				//System.out.println("Real time points is: " + i);
 				break;
 			}
 
@@ -98,7 +99,7 @@ public class NucleiMgrAdapter implements LineageData {
 
 			allPositions.add(positions_at_time);
 		}
-		System.out.println("Size of allPositions = " + allPositions.size());
+		//System.out.println("Size of allPositions = " + allPositions.size());
 	}
 
 	@Override
@@ -156,7 +157,7 @@ public class NucleiMgrAdapter implements LineageData {
 
 		//copy nuclei positions to ArrayList positionsAL
 		for (int m = 0; m < v.size(); ++m) {
-			Nucleus n = (Nucleus) v.get(m);
+			Nucleus n = v.get(m);
 			if (n.status == 1) {
 				ArrayList<Double> position = new ArrayList<Double>(Arrays.asList((double)n.x, (double)n.y, (double)n.z));
 				positionsAL.add(position);
@@ -187,7 +188,7 @@ public class NucleiMgrAdapter implements LineageData {
 		Vector<Nucleus> v = nucleiMgr.nuclei_record.get(time);
 
 		for (int m = 0; m < v.size(); ++m) {
-			Nucleus n = (Nucleus) v.get(m);
+			Nucleus n = v.get(m);
 			if (n.status == 1) {
 				diametersAL.add((double)n.size);
 			}

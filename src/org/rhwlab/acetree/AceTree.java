@@ -228,7 +228,7 @@ public class AceTree extends JPanel
     private LinkedList<Integer>	iKeyQueue;
 
     private static boolean fullGUI = false;
-    
+
     private int iStartTime;
 
 
