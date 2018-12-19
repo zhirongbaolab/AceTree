@@ -667,7 +667,7 @@ public class ImageManager {
      *
      * @return
      */
-    public ImagePlus makeMaxProjection(int colorToggleValue) {
+    public ImagePlus makeMaxProjection() {
         ZProjector zproj = new ZProjector();
         zproj.setMethod(ZProjector.MAX_METHOD);
 
@@ -694,18 +694,33 @@ public class ImageManager {
             } else if (this.imageConfig.getNumChannels() > 1) {
                 // multiple stacks containing multiple image channels for an image series
                 String[] images = ImageNameLogic.appendTimeToMultiple16BitTifPrefixes(this.imageConfig.getImagePrefixes(), this.currentImageTime);
-                this.currentImageName = images[0];
+
+                // set the current image name as the first non-empty value
+                for (String s : images) {
+                    if (!s.isEmpty()) {
+                        this.currentImageName = images[0];
+                        break;
+                    }
+                }
+
 
                 ImagePlus[] MIP_ips = new ImagePlus[images.length];
                 for (int i = 0; i < images.length; i++) {
-                    zproj.setImage(new Opener().openImage(images[i]));
-                    zproj.doProjection();
-                    MIP_ips[i] = zproj.getProjection();
+                    if (!images[i].isEmpty()) {
+                        zproj.setImage(new Opener().openImage(images[i]));
+                        zproj.doProjection();
+                        MIP_ips[i] = zproj.getProjection();
+                    }
                 }
 
                 int[] colorChannelIndices = new int[images.length];
                 for (int i = 0; i < images.length; i++) {
-                    colorChannelIndices[i] = i+1;
+                    if (!images[i].isEmpty()) {
+                        colorChannelIndices[i] = i+1;
+                    } else {
+                        colorChannelIndices[i] = -1; // this will represent an image that is null, just for safe measure
+                    }
+
                 }
 
                 // convert the MIPs into an 8bit RGB image

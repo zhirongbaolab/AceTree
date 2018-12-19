@@ -2357,22 +2357,14 @@ public class AceTree extends JPanel
         }
 
         this.iImgWin.refreshDisplay(this.imageManager.getCurrentImageName(),
-                this.imageManager.makeMaxProjection(this.iColor),
+                this.imageManager.extractColorChannelFromImagePlus(this.imageManager.makeMaxProjection(), this.iColor),
                 Integer.MAX_VALUE);
-
-        //this.MIP_window = new MaxIntensityProjectionWindow(this.imageManager.getCurrentImageName(),
-                //this.imageManager.makeMaxProjection(this.iColor));
     }
 
     public void toggleColor() {
         this.iColor = this.imageManager.getNextValidColorToggleIndex(this.iColor);
 
-//        if (iColor < 7) {
-//            iColor += 1;
-//        } else if (iColor == 7) {
-//            iColor = 1;
-//        }
-//
+        // console logging
         switch(iColor) {
             case 1:
                 System.out.println("*** RED channel mode ***");

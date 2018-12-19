@@ -888,13 +888,20 @@ public class ImageConversionManager {
     public static ImagePlus convertMultipleMIPsToRGB(ImagePlus[] MIP_ips, int[] colorChannelIndices, ImageConfig imageConfig) {
         if (MIP_ips.length != colorChannelIndices.length) return null;
 
-        // use the first max projection to set up the variables
-        ImageProcessor iproc = MIP_ips[0].getProcessor();
+        // use the first non-null max projection to set up the variables
+        ImageProcessor iproc = null;
+        int ipWidth = -1;
+        int ipHeight = -1;
+        int pixelCount = -1;
+        for (ImagePlus MIP : MIP_ips) {
+            if (MIP != null) {
+                iproc = MIP.getProcessor();
+                ipWidth = iproc.getWidth();
+                ipHeight = iproc.getHeight();
+                pixelCount = iproc.getPixelCount();
+            }
+        }
         //System.out.println(iproc.getNChannels() + ", " + iproc.getSliceNumber() + ", " + iproc.getBitDepth() + ", " + iproc.getPixelCount() + ", " + iproc.getPixelValue(30, 30));
-
-        int ipWidth = iproc.getWidth();
-        int ipHeight = iproc.getHeight();
-        int pixelCount = iproc.getPixelCount();
 
         if (imageConfig.getSplitStack() == 1) {
             pixelCount /= 2;
@@ -911,70 +918,73 @@ public class ImageConversionManager {
 
         // two inner conditions because more than 3 channel imaging is not currently supported
         for (int i = 0; i < MIP_ips.length && i < 3; i++) {
-            ImageProcessor iprocN = MIP_ips[i].getProcessor();
+            if (MIP_ips[i] != null) {
+                ImageProcessor iprocN = MIP_ips[i].getProcessor();
 
-            // flip the projection
-            iprocN.flipHorizontal();
+                // flip the projection
+                iprocN.flipHorizontal();
 
-            if (imageConfig.getSplitStack() == 1) {
-                // crop the image so we just have the right side (originally the left, but we flipped the image horizontally)
-                iprocN.setRoi(MIP_ips[0].getWidth()/2, 0, MIP_ips[0].getWidth()/2, MIP_ips[0].getHeight());
-                ImagePlus croppedIP = new ImagePlus("", iprocN.crop());
+                if (imageConfig.getSplitStack() == 1) {
+                    // crop the image so we just have the right side (originally the left, but we flipped the image horizontally)
+                    iprocN.setRoi(MIP_ips[0].getWidth()/2, 0, MIP_ips[0].getWidth()/2, MIP_ips[0].getHeight());
+                    ImagePlus croppedIP = new ImagePlus("", iprocN.crop());
 
-                int colorChannelIdx = colorChannelIndices[i];
+                    int colorChannelIdx = colorChannelIndices[i];
 
-                // set the display ranges
-                if (colorChannelIdx == RED) {
-                    croppedIP.setDisplayRange(ImageManager.getContrastMin1(), ImageManager.getContrastMax1());
-                } else if (colorChannelIdx == GREEN) {
-                    croppedIP.setDisplayRange(ImageManager.getContrastMin2(), ImageManager.getContrastMax2());
-                } else if (colorChannelIdx == BLUE) {
-                    croppedIP.setDisplayRange(ImageManager.getContrastMin3(), ImageManager.getContrastMax3());
-                }
-
-
-                // convert the image to 8 bit
-                ImageConverter ic = new ImageConverter(croppedIP);
-                ic.convertToGray8();
+                    // set the display ranges
+                    if (colorChannelIdx == RED) {
+                        croppedIP.setDisplayRange(ImageManager.getContrastMin1(), ImageManager.getContrastMax1());
+                    } else if (colorChannelIdx == GREEN) {
+                        croppedIP.setDisplayRange(ImageManager.getContrastMin2(), ImageManager.getContrastMax2());
+                    } else if (colorChannelIdx == BLUE) {
+                        croppedIP.setDisplayRange(ImageManager.getContrastMin3(), ImageManager.getContrastMax3());
+                    }
 
 
-                byte[] pix = (byte [])croppedIP.getProcessor().getPixels();
+                    // convert the image to 8 bit
+                    ImageConverter ic = new ImageConverter(croppedIP);
+                    ic.convertToGray8();
 
 
-                if (colorChannelIdx == RED) {
-                    R = pix;
-                } else if (colorChannelIdx == GREEN) {
-                    G = pix;
-                } else if (colorChannelIdx == BLUE) {
-                    B = pix;
-                }
-            } else {
-                // set the display ranges
-                int colorChannelIdx = colorChannelIndices[i];
-                if (colorChannelIdx == RED) {
-                    MIP_ips[i].setDisplayRange(ImageManager.getContrastMin1(), ImageManager.getContrastMax1());
-                } else if (colorChannelIdx == GREEN) {
-                    MIP_ips[i].setDisplayRange(ImageManager.getContrastMin2(), ImageManager.getContrastMax2());
-                } else if (colorChannelIdx == BLUE) {
-                    MIP_ips[i].setDisplayRange(ImageManager.getContrastMin3(), ImageManager.getContrastMax3());
-                }
-
-                ImageConverter ic = new ImageConverter(MIP_ips[i]);
-                ic.convertToGray8();
-
-                ImageProcessor converted = MIP_ips[i].getProcessor();
-
-                byte[] pix = (byte [])converted.getPixels();
+                    byte[] pix = (byte [])croppedIP.getProcessor().getPixels();
 
 
-                if (colorChannelIdx == RED) {
-                    R = pix;
-                } else if (colorChannelIdx == GREEN) {
-                    G = pix;
-                } else if (colorChannelIdx == BLUE) {
-                    B = pix;
+                    if (colorChannelIdx == RED) {
+                        R = pix;
+                    } else if (colorChannelIdx == GREEN) {
+                        G = pix;
+                    } else if (colorChannelIdx == BLUE) {
+                        B = pix;
+                    }
+                } else {
+                    // set the display ranges
+                    int colorChannelIdx = colorChannelIndices[i];
+                    if (colorChannelIdx == RED) {
+                        MIP_ips[i].setDisplayRange(ImageManager.getContrastMin1(), ImageManager.getContrastMax1());
+                    } else if (colorChannelIdx == GREEN) {
+                        MIP_ips[i].setDisplayRange(ImageManager.getContrastMin2(), ImageManager.getContrastMax2());
+                    } else if (colorChannelIdx == BLUE) {
+                        MIP_ips[i].setDisplayRange(ImageManager.getContrastMin3(), ImageManager.getContrastMax3());
+                    }
+
+                    ImageConverter ic = new ImageConverter(MIP_ips[i]);
+                    ic.convertToGray8();
+
+                    ImageProcessor converted = MIP_ips[i].getProcessor();
+
+                    byte[] pix = (byte [])converted.getPixels();
+
+
+                    if (colorChannelIdx == RED) {
+                        R = pix;
+                    } else if (colorChannelIdx == GREEN) {
+                        G = pix;
+                    } else if (colorChannelIdx == BLUE) {
+                        B = pix;
+                    }
                 }
             }
+
         }
 
         ImagePlus ip = new ImagePlus();
@@ -986,7 +996,6 @@ public class ImageConversionManager {
         currentBPixelMap = B;
 
         //System.out.println("Contrast min, max for MIP 8bit: " + ip.getDisplayRangeMin() + ", " + ip.getDisplayRangeMax());
-
 
         return ip;
     }
