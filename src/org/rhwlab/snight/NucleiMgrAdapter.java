@@ -19,19 +19,21 @@ public class NucleiMgrAdapter implements LineageData {
 	private boolean isSulston;
 	private double[] xyzScale;
 
+	int currentTime;
 
-	public NucleiMgrAdapter(NucleiMgr nucleiMgr) {
+
+	public NucleiMgrAdapter(NucleiMgr nucleiMgr, Config config) {
 		this.nucleiMgr = nucleiMgr;
 		this.cellOccurences = new Hashtable<String, int[]>();
-		this.realTimePoints = nucleiMgr.iEndingIndex; // initialize to this to avoid errors
+		this.realTimePoints = config.getNucleiConfig().getEndingIndex(); // initialize to this to avoid errors
 		this.allPositions = new ArrayList<ArrayList<double[]>>();
 		preprocessCellOccurrences();
 		preprocessCellPositions();
 		setIsSulstonModeFlag(nucleiMgr.iAncesTree.sulstonmode);
 		System.out.println("NucleiMgrAdapter has isSulstonMode: " + isSulston);
 		this.xyzScale = new double[3];
-		this.xyzScale[0] = this.xyzScale[1] = nucleiMgr.iConfig.iXy_res;
-		this.xyzScale[2] = nucleiMgr.iConfig.iZ_res;
+		this.xyzScale[0] = this.xyzScale[1] = config.getNucleiConfig().getXyRes();
+		this.xyzScale[2] = config.getNucleiConfig().getZRes();
 	}
 
 	private void preprocessCellOccurrences() {
@@ -45,6 +47,7 @@ public class NucleiMgrAdapter implements LineageData {
 
 			if (names.length == 0) {
 				this.realTimePoints = i;
+				System.out.println("Real time points is: " + i);
 				break;
 			}
 
@@ -82,7 +85,7 @@ public class NucleiMgrAdapter implements LineageData {
 	}
 
 	private void preprocessCellPositions() {
-		for (int i = 0; i < realTimePoints; i++) {
+		for (int i = 1; i <= realTimePoints; i++) {
 			ArrayList<double[]> positions_at_time = new ArrayList<double[]>();
 
 			double[][] positions = getPositions(i, true);
@@ -95,6 +98,7 @@ public class NucleiMgrAdapter implements LineageData {
 
 			allPositions.add(positions_at_time);
 		}
+		System.out.println("Size of allPositions = " + allPositions.size());
 	}
 
 	@Override
@@ -103,8 +107,8 @@ public class NucleiMgrAdapter implements LineageData {
 			ArrayList<String> namesAL = new ArrayList<>(); //named to distinguish between return String[] array
 
 			//access vector of nuclei at given time frame
-			Vector<Nucleus> v = nucleiMgr.nuclei_record.get(time);
-//				Vector v = (Vector) nucleiMgr.nuclei_record.get(time - 1);
+//			Vector<Nucleus> v = nucleiMgr.nuclei_record.get(time);
+				Vector<Nucleus> v = nucleiMgr.nuclei_record.get(time - 1);
 
 			//copy nuclei identities to ArrayList names AL
 			for (int m = 0; m < v.size(); ++m) {
@@ -132,7 +136,8 @@ public class NucleiMgrAdapter implements LineageData {
 			preprocessCellPositions();
 		}
 
-		ArrayList<double[]> positions = allPositions.get(time);
+		//System.out.println("Trying to access position data at time: " + time);
+		ArrayList<double[]> positions = allPositions.get(time - 1);
 
 		double[][] positions_array = new double[positions.size()][3];
 
@@ -147,7 +152,7 @@ public class NucleiMgrAdapter implements LineageData {
 		ArrayList<ArrayList<Double>> positionsAL = new ArrayList<ArrayList<Double>>();
 
 		//access vector of nuclei at given time frame
-		Vector<Nucleus> v = nucleiMgr.nuclei_record.get(time);
+		Vector<Nucleus> v = nucleiMgr.nuclei_record.get(time-1);
 
 		//copy nuclei positions to ArrayList positionsAL
 		for (int m = 0; m < v.size(); ++m) {
@@ -202,7 +207,7 @@ public class NucleiMgrAdapter implements LineageData {
 	@Override
 	public ArrayList<String> getAllCellNames() {
 		ArrayList<String> allCellNames = new ArrayList<>();
-		for (int i = 0; i < realTimePoints; i++) {
+		for (int i = 1; i <= realTimePoints; i++) {
 			String[] namesAti = getNames(i);
 			for (String name : namesAti) {
 				if (!allCellNames.contains(name)) {

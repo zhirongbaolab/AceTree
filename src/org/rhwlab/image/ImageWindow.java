@@ -646,6 +646,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         //}
     }
 
+
     public ImagePlus refreshDisplay() {
         String imageName = iAceTree.getImageManager().getCurrentImageName();
         iTitle = imageName;
@@ -725,6 +726,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
     	
 	    return iImgPlus;
     }
+
 
     /* (non-Javadoc)
      * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)

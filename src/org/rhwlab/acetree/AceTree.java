@@ -2584,6 +2584,8 @@ public class AceTree extends JPanel
     public NucleiMgr getNucleiMgr() {
         return iNucleiMgr;
     }
+
+    public Config getConfig() { return configManager; }
     
     public boolean nextTime() {
 	   this.imageManager.incrementImageTimeNumber(1);

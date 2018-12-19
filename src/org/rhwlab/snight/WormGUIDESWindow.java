@@ -16,9 +16,9 @@ public class WormGUIDESWindow extends MainApp {
 	private NucleiMgrAdapter nucleiMgrAdapter;
 	private NucleiMgrAdapterResource nmar;
 
-	public WormGUIDESWindow(NucleiMgr nucleiMgr) {
+	public WormGUIDESWindow(NucleiMgr nucleiMgr, Config config) {
 		super();
-		nucleiMgrAdapter = new NucleiMgrAdapter(nucleiMgr);
+		nucleiMgrAdapter = new NucleiMgrAdapter(nucleiMgr, config);
 		nmar = new NucleiMgrAdapterResource(nucleiMgrAdapter);
 	}
 
