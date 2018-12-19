@@ -526,7 +526,7 @@ public class AceTree extends JPanel
             // ***** bring up the image series ************
 
             // first, let's build an ImageWindow with the first processed image
-            this.iImgWin = new ImageWindow(this.configManager.getImageConfig().getProvidedImageFileName(),
+            this.iImgWin = new ImageWindow(this.imageManager.makeImageNameForTitle(),
                                         this.imageManager.bringUpImageSeries(),
                                             iPlayerControl,
                     this.imageManager);
@@ -535,6 +535,10 @@ public class AceTree extends JPanel
 
             // update the PlayerControl tab with an color channel toggle that matches the config of this image series
             this.getPlayerControl().updateColorChannelToggleButton();
+
+            // set the starting color toggle
+            this.iColor = this.imageManager.getNextValidColorToggleIndex(-1);
+
 
             // CHECK HERE FOR THE RARE CASE OF A ZERO INDEXED IMAGE SERIES AND UPDATE THE TIMEINC VARIABLE IF NECESSARY
             if (this.imageManager.getCurrImageTime() == 0) {
@@ -554,11 +558,6 @@ public class AceTree extends JPanel
             iImgWin.add(iToolControls,BorderLayout.SOUTH);
             iImgWin.pack();
             iImgWinSet = true;
-
-//            // if the current cell isn't P (not a cell in the lineage), and it has childen, we'll add appropriate annotation
-//            if (iCurrentCell == null) {
-//                iCurrentCell = new Cell("P");
-//            }
 
             if (iCurrentCell != null && !iCurrentCell.getName().equals("P") && iRoot.getChildCount() > 0) {
                 iShowCentroids = true;

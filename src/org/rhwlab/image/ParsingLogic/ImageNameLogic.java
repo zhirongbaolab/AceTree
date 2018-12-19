@@ -508,7 +508,13 @@ public class ImageNameLogic {
     public static String[] appendTimeToMultiple16BitTifPrefixes(String[] TIFprefixes_16bit, int time) {
         String[] formattedFileNames = new String[TIFprefixes_16bit.length];
         for (int i = 0; i < TIFprefixes_16bit.length; i++) {
-            formattedFileNames[i] = appendTimeToSingle16BitTIFPrefix(TIFprefixes_16bit[i], time);
+            //System.out.println("String to append time to: " + TIFprefixes_16bit[i]);
+            if (!TIFprefixes_16bit[i].isEmpty()) {
+                formattedFileNames[i] = appendTimeToSingle16BitTIFPrefix(TIFprefixes_16bit[i], time);
+            } else {
+                formattedFileNames[i] = "";
+            }
+
         }
 
         return formattedFileNames;

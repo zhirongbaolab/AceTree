@@ -64,9 +64,9 @@ public class Config {
                 Hashtable<String, String> xmlConfigData = xmlConfigLoader.loadConfigDataFromXMLFile(configFileName);
 
                 // TESTING *******************************************
-                for (String s : xmlConfigData.keySet()) {
-                    System.out.println("k, v: " + s + ", " + xmlConfigLoader.getXMLConfigDataHash().get(s));
-                }
+//                for (String s : xmlConfigData.keySet()) {
+//                    System.out.println("k, v: " + s + ", " + xmlConfigLoader.getXMLConfigDataHash().get(s));
+//                }
                 // TESTING *******************************************
 
                 // use the data to populate the two config classes
@@ -74,8 +74,6 @@ public class Config {
                 this.imageConfig = new ImageConfig(xmlConfigData);
 
                 // WHAT NEEDS TO BE DONE TO MAKE UP FOR SETSTARTINGPARMS ?
-            } else { // assume it's what kind of file? --> TODO put legacy support here
-
             }
         }
     }

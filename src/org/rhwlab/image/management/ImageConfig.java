@@ -50,7 +50,7 @@ public class ImageConfig {
         this.providedImageFileName = "";
         this.startingIndex = this.endingIndex = -1;
 
-        this.useStack = 0; // assume 8 bit tif images
+        this.useStack = 1; // assume 8 bit tif images
         this.splitStack = 1; // assume that if we are working with 16bit images, they contain two channels that should be split
 
         if (configData == null) return;
@@ -76,6 +76,8 @@ public class ImageConfig {
 
                 // add this file at that location in the array specified by the channel number
                 if (this.imageChannels == null) { System.out.println("<image> tag was not correctly defined in XML. Please see documentation for support"); continue; }
+
+                // check if there is a non-empty string listed for this channel
                 this.imageChannels[channelNumber-1] = configData.get(s);
             } else if (s.toLowerCase().equals(this.startingIndexKey.toLowerCase())) {
                 this.startingIndex = Integer.parseInt(configData.get(s));
@@ -181,7 +183,14 @@ public class ImageConfig {
             }
 
             // also set the first file to the providedImageFileName variable so that it can be used to create a title for the ImageWindow
-            setProvidedImageFileName(imageChannels[0]);
+            for (String s : imageChannels) {
+                if (!s.isEmpty()) {
+                    setProvidedImageFileName(imageChannels[0]);
+                    return;
+                }
+            }
+            System.out.println("No non-empty image file provided");
+            return;
         }
     }
 

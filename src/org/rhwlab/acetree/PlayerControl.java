@@ -251,6 +251,9 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
 		}
     }
 
+    /**
+     * See XML documentation for explanation of numChannels to color combo cases
+     */
     public void updateColorChannelToggleButton() {
         String imageName = "";
 
@@ -261,11 +264,35 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
         } else if (numChannels == 1) {
             imageName = "/images/StepChannelR";
         } else if (numChannels == 2) {
-            imageName = "/images/StepChannelRG";
-        } else if (numChannels >= 3) {
-            imageName = "/images/StepChannelRGB";
-        }
+            // check if RG
+            if (!this.iAceTree.getImageManager().getImageConfig().getImageChannels()[0].isEmpty() && !this.iAceTree.getImageManager().getImageConfig().getImageChannels()[1].isEmpty()) {
+                imageName = "/images/StepChannelRG";
+            }
 
+            // check if G
+            if (this.iAceTree.getImageManager().getImageConfig().getImageChannels()[0].isEmpty() && !this.iAceTree.getImageManager().getImageConfig().getImageChannels()[1].isEmpty()) {
+                imageName = "/images/StepChannelG";
+            }
+        } else if (numChannels >= 3) {// check if RGB
+            if (!this.iAceTree.getImageManager().getImageConfig().getImageChannels()[0].isEmpty() && !this.iAceTree.getImageManager().getImageConfig().getImageChannels()[1].isEmpty() && !this.iAceTree.getImageManager().getImageConfig().getImageChannels()[2].isEmpty()) {
+                imageName = "/images/StepChannelRGB";
+            }
+            // check if GB
+            if (this.iAceTree.getImageManager().getImageConfig().getImageChannels()[0].isEmpty() && !this.iAceTree.getImageManager().getImageConfig().getImageChannels()[1].isEmpty() && !this.iAceTree.getImageManager().getImageConfig().getImageChannels()[2].isEmpty()) {
+                imageName = "/images/StepChannelGB";
+            }
+
+            // check if RB
+
+            if (!this.iAceTree.getImageManager().getImageConfig().getImageChannels()[0].isEmpty() && this.iAceTree.getImageManager().getImageConfig().getImageChannels()[1].isEmpty() && !this.iAceTree.getImageManager().getImageConfig().getImageChannels()[2].isEmpty()) {
+                imageName = "/images/StepChannelRB";
+            }
+
+            // check if B
+            if (this.iAceTree.getImageManager().getImageConfig().getImageChannels()[0].isEmpty() && this.iAceTree.getImageManager().getImageConfig().getImageChannels()[1].isEmpty() && !this.iAceTree.getImageManager().getImageConfig().getImageChannels()[2].isEmpty()) {
+                imageName = "/images/StepChannelB";
+            }
+        }
 
         String imgLoc = imageName + ".gif";
         URL imageURL = PlayerControl.class.getResource(imgLoc);

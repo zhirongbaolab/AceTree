@@ -263,7 +263,13 @@ public class ImageManager {
             // multiple images were provided in the config file. we need to query them slightly differently and then check if they exist
             String[] images = imageConfig.getImageChannels();
 
-            this.currentImageName = images[0];
+            for (String s : images) {
+                if (!s.isEmpty()) {
+                    this.currentImageName = s;
+                    break;
+                }
+            }
+
             ImagePlus ip = makeImageFromMultiple16BitTIFs(images);
             this.currentImage = ip;
 
@@ -354,17 +360,64 @@ public class ImageManager {
         ImagePlus[] TIFs_16bit = new ImagePlus[TIFs_16bit_names.length];
 
         for (int i = 0; i < TIFs_16bit_names.length; i++) {
-            TIFs_16bit[i] = new Opener().openImage(TIFs_16bit_names[i], this.currentImagePlane);
-            if (TIFs_16bit[i] == null) {
-                System.err.println("Couldn't make image from: " + TIFs_16bit_names[i]);
-                return null;
+            if (!TIFs_16bit_names[i].isEmpty()) {
+                TIFs_16bit[i] = new Opener().openImage(TIFs_16bit_names[i], this.currentImagePlane);
+
+                if (TIFs_16bit[i] == null) {
+                    System.err.println("Couldn't make image from: " + TIFs_16bit_names[i]);
+                    return null;
+                }
+
+                this.imageWidth = TIFs_16bit[i].getWidth();
+                this.imageHeight = TIFs_16bit[i].getHeight();
             }
         }
 
-        this.imageWidth = TIFs_16bit[0].getWidth();
-        this.imageHeight = TIFs_16bit[0].getHeight();
+        /** determine the exact configuration among the 6 possible options of multiple channels:
+         * 1. RED/GREEN
+         * 2. RED/GREEN/BLUE
+         * 3. /GREEN
+         * 4. /BLUE
+         * 5. /GREEN/BLUE
+         * 6. RED//BLUE
+         */
 
-        return ImageConversionManager.convertMultiple16BitTIFsToRGB(TIFs_16bit, this.imageConfig);
+        boolean red_valid, green_valid, blue_valid;
+        red_valid = green_valid = blue_valid = true; // assume RGB
+
+        // check for RED/GREEN image series
+        if (TIFs_16bit.length == 2 && TIFs_16bit[0] != null && TIFs_16bit[1] != null) {
+            //System.out.println("RED/GREEN mode");
+            blue_valid = false;
+        }
+
+        // check for RED/GREEN/BLUE is assumed above
+
+        // check for a GREEN image series with a blank red file entry
+        if (TIFs_16bit.length == 2 && TIFs_16bit[0] == null && TIFs_16bit[1] != null) {
+            red_valid = blue_valid = false;
+            //System.out.println("GREEN mode");
+        }
+
+        // check for a BLUE image series with blank red, green file entries
+        if (TIFs_16bit.length == 3 && TIFs_16bit[0] == null && TIFs_16bit[1] == null && TIFs_16bit[2] != null) {
+            //System.out.println("BLUE mode");
+            red_valid = green_valid = false;
+        }
+
+        // check for a GREEN/BLUE image series with a blank red file entry
+        if (TIFs_16bit.length == 3 && TIFs_16bit[0] == null && TIFs_16bit[1] != null && TIFs_16bit[2] != null) {
+            //System.out.println("GREEN/BLUE mode");
+            red_valid = false;
+        }
+
+        // check for a RED/BLUE image series with a blank green file entry
+        if (TIFs_16bit.length == 3 && TIFs_16bit[0] != null && TIFs_16bit[1] == null && TIFs_16bit[2] != null) {
+            //System.out.println("RED/BLUE mode");
+            green_valid = false;
+        }
+
+        return ImageConversionManager.convertMultiple16BitTIFsToRGB(TIFs_16bit, this.imageConfig, red_valid, green_valid, blue_valid);
     }
 
     /**
@@ -405,7 +458,12 @@ public class ImageManager {
             } else if (this.imageConfig.getNumChannels() > 1) {
                 // multiple stacks containing multiple image channels for an image series
                 String[] images = ImageNameLogic.appendTimeToMultiple16BitTifPrefixes(this.imageConfig.getImagePrefixes(), time);
-                this.currentImageName = images[0];
+                for (String s : images) {
+                    if (!s.isEmpty()) {
+                        this.currentImageName = s;
+                        break;
+                    }
+                }
                 this.isCurrImageMIP = false;
                 return makeImageFromMultiple16BitTIFs(images);
             }
@@ -435,8 +493,13 @@ public class ImageManager {
                 //return ImageNameLogic.appendTimeToSingle16BitTIFPrefix(this.imageConfig.getImagePrefixes()[0], this.currentImageTime);
             } else if (this.imageConfig.getNumChannels() > 1) {
                 // multiple stacks containing multiple image channels for an image series
-                String fullPath = ImageNameLogic.appendTimeToSingle16BitTIFPrefix(this.imageConfig.getImagePrefixes()[0], this.currentImageTime);
-                return fullPath.substring(fullPath.lastIndexOf("/"));
+                for (String s : this.imageConfig.getImagePrefixes()) {
+                    if (!s.isEmpty()) {
+                        String fullPath = ImageNameLogic.appendTimeToSingle16BitTIFPrefix(s, this.currentImageTime);
+                        return fullPath.substring(fullPath.lastIndexOf("/"));
+                    }
+                }
+
                 //return ImageNameLogic.appendTimeToSingle16BitTIFPrefix(this.imageConfig.getImagePrefixes()[0], this.currentImageTime);
             }
         }
@@ -686,15 +749,52 @@ public class ImageManager {
                 if (currentToggle == 2) { return 4; } // if green, return red/green
                 if (currentToggle == 4) { return 1; } // if red/green, return red
             } else { // if it's 1 or anything else, just return 1
-                return 1;
+                return 1; // used on startup
             }
         } else if (this.imageConfig.getNumChannels() == 1) {
             return 1; // only valid color toggle index so it doesn't matter what was passed to this
-        } else if (this.imageConfig.getNumChannels() == 2) {
+        } else if (this.imageConfig.getNumChannels() == 2) { // need to check for empty image files which may have been supplied to control color
+            // GREEN only case
+            if (this.imageConfig.getImageChannels()[0].isEmpty() && !this.imageConfig.getImageChannels()[1].isEmpty()) {
+                return 2;
+            }
+
+            // otherwise it's a RED/GREEN case
             if (currentToggle == 1) { return 2; }
             if (currentToggle == 2) { return 4; }
             if (currentToggle == 4) { return 1; }
-        } else if (this.imageConfig.getNumChannels() == 3) {
+
+            // startup call
+            if (currentToggle == -1) { return 1; };
+        } else if (this.imageConfig.getNumChannels() == 3) { // need to check for empty image files which may have been supplied to control color
+            // BLUE only case
+            if (this.imageConfig.getImageChannels()[0].isEmpty() && this.imageConfig.getImageChannels()[1].isEmpty() && !this.imageConfig.getImageChannels()[2].isEmpty()) {
+                return 3; // only blue
+            }
+
+            // GREEN/BLUE case
+            if (this.imageConfig.getImageChannels()[0].isEmpty() && !this.imageConfig.getImageChannels()[2].isEmpty() && !this.imageConfig.getImageChannels()[2].isEmpty()) {
+                if (currentToggle == 2) { return 3; }
+                if (currentToggle == 3) { return 5; }
+                if (currentToggle == 5) { return 2; }
+
+                // startup call
+                if (currentToggle == -1) { return 2; }
+            }
+
+            // RED/BLUE case
+            if (!this.imageConfig.getImageChannels()[0].isEmpty() && this.imageConfig.getImageChannels()[1].isEmpty() && !this.imageConfig.getImageChannels()[2].isEmpty()) {
+                if (currentToggle == 1) { return 3; }
+                if (currentToggle == 3) { return 6; }
+                if (currentToggle == 6) { return 1; }
+
+                // startup call
+                if (currentToggle == -1) { return 1; }
+            }
+
+            // otherwise it's a RED/GREEN/BLUE
+            // startup call (need to check first because of else condition in this case would return 0 (invalid) on startup
+            if (currentToggle == -1) { return 1; }
             if (currentToggle == 7) { return 1; } // go back around
             else { return currentToggle+1; } // all options valid so increment by 1
         }

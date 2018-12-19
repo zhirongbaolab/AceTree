@@ -192,7 +192,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
      * @param playercontrol
      */
     public ImageWindow(String title, ImagePlus imgPlus, PlayerControl playercontrol, ImageManager imageManager) {
-        super(title.substring(4,title.length()));
+        super(title);
         iTitle = title;
         iImgPlus = imgPlus;
         iImgCanvas = new ImageCanvas(imgPlus);
