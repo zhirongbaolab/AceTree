@@ -151,6 +151,8 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
 
     Vector iConfigsVector;
 
+    WormGUIDESWindow view;
+
     /**
      *
      */
@@ -750,8 +752,12 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
         } else if (iTest == o) {
             iAceTree.test();
         }else if (i3D3 == o) {
-        	WormGUIDESWindow view = new WormGUIDESWindow(iAceTree.getNucleiMgr(), iAceTree.getConfig(), iAceTree.getImageManager());
-        	view.initializeWormGUIDES();
+        	if (view == null) {
+        	    view = new WormGUIDESWindow(iAceTree.getNucleiMgr(), iAceTree.getConfig(), iAceTree.getImageManager());
+                view.initializeWormGUIDES();
+            } else {
+                view.showMainStage();
+            }
         } else if (i3D2Z == o) {
 
         } else if (iViewEllipse == o) {

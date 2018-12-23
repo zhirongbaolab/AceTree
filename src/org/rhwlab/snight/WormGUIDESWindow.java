@@ -36,7 +36,7 @@ public class WormGUIDESWindow extends MainApp {
 			public void run() {
 				System.out.println("Starting WormGUIDES thread...");
 				try {
-					MainApp.startProgramatically(new String[0], nmar);
+					startProgramatically(new String[0], nmar);
 				} catch (IllegalStateException ise) {
 					System.out.println("Illegal state exception thrown from starting WormGUIDES programatically twice on single AceTree thread.");
 					System.out.println("Restart AceTree to use WormGUIDES viewer.");
