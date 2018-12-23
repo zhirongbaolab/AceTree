@@ -53,6 +53,6 @@ public class WormGUIDESWindow extends MainApp {
         });
 
         // set WormGUIDES start time to current image time in AceTree
-        updateTime(this.imageManager.getCurrImageTime());
+        externallySetStartTime = this.imageManager.getCurrImageTime();
 	}
 }

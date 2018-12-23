@@ -7,3 +7,4 @@
 *.MF
 AceTree.iml
 src/.DS_store
+*.DS_store
