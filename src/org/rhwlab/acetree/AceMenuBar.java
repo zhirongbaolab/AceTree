@@ -753,7 +753,7 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
             iAceTree.test();
         }else if (i3D3 == o) {
         	if (view == null) {
-        	    view = new WormGUIDESWindow(iAceTree.getNucleiMgr(), iAceTree.getConfig(), iAceTree.getImageManager());
+        	    view = new WormGUIDESWindow(iAceTree);
                 view.initializeWormGUIDES();
             } else {
                 view.showMainStage();

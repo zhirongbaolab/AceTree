@@ -2,8 +2,8 @@ package org.rhwlab.snight;
 
 
 import application_src.MainApp;
-import application_src.Observe;
 import application_src.application_model.resources.NucleiMgrAdapterResource;
+import org.rhwlab.acetree.AceTree;
 import org.rhwlab.image.management.ImageManager;
 
 /**
@@ -21,13 +21,15 @@ public class WormGUIDESWindow extends MainApp {
 	private NucleiMgrAdapterResource nmar;
 
 	private ImageManager imageManager;
+	private AceTree aceTree;
 
-	public WormGUIDESWindow(NucleiMgr nucleiMgr, Config config, ImageManager imageManager) {
+	public WormGUIDESWindow(AceTree aceTree) {
 		super();
-		nucleiMgrAdapter = new NucleiMgrAdapter(nucleiMgr, config);
+		nucleiMgrAdapter = new NucleiMgrAdapter(aceTree.getNucleiMgr(), aceTree.getConfig());
 		nmar = new NucleiMgrAdapterResource(nucleiMgrAdapter);
 
-		this.imageManager = imageManager;
+		this.imageManager = aceTree.getImageManager();
+		this.aceTree = aceTree;
 	}
 
 	public void initializeWormGUIDES() {
@@ -45,14 +47,17 @@ public class WormGUIDESWindow extends MainApp {
 			}
 		});
 		t.start();
-
-		// set up a change listener on the time property and call observe when it's changed
+		// set up a change listener on the time property in AceTree and call observe when it's changed
         this.imageManager.getTimeProperty().addListener((observable, oldValue, newValue) -> {
-            //System.out.println("New time property value: " + newValue.intValue() + ", old value: " + oldValue.intValue());
             updateTime(newValue.intValue());
         });
 
         // set WormGUIDES start time to current image time in AceTree
         externallySetStartTime = this.imageManager.getCurrImageTime();
+
+        timePropertyMainApp.addListener(((observable, oldValue, newValue) -> {
+            this.imageManager.setCurrImageTime(newValue.intValue());
+            aceTree.updateDisplay();
+        }));
 	}
 }
