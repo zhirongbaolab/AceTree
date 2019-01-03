@@ -646,86 +646,100 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         //}
     }
 
-
-    public ImagePlus refreshDisplay() {
-        String imageName = iAceTree.getImageManager().getCurrentImageName();
-        iTitle = imageName;
-
-        setTitle(imageName.substring(4));
-
-        if (iIsMainImgWindow) {
-            iTimeInc = iAceTree.getTimeInc();
-            iPlaneInc = iAceTree.getPlaneInc();
-            imagewindowPlaneNumber = iAceTree.getImageManager().getCurrImagePlane()+iPlaneInc;
-        } else {
-            iTimeInc = 0;
-            iPlaneInc = 0;
-            //setImageTimeAndPlaneFromTitle();
-        }
-        
-        // Append plane number to ImageWindow title in stack mode
-        if (iAceTree.getUseStack() == 1) {
-        	setTitle(imageName.substring(4) + " (plane "+imagewindowPlaneNumber+")");
-        }
-
-
-        ImagePlus ip = iAceTree.getImageManager().makeImage();
-        iAceTree.getImageManager().setCurrImage(ip);
-
-        if (ip == null) {
-            iAceTree.pausePlayerControl();
-            System.out.println("no ImagePlus for: " + iTitle);
-        }
-
-        if (iAceTree == null) 
-        	return null;
-
-        switch (iAceTree.getColor()) {
-            case 1:
-                ip = makeGreenImagePlus(ip);
-                break;
-            case 2:
-                ip = makeRedImagePlus(ip);
-                break;
-            case 3:
-                ip = makePlainImagePlus(ip);
-                break;
-            default:
-        }
-        //ip = makeGreenImagePlus(ip);
-        // Set contrast values for red/green channels
-        if (ip != null && iAceTree.getUseStack() != 1) {
-        	// red channel
-        	ip.setDisplayRange(iAceTree.getImageManager().getContrastMin1(), iAceTree.getImageManager().getContrastMax1(), 4);
-        	// green channel
-        	ip.setDisplayRange(iAceTree.getImageManager().getContrastMin2(), iAceTree.getImageManager().getContrastMax2(), 2);
-        }
-
-        if (ip != null) 
-        	iImgPlus.setProcessor(imageName, ip.getProcessor());
-        if (iIsMainImgWindow && iAceTree.isTracking()) 
-        	iAceTree.addMainAnnotation();
-        if (iAceTree.getShowCentroids())
-        	//showCentroids();
-        if (iAceTree.getShowAnnotations())
-        	//showAnnotations();
-        if (iSpecialEffect != null)
-        	showSpecialEffect();
-        
-        //iSpecialEffect = null;
-        iImgCanvas.repaint();
-        
-		if(iImageZoomerPanel!=null){
-			BufferedImage image = BufferedImageCreator.create((ColorProcessor)iImgPlus.getProcessor());
-			iImageZoomerPanel.updateImage(image);
-		}
-		if (iImageZoomerFrame != null) {
-	    	BufferedImage image = BufferedImageCreator.create((ColorProcessor)iImgPlus.getProcessor());
-	    	iImageZoomerFrame.updateImage(image);
-	    }
-    	
-	    return iImgPlus;
+    /**
+     * Revised refreshDisplay() method that is called by other classes and refers back to the ImageManager in AceTree
+     * to update the view without being passed parameters explicitly i.e. this call assumes that the image manager has
+     * been properly update prior to this call
+     */
+    public void refreshDisplay() {
+        refreshDisplay(iAceTree.getImageManager().getCurrentImageName(),
+                iAceTree.getImageManager().makeImage(),
+                iAceTree.getImageManager().getCurrImagePlane());
     }
+
+    /**
+     * Commented out on 1/3/2019
+     *
+     */
+//    public ImagePlus refreshDisplay() {
+//        String imageName = iAceTree.getImageManager().getCurrentImageName();
+//        iTitle = imageName;
+//
+//        setTitle(imageName.substring(4));
+//
+//        if (iIsMainImgWindow) {
+//            iTimeInc = iAceTree.getTimeInc();
+//            iPlaneInc = iAceTree.getPlaneInc();
+//            imagewindowPlaneNumber = iAceTree.getImageManager().getCurrImagePlane()+iPlaneInc;
+//        } else {
+//            iTimeInc = 0;
+//            iPlaneInc = 0;
+//            //setImageTimeAndPlaneFromTitle();
+//        }
+//
+//        // Append plane number to ImageWindow title in stack mode
+//        if (iAceTree.getUseStack() == 1) {
+//        	setTitle(imageName.substring(4) + " (plane "+imagewindowPlaneNumber+")");
+//        }
+//
+//
+//        ImagePlus ip = iAceTree.getImageManager().makeImage();
+//        iAceTree.getImageManager().setCurrImage(ip);
+//
+//        if (ip == null) {
+//            iAceTree.pausePlayerControl();
+//            System.out.println("no ImagePlus for: " + iTitle);
+//        }
+//
+//        if (iAceTree == null)
+//        	return null;
+//
+//        switch (iAceTree.getColor()) {
+//            case 1:
+//                ip = makeGreenImagePlus(ip);
+//                break;
+//            case 2:
+//                ip = makeRedImagePlus(ip);
+//                break;
+//            case 3:
+//                ip = makePlainImagePlus(ip);
+//                break;
+//            default:
+//        }
+//        //ip = makeGreenImagePlus(ip);
+//        // Set contrast values for red/green channels
+//        if (ip != null && iAceTree.getUseStack() != 1) {
+//        	// red channel
+//        	ip.setDisplayRange(iAceTree.getImageManager().getContrastMin1(), iAceTree.getImageManager().getContrastMax1(), 4);
+//        	// green channel
+//        	ip.setDisplayRange(iAceTree.getImageManager().getContrastMin2(), iAceTree.getImageManager().getContrastMax2(), 2);
+//        }
+//
+//        if (ip != null)
+//        	iImgPlus.setProcessor(imageName, ip.getProcessor());
+//        if (iIsMainImgWindow && iAceTree.isTracking())
+//        	iAceTree.addMainAnnotation();
+//        if (iAceTree.getShowCentroids())
+//        	//showCentroids();
+//        if (iAceTree.getShowAnnotations())
+//        	//showAnnotations();
+//        if (iSpecialEffect != null)
+//        	showSpecialEffect();
+//
+//        //iSpecialEffect = null;
+//        iImgCanvas.repaint();
+//
+//		if(iImageZoomerPanel!=null){
+//			BufferedImage image = BufferedImageCreator.create((ColorProcessor)iImgPlus.getProcessor());
+//			iImageZoomerPanel.updateImage(image);
+//		}
+//		if (iImageZoomerFrame != null) {
+//	    	BufferedImage image = BufferedImageCreator.create((ColorProcessor)iImgPlus.getProcessor());
+//	    	iImageZoomerFrame.updateImage(image);
+//	    }
+//
+//	    return iImgPlus;
+//    }
 
 
     /* (non-Javadoc)

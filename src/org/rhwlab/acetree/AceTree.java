@@ -1458,7 +1458,7 @@ public class AceTree extends JPanel
         	private static final long serialVersionUID = 1L;
     		@Override
 			public void actionPerformed(ActionEvent e) {
-    			println("AceTree.setSpecialKeyBoardActions, DELETE");
+    			//println("AceTree.setSpecialKeyBoardActions, DELETE");
     			if (iAddOneDialog == null) return;
     			killCell(0);
     		}
@@ -1473,7 +1473,7 @@ public class AceTree extends JPanel
         	private static final long serialVersionUID = 1L;
     		@Override
 			public void actionPerformed(ActionEvent e) {
-    			println("AceTree.setSpecialKeyBoardActions, BACKSPACE");
+    			//println("AceTree.setSpecialKeyBoardActions, BACKSPACE");
     			if (iAddOneDialog == null) return;
     			killCell(0);
     		}

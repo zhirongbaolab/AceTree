@@ -64,7 +64,7 @@ public class CellMovementImage extends ImageWindow {
     }
     
     @Override
-	public ImagePlus refreshDisplay() {
+	public void refreshDisplay() {
         String imageName = iAceTree.getImageManager().getCurrentImageName();
         //System.out.println("CellMovementImage2.refreshDisplay called: " + new GregorianCalendar().getTime());
         //new Throwable().printStackTrace();
@@ -112,7 +112,7 @@ public class CellMovementImage extends ImageWindow {
         //iSpecialEffect = null;
         iImgCanvas.repaint();
         //System.out.println("EditImage.refreshDisplay exiting: " + new GregorianCalendar().getTime());
-        return iImgPlus;
+        //return iImgPlus;
     }
 
     protected void showCentroids(int increment) {
