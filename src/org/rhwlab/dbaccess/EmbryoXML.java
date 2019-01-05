@@ -53,7 +53,7 @@ public class EmbryoXML implements DocHandler {
 			ManifestX.reportAndUpdateManifest();
 			DBAccess.cDBLocation = ManifestX.getManifestValue("DBLocation");
 		}
-		System.out.println("BDAccess.cBDLocation: "+DBAccess.cDBLocation);
+		System.out.println("DBAccess.cBDLocation: "+DBAccess.cDBLocation);
 		if (dbPath == null)
 			dbPath = DBAccess.cDBLocation;
 		if (!dbPath.endsWith("/"))
@@ -61,11 +61,6 @@ public class EmbryoXML implements DocHandler {
 		
 		//String path = dbPath + embryoName + ".xml";
 		String path = embryoName;
-		/*
-		if (!path.endsWith(".xml"))
-			path += ".xml";
-		*/
-		
 		boolean OK = true;
 		//String path = EmbryoDB.cDBLocation + "/" + embryoName + ".xml";
 		try {

@@ -61,7 +61,7 @@ public class VTree implements ActionListener {
         AceTree acetree = AceTree.getAceTree(null);
         NucleiMgr nucleiMgr = acetree.getNucleiMgr();
         JFrame.setDefaultLookAndFeelDecorated(false);
-        String s = nucleiMgr.getConfig().iConfigFileName;
+        String s = acetree.getConfig().iConfigFileName;
         File fs = new File(s);
         s = fs.getName();
         iFrame.setTitle(s);

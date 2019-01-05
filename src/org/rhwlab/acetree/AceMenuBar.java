@@ -151,7 +151,7 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
 
     Vector iConfigsVector;
 
-    WormGUIDESWindow view;
+    public WormGUIDESWindow view;
 
     /**
      *

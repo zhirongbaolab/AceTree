@@ -195,6 +195,11 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
         setEnabledAll(true);
         iPause.setEnabled(false);
 
+        // flip the WormGUIDES play icon if it is not null
+        if (iAceTree.iAceMenuBar.view != null) {
+            iAceTree.iAceMenuBar.view.flipPlayButtonIcon();
+        }
+
     }
 
     public void addToToolbar(JComponent element)
@@ -215,6 +220,12 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
             iForward = true;
             setEnabledAll(false);
             iPause.setEnabled(true);
+
+            // flip the WormGUIDES play icon if it is not null
+            if (iAceTree.iAceMenuBar.view != null) {
+                iAceTree.iAceMenuBar.view.flipPlayButtonIcon();
+            }
+
             new Thread(this, "TEST").start();
 
         } else if (o == iReverse) {

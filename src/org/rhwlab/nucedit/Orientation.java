@@ -241,18 +241,14 @@ public class Orientation extends JDialog implements ActionListener, ListSelectio
 //        iDivisionCaller = new DivisionCaller(axis, zpixres, measureCSV);
         iDivisionCaller = new DivisionCaller(measureCSV, axis, zpixres);
 
-        Config config = iNucleiMgr.getConfig();
+        Config config = iAceTree.getConfig();
         String shortName = config.getShortName();
-        
-        // This sets up an incorrect .xml file name
+
         // Not sure what the orientation window is supposed to do but it works with this series name
         String series = shortName.substring(0, shortName.indexOf("."));
         iSeries = series;
         
-        //iSeries = shortName;
-        
         println("initialize, " + series + CS + shortName);
-        //println("initialize, " + shortName);
     }
 
 

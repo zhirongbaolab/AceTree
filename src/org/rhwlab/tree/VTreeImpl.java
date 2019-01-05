@@ -900,7 +900,7 @@ public class VTreeImpl {
             iFrame = new JFrame();
             JFrame jf = iFrame;
             JFrame.setDefaultLookAndFeelDecorated(false);
-            String s = iNucleiMgr.getConfig().iConfigFileName;
+            String s = iAceTree.getConfig().iConfigFileName;
             File cf = new File(s);
             s = cf.getName();
             iShortName = s;
