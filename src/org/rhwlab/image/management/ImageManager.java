@@ -80,7 +80,6 @@ public class ImageManager {
     }
 
     // methods to set runtime parameters
-
     public void setCurrImageTime(int time) {
         this.currentImageTime = time;
         this.timeProperty.set(this.currentImageTime);

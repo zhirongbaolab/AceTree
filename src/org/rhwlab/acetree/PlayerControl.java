@@ -190,6 +190,16 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
     	iRunning = false;
     }
 
+    public void disablePlayButton() {
+      iPlay.setEnabled(false);
+      iPause.setEnabled(true);
+    }
+
+    public void enablePlayButton() {
+        iPlay.setEnabled(true);
+        iPause.setEnabled(false);
+    }
+
     public void pause() {
         iRunning = false;
         setEnabledAll(true);
@@ -199,7 +209,6 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
         if (iAceTree.iAceMenuBar.view != null) {
             iAceTree.iAceMenuBar.view.flipPlayButtonIcon();
         }
-
     }
 
     public void addToToolbar(JComponent element)
@@ -227,7 +236,6 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
             }
 
             new Thread(this, "TEST").start();
-
         } else if (o == iReverse) {
             //iEventPusher = new EventPusher(iAceTree, 30);
             //iEventPusher.start(false);
@@ -237,7 +245,6 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
             setEnabledAll(false);
             iPause.setEnabled(true);
             new Thread(this, "TEST").start();
-
         } else if (o == iStepForward) {
             if (iRunning)
             	return;

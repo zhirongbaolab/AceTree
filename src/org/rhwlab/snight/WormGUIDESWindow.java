@@ -59,5 +59,13 @@ public class WormGUIDESWindow extends MainApp {
             this.imageManager.setCurrImageTime(newValue.intValue());
             aceTree.updateDisplay();
         }));
+
+        isPlayButtonEnabled.addListener(((observable, oldValue, newValue) -> {
+            if (newValue) { // if WormGUIDES is in play mode
+                aceTree.getPlayerControl().disablePlayButton();
+            } else {
+                aceTree.getPlayerControl().enablePlayButton();
+            }
+        }));
 	}
 }
