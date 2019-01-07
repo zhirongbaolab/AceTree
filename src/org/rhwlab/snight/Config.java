@@ -70,8 +70,8 @@ public class Config {
                 // TESTING *******************************************
 
                 // use the data to populate the two config classes
-                this.nucConfig = new NucleiConfig(xmlConfigData);
-                this.imageConfig = new ImageConfig(xmlConfigData);
+                this.nucConfig = new NucleiConfig(xmlConfigData, configFileName);
+                this.imageConfig = new ImageConfig(xmlConfigData, configFileName);
 
                 // WHAT NEEDS TO BE DONE TO MAKE UP FOR SETSTARTINGPARMS ?
             }

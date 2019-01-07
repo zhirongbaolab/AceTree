@@ -277,8 +277,7 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
 
         int numChannels = this.iAceTree.getImageManager().getImageConfig().getNumChannels();
         if (numChannels == -1) {
-            // assume red
-            imageName = "/images/StepChannelR";
+            imageName = "/images/StepChannelRG";
         } else if (numChannels == 1) {
             imageName = "/images/StepChannelR";
         } else if (numChannels == 2) {
@@ -301,7 +300,6 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
             }
 
             // check if RB
-
             if (!this.iAceTree.getImageManager().getImageConfig().getImageChannels()[0].isEmpty() && this.iAceTree.getImageManager().getImageConfig().getImageChannels()[1].isEmpty() && !this.iAceTree.getImageManager().getImageConfig().getImageChannels()[2].isEmpty()) {
                 imageName = "/images/StepChannelRB";
             }

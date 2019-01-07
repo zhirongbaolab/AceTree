@@ -226,9 +226,6 @@ public class ImageConversionManager {
         ImageProcessor iproc_channel1 = red_ip.getProcessor();
         ImageProcessor iproc_channel2 = green_ip.getProcessor();
 
-        iproc_channel1.flipHorizontal();
-        iproc_channel2.flipHorizontal();
-
         int pixelCount_channel1 = iproc_channel1.getPixelCount();
         int ipwidth_channel1 = iproc_channel1.getWidth();
         int ipheight_channel1 = iproc_channel1.getHeight();
@@ -329,10 +326,6 @@ public class ImageConversionManager {
         ImageProcessor iproc_channel1 = red_ip.getProcessor();
         ImageProcessor iproc_channel2 = green_ip.getProcessor();
         ImageProcessor iproc_channel3 = blue_ip.getProcessor();
-
-        iproc_channel1.flipHorizontal();
-        iproc_channel2.flipHorizontal();
-        iproc_channel3.flipHorizontal();
 
         int pixelCount_channel1 = iproc_channel1.getPixelCount();
         int ipwidth_channel1 = iproc_channel1.getWidth();

@@ -86,7 +86,7 @@ public class NucleiMgr {
     }
 
     /**
-     * Revised constructor
+     * Revised constructor 11/2018
      * @author Braden Katzman
      *
      * Now that the configuration for the nuclei .zip has been modularized, the manager

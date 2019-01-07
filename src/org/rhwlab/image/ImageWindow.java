@@ -876,6 +876,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 
     @SuppressWarnings("unused")
 	public void addAnnotation(int mx, int my, boolean dontRemove) {
+        System.out.println("Adding main annotation");
         double x, y, r;
         boolean g;
 

@@ -73,7 +73,6 @@ public class ImageManager {
         this.currentImagePlane = 15; // usually about the middle of the stack
         this.setOriginalContrastValues = true;
         this.isCurrImageMIP = false;
-        numChannelsForLegacyXMLTag = -1;
 
         // timeProperty is a variable that is needed for the 3D Window and harmless when not used
         this.timeProperty = new SimpleIntegerProperty(this.currentImageTime);
@@ -146,6 +145,7 @@ public class ImageManager {
                     String newFileNameAttempt = ImageNameLogic.reconfigureImagePathFrom8bitTo16bit(imageFile);
                     if (!newFileNameAttempt.equals(imageFile)) {
                         System.out.println("A 16bit file name was generated from the 8bit image file name in the config file. Checking if it exists");
+                        //System.out.println(newFileNameAttempt);
                         if (new File(newFileNameAttempt).exists()) {
                             System.out.println("16bit image file exists. Updating file in ImageConfig to: " + newFileNameAttempt);
                             this.imageConfig.setProvidedImageFileName(newFileNameAttempt);
@@ -153,6 +153,7 @@ public class ImageManager {
 
                             // because the image series is now known to be 16bit stacks, set the use stack flag to 1
                             this.imageConfig.setUseStack(1);
+                            this.imageConfig.setSplitStack(1);
 
                             this.currentImageName = newFileNameAttempt;
                             ImagePlus ip = makeImageFromSingle16BitTIF(newFileNameAttempt);
@@ -197,6 +198,7 @@ public class ImageManager {
                     if (!secondColorChannelFromiSIM.isEmpty()) {
                         //System.out.println("ImageManager found second channel stack by assuming iSIM data structure. Loading both channels...");
                         this.imageConfig.setUseStack(1);
+                        this.imageConfig.setSplitStack(0);
 
                         // we need to add this second color channel to the image config so that its prefix will be maintained
                         this.imageConfig.addColorChannelImageToConfig(secondColorChannelFromiSIM);
@@ -221,6 +223,7 @@ public class ImageManager {
                     if (!secondColorChannelFromdiSPIM.isEmpty()) {
                         //System.out.println("ImageManager found second channel stack by assuming diSPIM data structure. Loading both channels...");
                         this.imageConfig.setUseStack(1);
+                        this.imageConfig.setSplitStack(0);
 
                         // add the second color channel to the image config so that its prefix will be maintained
                         this.imageConfig.addColorChannelImageToConfig(secondColorChannelFromdiSPIM);
@@ -680,9 +683,6 @@ public class ImageManager {
     /**
      * Makes max projection(s)
      *
-     * @param colorToggleValue - the current value of the color toggle in the ImageWindow. The max projection
-     *                         will always match the color configuration of the current image
-     *
      * @return
      */
     public ImagePlus makeMaxProjection() {
@@ -776,14 +776,9 @@ public class ImageManager {
 
         if (this.imageConfig.getNumChannels() == -1) {
             // legacy .XML defition case. Figure out the number of channels first
-            int nChannels = getNumChannelsForLegacyXMLTag();
-            if (nChannels == 2) {
-                if (currentToggle == 1) { return 2; } // if red, return green
-                if (currentToggle == 2) { return 4; } // if green, return red/green
-                if (currentToggle == 4) { return 1; } // if red/green, return red
-            } else { // if it's 1 or anything else, just return 1
-                return 1; // used on startup
-            }
+            if (currentToggle == 1) { return 2; } // if red, return green
+            if (currentToggle == 2) { return 4; } // if green, return red/green
+            if (currentToggle == 4) { return 1; } // if red/green, return red
         } else if (this.imageConfig.getNumChannels() == 1) {
             return 1; // only valid color toggle index so it doesn't matter what was passed to this
         } else if (this.imageConfig.getNumChannels() == 2) { // need to check for empty image files which may have been supplied to control color
@@ -890,53 +885,32 @@ public class ImageManager {
 
     public ImageConfig getImageConfig() { return this.imageConfig; }
 
-    /**
-     * The legacy image tag in the XML doesn't specify the number of color channels in the image series
-     * so this method and is used to figure that out by opening the provided image and using the ImageJ
-     * API to check its channel number
-     * @return
-     */
-    public int getNumChannelsForLegacyXMLTag() {
-        // if it has already been set, return the value
-        if (this.numChannelsForLegacyXMLTag != 1) { return this.numChannelsForLegacyXMLTag; }
-
-        // open the image to determine the number of channels the first time this is called
-        if (this.imageConfig.getProvidedImageFileName() != null) {
-            this.numChannelsForLegacyXMLTag = new Opener().openImage(this.imageConfig.getProvidedImageFileName()).getNChannels();
-            return this.numChannelsForLegacyXMLTag;
-        }
-
-        return 1;
-    }
-    private int numChannelsForLegacyXMLTag;
-
     private static Hashtable<String, Integer> imagesPreviouslyBitDepthChecked;
     public static int _8BIT_ID = 8;
     public static int _16BIT_ID = 16;
     private static int FAIL = -1;
 
-    public static void main(String[] args) {
-        String test16bit = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/20141022_JIM113_UNC-86myrGFP/20141022_JIM113_UNC-86myrGFP_1_s1_t1.TIF";
-        System.out.println(getImageBitDepth(test16bit));
-
-        String test8bit = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_pre2018/20141022_JIM113_UNC-86myrGFP/image/tif/20141022_JIM113_UNC-86myrGFP_1_s1-t001-p01.tif";
-        System.out.println(getImageBitDepth(test8bit));
-
-        // now test if they're being stored properly, with the original images themselves and others in the series
-        System.out.println(getImageBitDepth(test16bit));
-        System.out.println(getImageBitDepth(test8bit));
-
-        String test8bit1 = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_pre2018/20141022_JIM113_UNC-86myrGFP/image/tif/20141022_JIM113_UNC-86myrGFP_1_s1-t001-p05.tif";
-        String test8bit2 = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_pre2018/20141022_JIM113_UNC-86myrGFP/image/tif/20141022_JIM113_UNC-86myrGFP_1_s1-t002-p18.tif";
-
-        System.out.println(getImageBitDepth(test8bit1));
-        System.out.println(getImageBitDepth(test8bit2));
-
-        String test16bit1 = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/20141022_JIM113_UNC-86myrGFP/20141022_JIM113_UNC-86myrGFP_1_s1_t10.TIF";
-        String test16bit2 = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/20141022_JIM113_UNC-86myrGFP/20141022_JIM113_UNC-86myrGFP_1_s2_t1.TIF";
-
-        System.out.println(getImageBitDepth(test16bit1));
-        System.out.println(getImageBitDepth(test16bit2));
-
-    }
+//    public static void main(String[] args) {
+//        String test16bit = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/20141022_JIM113_UNC-86myrGFP/20141022_JIM113_UNC-86myrGFP_1_s1_t1.TIF";
+//        System.out.println(getImageBitDepth(test16bit));
+//
+//        String test8bit = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_pre2018/20141022_JIM113_UNC-86myrGFP/image/tif/20141022_JIM113_UNC-86myrGFP_1_s1-t001-p01.tif";
+//        System.out.println(getImageBitDepth(test8bit));
+//
+//        // now test if they're being stored properly, with the original images themselves and others in the series
+//        System.out.println(getImageBitDepth(test16bit));
+//        System.out.println(getImageBitDepth(test8bit));
+//
+//        String test8bit1 = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_pre2018/20141022_JIM113_UNC-86myrGFP/image/tif/20141022_JIM113_UNC-86myrGFP_1_s1-t001-p05.tif";
+//        String test8bit2 = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_pre2018/20141022_JIM113_UNC-86myrGFP/image/tif/20141022_JIM113_UNC-86myrGFP_1_s1-t002-p18.tif";
+//
+//        System.out.println(getImageBitDepth(test8bit1));
+//        System.out.println(getImageBitDepth(test8bit2));
+//
+//        String test16bit1 = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/20141022_JIM113_UNC-86myrGFP/20141022_JIM113_UNC-86myrGFP_1_s1_t10.TIF";
+//        String test16bit2 = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/20141022_JIM113_UNC-86myrGFP/20141022_JIM113_UNC-86myrGFP_1_s2_t1.TIF";
+//
+//        System.out.println(getImageBitDepth(test16bit1));
+//        System.out.println(getImageBitDepth(test16bit2));
+//    }
 }

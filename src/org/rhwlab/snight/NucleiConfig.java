@@ -1,5 +1,6 @@
 package org.rhwlab.snight;
 
+import java.io.File;
 import java.util.Hashtable;
 
 public class NucleiConfig {
@@ -51,7 +52,7 @@ public class NucleiConfig {
      * This constructor parses that map for relevant nuclei tags and saves them in this object
      * @param configData
      */
-    public NucleiConfig(Hashtable<String, String> configData) {
+    public NucleiConfig(Hashtable<String, String> configData, String configFileName) {
         System.out.println("Configuring NucleiConfig using .XML data");
 
         // prevent errors by initializing everything
@@ -69,7 +70,16 @@ public class NucleiConfig {
 
         for (String s : configData.keySet()) {
             if (s.toLowerCase().equals(zipFileNameKey.toLowerCase())) {
-                this.zipFileName = configData.get(s);
+                 String zipFile = configData.get(s);
+
+                // check if it's a relative path
+                if (this.zipFileName != null && !new File(this.zipFileName).isAbsolute()) {
+                    // prepend so this is an absolute path
+                    zipFile = configFileName.substring(0, configFileName.lastIndexOf("/") + 1) + zipFile.substring(zipFile.lastIndexOf("/")+1);
+                    System.out.println("Updating relative zip file path to absolute: " + zipFile);
+                }
+
+                this.zipFileName = zipFile;
             } else if (s.toLowerCase().equals(namingMethodKey.toLowerCase())) {
                 this.namingMethod = Integer.parseInt(configData.get(s));
             } else if (s.toLowerCase().equals(xyResKey.toLowerCase())) {
@@ -80,7 +90,7 @@ public class NucleiConfig {
                 this.startingIndex = Integer.parseInt(configData.get(s));
             } else if (s.toLowerCase().equals(endingIndexKey.toLowerCase())) {
                 this.endingIndex = Integer.parseInt(configData.get(s));
-                System.out.println("SET ENDING INDEX: " + this.endingIndex);
+                System.out.println("Set ending index: " + this.endingIndex);
             } else if (s.toLowerCase().equals(exprCorrKey.toLowerCase())) {
                 this.exprCorr = configData.get(s);
             } else if (s.toLowerCase().equals(polarSizeKey.toLowerCase())) {

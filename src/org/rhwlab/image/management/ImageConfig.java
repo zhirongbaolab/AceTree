@@ -2,6 +2,7 @@ package org.rhwlab.image.management;
 
 import org.rhwlab.image.ParsingLogic.ImageNameLogic;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
@@ -44,7 +45,13 @@ public class ImageConfig {
      * */
     private String[] imagePrefixes;
 
-    public ImageConfig(Hashtable<String, String> configData) {
+    /**
+     * Build an image config given parsed XML attributes
+     *
+     * @param configData
+     * @param configFileName - if a relative image path was supplied, the configFile path is prepended
+     */
+    public ImageConfig(Hashtable<String, String> configData, String configFileName) {
         System.out.println("Configuring ImageConfig using .XML data");
         // prevent errors by initializing everything (default values for optional flags are set here)
         this.providedImageFileName = "";
@@ -66,7 +73,14 @@ public class ImageConfig {
 
         for (String s : configData.keySet()) {
             if (s.toLowerCase().equals(this.imageFileNameKey.toLowerCase())) {
-                this.providedImageFileName = configData.get(s);
+                String imageFile = configData.get(s);
+                if (imageFile != null && !new File(imageFile).isAbsolute()) {
+                    // if the image file name is not absolute, prepend it with the absolute path in the configFileName
+                    imageFile = configFileName.substring(0, configFileName.lastIndexOf("/") + 1) + imageFile.substring(imageFile.lastIndexOf("/")+1);
+                    System.out.println("Updating relative image file path to absolute: " + imageFile);
+                }
+
+                this.providedImageFileName = imageFile;
 
                 // this will indicate that the legacy image tag was given
                 this.numChannels = -1;
@@ -78,7 +92,13 @@ public class ImageConfig {
                 if (this.imageChannels == null) { System.out.println("<image> tag was not correctly defined in XML. Please see documentation for support"); continue; }
 
                 // check if there is a non-empty string listed for this channel
-                this.imageChannels[channelNumber-1] = configData.get(s);
+                String imageFile = configData.get(s);
+                if (imageFile != null && !new File(imageFile).isAbsolute()) {
+                    // if the image file name is not absolute, prepend it with the absolute path in the configFileName
+                    imageFile = configFileName.substring(0, configFileName.lastIndexOf("/")+1) + imageFile.substring(imageFile.lastIndexOf("/")+1);
+                    System.out.println("Updating relative image file path to absolute: " + imageFile);
+                }
+                this.imageChannels[channelNumber-1] = imageFile;
             } else if (s.toLowerCase().equals(this.startingIndexKey.toLowerCase())) {
                 this.startingIndex = Integer.parseInt(configData.get(s));
             } else if (s.toLowerCase().equals(this.endingIndexKey.toLowerCase())) {

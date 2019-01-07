@@ -19,7 +19,6 @@ public class MeasureCSV {
 	public Hashtable<String, String> iMeasureHash_v1; 
 	
 	private String iFilePath;
-//	private int iGoodLinesRead;
 
 	private static int AuxInfo_v = 1;
 	

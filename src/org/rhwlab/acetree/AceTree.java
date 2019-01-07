@@ -843,7 +843,7 @@ public class AceTree extends JPanel
 
     private Cell walkUpToAGoodCell() {
         Cell c = null;
-        System.out.println(iRoot.getName());
+        System.out.println("Looking for a starting cell beginning at root: " + iRoot.getName());
         if (iRoot.getChildCount() <= 1) {
             return iRoot;
         }
@@ -869,7 +869,6 @@ public class AceTree extends JPanel
 
         System.out.println("returning: " + c.getName());
         return c;
-
     }
 
     public void restoreTree(String shortName) {
@@ -977,7 +976,6 @@ public class AceTree extends JPanel
             getCurrentCellParameters();
             showTreeCell(iCurrentCell);
         } else { // the nuclei passed is the root of the tree -- use default viewing parameters
-
             imageManager.setCurrImageTime(1);
             imageManager.setCurrImagePlane(15);
             System.out.println("Setting default image time and plane: 1, 15. No starting cell");
