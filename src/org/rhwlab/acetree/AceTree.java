@@ -1866,9 +1866,7 @@ public class AceTree extends JPanel
                 if (this.configManager.getImageConfig().getUseStack() == 1) { planeNum = this.imageManager.getCurrImagePlane(); }
 
                 iImgWin.refreshDisplay(this.imageManager.makeImageNameForTitle(), this.imageManager.extractColorChannelFromImagePlus(this.imageManager.makeImage(), this.iColor), planeNum);
-
             }
-
         }
         
         if (iCallSaveImage) {
@@ -1876,9 +1874,6 @@ public class AceTree extends JPanel
 		    if(iImgWin!=null)
 		    	iImgWin.saveImageIfEnabled();
         }
-        
-        //String s = makeDisplayText();
-        //iText.setText(s);
 
         
         if(iAddOneDialog!=null)
@@ -1965,10 +1960,7 @@ public class AceTree extends JPanel
         if (iCurrentCell == null) 
         	return;
         int time = this.imageManager.getCurrImageTime() + iTimeInc;
-//        if (time == 0) {
-//            time = 1;
-//            this.imageManager.setCurrImageTime(1);
-//        }
+
         Nucleus n = null;
         try {
         	Vector nuclei = iNucleiMgr.getElementAt(time - 1);

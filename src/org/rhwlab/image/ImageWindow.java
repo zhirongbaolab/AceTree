@@ -765,7 +765,6 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
                     iAceTree.actionPerformed(new ActionEvent(this, 0, AceTree.PREV));
                     break;
                 case KeyEvent.VK_RIGHT:
-                    System.out.println("KEY EVENT RIGHT IN IMAGE WINDOW");
                     iAceTree.actionPerformed(new ActionEvent(this, 0, AceTree.NEXTT));
                     break;
                 case KeyEvent.VK_F2:

@@ -364,6 +364,10 @@ public class ImageManager {
      * @return
      */
     private ImagePlus makeImageFrom8Bittif(String tif_8bit) {
+        if (!new File(tif_8bit).exists()) {
+            System.out.println("*** The file: " + tif_8bit + " does NOT exist on this system ***");
+            return new ImagePlus();
+        }
         ImagePlus ip = new Opener().openImage(tif_8bit); // no need for other arguments, the file is just a single plane at a single timepoint
         if (ip != null) {
             this.imageWidth = ip.getWidth();
@@ -386,6 +390,11 @@ public class ImageManager {
      * @return
      */
     private ImagePlus makeImageFrom16bitSliceTIF(String TIF_slice_16bit) {
+        if (!new File(TIF_slice_16bit).exists()) {
+            System.out.println("*** The file: " + TIF_slice_16bit + " does NOT exist on this system ***");
+            return new ImagePlus();
+        }
+
         ImagePlus ip = new Opener().openImage(TIF_slice_16bit);
         if (ip != null) {
             this.imageWidth = ip.getWidth();
@@ -408,6 +417,11 @@ public class ImageManager {
      * @return
      */
     private ImagePlus makeImageFromSingle16BitTIF(String TIF_16bit) {
+        if (!new File(TIF_16bit).exists()) {
+            System.out.println("*** The file: " + TIF_16bit + " does NOT exist on this system ***");
+            return new ImagePlus();
+        }
+
         ImagePlus ip = new Opener().openImage(TIF_16bit, this.currentImagePlane);
 
         if (ip != null) {
@@ -434,7 +448,7 @@ public class ImageManager {
         ImagePlus[] TIFs_16bit = new ImagePlus[TIFs_16bit_names.length];
 
         for (int i = 0; i < TIFs_16bit_names.length; i++) {
-            if (!TIFs_16bit_names[i].isEmpty()) {
+            if (!TIFs_16bit_names[i].isEmpty() && new File(TIFs_16bit_names[i]).exists()) {
                 TIFs_16bit[i] = new Opener().openImage(TIFs_16bit_names[i], this.currentImagePlane);
 
                 if (TIFs_16bit[i] == null) {
