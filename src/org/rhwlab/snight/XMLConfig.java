@@ -238,9 +238,12 @@ public class XMLConfig implements DocHandler {
 
         	iConfig.iConfigHash.put("x", x);
         	iConfig.iConfigHash.put("y", y);
-        } else if (tag.equals("Split")) { // TODO: pavak case has 16 bit and no 8, wants to use SplitMode to say don't split. Si0 case is has 8, 16, wants to use SplitMode so needs recongifuring
+        } else if (tag.equals("Split")) {
             String splitMode = (String)h.get("SplitMode");
             this.xmlConfigData.put("split", splitMode);
+        } else if (tag.equals("Flip")) {
+            String flipMode = (String)h.get("FlipMode");
+            this.xmlConfigData.put("flip", flipMode);
         }
     }
 

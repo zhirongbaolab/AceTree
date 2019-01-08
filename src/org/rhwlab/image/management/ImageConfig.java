@@ -37,6 +37,12 @@ public class ImageConfig {
     private int splitStack;
     private String splitStackKey = "split";
 
+    private int flipStack;
+    private String flipStackKey = "flip";
+
+    private boolean splitStackGiven;
+    private boolean flipStackGiven;
+
     /**
      * This is the only runtime variable that the ImageConfig maintains. It contains the prefix(es) for the
      * image series. There are two scenarios for this array:
@@ -57,8 +63,17 @@ public class ImageConfig {
         this.providedImageFileName = "";
         this.startingIndex = this.endingIndex = -1;
 
-        this.useStack = 1; // assume 8 bit tif images
+        this.useStack = 1; // assume 16 bit tif images (really, the distinction is between slice and stack images, but it has been convention
+                            // to use 8 and 16bit, so we maintain that here
+
+        // the following two assumptions are derived from the confocal microscope set up. These can be explicitly set in the XML file
         this.splitStack = 1; // assume that if we are working with 16bit images, they contain two channels that should be split
+        this.flipStack = 1; // assume that if we are working with 16bit images, they contain two channels that should be split
+
+        // we'll also maintain two flags that will indicate whether the split and flip stacks were given explicitly to avoid overriding them later
+        this.splitStackGiven = false;
+        this.flipStackGiven = false;
+
 
         if (configData == null) return;
 
@@ -99,6 +114,9 @@ public class ImageConfig {
                     System.out.println("Updating relative image file path to absolute: " + imageFile);
                 }
                 this.imageChannels[channelNumber-1] = imageFile;
+            } else if (s.toLowerCase().equals(this.flipStackKey.toLowerCase())) {
+                this.flipStack = Integer.parseInt(configData.get(s));
+                this.flipStackGiven = true;
             } else if (s.toLowerCase().equals(this.startingIndexKey.toLowerCase())) {
                 this.startingIndex = Integer.parseInt(configData.get(s));
             } else if (s.toLowerCase().equals(this.endingIndexKey.toLowerCase())) {
@@ -109,6 +127,7 @@ public class ImageConfig {
                 this.useStack = Integer.parseInt(configData.get(s));
             } else if (s.toLowerCase().equals(this.splitStackKey.toLowerCase())) {
                 this.splitStack = Integer.parseInt(configData.get(s));
+                this.splitStackGiven = true;
             }
         }
 
@@ -224,6 +243,8 @@ public class ImageConfig {
     public void setUseStack(int useStack) {this.useStack = useStack; }
     public void setSplitStack(String splitStack) {setSplitStack(Integer.parseInt(splitStack)); }
     public void setSplitStack(int splitStack) { this.splitStack = splitStack; }
+    public void setFlipStack(String flipStack) { setFlipStack(Integer.parseInt(flipStack)); }
+    public void setFlipStack(int flipStack) { this.flipStack = flipStack; }
     public void setPlaneEnd(String planeEnd) { setPlaneEnd(Integer.parseInt(planeEnd)); }
     public void setPlaneEnd(int planeEnd) { this.planeEnd = planeEnd; }
 
@@ -234,9 +255,12 @@ public class ImageConfig {
     public int getEndingIndex() { return this.endingIndex; }
     public int getUseStack() { return this.useStack; }
     public int getSplitStack() { return this.splitStack; }
+    public int getFlipStack() { return this.flipStack; }
     public int getPlaneEnd() { return this.planeEnd; }
     public String[] getImageChannels() { return this.imageChannels; }
     public String[] getImagePrefixes() { return this.imagePrefixes; }
+    public boolean isSplitStackGiven() { return this.splitStackGiven; }
+    public boolean isFlipStackGiven() { return this.flipStackGiven; }
 
     /**
      * This indicates whether or not the user supplied multiple image paths in the <image></image> tag

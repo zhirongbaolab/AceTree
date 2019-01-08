@@ -135,25 +135,35 @@ public class ImageManager {
             // only one file was provided --> let's see if it exists
             String imageFile = imageConfig.getProvidedImageFileName();
             if(!new File(imageFile).exists()) {
-                System.out.println("The image listed in the config file does not exist on the system. Checking if it's an 8bit image that no longer exists");
+                System.out.println("The image listed in the config file does not exist on the system. Checking if it's an 8bit image that no longer exists...");
 
                 // it doesn't exist. It's likely an 8bit image file name that no longer exists, so let's do a check on the
                 // file type first (not completely reliable check) and if it's 8bit, we'll try and find a 16bit image. We can't
                 // use the normal getImageBitDepth method because it assumes a real file, and we know this one does not exist
                 if (ImageNameLogic.doesImageFollow8bitDeletedConvention(imageFile)) {
-                    System.out.println("The image has an 8bit file naming convention -> try and find it's 16bit corollary");
+                    System.out.println("The image has an 8bit file naming convention -> trying to find it's 16bit corollary....");
                     String newFileNameAttempt = ImageNameLogic.reconfigureImagePathFrom8bitTo16bit(imageFile);
                     if (!newFileNameAttempt.equals(imageFile)) {
-                        System.out.println("A 16bit file name was generated from the 8bit image file name in the config file. Checking if it exists");
+                        System.out.println("A 16bit file name was generated from the 8bit image file name in the config file. Checking if it exists...");
                         //System.out.println(newFileNameAttempt);
                         if (new File(newFileNameAttempt).exists()) {
                             System.out.println("16bit image file exists. Updating file in ImageConfig to: " + newFileNameAttempt);
                             this.imageConfig.setProvidedImageFileName(newFileNameAttempt);
                             this.imageConfig.setImagePrefixes();
 
-                            // because the image series is now known to be 16bit stacks, set the use stack flag to 1
+                            // because the image series is now known to be 16bit stacks, we specify the two assumptions about them
+                            // that AceTree makes (derived from the confocal microscope): flip and split the stack
+                            // ** NOTE: if these assumptions are explicitly given, we don't override them
                             this.imageConfig.setUseStack(1);
-                            this.imageConfig.setSplitStack(1);
+
+                            if (!this.imageConfig.isSplitStackGiven()) {
+                                this.imageConfig.setSplitStack(1);
+                            }
+
+                            if (!this.imageConfig.isFlipStackGiven()) {
+                                this.imageConfig.setFlipStack(1);
+                            }
+
 
                             this.currentImageName = newFileNameAttempt;
                             ImagePlus ip = makeImageFromSingle16BitTIF(newFileNameAttempt);
@@ -197,8 +207,15 @@ public class ImageManager {
                     String secondColorChannelFromiSIM = ImageNameLogic.findSecondiSIMColorChannel(imageFile);
                     if (!secondColorChannelFromiSIM.isEmpty()) {
                         //System.out.println("ImageManager found second channel stack by assuming iSIM data structure. Loading both channels...");
+                        // the assumptions for the iSIM: don't flip, don't split
                         this.imageConfig.setUseStack(1);
-                        this.imageConfig.setSplitStack(0);
+                        if (!this.imageConfig.isSplitStackGiven()) {
+                            this.imageConfig.setSplitStack(0);
+                        }
+
+                        if (!this.imageConfig.isFlipStackGiven()) {
+                            this.imageConfig.setFlipStack(0);
+                        }
 
                         // we need to add this second color channel to the image config so that its prefix will be maintained
                         this.imageConfig.addColorChannelImageToConfig(secondColorChannelFromiSIM);
@@ -222,8 +239,16 @@ public class ImageManager {
                     String secondColorChannelFromdiSPIM = ImageNameLogic.findSecondDiSPIMColorChannel(imageFile);
                     if (!secondColorChannelFromdiSPIM.isEmpty()) {
                         //System.out.println("ImageManager found second channel stack by assuming diSPIM data structure. Loading both channels...");
+                        // the assumptions for the diSIM: don't flip, don't split
                         this.imageConfig.setUseStack(1);
-                        this.imageConfig.setSplitStack(0);
+
+                        if (!this.imageConfig.isSplitStackGiven()) {
+                            this.imageConfig.setSplitStack(0);
+                        }
+
+                        if (!this.imageConfig.isFlipStackGiven()) {
+                            this.imageConfig.setFlipStack(0);
+                        }
 
                         // add the second color channel to the image config so that its prefix will be maintained
                         this.imageConfig.addColorChannelImageToConfig(secondColorChannelFromdiSPIM);
@@ -243,7 +268,17 @@ public class ImageManager {
 
                     // check if this is a rare case of a 16bit slice that needs to be opened as if it was an 8bit image but with higher bit depth
                     if (ImageNameLogic.isSliceImage(imageFile)) {
+                        // assumptions for the general 16bit slice: don't flip, don't split
                         this.imageConfig.setUseStack(0);
+
+                        // NOT SURE IF THESE ARE APPLICABLE IN THE SLICE CASE
+                        if (!this.imageConfig.isSplitStackGiven()) {
+                            this.imageConfig.setSplitStack(0);
+                        }
+
+                        if (!this.imageConfig.isFlipStackGiven()) {
+                            this.imageConfig.setFlipStack(0);
+                        }
 
                         this.currentImageName = imageFile;
                         ImagePlus ip = makeImageFrom16bitSliceTIF(imageFile);
@@ -258,8 +293,16 @@ public class ImageManager {
                     }
 
                     // if none of the above options produced a second image file containing the second color channel or determined that we have a 16bit slide
-                    // we'll assume that the supplied image is a stack that contains all color channels in it
+                    // we'll assume that the supplied image is from a confocal microscope, i.e. the assumptions are: split, flip
                     this.imageConfig.setUseStack(1);
+
+                    if (!this.imageConfig.isSplitStackGiven()) {
+                        this.imageConfig.setSplitStack(1);
+                    }
+
+                    if (!this.imageConfig.isFlipStackGiven()) {
+                        this.imageConfig.setFlipStack(1);
+                    }
 
                     this.currentImageName = imageFile;
                     ImagePlus ip = makeImageFromSingle16BitTIF(imageFile);
@@ -274,7 +317,17 @@ public class ImageManager {
                 }
             }
         } else {
+            // assume that the stacks specified are from the confocal microscope, i.e. assume: flip, split
             this.imageConfig.setUseStack(1);
+
+            if (!this.imageConfig.isSplitStackGiven()) {
+                this.imageConfig.setSplitStack(1);
+            }
+
+            if (!this.imageConfig.isFlipStackGiven()) {
+                this.imageConfig.setFlipStack(1);
+            }
+
             if (imageConfig.getNumChannels() > 3) {
                 System.out.println("WARNING: More than three image channels were supplied in the .XML file. At this point," +
                         "AceTree only supports viewing 3 channels. All image file names " +

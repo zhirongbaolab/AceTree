@@ -54,10 +54,16 @@ public class ImageConversionManager {
     }
 
     public static ImagePlus convert16bitSliceTIFToRGB(ImagePlus TIF_slice_16bit, ImageConfig imageConfig) {
+        ImageProcessor iproc = TIF_slice_16bit.getProcessor();
+
+        // TODO - are there supposed to be flip and split control for these slices
+//        if (imageConfig.getFlipStack() == 1) {
+//            iproc.flipHorizontal();
+//        }
+
         ImageConverter ic = new ImageConverter(TIF_slice_16bit);
         ic.convertToGray8();
 
-        ImageProcessor iproc = TIF_slice_16bit.getProcessor();
         byte [] bpix = (byte [])iproc.getPixels();
         byte [] R = new byte[bpix.length];
         byte [] G = new byte[bpix.length];
@@ -85,7 +91,9 @@ public class ImageConversionManager {
     public static ImagePlus convertSingle16BitTIFToRGB(ImagePlus TIF_16bit, ImageConfig imageConfig) {
         ImageProcessor iproc = TIF_16bit.getProcessor();
 
-        iproc.flipHorizontal();
+        if (imageConfig.getFlipStack() == 1) {
+            iproc.flipHorizontal();
+        }
 
         int pixelCount = iproc.getPixelCount();
         int ipwidth = iproc.getWidth();
@@ -194,17 +202,17 @@ public class ImageConversionManager {
 
         // pipe the configuration to the correct method
         if (red_valid && green_valid && !blue_valid) {
-            return convertMultiple16BitTIFsToRG(TIFs_16bit[0], TIFs_16bit[1]);
+            return convertMultiple16BitTIFsToRG(TIFs_16bit[0], TIFs_16bit[1], imageConfig);
         } else if (red_valid && green_valid && blue_valid) {
-            return convertMultiple16BitTIFstoRGB(TIFs_16bit[0], TIFs_16bit[1], TIFs_16bit[2]);
+            return convertMultiple16BitTIFstoRGB(TIFs_16bit[0], TIFs_16bit[1], TIFs_16bit[2], imageConfig);
         } else if (!red_valid && green_valid && !blue_valid) {
-            return convert16BitTIFtoG(TIFs_16bit[1]);
+            return convert16BitTIFtoG(TIFs_16bit[1], imageConfig);
         } else if (!red_valid && !green_valid && blue_valid) {
-            return convert16BitTIFtoB(TIFs_16bit[2]);
+            return convert16BitTIFtoB(TIFs_16bit[2], imageConfig);
         } else if (!red_valid && green_valid && blue_valid) {
-            return convertMultiple16BitTIFstoGB(TIFs_16bit[1], TIFs_16bit[2]);
+            return convertMultiple16BitTIFstoGB(TIFs_16bit[1], TIFs_16bit[2], imageConfig);
         } else if (red_valid && !green_valid && blue_valid) {
-            return convertMultiple16BitTIFstoRB(TIFs_16bit[0], TIFs_16bit[2]);
+            return convertMultiple16BitTIFstoRB(TIFs_16bit[0], TIFs_16bit[2], imageConfig);
         }
         System.out.println("Invalid configuration in ImageConversionManager.convertMultiple16BitTIFsToRGB()");
         return null;
@@ -220,11 +228,16 @@ public class ImageConversionManager {
      * @param green_ip
      * @return
      */
-    private static ImagePlus convertMultiple16BitTIFsToRG(ImagePlus red_ip, ImagePlus green_ip) {
+    private static ImagePlus convertMultiple16BitTIFsToRG(ImagePlus red_ip, ImagePlus green_ip, ImageConfig imageConfig) {
         ImagePlus ip = new ImagePlus();
 
         ImageProcessor iproc_channel1 = red_ip.getProcessor();
         ImageProcessor iproc_channel2 = green_ip.getProcessor();
+
+        if (imageConfig.getFlipStack() == 1) {
+            iproc_channel1.flipHorizontal();
+            iproc_channel2.flipHorizontal();
+        }
 
         int pixelCount_channel1 = iproc_channel1.getPixelCount();
         int ipwidth_channel1 = iproc_channel1.getWidth();
@@ -320,12 +333,18 @@ public class ImageConversionManager {
      * @param blue_ip
      * @return
      */
-    private static ImagePlus convertMultiple16BitTIFstoRGB(ImagePlus red_ip, ImagePlus green_ip, ImagePlus blue_ip) {
+    private static ImagePlus convertMultiple16BitTIFstoRGB(ImagePlus red_ip, ImagePlus green_ip, ImagePlus blue_ip, ImageConfig imageConfig) {
         ImagePlus ip = new ImagePlus();
 
         ImageProcessor iproc_channel1 = red_ip.getProcessor();
         ImageProcessor iproc_channel2 = green_ip.getProcessor();
         ImageProcessor iproc_channel3 = blue_ip.getProcessor();
+
+        if (imageConfig.getFlipStack() == 1) {
+            iproc_channel1.flipHorizontal();
+            iproc_channel2.flipHorizontal();
+            iproc_channel3.flipHorizontal();
+        }
 
         int pixelCount_channel1 = iproc_channel1.getPixelCount();
         int ipwidth_channel1 = iproc_channel1.getWidth();
@@ -442,12 +461,14 @@ public class ImageConversionManager {
      * @param green_ip
      * @return
      */
-    private static ImagePlus convert16BitTIFtoG(ImagePlus green_ip) {
+    private static ImagePlus convert16BitTIFtoG(ImagePlus green_ip, ImageConfig imageConfig) {
         ImagePlus ip = new ImagePlus();
 
         ImageProcessor iproc_channel2 = green_ip.getProcessor();
 
-        iproc_channel2.flipHorizontal();
+        if (imageConfig.getFlipStack() == 1) {
+            iproc_channel2.flipHorizontal();
+        }
 
         int pixelCount_channel2 = iproc_channel2.getPixelCount();
         int ipwidth_channel2 = iproc_channel2.getWidth();
@@ -503,12 +524,14 @@ public class ImageConversionManager {
      * @param blue_ip
      * @return
      */
-    private static ImagePlus convert16BitTIFtoB(ImagePlus blue_ip) {
+    private static ImagePlus convert16BitTIFtoB(ImagePlus blue_ip, ImageConfig imageConfig) {
         ImagePlus ip = new ImagePlus();
 
         ImageProcessor iproc_channel3 = blue_ip.getProcessor();
 
-        iproc_channel3.flipHorizontal();
+        if (imageConfig.getFlipStack() == 1) {
+            iproc_channel3.flipHorizontal();
+        }
 
         int pixelCount_channel3 = iproc_channel3.getPixelCount();
         int ipwidth_channel3 = iproc_channel3.getWidth();
@@ -565,14 +588,16 @@ public class ImageConversionManager {
      * @param blue_ip
      * @return
      */
-    private static ImagePlus convertMultiple16BitTIFstoGB(ImagePlus green_ip, ImagePlus blue_ip) {
+    private static ImagePlus convertMultiple16BitTIFstoGB(ImagePlus green_ip, ImagePlus blue_ip, ImageConfig imageConfig) {
         ImagePlus ip = new ImagePlus();
 
         ImageProcessor iproc_channel2 = green_ip.getProcessor();
         ImageProcessor iproc_channel3 = blue_ip.getProcessor();
 
-        iproc_channel2.flipHorizontal();
-        iproc_channel3.flipHorizontal();
+        if (imageConfig.getFlipStack() == 1) {
+            iproc_channel2.flipHorizontal();
+            iproc_channel3.flipHorizontal();
+        }
 
         int pixelCount_channel2 = iproc_channel2.getPixelCount();
         int ipwidth_channel2 = iproc_channel2.getWidth();
@@ -667,14 +692,16 @@ public class ImageConversionManager {
      * @param blue_ip
      * @return
      */
-    private static ImagePlus convertMultiple16BitTIFstoRB(ImagePlus red_ip, ImagePlus blue_ip) {
+    private static ImagePlus convertMultiple16BitTIFstoRB(ImagePlus red_ip, ImagePlus blue_ip, ImageConfig imageConfig) {
         ImagePlus ip = new ImagePlus();
 
         ImageProcessor iproc_channel1 = red_ip.getProcessor();
         ImageProcessor iproc_channel3 = blue_ip.getProcessor();
 
-        iproc_channel1.flipHorizontal();
-        iproc_channel3.flipHorizontal();
+        if (imageConfig.getFlipStack() == 1) {
+            iproc_channel1.flipHorizontal();
+            iproc_channel3.flipHorizontal();
+        }
 
         int pixelCount_channel1 = iproc_channel1.getPixelCount();
         int ipwidth_channel1 = iproc_channel1.getWidth();
@@ -777,8 +804,10 @@ public class ImageConversionManager {
         ImageProcessor iproc = MIP_ip.getProcessor();
         //System.out.println(iproc.getNChannels() + ", " + iproc.getSliceNumber() + ", " + iproc.getBitDepth() + ", " + iproc.getPixelCount() + ", " + iproc.getPixelValue(30, 30));
 
-        // flip the projection
-        iproc.flipHorizontal();
+        if (imageConfig.getFlipStack() == 1) {
+            // flip the projection
+            iproc.flipHorizontal();
+        }
 
         int ipWidth = iproc.getWidth();
         int ipHeight = iproc.getHeight();
@@ -914,8 +943,11 @@ public class ImageConversionManager {
             if (MIP_ips[i] != null) {
                 ImageProcessor iprocN = MIP_ips[i].getProcessor();
 
-                // flip the projection
-                iprocN.flipHorizontal();
+                if (imageConfig.getFlipStack() == 1) {
+                    // flip the projection
+                    iprocN.flipHorizontal();
+                }
+
 
                 if (imageConfig.getSplitStack() == 1) {
                     // crop the image so we just have the right side (originally the left, but we flipped the image horizontally)
