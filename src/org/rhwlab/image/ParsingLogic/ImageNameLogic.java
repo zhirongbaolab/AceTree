@@ -42,6 +42,43 @@ public class ImageNameLogic {
     private static String planeStr = "-p";
     private static String ZERO_PAD = "0";
 
+    private static String tifDir = "/tif/";
+    private static String tifRDir = "/tifR/";
+
+    /**
+     * @author Braden Katzman
+     *
+     * Method which given a slice image that follows the ..../tif/image_name.tif convention, returns a second channel,
+     * ..../tifR/image_name.tif, if it exists.
+     *
+     * @param slice_image
+     * @return the complementary color channel, if it exists. Otherwise, returns the slice_image parameter
+     */
+    public static String findSecondColorChannelFromSliceImage(String slice_image) {
+        if (slice_image == null || slice_image.isEmpty()) { return slice_image; }
+
+        if (slice_image.contains(tifDir)) {
+            String secondChannelAttempt = slice_image.substring(0, slice_image.indexOf(tifDir)) +
+                    tifRDir +
+                    slice_image.substring(slice_image.indexOf(tifDir) + tifDir.length());
+
+            //System.out.println(secondChannelAttempt);
+            if (new File(secondChannelAttempt).exists()) {
+                return secondChannelAttempt;
+            }
+        } else if (slice_image.contains(tifRDir)) {
+            String secondChannelAttempt = slice_image.substring(0, slice_image.indexOf(tifRDir)) +
+                    tifDir +
+                    slice_image.substring(slice_image.indexOf(tifRDir) + tifDir.length()+1);
+            //System.out.println(secondChannelAttempt);
+            if (new File(secondChannelAttempt).exists()) {
+                return secondChannelAttempt;
+            }
+        }
+
+        return slice_image;
+    }
+
     /**
      * @author Braden Katzman
      *
@@ -542,10 +579,10 @@ public class ImageNameLogic {
     }
 
     public static String appendTimeAndPlaneTo8BittifPrefix(String tifPrefix_8bit, int time, int plane) {
-        return tifPrefix_8bit + formatInteger(time) + planeStr + formatInteger(plane) + tif_ext;
+        return tifPrefix_8bit + formatTimeInteger(time) + planeStr + formatPlaneInteger(plane) + tif_ext;
     }
 
-    private static String formatInteger(int integer) {
+    private static String formatTimeInteger(int integer) {
         if (integer < 1) { return ""; }
 
         if (integer < 10) {
@@ -560,8 +597,24 @@ public class ImageNameLogic {
         return "";
     }
 
+    private static String formatPlaneInteger(int integer) {
+        if (integer < 1) { return ""; }
+
+        if (integer < 10) {
+            return  ZERO_PAD + Integer.toString(integer);
+        } else if (integer >= 10) {
+            return Integer.toString(integer);
+        }
+
+        return "";
+    }
+
 //    public static void main(String[] args) {
 //        String test = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/09082016_lineage/image/tif/KB_BV395_09082016_1_s1-t001-p01.tif";
+//        String secondChannelAttempt = findSecondColorChannelFromSliceImage(test);
+//
+//
+//
 //        String updatedStr = reconfigureImagePathFrom8bitTo16bit(test);
 //        System.out.println(updatedStr);
 //

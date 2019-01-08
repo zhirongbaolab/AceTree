@@ -198,7 +198,6 @@ public class ImageManager {
                     //this.currentImageTime = this.imageConfig.getStartingIndex();
 
                     return ip;
-
                 } else if (getImageBitDepth(imageFile) == _16BIT_ID){
                     // we now want to check whether this image file follows the iSIM or diSPIM data hierarchy conventions. If so,
                     // we'll take advantage of that knowledge and look for other files in the series
@@ -359,6 +358,8 @@ public class ImageManager {
     }
 
     /**
+     * Method to open 8bit tif image. Looks for a second color channel each time in the event that one is present
+     * but not at all time points
      *
      * @param tif_8bit
      * @return
@@ -373,7 +374,21 @@ public class ImageManager {
             this.imageWidth = ip.getWidth();
             this.imageHeight = ip.getHeight();
 
-            ip = ImageConversionManager.convert8bittifToRGB(ip, this.imageConfig);
+            // try and open a second channel according to the tif/ tifR/ convention
+            String secondColorChannelAttempt = ImageNameLogic.findSecondColorChannelFromSliceImage(tif_8bit);
+            if (!tif_8bit.equals(secondColorChannelAttempt)) {
+                // a second color channel was found, so load both images as one layered, RGB image
+                ImagePlus ip2 = new Opener().openImage(secondColorChannelAttempt);
+                if (ip2 != null) {
+                    ip = ImageConversionManager.convertMultiple8bittifsToRGB(ip, ip2, this.imageConfig);
+                } else {
+                    System.out.println("System found second color channel image for tif slice series, but could not open the image. Just opening single image. Image not opened: " + secondColorChannelAttempt);
+                    ip = ImageConversionManager.convert8bittifToRGB(ip, this.imageConfig);
+                }
+            } else {
+                // a second color channel was not found, so just load the single image
+                ip = ImageConversionManager.convert8bittifToRGB(ip, this.imageConfig);
+            }
         } else {
             ip = new ImagePlus();
             ImageProcessor iproc = new ColorProcessor(this.imageWidth, this.imageHeight);

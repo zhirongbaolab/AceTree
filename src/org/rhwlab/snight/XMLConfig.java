@@ -244,6 +244,9 @@ public class XMLConfig implements DocHandler {
         } else if (tag.equals("Flip")) {
             String flipMode = (String)h.get("FlipMode");
             this.xmlConfigData.put("flip", flipMode);
+        } else if (tag.equals("TimePrefix")) {
+            String prefix = (String)h.get("Prefix");
+            this.xmlConfigData.put("TimePrefix", prefix);
         }
     }
 

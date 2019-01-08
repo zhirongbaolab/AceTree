@@ -35,6 +35,7 @@ public class ImageConversionManager {
      */
     public static ImagePlus convert8bittifToRGB(ImagePlus tif_8bit, ImageConfig imageConfig) {
         ImageProcessor iproc = tif_8bit.getProcessor();
+
         byte [] bpix = (byte [])iproc.getPixels();
         byte [] R = new byte[bpix.length];
         byte [] G = new byte[bpix.length];
@@ -53,13 +54,45 @@ public class ImageConversionManager {
         return buildImagePlus(tif_8bit, R, G, B);
     }
 
+    public static ImagePlus convertMultiple8bittifsToRGB(ImagePlus tif1, ImagePlus tif2, ImageConfig imageConfig) {
+        ImageProcessor iproc1 = tif1.getProcessor();
+        ImageProcessor iproc2 = tif2.getProcessor();
+
+        if (imageConfig.getFlipStack() == 1) {
+            iproc1.flipHorizontal();
+            iproc2.flipHorizontal();
+        }
+
+        byte[] Rpix = (byte [])iproc1.getPixels();
+        byte[] Gpix = (byte [])iproc2.getPixels();
+
+        byte [] R = new byte[Rpix.length];
+        byte [] G = new byte[Rpix.length];
+        byte [] B = new byte[Rpix.length];
+
+        ColorProcessor iproc3 = new ColorProcessor(iproc1.getWidth(), iproc1.getHeight());
+        iproc3.getRGB(R, G, B);
+
+        R = Rpix;
+        G = Gpix;
+
+        currentRPixelMap = R;
+        currentGPixelMap = G;
+        currentBPixelMap = B;
+
+        iproc3.setRGB(R, G, B);
+        ImagePlus ip = new ImagePlus();
+        ip.setProcessor("test", iproc3);
+        return ip;
+    }
+
     public static ImagePlus convert16bitSliceTIFToRGB(ImagePlus TIF_slice_16bit, ImageConfig imageConfig) {
         ImageProcessor iproc = TIF_slice_16bit.getProcessor();
 
-        // TODO - are there supposed to be flip and split control for these slices
-//        if (imageConfig.getFlipStack() == 1) {
-//            iproc.flipHorizontal();
-//        }
+        // TODO - split control for these slices
+        if (imageConfig.getFlipStack() == 1) {
+            iproc.flipHorizontal();
+        }
 
         ImageConverter ic = new ImageConverter(TIF_slice_16bit);
         ic.convertToGray8();
@@ -1087,10 +1120,10 @@ public class ImageConversionManager {
      * @param ip
      * @return
      */
-    private static ImagePlus buildImagePlus(ImagePlus ip, byte[] rPixMap, byte[] gPixMap, byte[] bPixMay) {
+    private static ImagePlus buildImagePlus(ImagePlus ip, byte[] rPixMap, byte[] gPixMap, byte[] bPixMap) {
         ImageProcessor iproc = ip.getProcessor();
         ColorProcessor iproc3 = new ColorProcessor(iproc.getWidth(), iproc.getHeight());
-        iproc3.setRGB(rPixMap, gPixMap, bPixMay);
+        iproc3.setRGB(rPixMap, gPixMap, bPixMap);
         ip.setProcessor("test", iproc3);
         return ip;
 
