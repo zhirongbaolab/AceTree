@@ -526,12 +526,17 @@ public class AceTree extends JPanel
             // ***** bring up the image series ************
 
             // first, let's build an ImageWindow with the first processed image
+            if (this.iImgWin != null) {
+                // close the existing image window if there is already one open
+                this.iImgWin.setVisible(false);
+                this.iImgWin.dispose();
+            }
             this.iImgWin = new ImageWindow(this.imageManager.makeImageNameForTitle(),
-                                        this.imageManager.bringUpImageSeries(),
-                                            iPlayerControl,
-                    this.imageManager);
-            this.iImgWin.setAceTree(this); // TODO - this is bad code practice how this is piped, but to get it to testable we'll settle for now 11/2018
-            this.iImgWin.setNucleiMgr(this.iNucleiMgr); // TODO - same
+                                            this.imageManager.bringUpImageSeries(),
+                                            this.iPlayerControl,
+                                            this.imageManager);
+            this.iImgWin.setAceTree(this);
+            this.iImgWin.setNucleiMgr(this.iNucleiMgr);
 
             // update the PlayerControl tab with an color channel toggle that matches the config of this image series
             this.getPlayerControl().updateColorChannelToggleButton();
