@@ -439,19 +439,21 @@ public class ImageNameLogic {
             imageName = filename.substring(filename.lastIndexOf(BACKSLASH));
         }
 
+        System.out.println("Image name is: " + imageName);
+
         // if we got the file name, proceed
         if (!imageName.isEmpty()) {
             // "...-p###.EXT case
             if (imageName.lastIndexOf(PERIOD) != -1 && imageName.lastIndexOf(DASH) != -1) {
                 // check for presence of "-p" and make sure that there are only enough characters after the dash, before
                 // the start of the file extension to fit -p###.ext
-                if (imageName.substring(imageName.lastIndexOf(DASH), imageName.lastIndexOf(DASH)+1).equals(planeStr) &&
+                if (imageName.substring(imageName.lastIndexOf(DASH), imageName.lastIndexOf(DASH)+2).equals(planeStr) &&
                         imageName.lastIndexOf(PERIOD) - imageName.lastIndexOf(DASH) <= 5) {
                     return true;
                 }
             // "..._p###.EXT case
             } else if (imageName.lastIndexOf(PERIOD) != -1 && imageName.lastIndexOf(UNDERSCORE) != -1) {
-                if (imageName.substring(imageName.lastIndexOf(UNDERSCORE), imageName.lastIndexOf(UNDERSCORE)+1).equals(planeStrAlt) &&
+                if (imageName.substring(imageName.lastIndexOf(UNDERSCORE), imageName.lastIndexOf(UNDERSCORE)+2).equals(planeStrAlt) &&
                         imageName.lastIndexOf(PERIOD) - imageName.lastIndexOf(UNDERSCORE) <= 5) {
                     return true;
                 }
