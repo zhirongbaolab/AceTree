@@ -534,7 +534,7 @@ public class ImageManager {
         if (isCurrImageMIP) { return this.currentImage; }
 
         this.currentImage = makeImage(this.currentImageTime, this.currentImagePlane);
-        this.isCurrImageMIP = false;
+        //this.isCurrImageMIP = false;
         return this.currentImage;
     }
 
@@ -550,7 +550,7 @@ public class ImageManager {
         // first check if we're dealing with 8 bit or 16 bit images
         if (this.imageConfig.getUseStack() == 0) { // 8bit
             this.currentImageName = ImageNameLogic.appendTimeAndPlaneTo8BittifPrefix(this.imageConfig.getImagePrefixes()[0], time, plane);
-            this.isCurrImageMIP = false;
+            //this.isCurrImageMIP = false;
             return makeImageFrom8Bittif();
 
         } else if (this.imageConfig.getUseStack() == 1) { //16bit
@@ -558,7 +558,7 @@ public class ImageManager {
             if (this.imageConfig.getNumChannels() == -1) {
                 // single stack with one or more color channels
                 this.currentImageName = ImageNameLogic.appendTimeToSingle16BitTIFPrefix(this.imageConfig.getImagePrefixes()[0], time);
-                this.isCurrImageMIP = false;
+                //this.isCurrImageMIP = false;
                 return makeImageFromSingle16BitTIF();
             } else if (this.imageConfig.getNumChannels() > 1) {
                 // multiple stacks containing multiple image channels for an image series
@@ -569,7 +569,7 @@ public class ImageManager {
                         break;
                     }
                 }
-                this.isCurrImageMIP = false;
+                //this.isCurrImageMIP = false;
                 return makeImageFromMultiple16BitTIFs(images);
             }
         }

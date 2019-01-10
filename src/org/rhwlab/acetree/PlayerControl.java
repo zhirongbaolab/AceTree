@@ -261,7 +261,7 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
 		    iAceTree.toggleColor();
 		    iAceTree.updateDisplay();
 		} else if (o == maximumIntensityProjection) {
-            iAceTree.showMaximumIntensityProjection();
+            iAceTree.maximumIntensityProjection(true);
         } else if (o == iProperties) {
 		    iAceTree.getImageWindow().launchImageParamsDialog();
 		} else if (o == iContrast) {

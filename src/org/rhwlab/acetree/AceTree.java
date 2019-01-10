@@ -242,8 +242,6 @@ public class AceTree extends JPanel
     private Config configManager;
     private ImageManager imageManager;
     private NucleiMgr   iNucleiMgr;
-
-    private MaxIntensityProjectionWindow MIP_window;
     // ********************************************************************************
 
     protected AceTree() {
@@ -1865,7 +1863,7 @@ public class AceTree extends JPanel
             // refresh the ImageWindow by building the desired image in the series with ImageManager and passing it along
             if (this.imageManager.isCurrImageMIP()) {
                 // rebuild a maximum intensity projection (most likely the contrast slider was updated and ImageWindow has called back to updateDisplay())
-                showMaximumIntensityProjection(); // will pass the max projection to ImageWindow
+                maximumIntensityProjection(false); // will pass the max projection to ImageWindow
             } else {
                 int planeNum = -1;
                 if (this.configManager.getImageConfig().getUseStack() == 1) { planeNum = this.imageManager.getCurrImagePlane(); }
@@ -2243,7 +2241,7 @@ public class AceTree extends JPanel
         iCallSaveImage = true;
 
         // flip the MIP flag if AceTree is showing a MIP right now
-        this.imageManager.setCurrImageMIP(false);
+        //this.imageManager.setCurrImageMIP(false);
 
         updateDisplay();
     }
@@ -2255,7 +2253,7 @@ public class AceTree extends JPanel
         iCallSaveImage = true;
 
         // flip the MIP flag if AceTree is showing a MIP right now
-        this.imageManager.setCurrImageMIP(false);
+        //this.imageManager.setCurrImageMIP(false);
 
         updateDisplay();
     }
@@ -2338,27 +2336,35 @@ public class AceTree extends JPanel
         else if (e.getSource() == iColorToggle) {
             toggleColor();
         } else if (e.getSource() == maximumIntensityProjectionToggle) {
-            showMaximumIntensityProjection();
+            maximumIntensityProjection(true);
+
             doUpdate = false;
         }
         if (doUpdate)
         	updateDisplay();
     }
 
-    public void showMaximumIntensityProjection() {
+    public void maximumIntensityProjection(boolean calledFromClick) {
         if (this.imageManager == null) return;
 
-        // assume that we want to show centroids
-        this.iShowCentroids = true;
+        // check if we're already in MIP mode and this method is being trigged because of a button click, indicating we should go back to normal image mode
+        if (this.imageManager.isCurrImageMIP() && calledFromClick) {
+            this.imageManager.setCurrImageMIP(false);
+            updateDisplay();
+            return;
+        } else {
+            // assume that we want to show centroids
+            this.iShowCentroids = true;
 
-        // update the centroids flag if the button has been toggled
-        if (iShowC.getText().equals(SHOWC)) {
-            this.iShowCentroids = false;
+            // update the centroids flag if the button has been toggled
+            if (iShowC.getText().equals(SHOWC)) {
+                this.iShowCentroids = false;
+            }
+
+            this.iImgWin.refreshDisplay(this.imageManager.getCurrentImageName(),
+                    this.imageManager.extractColorChannelFromImagePlus(this.imageManager.makeMaxProjection(), this.iColor),
+                    Integer.MAX_VALUE);
         }
-
-        this.iImgWin.refreshDisplay(this.imageManager.getCurrentImageName(),
-                this.imageManager.extractColorChannelFromImagePlus(this.imageManager.makeMaxProjection(), this.iColor),
-                Integer.MAX_VALUE);
     }
 
     public void toggleColor() {
@@ -2591,7 +2597,7 @@ public class AceTree extends JPanel
 	   this.imageManager.incrementImageTimeNumber(1);
 
         // flip the MIP flag if AceTree is showing a MIP right now
-        this.imageManager.setCurrImageMIP(false);
+        //this.imageManager.setCurrImageMIP(false);
 
         iCallSaveImage = true;
         int now = this.imageManager.getCurrImageTime() + iTimeInc;
@@ -2619,7 +2625,7 @@ public class AceTree extends JPanel
         this.imageManager.incrementImageTimeNumber(-1);
 
         // flip the MIP flag if AceTree is showing a MIP right now
-        this.imageManager.setCurrImageMIP(false);
+        //this.imageManager.setCurrImageMIP(false);
 
         iCallSaveImage = true;
         int now = this.imageManager.getCurrImageTime() + iTimeInc;
