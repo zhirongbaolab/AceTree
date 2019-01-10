@@ -185,19 +185,25 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
         iPause.setEnabled(false);
     }
 
-
-    public void stop() {
-    	iRunning = false;
-    }
-
-    public void disablePlayButton() {
+    // called from the WormGUIDESWindow when the WormGUIDES app goes into play mode. We want to disable
+    public void disableTimeAndPlaneControlButtons() {
       iPlay.setEnabled(false);
-      iPause.setEnabled(true);
+      iPause.setEnabled(false);
+      iReverse.setEnabled(false);
+      iStepForward.setEnabled(false);
+      iStepBack.setEnabled(false);
+      iStepUp.setEnabled(false);
+      iStepDown.setEnabled(false);
     }
 
-    public void enablePlayButton() {
+    public void enableTimeAndPlaneControlButtons() {
         iPlay.setEnabled(true);
         iPause.setEnabled(false);
+        iReverse.setEnabled(true);
+        iStepForward.setEnabled(true);
+        iStepBack.setEnabled(true);
+        iStepUp.setEnabled(true);
+        iStepDown.setEnabled(true);
     }
 
     public void pause() {
@@ -208,6 +214,7 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
         // flip the WormGUIDES play icon if it is not null
         if (iAceTree.iAceMenuBar.view != null) {
             iAceTree.iAceMenuBar.view.flipPlayButtonIcon();
+            iAceTree.iAceMenuBar.view.enableTimeControls();
         }
     }
 
@@ -230,9 +237,10 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
             setEnabledAll(false);
             iPause.setEnabled(true);
 
-            // flip the WormGUIDES play icon if it is not null
+            // flip the WormGUIDES play icon if it is not null, and disable the time controls
             if (iAceTree.iAceMenuBar.view != null) {
                 iAceTree.iAceMenuBar.view.flipPlayButtonIcon();
+                iAceTree.iAceMenuBar.view.disableTimeControls();
             }
 
             new Thread(this, "TEST").start();
@@ -244,6 +252,12 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
             iForward = false;
             setEnabledAll(false);
             iPause.setEnabled(true);
+
+            if (iAceTree.iAceMenuBar.view != null) {
+                iAceTree.iAceMenuBar.view.flipPlayButtonIcon();
+                iAceTree.iAceMenuBar.view.disableTimeControls();
+            }
+
             new Thread(this, "TEST").start();
         } else if (o == iStepForward) {
             if (iRunning)

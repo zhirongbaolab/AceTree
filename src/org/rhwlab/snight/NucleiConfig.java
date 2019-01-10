@@ -53,7 +53,7 @@ public class NucleiConfig {
      * @param configData
      */
     public NucleiConfig(Hashtable<String, String> configData, String configFileName) {
-        System.out.println("Configuring NucleiConfig using .XML data");
+        System.out.println("Configuring NucleiConfig using .XML data: " + configFileName);
 
         // prevent errors by initializing everything
         zipFileName = axisGiven = "";
@@ -73,10 +73,9 @@ public class NucleiConfig {
                  String zipFile = configData.get(s);
 
                 // check if it's a relative path
-                if (this.zipFileName != null && !new File(this.zipFileName).isAbsolute()) {
+                if (zipFile != null && (!new File(zipFile).isAbsolute() || zipFile.charAt(0) == '.')) {
                     // prepend so this is an absolute path
-                    zipFile = configFileName.substring(0, configFileName.lastIndexOf("/") + 1) + zipFile.substring(zipFile.lastIndexOf("/")+1);
-                    System.out.println("Updating relative zip file path to absolute: " + zipFile);
+                    zipFile = configFileName.substring(0, configFileName.lastIndexOf(File.separator) + 1) + zipFile.substring(zipFile.lastIndexOf(File.separator)+1);
                 }
 
                 this.zipFileName = zipFile;
@@ -90,7 +89,6 @@ public class NucleiConfig {
                 this.startingIndex = Integer.parseInt(configData.get(s));
             } else if (s.toLowerCase().equals(endingIndexKey.toLowerCase())) {
                 this.endingIndex = Integer.parseInt(configData.get(s));
-                System.out.println("Set ending index: " + this.endingIndex);
             } else if (s.toLowerCase().equals(exprCorrKey.toLowerCase())) {
                 this.exprCorr = configData.get(s);
             } else if (s.toLowerCase().equals(polarSizeKey.toLowerCase())) {

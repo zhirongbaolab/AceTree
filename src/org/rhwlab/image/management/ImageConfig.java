@@ -89,9 +89,9 @@ public class ImageConfig {
         for (String s : configData.keySet()) {
             if (s.toLowerCase().equals(this.imageFileNameKey.toLowerCase())) {
                 String imageFile = configData.get(s);
-                if (imageFile != null && !new File(imageFile).isAbsolute()) {
+                if (imageFile != null && (!new File(imageFile).isAbsolute() || imageFile.charAt(0) == '.')) {
                     // if the image file name is not absolute, prepend it with the absolute path in the configFileName
-                    imageFile = configFileName.substring(0, configFileName.lastIndexOf("/") + 1) + imageFile.substring(imageFile.lastIndexOf("/")+1);
+                    imageFile = configFileName.substring(0, configFileName.lastIndexOf(File.separator) + 1) + imageFile.substring(imageFile.lastIndexOf(File.separator)+1);
                     System.out.println("Updating relative image file path to absolute: " + imageFile);
                 }
 
@@ -108,9 +108,9 @@ public class ImageConfig {
 
                 // check if there is a non-empty string listed for this channel
                 String imageFile = configData.get(s);
-                if (imageFile != null && !new File(imageFile).isAbsolute()) {
+                if (imageFile != null && (!new File(imageFile).isAbsolute() || imageFile.charAt(0) == '.')) {
                     // if the image file name is not absolute, prepend it with the absolute path in the configFileName
-                    imageFile = configFileName.substring(0, configFileName.lastIndexOf("/")+1) + imageFile.substring(imageFile.lastIndexOf("/")+1);
+                    imageFile = configFileName.substring(0, configFileName.lastIndexOf(File.separator)+1) + imageFile.substring(imageFile.lastIndexOf(File.separator)+1);
                     System.out.println("Updating relative image file path to absolute: " + imageFile);
                 }
                 this.imageChannels[channelNumber-1] = imageFile;

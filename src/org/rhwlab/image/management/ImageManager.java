@@ -189,6 +189,8 @@ public class ImageManager {
                 if (getImageBitDepth(imageFile) == _8BIT_ID) {
                     // load this image as the first in the image series
                     this.imageConfig.setUseStack(0); // in case it isn't correctly set
+                    this.imageConfig.setFlipStack(0);
+                    this.imageConfig.setSplitStack(0);
 
                     this.currentImageName = imageFile;
                     ImagePlus ip = makeImageFrom8Bittif(imageFile);
@@ -382,7 +384,12 @@ public class ImageManager {
                 // a second color channel was found, so load both images as one layered, RGB image
                 ImagePlus ip2 = new Opener().openImage(secondColorChannelAttempt);
                 if (ip2 != null) {
-                    ip = ImageConversionManager.convertMultiple8bittifsToRGB(ip, ip2, this.imageConfig);
+                    if (tif_8bit.contains("/tif/")) {
+                        ip = ImageConversionManager.convertMultiple8bittifsToRGB(ip, ip2, this.imageConfig);
+                    } else if (tif_8bit.contains("/tifR/")) {
+                        ip = ImageConversionManager.convertMultiple8bittifsToRGB(ip2, ip, this.imageConfig);
+                    }
+
                 } else {
                     System.out.println("System found second color channel image for tif slice series, but could not open the image. Just opening single image. Image not opened: " + secondColorChannelAttempt);
                     ip = ImageConversionManager.convert8bittifToRGB(ip, this.imageConfig);

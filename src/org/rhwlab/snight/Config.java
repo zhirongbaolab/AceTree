@@ -85,7 +85,7 @@ public class Config {
     }
 
     public static String getShortName(String longName) {
-        int k = longName.lastIndexOf("/");
+        int k = longName.lastIndexOf(File.separator);
         return longName.substring(k + 1);
     }
 

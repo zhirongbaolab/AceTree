@@ -6,6 +6,8 @@ import application_src.application_model.resources.NucleiMgrAdapterResource;
 import org.rhwlab.acetree.AceTree;
 import org.rhwlab.image.management.ImageManager;
 
+import java.util.Vector;
+
 /**
  * Class to open WormGUIDES via AceTree
  *
@@ -56,15 +58,38 @@ public class WormGUIDESWindow extends MainApp {
         externallySetStartTime = this.imageManager.getCurrImageTime();
 
         timePropertyMainApp.addListener(((observable, oldValue, newValue) -> {
-            this.imageManager.setCurrImageTime(newValue.intValue());
-            aceTree.updateDisplay();
+
+            // we need to first rule out changes to the time property that are a result of AceTree's control over WormGUIDES
+            // i.e. only those time changes that originate in WormGUIDES should update AceTree
+            if (newValue.intValue() == this.imageManager.getCurrImageTime()) {
+                return;
+            }
+
+        	// we'll route these through some different update styles depending on how the time is being changed in WormGUIDES
+			// either by play mode, step forward/backward button, or slider change
+        	if (newValue.intValue() == (oldValue.intValue() + 1)) {
+				aceTree.nextImage();
+			} else if (newValue.intValue() == (oldValue.intValue() - 1)) {
+				aceTree.prevImage();
+			} else {
+				this.imageManager.setCurrImageTime(newValue.intValue());
+
+				// behavior is modeled off the bottom panel of the main acetree panel where time and cell are inputted
+				Vector v = new Vector();
+                v.add("InputCtrl1");
+                v.add(newValue.toString());
+                v.add("");
+
+                aceTree.controlCallback(v);
+                aceTree.updateDisplay();
+			}
         }));
 
         isPlayButtonEnabled.addListener(((observable, oldValue, newValue) -> {
             if (newValue) { // if WormGUIDES is in play mode
-                aceTree.getPlayerControl().disablePlayButton();
+                aceTree.getPlayerControl().disableTimeAndPlaneControlButtons();
             } else {
-                aceTree.getPlayerControl().enablePlayButton();
+                aceTree.getPlayerControl().enableTimeAndPlaneControlButtons();
             }
         }));
 	}

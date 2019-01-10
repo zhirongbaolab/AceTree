@@ -113,7 +113,7 @@ public class ImageNameLogic {
         System.out.println("\nReconfiguring image path for an 8bit image to a 16bit TIF, if possible. ImageNameLogic.reconfigureImagePathFrom8BithTo16Bit()");
 
         //try using layered images two directories up
-        int fileNameIdx = _8bitImagePath.lastIndexOf(FORWARDSLASH);
+        int fileNameIdx = _8bitImagePath.lastIndexOf(File.separator);
 
         // find the name of the file i.e. cut off everything having to do with either an absolute or relative path in the string passed
         String fileName;

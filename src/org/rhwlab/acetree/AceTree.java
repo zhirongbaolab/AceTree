@@ -563,10 +563,12 @@ public class AceTree extends JPanel
             iImgWinSet = true;
 
             if (iCurrentCell != null && !iCurrentCell.getName().equals("P") && iRoot.getChildCount() > 0) {
-                iShowCentroids = true;
-                iShowC.setText(HIDEC);
                 addMainAnnotation();
             }
+
+            iShowCentroids = true;
+            iShowC.setText(HIDEC);
+
             iAceMenuBar.setClearEnabled(true);
 
 	        setShowAnnotations(true);
@@ -2614,6 +2616,7 @@ public class AceTree extends JPanel
             iTrackPosition = ImageWindow.NONE;
             return true;
         }
+
         // at this point we know that a cell division occurred in this transition
         // iCurrentCell will change as a side effect of doDaughterDisplayWork
         setCurrentCell(iCurrentCell, now, NEXTTIME);
@@ -2633,9 +2636,12 @@ public class AceTree extends JPanel
         if (iCurrentCell != null) start = iCurrentCell.getTime();
         if (now >= start)
         	return true;
+
         // a cell change occurs as we move to parent here
         //println("prevTime: " + iCurrentCell.getName() + CS + now);
         setCurrentCell(iCurrentCell, now, PREVTIME);
+
+
         return true;
     }
 
@@ -2734,6 +2740,7 @@ public class AceTree extends JPanel
     }
 
     public void setCurrentCell(Cell c, int time, int source) {
+        //System.out.println("Setting current cell: " + c.getName() + ", at time: " + time);
     	if(iCellsByName == null)
     		return;
 
@@ -2804,6 +2811,7 @@ public class AceTree extends JPanel
         } else if (source == CONTROLCALLBACK) {
             showSelectedCell(c, time);
         } else if (source == NEXTTIME) {
+            //System.out.println("Source is nexttime, time is: " + time);
             this.imageManager.setCurrImageTime(time);
             iTimeInc = 0;
             Cell currentCellSave = iCurrentCell;
@@ -2812,15 +2820,14 @@ public class AceTree extends JPanel
             if (currentCellSave != iCurrentCell) {
                 trackingActionsOnCurrentCellChange();
 
-
                 if(iImgWin != null) {
                     iImgWin.updateCurrentCellAnnotation(iCurrentCell, currentCellSave, time);
                 }
-
             }
 
             showTreeCell(iCurrentCell);
         } else if (source == PREVTIME) {
+            //System.out.println("Source is prevtime, time is: " + time);
         	Vector nuclei1 = iNucleiMgr.getElementAt(this.imageManager.getCurrImageTime() + iTimeInc);
             Vector nuclei0 = iNucleiMgr.getElementAt(this.imageManager.getCurrImageTime() + iTimeInc - 1);
         	
@@ -2844,7 +2851,6 @@ public class AceTree extends JPanel
                 iCurrentCell = null;
                 showTreeCell(iRoot);
             }
-
         }
     }
 
@@ -3196,8 +3202,6 @@ public class AceTree extends JPanel
         }
 
         boolean b = nextTime();
-
-
 
 		updateDisplay();
 
