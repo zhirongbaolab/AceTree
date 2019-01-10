@@ -137,8 +137,8 @@ public class ImageConversionManager {
             ipwidth /= 2;
         }
 
-        byte [] G = new byte[pixelCount];
         byte [] R = new byte[pixelCount];
+        byte [] G = new byte[pixelCount];
         byte [] B = new byte[pixelCount];
 
         ColorProcessor iproc3 = new ColorProcessor(ipwidth, ipheight);
@@ -187,21 +187,21 @@ public class ImageConversionManager {
         } else { /** this option identifies the case where 16bit images should *not* be split */
             if (ImageManager.getOriginalContrastValuesFlag()) {
                 // Set contrast values from original image
-                int ipmingre = (int)(TIF_16bit.getDisplayRangeMin());
-                int ipmaxgre = (int)(TIF_16bit.getDisplayRangeMax());
+                int ipminred = (int)(TIF_16bit.getDisplayRangeMin());
+                int ipmaxred = (int)(TIF_16bit.getDisplayRangeMax());
 
-                System.out.println("ImageConversionManager set color contrast minimum, maximum from image: " + ipmingre + ", " + ipmaxgre);
-                ImageManager.setContrastMin2(ipmingre);
-                ImageManager.setContrastMax2(ipmaxgre);
+                System.out.println("ImageConversionManager set color contrast minimum, maximum from image: " + ipminred + ", " + ipmaxred);
+                ImageManager.setContrastMin1(ipminred);
+                ImageManager.setContrastMax1(ipmaxred);
 
                 ImageManager.setOriginContrastValuesFlag(false);
             }
 
-            TIF_16bit.setDisplayRange(ImageManager.getContrastMin2(), ImageManager.getContrastMax2());
+            TIF_16bit.setDisplayRange(ImageManager.getContrastMin1(), ImageManager.getContrastMax1());
             ImageConverter ic = new ImageConverter(TIF_16bit);
             ic.convertToGray8();
             ImageProcessor converted = TIF_16bit.getProcessor();
-            G = (byte [])converted.getPixels();
+            R = (byte [])converted.getPixels();
         }
 
         iproc3.setRGB(R, G, B);

@@ -518,6 +518,8 @@ public class ImageNameLogic {
      * a 16bit TIF, that if the _t convention can't be found, then we're probably
      * dealing with diSPIM data.
      *
+     * TODO: make stack checks regex check that can do everything
+     *
      * @param imageName
      * @return
      */
