@@ -940,7 +940,7 @@ public class NucleiMgr {
                 System.out.println("updating start time after Identity assignment to: " + iStartTime);
                 nucConfig.setStartingIndex(iStartTime);
             }
-            System.out.println("Building AncesTree with times: " + nucConfig.getStartingIndex() + nucConfig.getEndingIndex());
+            System.out.println("Building AncesTree with times: " + nucConfig.getStartingIndex() + ", " + nucConfig.getEndingIndex());
             iAncesTree = new AncesTree(null, this, nucConfig.getStartingIndex(), nucConfig.getEndingIndex());
         }
 

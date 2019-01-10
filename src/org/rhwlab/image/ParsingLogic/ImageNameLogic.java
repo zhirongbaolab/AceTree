@@ -439,8 +439,6 @@ public class ImageNameLogic {
             imageName = filename.substring(filename.lastIndexOf(BACKSLASH));
         }
 
-        System.out.println("Image name is: " + imageName);
-
         // if we got the file name, proceed
         if (!imageName.isEmpty()) {
             // "...-p###.EXT case

@@ -128,12 +128,14 @@ public class ImageManager {
      * @return the first image in the series (configured by the user - not necessarily time 1)
      */
     public ImagePlus bringUpImageSeries() {
+        //System.out.println("Bringing up image series");
 
         // first thing we need to check if whether multiple image files (corresponding to different color channels) were provided in the config file
         // these two conditions are the result of the two conventions for supplying an <image> tag in the XML file. See documentation or ImageConfig.java
         if (!imageConfig.areMultipleImageChannelsGiven()) {
             // only one file was provided --> let's see if it exists
             String imageFile = imageConfig.getProvidedImageFileName();
+            //System.out.println("Checking on file: " + imageFile);
             if(!new File(imageFile).exists()) {
                 System.out.println("The image listed in the config file does not exist on the system. Checking if it's an 8bit image that no longer exists...");
 

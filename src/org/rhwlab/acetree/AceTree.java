@@ -797,8 +797,13 @@ public class AceTree extends JPanel
 
         iShowAnnotationsSave = iShowAnnotations;
         setShowAnnotations(false);
-        iShowCentroids = false;
-        iShowC.setText(SHOWC);
+
+//        iShowCentroids = false;
+//        iShowC.setText(SHOWC);
+
+        if (doIdentity) {
+            iNucleiMgr.processNuclei(doIdentity, this.configManager.getNucleiConfig().getNamingMethod());
+        }
 
         if (iEditLog != null) {
             iEditLog.append("buildTree(" + doIdentity +
@@ -2981,19 +2986,20 @@ public class AceTree extends JPanel
     }
 
     public void killCell(int x) {
-    	println("killCell, ");
-        //if (iTimeInc != 0 && iPlaneInc != 0) return;
-        //Vector nuclei = iNucleiMgr.getNucleiRecord()[iImageTime + iTimeInc - 1];
-    	int currenttime = this.imageManager.getCurrImageTime() + iTimeInc - 1;
-        //Vector nuclei = (Vector)iNucleiMgr.getNucleiRecord().elementAt(currenttime);
-    	Vector nuclei = iNucleiMgr.getElementAt(currenttime);
+    	println("killCell");
+
+    	int currenttimeNuclei = this.imageManager.getCurrImageTime() + iTimeInc - 1;
+    	Vector nuclei = iNucleiMgr.getElementAt(currenttimeNuclei);
     	
     	String name = iCurrentCell.getName();
+    	System.out.println("Looking for cell: " + name + " to kill");
         Nucleus n = null;
         for (int j = 0; j < nuclei.size(); j++) {
             n = (Nucleus)nuclei.elementAt(j);
             if (!n.identity.equals(name))
             	continue;
+
+            System.out.println("Nullifying status of: " + n.identity);
             n.status = Nucleus.NILLI;
             break;
         }
@@ -3002,15 +3008,17 @@ public class AceTree extends JPanel
         // added rebuild code
         clearTree();
         buildTree(true);
+
         // add find self at previous time code from relink
         AncesTree ances = getAncesTree();
 		Hashtable h = ances.getCellsByName();
 		Cell c = (Cell)h.get(name);
 		
-		//set active cell to start time to aid review
-		if(c!=null){
-			iAceTree.setStartingCell(c, currenttime);
-			System.out.println("Setting starting in delete key"+c);
+		// set active cell to start time to aid review
+		if(c != null) {
+            System.out.println("Setting starting cell c: " + c + " at time: " + currenttimeNuclei);
+			setStartingCell(c, currenttimeNuclei);
+
 		}
     }
 
