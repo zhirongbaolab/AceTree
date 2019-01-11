@@ -41,11 +41,22 @@ public class ImageConversionManager {
         byte [] G = new byte[bpix.length];
         byte [] B = new byte[bpix.length];
         ColorProcessor iproc3 = new ColorProcessor(iproc.getWidth(), iproc.getHeight());
+
+        if (ImageManager.getOriginalContrastValuesFlag()) {
+            // Set contrast values from original image
+            int ipminred = (int)(tif_8bit.getDisplayRangeMin());
+            int ipmaxred = (int)(tif_8bit.getDisplayRangeMax());
+            System.out.println("ImageConversionManager set channel 1 contrast minimum, maximum from image: " + ipminred + ", " + ipmaxred);
+            ImageManager.setContrastMin1(ipminred);
+            ImageManager.setContrastMax1(ipmaxred);
+        }
+
+        tif_8bit.setDisplayRange(ImageManager.getContrastMin1(), ImageManager.getContrastMax1());
+
         iproc3.getRGB(R, G, B);
 
-        // special test removal
-        G = bpix;
-        R = getRedChannelIn8BitImage(R, imageConfig);
+        // set the RED
+        R = bpix;
 
         currentRPixelMap = R;
         currentGPixelMap = G;
@@ -71,6 +82,25 @@ public class ImageConversionManager {
         byte [] B = new byte[Rpix.length];
 
         ColorProcessor iproc3 = new ColorProcessor(iproc1.getWidth(), iproc1.getHeight());
+
+        if (ImageManager.getOriginalContrastValuesFlag()) {
+            // Set contrast values from original image
+            int ipminred = (int)(tif1.getDisplayRangeMin());
+            int ipmaxred = (int)(tif1.getDisplayRangeMax());
+            System.out.println("ImageConversionManager set channel 1 contrast minimum, maximum from image: " + ipminred + ", " + ipmaxred);
+            ImageManager.setContrastMin1(ipminred);
+            ImageManager.setContrastMax1(ipmaxred);
+
+            int ipmingreen = (int)(tif2.getDisplayRangeMin());
+            int ipmaxgreen = (int)(tif2.getDisplayRangeMax());
+            System.out.println("ImageConversionManager set channel 2 contrast minimum, maximum from image: " + ipmingreen + ", " + ipmaxgreen);
+            ImageManager.setContrastMin2(ipmingreen);
+            ImageManager.setContrastMax2(ipmaxgreen);
+        }
+
+        tif1.setDisplayRange(ImageManager.getContrastMin1(), ImageManager.getContrastMax1());
+        tif2.setDisplayRange(ImageManager.getContrastMin2(), ImageManager.getContrastMax2());
+
         iproc3.getRGB(R, G, B);
 
         R = Rpix;

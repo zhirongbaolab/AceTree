@@ -870,6 +870,9 @@ public class ImageManager {
             if (currentToggle == 1) { return 2; } // if red, return green
             if (currentToggle == 2) { return 4; } // if green, return red/green
             if (currentToggle == 4) { return 1; } // if red/green, return red
+
+            // startup call
+            if (currentToggle == -1) { return 4; }
         } else if (this.imageConfig.getNumChannels() == 1) {
             return 1; // only valid color toggle index so it doesn't matter what was passed to this
         } else if (this.imageConfig.getNumChannels() == 2) { // need to check for empty image files which may have been supplied to control color
@@ -884,7 +887,7 @@ public class ImageManager {
             if (currentToggle == 4) { return 1; }
 
             // startup call
-            if (currentToggle == -1) { return 1; };
+            if (currentToggle == -1) { return 4; };
         } else if (this.imageConfig.getNumChannels() == 3) { // need to check for empty image files which may have been supplied to control color
             // BLUE only case
             if (this.imageConfig.getImageChannels()[0].isEmpty() && this.imageConfig.getImageChannels()[1].isEmpty() && !this.imageConfig.getImageChannels()[2].isEmpty()) {
@@ -898,7 +901,7 @@ public class ImageManager {
                 if (currentToggle == 5) { return 2; }
 
                 // startup call
-                if (currentToggle == -1) { return 2; }
+                if (currentToggle == -1) { return 5; }
             }
 
             // RED/BLUE case
@@ -908,12 +911,12 @@ public class ImageManager {
                 if (currentToggle == 6) { return 1; }
 
                 // startup call
-                if (currentToggle == -1) { return 1; }
+                if (currentToggle == -1) { return 6; }
             }
 
             // otherwise it's a RED/GREEN/BLUE
             // startup call (need to check first because of else condition in this case would return 0 (invalid) on startup
-            if (currentToggle == -1) { return 1; }
+            if (currentToggle == -1) { return 7; }
             if (currentToggle == 7) { return 1; } // go back around
             else { return currentToggle+1; } // all options valid so increment by 1
         }

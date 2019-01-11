@@ -542,7 +542,6 @@ public class AceTree extends JPanel
             // set the starting color toggle
             this.iColor = this.imageManager.getNextValidColorToggleIndex(-1);
 
-
             // CHECK HERE FOR THE RARE CASE OF A ZERO INDEXED IMAGE SERIES AND UPDATE THE TIMEINC VARIABLE IF NECESSARY
             if (this.imageManager.getCurrImageTime() == 0) {
                 iTimeInc = 1;
@@ -2598,6 +2597,7 @@ public class AceTree extends JPanel
     public boolean nextTime() {
 	   this.imageManager.incrementImageTimeNumber(1);
 
+	   iTimeInc++;
         // flip the MIP flag if AceTree is showing a MIP right now
         //this.imageManager.setCurrImageMIP(false);
 
@@ -2627,15 +2627,19 @@ public class AceTree extends JPanel
     public boolean prevTime() {
         this.imageManager.incrementImageTimeNumber(-1);
 
+        iTimeInc--;
         // flip the MIP flag if AceTree is showing a MIP right now
         //this.imageManager.setCurrImageMIP(false);
 
+        // check if we're still moving through the lifetime of the currently selected cell.
         iCallSaveImage = true;
         int now = this.imageManager.getCurrImageTime() + iTimeInc;
         int start = 0;
         if (iCurrentCell != null) start = iCurrentCell.getTime();
         if (now >= start)
         	return true;
+        // if we've made it here, the cell that's being tracked has disappeared so we need to find a new cell to set
+
 
         // a cell change occurs as we move to parent here
         //println("prevTime: " + iCurrentCell.getName() + CS + now);
@@ -2741,7 +2745,6 @@ public class AceTree extends JPanel
     }
 
     public void setCurrentCell(Cell c, int time, int source) {
-        //System.out.println("Setting current cell: " + c.getName() + ", at time: " + time);
     	if(iCellsByName == null)
     		return;
 
@@ -2752,6 +2755,8 @@ public class AceTree extends JPanel
         	}
         	return;
         }
+        System.out.println("setCurrentCell called on: " + c.getName() + ", at time: " + time);
+
         if(iImgWin != null)
         	iImgWin.setSpecialEffect(null);
         //System.out.println("setCurrentCell: " + c + CS + time + CS + source);
@@ -2813,7 +2818,7 @@ public class AceTree extends JPanel
             showSelectedCell(c, time);
         } else if (source == NEXTTIME) {
             //System.out.println("Source is nexttime, time is: " + time);
-            this.imageManager.setCurrImageTime(time);
+            this.imageManager.setCurrImageTime(time - iTimeInc);
             iTimeInc = 0;
             Cell currentCellSave = iCurrentCell;
             doDaughterDisplayWork(iCurrentCell, null);
@@ -2835,9 +2840,9 @@ public class AceTree extends JPanel
         	Nucleus n = NucUtils.getParent(nuclei0, nuclei1, iCurrentCell.getName());
             Cell currentCellSave = iCurrentCell;
             if (n != null) {
-                //System.out.println("Parent: " + n.identity + " of: " + iCurrentCell.getName());
+                System.out.println("Parent: " + n.identity + " of: " + iCurrentCell.getName());
                 iCurrentCell = (Cell)iAncesTree.getCellsByName().get(n.identity);
-                //System.out.println("Current cell is now: " + iCurrentCell);
+                System.out.println("Current cell is now: " + iCurrentCell);
                 if (iCurrentCell == null) {
                 	
                     iCurrentCell = currentCellSave;
