@@ -1,5 +1,7 @@
 package org.rhwlab.snight;
 
+import org.rhwlab.image.ParsingLogic.ImageNameLogic;
+
 import java.io.File;
 import java.util.Hashtable;
 
@@ -75,7 +77,14 @@ public class NucleiConfig {
                 // check if it's a relative path
                 if (zipFile != null && (!new File(zipFile).isAbsolute() || zipFile.charAt(0) == '.')) {
                     // prepend so this is an absolute path
-                    zipFile = configFileName.substring(0, configFileName.lastIndexOf(File.separator) + 1) + zipFile.substring(zipFile.lastIndexOf(File.separator)+1);
+                    if (configFileName.lastIndexOf(ImageNameLogic.FORWARDSLASH) != -1) {
+                        zipFile = configFileName.substring(0, configFileName.lastIndexOf(ImageNameLogic.FORWARDSLASH) + 1) + zipFile.substring(zipFile.lastIndexOf(ImageNameLogic.FORWARDSLASH)+1);
+                    } else if (configFileName.lastIndexOf(ImageNameLogic.BACKSLASH) != -1) {
+                        zipFile = configFileName.substring(0, configFileName.lastIndexOf(ImageNameLogic.BACKSLASH) + 1) + zipFile.substring(zipFile.lastIndexOf(ImageNameLogic.BACKSLASH)+1);
+                    } else {
+                        System.out.println("Couldn't update relative nuc .zip path to absolute because the file separator couldn't be determined. Make " +
+                                "sure they are consistent.");
+                    }
                 }
 
                 this.zipFileName = zipFile;

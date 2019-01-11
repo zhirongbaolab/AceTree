@@ -2730,13 +2730,14 @@ public class AceTree extends JPanel
         // set iImageTime and iTimeInc cleanly
         // set iImagePlane and iPlaneInc cleanly
         // assume initially that the transition was to a previous time
-        int time = this.imageManager.getCurrImageTime() + iTimeInc;
-        this.imageManager.setCurrImageTime(iCurrentCell.getTime());
-        iTimeInc = time - this.imageManager.getCurrImageTime();
+        int imageTime = this.imageManager.getCurrImageTime();
+        iTimeInc = imageTime - iCurrentCell.getTime();
+        this.imageManager.setCurrImageTime(iCurrentCell.getTime() + iTimeInc);
 
-        int plane = this.imageManager.getCurrImagePlane() + iPlaneInc;
-        this.imageManager.setCurrImagePlane(iCurrentCell.getPlane());
-        iPlaneInc = plane - this.imageManager.getCurrImagePlane();
+        int imagePlane = this.imageManager.getCurrImagePlane();
+        iPlaneInc = imagePlane - iCurrentCell.getPlane();
+        this.imageManager.setCurrImagePlane(iCurrentCell.getPlane() + iPlaneInc);
+
     }
 
     public void setCurrentCell(Cell c, int time, int source) {
@@ -2830,17 +2831,20 @@ public class AceTree extends JPanel
             //System.out.println("Source is prevtime, time is: " + time);
         	Vector nuclei1 = iNucleiMgr.getElementAt(this.imageManager.getCurrImageTime() + iTimeInc);
             Vector nuclei0 = iNucleiMgr.getElementAt(this.imageManager.getCurrImageTime() + iTimeInc - 1);
-        	
+
         	Nucleus n = NucUtils.getParent(nuclei0, nuclei1, iCurrentCell.getName());
             Cell currentCellSave = iCurrentCell;
             if (n != null) {
+                //System.out.println("Parent: " + n.identity + " of: " + iCurrentCell.getName());
                 iCurrentCell = (Cell)iAncesTree.getCellsByName().get(n.identity);
+                //System.out.println("Current cell is now: " + iCurrentCell);
                 if (iCurrentCell == null) {
                 	
                     iCurrentCell = currentCellSave;
                     return;
                 }
                 if (currentCellSave != iCurrentCell) {
+                    //System.out.println("Prev cell and new one found (parent) are different. Doing tracking actions of current cell change");
                     trackingActionsOnCurrentCellChange();
 				    if(iImgWin!=null)
 				    	iImgWin.updateCurrentCellAnnotation(iCurrentCell, currentCellSave, time);

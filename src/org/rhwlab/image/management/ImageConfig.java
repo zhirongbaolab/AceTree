@@ -91,10 +91,17 @@ public class ImageConfig {
                 String imageFile = configData.get(s);
                 if (imageFile != null && (!new File(imageFile).isAbsolute() || imageFile.charAt(0) == '.')) {
                     // if the image file name is not absolute, prepend it with the absolute path in the configFileName
-                    imageFile = configFileName.substring(0, configFileName.lastIndexOf(File.separator) + 1) + imageFile.substring(imageFile.lastIndexOf(File.separator)+1);
-                    System.out.println("Updating relative image file path to absolute: " + imageFile);
+                    if (configFileName.lastIndexOf(ImageNameLogic.FORWARDSLASH) != -1) {
+                        imageFile = configFileName.substring(0, configFileName.lastIndexOf(ImageNameLogic.FORWARDSLASH) + 1) + imageFile.substring(imageFile.lastIndexOf(ImageNameLogic.FORWARDSLASH)+1);
+                        System.out.println("Updating relative image file path to absolute: " + imageFile);
+                    } else if (configFileName.lastIndexOf(ImageNameLogic.BACKSLASH) != -1) {
+                        imageFile = configFileName.substring(0, configFileName.lastIndexOf(ImageNameLogic.BACKSLASH) + 1) + imageFile.substring(imageFile.lastIndexOf(ImageNameLogic.BACKSLASH)+1);
+                        System.out.println("Updating relative image file path to absolute: " + imageFile);
+                    } else {
+                        System.out.println("Couldn't update relative image path to absolute because the file separator couldn't be determined. Make " +
+                                "sure they are consistent.");
+                    }
                 }
-
                 this.providedImageFileName = imageFile;
 
                 // this will indicate that the legacy image tag was given
@@ -110,8 +117,16 @@ public class ImageConfig {
                 String imageFile = configData.get(s);
                 if (imageFile != null && (!new File(imageFile).isAbsolute() || imageFile.charAt(0) == '.')) {
                     // if the image file name is not absolute, prepend it with the absolute path in the configFileName
-                    imageFile = configFileName.substring(0, configFileName.lastIndexOf(File.separator)+1) + imageFile.substring(imageFile.lastIndexOf(File.separator)+1);
-                    System.out.println("Updating relative image file path to absolute: " + imageFile);
+                    if (configFileName.lastIndexOf(ImageNameLogic.FORWARDSLASH) != -1) {
+                        imageFile = configFileName.substring(0, configFileName.lastIndexOf(ImageNameLogic.FORWARDSLASH)+1) + imageFile.substring(imageFile.lastIndexOf(ImageNameLogic.FORWARDSLASH)+1);
+                        System.out.println("Updating relative image file path to absolute: " + imageFile);
+                    } else if (configFileName.lastIndexOf(ImageNameLogic.BACKSLASH) != -1) {
+                        imageFile = configFileName.substring(0, configFileName.lastIndexOf(ImageNameLogic.BACKSLASH)+1) + imageFile.substring(imageFile.lastIndexOf(ImageNameLogic.BACKSLASH)+1);
+                        System.out.println("Updating relative image file path to absolute: " + imageFile);
+                    } else {
+                        System.out.println("Couldn't update relative image path to absolute because the file separator couldn't be determined. Make " +
+                                "sure they are consistent.");
+                    }
                 }
                 this.imageChannels[channelNumber-1] = imageFile;
             } else if (s.toLowerCase().equals(this.flipStackKey.toLowerCase())) {
