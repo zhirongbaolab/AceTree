@@ -536,6 +536,17 @@ public class AceTree extends JPanel
             this.iImgWin.setAceTree(this);
             this.iImgWin.setNucleiMgr(this.iNucleiMgr);
 
+            // call showCurrentCell in case the starting time (the time point listed in the XML config) is different than
+            // that found for the current cell when building the lineage tree
+            if (this.iCurrentCell != null) {
+                Vector v = new Vector();
+                v.add("InputCtrl1");
+                v.add(Integer.toString(this.imageManager.getCurrImageTime()));
+                v.add("");
+                controlCallback(v);
+            }
+
+
             // update the PlayerControl tab with an color channel toggle that matches the config of this image series
             this.getPlayerControl().updateColorChannelToggleButton();
 
@@ -1852,7 +1863,7 @@ public class AceTree extends JPanel
      *
      */
     public void updateDisplay() {
-        if (this.imageManager.getCurrImageTime() < this.configManager.getImageConfig().getStartingIndex()) return;
+        if (this.imageManager.getCurrImageTime() < 1) return;
         
         if ((this.imageManager.getCurrImagePlane() + iPlaneInc) <= 0)
         	iPlaneInc = (-1*this.imageManager.getCurrImagePlane() + 1);

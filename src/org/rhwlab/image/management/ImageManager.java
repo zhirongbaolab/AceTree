@@ -173,6 +173,9 @@ public class ImageManager {
 
                             // set the starting time
                             this.imageConfig.setStartingIndex(ImageNameLogic.extractTimeFromImageFileName(this.currentImageName));
+                            System.out.println("Set starting index: " + this.imageConfig.getStartingIndex());
+
+                            this.currentImageTime = this.imageConfig.getStartingIndex();
 
                             return ip;
                         } else {

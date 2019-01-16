@@ -15,7 +15,7 @@ public class ImageNameLogic {
 
     // static variables for dealing with differing system naming conventions
     public static String FORWARDSLASH = "/";
-    public static String BACKSLASH = "\"";
+    public static String BACKSLASH = "\\";
     private static char UNDERSCORE = '_';
     private static char DASH = '-';
     private static String PERIOD = ".";
