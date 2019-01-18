@@ -103,11 +103,9 @@ public class ImageManager {
         if (timeIncrement > 0
                 && this.currentImageTime + timeIncrement <= this.imageConfig.getEndingIndex()) {
             setCurrImageTime(this.currentImageTime + timeIncrement);
-            //this.currentImageTime += timeIncrement;
         } else if (timeIncrement < 0
-                    && this.currentImageTime + timeIncrement >= 0) {
+                    && this.currentImageTime + timeIncrement >= 1) {
             setCurrImageTime(this.currentImageTime + timeIncrement);
-            //this.currentImageTime += timeIncrement;
         }
     }
 
@@ -179,7 +177,8 @@ public class ImageManager {
 
                             return ip;
                         } else {
-                            System.out.println("16bit image file name generated from 8bit image file name does not exist on the system. Can't bring up image series.");
+                            System.out.println("16bit image file name generated from 8bit image file name does not exist on the system. Can't bring up image series. Tried image name: " +
+                            newFileNameAttempt);
                             return null;
                         }
                     } else {

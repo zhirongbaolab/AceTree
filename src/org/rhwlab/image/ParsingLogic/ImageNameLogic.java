@@ -129,7 +129,7 @@ public class ImageNameLogic {
             }
         }
 
-        // if this is an 8bit image, it is a slice and should have an identitier for the plane number. Let's look for it
+        // if this is an 8bit image, it is a slice and should have an identifier for the plane number. Let's look for it
         int planeIdx = fileName.indexOf(planeStr);
 
         String fileNameNoPlane;
@@ -163,13 +163,14 @@ public class ImageNameLogic {
 
         int tIdx = fileName.lastIndexOf(tID_8bitConvention);
         if (tIdx > 0) {
-            if (fileName.charAt(tIdx+2) == '0') {
-                tIdx+=2;
-
+            // move ahead to the first digit of the time string
+            tIdx+=2;
+            if (Character.isDigit(fileName.charAt(tIdx)) && Character.getNumericValue(fileName.charAt(tIdx)) == 0) {
                 while(fileName.charAt(tIdx) == '0') {
                     tIdx++;
                 }
             }
+
         } else {
             System.out.println("No time ID '-t' in filename which is necessary to extract the filename prefix. Returning 8bit image filename");
             return _8bitImagePath;
