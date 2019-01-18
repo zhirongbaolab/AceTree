@@ -1676,6 +1676,7 @@ public class AceTree extends JPanel
 			public void actionPerformed(ActionEvent e) {
         		//System.out.println("shift-up key pressed--skipping planes");
         		imageManager.incrementImagePlaneNumber(5);
+        		System.out.println("Stopped tracking from shift UP");
         		iTrackPosition = ImageWindow.NONE;
         		updateDisplay();
         	}
@@ -1709,6 +1710,7 @@ public class AceTree extends JPanel
 			public void actionPerformed(ActionEvent e) {
         		//System.out.println("shift-down key pressed--skipping planes");
         		imageManager.incrementImagePlaneNumber(-5);
+        		System.out.println("Stopped tracking from shift DOWN");
         		iTrackPosition = ImageWindow.NONE;
         		updateDisplay();
         	}
@@ -1865,8 +1867,9 @@ public class AceTree extends JPanel
     public void updateDisplay() {
         if (this.imageManager.getCurrImageTime() < 1) return;
         
-        if ((this.imageManager.getCurrImagePlane() + iPlaneInc) <= 0)
-        	iPlaneInc = (-1*this.imageManager.getCurrImagePlane() + 1);
+        if ((this.imageManager.getCurrImagePlane() + iPlaneInc) <= 0) {
+            iPlaneInc = (-1 * this.imageManager.getCurrImagePlane() + 1);
+        }
         
         getCurrentCellParameters();
 
@@ -1960,7 +1963,14 @@ public class AceTree extends JPanel
     private int trackCellPlane() {
         if (iTrackPosition != ImageWindow.NONE) {
             iPlaneInc = 0;
-            return (int)(iCurrentCellZloc + 0.5);
+            //System.out.println("Current cell (" + iCurrentCell.getName() + ") z location at time " + this.imageManager.getCurrImageTime() + " is: " + iCurrentCellZloc);
+
+            // check if the images are isotropic
+            if (this.configManager.getImageConfig().getZRes() != 1) {
+                return (int)(iCurrentCellZloc + this.configManager.getImageConfig().getZRes());
+            } else {
+                return (int)iCurrentCellZloc;
+            }
         }
         else {
             return this.imageManager.getCurrImagePlane();
@@ -1974,10 +1984,13 @@ public class AceTree extends JPanel
     	//System.out.println("getCurrentCellParameters: " + this.imageManager.getCurrImageTime() + CS + iTimeInc);
         if (iCurrentCell == null) 
         	return;
-        int time = this.imageManager.getCurrImageTime() + iTimeInc;
+        //System.out.println("Current image time is: " + this.imageManager.getCurrImageTime());
+        int time = this.imageManager.getCurrImageTime();
 
         Nucleus n = null;
         try {
+            int t = time - 1;
+            //System.out.println("Looking for nuc " + iCurrentCell.getName() + " at time: " + t);
         	Vector nuclei = iNucleiMgr.getElementAt(time - 1);
             n = NucUtils.getCurrentCellNucleus(nuclei, iCurrentCell);
         } catch(Exception e) {
@@ -1999,7 +2012,7 @@ public class AceTree extends JPanel
 
 
     private String makeDisplayText() {
-        int time = this.imageManager.getCurrImageTime() + iTimeInc;
+        int time = this.imageManager.getCurrImageTime();
         //Vector nuclei = (Vector)iNucleiMgr.getNucleiRecord().elementAt(time - 1);
         Vector nuclei = iNucleiMgr.getElementAt(time - 1);
 
@@ -2248,7 +2261,8 @@ public class AceTree extends JPanel
 
     public void imageUp() {
         this.imageManager.incrementImagePlaneNumber(1);
-        //incPlane(-1);nex
+
+        System.out.println("Stopped tracking from imageUP");
         iTrackPosition = ImageWindow.NONE;
         iCallSaveImage = true;
 
@@ -2261,6 +2275,7 @@ public class AceTree extends JPanel
     public void imageDown() {
         this.imageManager.incrementImagePlaneNumber(-1);
         //incPlane(1);
+        System.out.println("Stopped tracking from imageDOWN");
         iTrackPosition = ImageWindow.NONE;
         iCallSaveImage = true;
 
@@ -2416,6 +2431,7 @@ public class AceTree extends JPanel
     // handle track/no track button action
     private void setTrack() {
         if (iTrackPosition != ImageWindow.NONE) {
+            System.out.println("Stopped tracking from setTrack");
             iTrackPositionSave = iTrackPosition;
             iTrackPosition = ImageWindow.NONE;
         } else {
@@ -2771,19 +2787,19 @@ public class AceTree extends JPanel
         int imageTime = this.imageManager.getCurrImageTime();
         iTimeInc = imageTime - iCurrentCell.getTime();
 
-        //System.out.println("Current image time being updated from: " + imageTime
-        //        + " to (currentCell.getTime() + iTimeInc: " + iCurrentCell.getTime() +
-        //        ", " +  iTimeInc + " = " + (iCurrentCell.getTime() + iTimeInc));
+//        System.out.println("Current image time being updated from: " + imageTime
+//                + " to (currentCell.getTime() + iTimeInc: " + iCurrentCell.getTime() +
+//                ", " +  iTimeInc + " = " + (iCurrentCell.getTime() + iTimeInc));
 
         this.imageManager.setCurrImageTime(iCurrentCell.getTime() + iTimeInc);
 
         int imagePlane = this.imageManager.getCurrImagePlane();
         iPlaneInc = imagePlane - iCurrentCell.getPlane();
-        this.imageManager.setCurrImagePlane(iCurrentCell.getPlane() + iPlaneInc);
+        this.imageManager.setCurrImagePlane(iCurrentCell.getPlane());
 
-        //System.out.println("Current image plane being updated from: " + imagePlane
-        //        + " to (currentCell.getPlane() + iPlaneInc: " + iCurrentCell.getPlane() +
-        //        ", " +  iPlaneInc + " = " + (iCurrentCell.getPlane() + iPlaneInc));
+//        System.out.println("Current image plane being updated from: " + imagePlane
+//                + " to currentCell.getPlane() = " + iCurrentCell.getPlane() +
+//                ", with iPlaneInc =" +  iPlaneInc);
 
         //System.out.println(isTracking());
 
@@ -2862,8 +2878,8 @@ public class AceTree extends JPanel
         } else if (source == CONTROLCALLBACK) {
             showSelectedCell(c, time);
         } else if (source == NEXTTIME) {
-            System.out.println("Source is nexttime, time is: " + time + ". TimeInc: " + iTimeInc);
-            this.imageManager.setCurrImageTime(time - iTimeInc);
+            //System.out.println("Source is nexttime, time is: " + time);
+            this.imageManager.setCurrImageTime(time);
             iTimeInc = 0;
             Cell currentCellSave = iCurrentCell;
             doDaughterDisplayWork(iCurrentCell, null);
@@ -2878,13 +2894,12 @@ public class AceTree extends JPanel
 
             showTreeCell(iCurrentCell);
         } else if (source == PREVTIME) {
-            //System.out.println("Source is prevtime, time is: " + time + ". TimeInc: " + iTimeInc);
+            //System.out.println("Prevtime called at: " + this.imageManager.getCurrImageTime());
         	Vector nuclei1 = iNucleiMgr.getElementAt(this.imageManager.getCurrImageTime() + iTimeInc);
             Vector nuclei0 = iNucleiMgr.getElementAt(this.imageManager.getCurrImageTime() + iTimeInc - 1);
 
-            //System.out.println("Trying to get parent of: " + iCurrentCell.getName() +
-                    //" at prevtime: " + (this.imageManager.getCurrImageTime() + iTimeInc - 1));
-
+            //System.out.println("Queried nucs at times: " + (this.imageManager.getCurrImageTime() + iTimeInc) + ", " + (this.imageManager.getCurrImageTime() + iTimeInc - 1));
+            //System.out.println("Looking for parent of " + iCurrentCell.getName() + " at those times");
         	Nucleus n = NucUtils.getParent(nuclei0, nuclei1, iCurrentCell.getName());
             Cell currentCellSave = iCurrentCell;
             if (n != null) {

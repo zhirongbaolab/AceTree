@@ -40,6 +40,12 @@ public class ImageConfig {
     private int flipStack;
     private String flipStackKey = "flip";
 
+    private double xyRes;
+    private String xyResKey = "xyRes";
+
+    private double zRes;
+    private String zResKey = "zRes";
+
     private boolean splitStackGiven;
     private boolean flipStackGiven;
 
@@ -143,6 +149,10 @@ public class ImageConfig {
             } else if (s.toLowerCase().equals(this.splitStackKey.toLowerCase())) {
                 this.splitStack = Integer.parseInt(configData.get(s));
                 this.splitStackGiven = true;
+            } else if (s.toLowerCase().equals(xyResKey.toLowerCase())) {
+            this.xyRes = Double.parseDouble(configData.get(s));
+            } else if (s.toLowerCase().equals(zResKey.toLowerCase())) {
+            this.zRes = Double.parseDouble(configData.get(s));
             }
         }
 
@@ -262,6 +272,10 @@ public class ImageConfig {
     public void setFlipStack(int flipStack) { this.flipStack = flipStack; }
     public void setPlaneEnd(String planeEnd) { setPlaneEnd(Integer.parseInt(planeEnd)); }
     public void setPlaneEnd(int planeEnd) { this.planeEnd = planeEnd; }
+    public void setXyRes(String xyRes) { setXyRes(Double.parseDouble(xyRes)); }
+    public void setXyRes(double xyRes) { this.xyRes = xyRes; }
+    public void setZRes(String zRes) { setZRes(Double.parseDouble(zRes)); }
+    public void setZRes(double zRes) { this.zRes = zRes; }
 
 
     // accessor methods
@@ -276,6 +290,8 @@ public class ImageConfig {
     public String[] getImagePrefixes() { return this.imagePrefixes; }
     public boolean isSplitStackGiven() { return this.splitStackGiven; }
     public boolean isFlipStackGiven() { return this.flipStackGiven; }
+    public double getXyRes() { return this.xyRes; }
+    public double getZRes() { return this.zRes; }
 
     /**
      * This indicates whether or not the user supplied multiple image paths in the <image></image> tag
