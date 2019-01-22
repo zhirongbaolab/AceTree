@@ -49,6 +49,8 @@ public class ImageConversionManager {
             System.out.println("ImageConversionManager set channel 1 contrast minimum, maximum from image: " + ipminred + ", " + ipmaxred);
             ImageManager.setContrastMin1(ipminred);
             ImageManager.setContrastMax1(ipmaxred);
+
+            ImageManager.setOriginContrastValuesFlag(false);
         }
 
         tif_8bit.setDisplayRange(ImageManager.getContrastMin1(), ImageManager.getContrastMax1());
@@ -96,6 +98,8 @@ public class ImageConversionManager {
             System.out.println("ImageConversionManager set channel 2 contrast minimum, maximum from image: " + ipmingreen + ", " + ipmaxgreen);
             ImageManager.setContrastMin2(ipmingreen);
             ImageManager.setContrastMax2(ipmaxgreen);
+
+            ImageManager.setOriginContrastValuesFlag(false);
         }
 
         tif1.setDisplayRange(ImageManager.getContrastMin1(), ImageManager.getContrastMax1());

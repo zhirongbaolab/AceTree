@@ -229,9 +229,6 @@ public class AceTree extends JPanel
 
     private static boolean fullGUI = false;
 
-    private int iStartTime;
-
-
     /*
      * Revisions 10/2018 to image loading pipeline - grouping these variables together
      * because they figure heavily in the revised pipeline
@@ -840,13 +837,7 @@ public class AceTree extends JPanel
         // assume that P0 is the root, and look for the first child present in the nuclei
         Cell c = walkUpToAGoodCell();
 
-        // now we're ready to get the image series up into the image window.
-        // Start by setting the cell we just found to be the starting cell, along with the start time
-        if (configManager == null) {
-            setStartingCell(c, iStartTime);
-        } else {
-            setStartingCell(c, configManager.getNucleiConfig().getStartingIndex());
-        }
+        setStartingCell(c, configManager.getNucleiConfig().getStartingIndex());
 
         // set up the UI properties for the tree shown in the main AceTree tab so that cells in the tree can be selected and trigger a change in the ImageWindow
         iTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
@@ -918,7 +909,7 @@ public class AceTree extends JPanel
         Cell c = walkUpToAGoodCell();
         iTree.updateUI();
         setTreeSelectionMode();
-        setStartingCell(c, iStartTime);
+        setStartingCell(c, this.configManager.getImageConfig().getStartingIndex());
         iTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         ((DefaultTreeCellRenderer)(iTree.getCellRenderer())).setOpenIcon(null);
         ((DefaultTreeCellRenderer)(iTree.getCellRenderer())).setClosedIcon(null);
@@ -1676,7 +1667,7 @@ public class AceTree extends JPanel
 			public void actionPerformed(ActionEvent e) {
         		//System.out.println("shift-up key pressed--skipping planes");
         		imageManager.incrementImagePlaneNumber(5);
-        		System.out.println("Stopped tracking from shift UP");
+        		//System.out.println("Stopped tracking from shift UP");
         		iTrackPosition = ImageWindow.NONE;
         		updateDisplay();
         	}
@@ -1710,7 +1701,7 @@ public class AceTree extends JPanel
 			public void actionPerformed(ActionEvent e) {
         		//System.out.println("shift-down key pressed--skipping planes");
         		imageManager.incrementImagePlaneNumber(-5);
-        		System.out.println("Stopped tracking from shift DOWN");
+        		//System.out.println("Stopped tracking from shift DOWN");
         		iTrackPosition = ImageWindow.NONE;
         		updateDisplay();
         	}
@@ -1886,6 +1877,9 @@ public class AceTree extends JPanel
                 iImgWin.refreshDisplay(this.imageManager.makeImageNameForTitle(), this.imageManager.extractColorChannelFromImagePlus(this.imageManager.makeImage(), this.iColor), planeNum);
             }
         }
+
+        String s = makeDisplayText();
+        iText.setText(s);
         
         if (iCallSaveImage) {
             iCallSaveImage = false;
@@ -2025,7 +2019,7 @@ public class AceTree extends JPanel
         	iCurrentCellPresent = false;
         if (iCurrentCellPresent) {
             sb2.append(name + " is one of ");
-            sb2.append(NucUtils.countLiveCells(nuclei) + " cells at time " + (this.imageManager.getCurrImageTime() + iTimeInc));
+            sb2.append(NucUtils.countLiveCells(nuclei) + " cells at time " + (this.imageManager.getCurrImageTime()));
             Nucleus n = NucUtils.getCurrentCellNucleus(nuclei, iCurrentCell);
 	        if (n != null) {
             sb2.append("\nlocation: " + iCurrentCellXloc + ", " + iCurrentCellYloc + ", " + n.z);
@@ -2262,7 +2256,7 @@ public class AceTree extends JPanel
     public void imageUp() {
         this.imageManager.incrementImagePlaneNumber(1);
 
-        System.out.println("Stopped tracking from imageUP");
+        //System.out.println("Stopped tracking from imageUP");
         iTrackPosition = ImageWindow.NONE;
         iCallSaveImage = true;
 
@@ -2275,7 +2269,7 @@ public class AceTree extends JPanel
     public void imageDown() {
         this.imageManager.incrementImagePlaneNumber(-1);
         //incPlane(1);
-        System.out.println("Stopped tracking from imageDOWN");
+        //System.out.println("Stopped tracking from imageDOWN");
         iTrackPosition = ImageWindow.NONE;
         iCallSaveImage = true;
 
@@ -2431,7 +2425,7 @@ public class AceTree extends JPanel
     // handle track/no track button action
     private void setTrack() {
         if (iTrackPosition != ImageWindow.NONE) {
-            System.out.println("Stopped tracking from setTrack");
+            //System.out.println("Stopped tracking from setTrack");
             iTrackPositionSave = iTrackPosition;
             iTrackPosition = ImageWindow.NONE;
         } else {
@@ -2707,7 +2701,6 @@ public class AceTree extends JPanel
         //System.out.println("doDaughterDisplayWork: " + parent + CS + selectedDaughter);
         if (parent == null) System.out.println("*******NULL PARENT");
         if (!isTracking()) {
-            System.out.println("Is not tracking");
             return;
         }
         if (parent.getName() == ROOTNAME) return;
@@ -3017,7 +3010,8 @@ public class AceTree extends JPanel
         Cell parent = (Cell)iCurrentCell.getParent();
         Cell anteriorCell = (Cell)parent.getChildAt(0);
         Cell posteriorCell = (Cell)parent.getChildAt(1);
-        int now = this.imageManager.getCurrImageTime() + iTimeInc;
+        //int now = this.imageManager.getCurrImageTime() + iTimeInc;
+        int now = this.imageManager.getCurrImageTime();
         Nucleus anterior = iNucleiMgr.getCurrentCellData(anteriorCell.getName(), now);
         Nucleus posterior = iNucleiMgr.getCurrentCellData(posteriorCell.getName(), now);
         if (anterior == null || posterior == null) {
@@ -3163,7 +3157,7 @@ public class AceTree extends JPanel
         iNucleiMgr.clearAllHashkeys();
         clearTree();
         buildTree(true);
-        setStartingCell((Cell)iRoot.getFirstChild(), iStartTime);
+        setStartingCell((Cell)iRoot.getFirstChild(), this.configManager.getImageConfig().getStartingIndex());
         iEditLog.setModified(true);
 
     }

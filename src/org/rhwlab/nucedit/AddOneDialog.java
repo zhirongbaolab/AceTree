@@ -123,7 +123,8 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
         iNucleusCopy = iNucleus.copy();
         iNucleusActive = iNucleus;
 
-        iTimeSave = iImageTime + iTimeInc;
+        //iTimeSave = iImageTime + iTimeInc;
+        iTimeSave = iImageTime;
         iCurrentCellSave = iCurrentCell;
         
         JScrollPane scrollPane = new JScrollPane(pWhole);
@@ -194,7 +195,8 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
 	    
 	}else if (cmd.equals(REBUILDANDRENAME)) {
 	    updateCurrentInfo(false);
-	    int time = iImageTime + iTimeInc;
+	    //int time = iImageTime + iTimeInc
+            int time = iImageTime;
 	    Cell c = iCurrentCell;
 	    iAceTree.clearTree();
 	    iAceTree.buildTree(true);
@@ -254,7 +256,8 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
                 String oldName = n.identity;
                 n.identity = iName.getText();
                 iCurrentCell.setName(n.identity);
-                iParent.updateCellAnnotation(iCurrentCell, oldName, iImageTime + iTimeInc);
+                //iParent.updateCellAnnotation(iCurrentCell, oldName, iImageTime + iTimeInc);
+                iParent.updateCellAnnotation(iCurrentCell, oldName, iImageTime);
             }
             
             // Force name button handled here
@@ -265,7 +268,8 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
                 iForceName.setText("");
                 // we need to change the hashkey in the nucleus object and cell object
                 // assume we know the iCurrentCell at this point
-                int time = iImageTime + iTimeInc;
+                //int time = iImageTime + iTimeInc;
+                int time = iImageTime;
                 
                 String hashKey = NucUtils.makeHashKey(time, n);
                 //System.out.println("addCell: " + hashKey);
@@ -374,7 +378,8 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
 //         } else 
 	    if (button == 3) {
             updateCurrentInfo(false);
-            Nucleus n = ImageWindow.cNucleiMgr.findClosestNucleus(e.getX(), e.getY(), iImagePlane + iPlaneInc, iImageTime + iTimeInc);
+            //Nucleus n = ImageWindow.cNucleiMgr.findClosestNucleus(e.getX(), e.getY(), iImagePlane + iPlaneInc, iImageTime + iTimeInc);
+            Nucleus n = ImageWindow.cNucleiMgr.findClosestNucleus(e.getX(), e.getY(), iImagePlane, iImageTime);
             if (n == null) {
                 System.out.println("cant find closest nucleus");
                 return;
@@ -383,7 +388,8 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
 
             //System.out.println("mouseClicked1: " + c + C.CS + iCurrentCell
             //        + C.CS + iImagePlane + C.CS + iPlaneInc);
-            iAceTree.setCurrentCell(c, iImageTime + iTimeInc, AceTree.RIGHTCLICKONEDITIMAGE);
+            //iAceTree.setCurrentCell(c, iImageTime + iTimeInc, AceTree.RIGHTCLICKONEDITIMAGE);
+            iAceTree.setCurrentCell(c, iImageTime, AceTree.RIGHTCLICKONEDITIMAGE);
             iNucleus = n;
             updateTextFields();
 
@@ -396,7 +402,8 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
     protected void addCell(int x, int y, boolean continuation) {
         //System.out.println("addCell: " + x + C.CS + y);
         updateCurrentInfo(false);
-        int time = iImageTime + iTimeInc;
+        //int time = iImageTime + iTimeInc;
+        int time = iImageTime;
         Vector nuclei = ImageWindow.cNucleiMgr.getNucleiRecord().elementAt(time - 1);
         Nucleus n = new Nucleus();
         n.index = nuclei.size() + 1;
@@ -459,7 +466,8 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
         iTimeInc = iAceTree.getTimeInc();
         iPlaneInc = iAceTree.getPlaneInc();
         iCurrentCell = iAceTree.getCurrentCell();
-        Vector nuclei = ImageWindow.cNucleiMgr.getNuclei(iImageTime + iTimeInc - 1);
+        //Vector nuclei = ImageWindow.cNucleiMgr.getNuclei(iImageTime + iTimeInc - 1);
+        Vector nuclei = ImageWindow.cNucleiMgr.getNuclei(iImageTime - 1);
         iNucleus = NucUtils.getCurrentCellNucleus(nuclei, iCurrentCell);
         
         // Force named cell does not get set to iCurrentCell -DT
