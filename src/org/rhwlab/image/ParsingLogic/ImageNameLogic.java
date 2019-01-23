@@ -248,16 +248,38 @@ public class ImageNameLogic {
             }
         }
 
+        // save the directory delimiter for the supplied image to check against any files that are iterated over
+        String directoryDelimiter = getDirectoryDelimiter(iSIM_image_filename);
+        if (directoryDelimiter.isEmpty()) {
+            System.out.println("Couldn't extract directory delimiter from config supplied image file: " + iSIM_image_filename);
+            return "";
+        }
+
         String containingDir = iSIM_image_filename.substring(0, containingDirLastCharIdx);
         File[] fList = new File(containingDir).listFiles();
         if (fList != null) {
             for (File file : fList) {
-                if (file.getAbsolutePath().startsWith(filename_before_channel_text) && file.getAbsolutePath().endsWith(filename_after_channel_text)) {
+                String filename = file.getAbsolutePath();
+
+                // check if the directory delimiters differ from that supplied in the config file
+                String directoryDelimiter1 = getDirectoryDelimiter(filename);
+                if (directoryDelimiter1.isEmpty()) {
+                    System.out.println("Couldn't extract directory delimiter from: " + filename);
+                    return "";
+                }
+
+                if (!directoryDelimiter.equals(directoryDelimiter1)) {
+                    // replace the delimiter in the queried file with that used in the supplied file
+                    filename.replaceAll(directoryDelimiter1, directoryDelimiter);
+                }
+
+
+                if (filename.startsWith(filename_before_channel_text) && filename.endsWith(filename_after_channel_text)) {
                     // check if the channel number ID is different than the one supplied
-                    if (Character.isDigit(file.getAbsolutePath().charAt(channelNumberID_idx)) &&
-                        Character.getNumericValue(file.getAbsolutePath().charAt(channelNumberID_idx)) != channelNumberID) {
-                        System.out.println("Found second iSIM color channel image at: " + file.getAbsolutePath());
-                        return file.getAbsolutePath();
+                    if (Character.isDigit(filename.charAt(channelNumberID_idx)) &&
+                        Character.getNumericValue(filename.charAt(channelNumberID_idx)) != channelNumberID) {
+                        System.out.println("Found second iSIM color channel image at: " + filename);
+                        return filename;
                     }
                 }
             }
@@ -476,8 +498,11 @@ public class ImageNameLogic {
     public static int extractTimeFromImageFileName(String filename) {
        if (filename == null || filename.isEmpty()) return -1;
 
+        String convention = getDirectoryDelimiter(filename);
+        if (convention.isEmpty()) return -1;
+
        // let's cut out the path and just use the filename in the event that some part of the path messes up the extraction algorithm
-        filename = filename.substring(filename.lastIndexOf(FORWARDSLASH));
+        filename = filename.substring(filename.lastIndexOf(convention));
 
        if (filename.contains(tID_8bitConvention) && filename.contains(planeStr)) {
            // extract the number, assuming the format -t###-p
@@ -532,6 +557,9 @@ public class ImageNameLogic {
     public static String getImagePrefix(String imageName) {
         if (imageName == null || imageName.isEmpty()) { return ""; }
 
+        String convention = getDirectoryDelimiter(imageName);
+        if (convention.isEmpty()) return convention;
+
         if (isSliceImage(imageName)) {
             // assume the 8bit naming convention, even though the image could in fact be 16bit
             return imageName.substring(0, imageName.lastIndexOf(tID_8bitConvention) + tID_8bitConvention.length());
@@ -546,9 +574,9 @@ public class ImageNameLogic {
 
                 // see if it's a fused diSPIM image or a single view (restrict the search to only the filename, not the full path)
                 char timeAppendCharacterType = '0';
-                if ((imageName.substring(imageName.lastIndexOf(FORWARDSLASH))).lastIndexOf(UNDERSCORE) != -1) { // fused
+                if ((imageName.substring(imageName.lastIndexOf(convention))).lastIndexOf(UNDERSCORE) != -1) { // fused
                     timeAppendCharacterType = UNDERSCORE;
-                } else if ((imageName.substring(imageName.lastIndexOf(FORWARDSLASH))).lastIndexOf('-') != -1) { // single view
+                } else if ((imageName.substring(imageName.lastIndexOf(convention))).lastIndexOf('-') != -1) { // single view
                     timeAppendCharacterType = DASH;
                 } else {
                     System.out.println("Couldn't extract image prefix from: " + imageName + "\nUnable to find character type before time.");
@@ -571,6 +599,16 @@ public class ImageNameLogic {
                 return imageName.substring(0, imageName.lastIndexOf(timeAppendCharacterType)+1);
 
             }
+        }
+    }
+
+    public static String getDirectoryDelimiter(String path) {
+        if (path.lastIndexOf(FORWARDSLASH) != -1) {
+            return FORWARDSLASH;
+        } else if (path.lastIndexOf(BACKSLASH) != -1) {
+            return BACKSLASH;
+        } else {
+            return "";
         }
     }
 
