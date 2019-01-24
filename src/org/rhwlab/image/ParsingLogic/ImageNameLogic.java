@@ -644,6 +644,7 @@ public class ImageNameLogic {
         if (TIFprefix_16bit.charAt(TIFprefix_16bit.length()-1) == tChar) { // normal case
             return TIFprefix_16bit + Integer.toString(time) + TIF_ext;
         } else { // diSPIM case -- use .tif ext
+            System.out.println("diSPIM case: " + TIFprefix_16bit + Integer.toString(time) + tif_ext);
             return TIFprefix_16bit + Integer.toString(time) + tif_ext;
         }
 
