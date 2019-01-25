@@ -709,7 +709,7 @@ public class ImageNameLogic {
 //        String test = "L:\\shahp2\\ForBraden\\diSPIM_singleviews\\SPIMB\\488 nm\\SPIMB-4.tif";
 //        System.out.println(getImagePrefix(test));
 
-        String test = "/Users/bradenkatzman/Desktop/ForBraden/iSIM-test data/KB_BV591_03192018_w1iSIM - FITC - 525-50_s1_t1.TIF";
-        System.out.println(findSecondiSIMColorChannel(test));
+        //String test = "/Users/bradenkatzman/Desktop/ForBraden/iSIM-test data/KB_BV591_03192018_w1iSIM - FITC - 525-50_s1_t1.TIF";
+        //System.out.println(findSecondiSIMColorChannel(test));
     }
 }

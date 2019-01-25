@@ -3387,6 +3387,13 @@ public class AceTree extends JPanel
         return iTrackPosition != ImageWindow.NONE;
     }
 
+    public void setIsTracking(Integer value) {
+        // only set tracking flag is the value is legitimate tracking value
+        if (value == ImageWindow.NONE || value == ImageWindow.ANTERIOR || value == ImageWindow.POSTERIOR) {
+            iTrackPosition = value;
+        }
+    }
+
     public void setOrientation(String orientation) {
         iOrientation = orientation;
         System.out.println("setOrientation: " + iOrientation);

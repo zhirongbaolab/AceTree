@@ -4,6 +4,7 @@ package org.rhwlab.snight;
 import application_src.MainApp;
 import application_src.application_model.resources.NucleiMgrAdapterResource;
 import org.rhwlab.acetree.AceTree;
+import org.rhwlab.image.ImageWindow;
 import org.rhwlab.image.management.ImageManager;
 
 import java.util.Vector;
@@ -72,6 +73,8 @@ public class WormGUIDESWindow extends MainApp {
 			} else if (newValue.intValue() == (oldValue.intValue() - 1)) {
 				aceTree.prevImage();
 			} else {
+            	// turn off tracking
+            	aceTree.setIsTracking(ImageWindow.NONE);
 				this.imageManager.setCurrImageTime(newValue.intValue());
 
 				// behavior is modeled off the bottom panel of the main acetree panel where time and cell are inputted
