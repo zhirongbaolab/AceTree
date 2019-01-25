@@ -126,7 +126,7 @@ public class ImageManager {
      * @return the first image in the series (configured by the user - not necessarily time 1)
      */
     public ImagePlus bringUpImageSeries() {
-        //System.out.println("Bringing up image series");
+        System.out.println("Bringing up image series");
 
         // first thing we need to check if whether multiple image files (corresponding to different color channels) were provided in the config file
         // these two conditions are the result of the two conventions for supplying an <image> tag in the XML file. See documentation or ImageConfig.java

@@ -447,7 +447,7 @@ public class ImageNameLogic {
     public static boolean doesImageFollow8bitDeletedConvention(String filename) {
         if (filename == null || filename.isEmpty()) return false;
 
-        return filename.contains("/image/tif/");
+        return filename.contains("/image/tif/") || filename.contains(BACKSLASH + "image" + BACKSLASH + "tif" + BACKSLASH);
     }
 
     /**
@@ -603,9 +603,13 @@ public class ImageNameLogic {
     }
 
     public static String getDirectoryDelimiter(String path) {
-        if (path.lastIndexOf(FORWARDSLASH) != -1) {
+        System.out.println(path);
+        if (path.lastIndexOf(FORWARDSLASH) != -1)
+        {
+            //System.out.println("found forwardslash");
             return FORWARDSLASH;
         } else if (path.lastIndexOf(BACKSLASH) != -1) {
+            //System.out.println("Found backslash");
             return BACKSLASH;
         } else {
             return "";
@@ -681,7 +685,7 @@ public class ImageNameLogic {
         return "";
     }
 
-//    public static void main(String[] args) {
+    public static void main(String[] args) {
 //        String test = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/09082016_lineage/image/tif/KB_BV395_09082016_1_s1-t001-p01.tif";
 //        String secondChannelAttempt = findSecondColorChannelFromSliceImage(test);
 //
@@ -698,5 +702,14 @@ public class ImageNameLogic {
 //
 //        String diSPIM_singleview_test = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/ForBraden/diSPIM_singleviews/SPIMA/488 nm/SPIMA-0.tif";
 //        String diSPIM_singleview_result = findSecondDiSPIMColorChannel(diSPIM_singleview_test);
-//    }
+
+        //String test = "hello" + BACKSLASH + "image" + BACKSLASH + "tif" + BACKSLASH + "myfile.tif";
+        //System.out.println(doesImageFollow8bitDeletedConvention(test));
+
+//        String test = "L:\\shahp2\\ForBraden\\diSPIM_singleviews\\SPIMB\\488 nm\\SPIMB-4.tif";
+//        System.out.println(getImagePrefix(test));
+
+        String test = "/Users/bradenkatzman/Desktop/ForBraden/iSIM-test data/KB_BV591_03192018_w1iSIM - FITC - 525-50_s1_t1.TIF";
+        System.out.println(findSecondiSIMColorChannel(test));
+    }
 }

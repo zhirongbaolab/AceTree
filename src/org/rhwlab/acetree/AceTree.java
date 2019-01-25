@@ -466,13 +466,13 @@ public class AceTree extends JPanel
             System.out.println("*** Starting Nuclei configuration including: building NucConfig, NucManager, processing nuclei and assigning names ***");
 
 	        // check to see if the series is already in the hash (this is an optimization to support faster loading of multiple datasets in a single runtime)
-	        String shortName = Config.getShortName(configFileName);
-	        NucleiMgr nucMgr = iNucleiMgrHash.get(shortName);
+//	        String shortName = Config.getShortName(configFileName);
+//	        NucleiMgr nucMgr = iNucleiMgrHash.get(shortName);
 
 	        // in most cases, the user will only open a single dataset during a program execution, which means there will be no
             // no NucleiMgr in the hash. In those instances, we proceed by checking if the configuration file to build the NucMgr
             // exists, and then build it via bringUpSeriesUI
-	        if (nucMgr == null) {
+//	        if (nucMgr == null) {
 	            // if not in hash then make sure there is such a file before proceeding
 
 	            try {
@@ -488,11 +488,12 @@ public class AceTree extends JPanel
 
 	            // if the return value from bringUpSeriesData wasn't 0, then a problem occurred opening the data, return
 	            if (k != 0) return; //problem finding the zipNuclei
-	        }
+	        //}
 
 
 
 	        // after bringUpSeriesData() completes, the nucMgr should be in the hash
+            String shortName = Config.getShortName(configFileName);
 	        iNucleiMgr = iNucleiMgrHash.get(shortName);
 
 	        // if it's null, we've got problems
@@ -655,22 +656,21 @@ public class AceTree extends JPanel
         // if we've reached here, the NucMgr is good to go, so we can process the nuclei (set the successors and build the AncesTree object)
         nucMgr.processNuclei(true); // post 10/2018 revisions
 
-
-        String config;
-        if (configManager == null) {
-            config = nucMgr.getConfig().getShortName();
-        } else {
-            config = configManager.getShortName();
-        }
+        String config = configManager.getShortName();
         println("bringUpSeriesData, " + config);
 
-        // now that the local nucMgr has been successfully built, put it in the hash so it can be
-        // accessed in bringUpSeriesUI and later if the user comes back to this dataset
+        // Previously, there was a way of saving already built NucleiMgr's so that they could be reaccessed
+        // multiple times in a program instance (if other embryos were opened and then returned to). The messiness
+        // involved in maintaining does not outweigh the time spent to just rebuild the nucmgr when an dataset is opened.
+        // Here, we keep some of the hooks that were used to maintain the nucmgr just for ease of implementation. If
+        // the nucmgr is already here, remove it and add the new one (who knows, maybe it was changed?)
         if (!iNucleiMgrHash.containsKey(config)) {
-            iNucleiMgrHash.put(config, nucMgr);
+            iNucleiMgrHash.remove(config);
 		    if(fullGUI)
 		    	iAceMenuBar.addToRecent(config);
         }
+        // always put the newly built nucmgr in the hash
+        iNucleiMgrHash.put(config, nucMgr);
         
         System.gc();
         return 0;
