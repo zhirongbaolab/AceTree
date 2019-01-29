@@ -87,6 +87,7 @@ import org.rhwlab.acetree.AceTree;
 import org.rhwlab.acetree.AnnotInfo;
 //import org.rhwlab.image.Image3D.SublineageDisplayProperty;
 //import org.rhwlab.image.Image3D.PropertiesTab.SublineageUI;
+import org.rhwlab.image.ParsingLogic.ImageNameLogic;
 import org.rhwlab.image.management.ImageManager;
 import org.rhwlab.nucedit.AddOneDialog;
 import org.rhwlab.nucedit.UnifiedNucRelinkDialog;
@@ -611,14 +612,16 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         if (imageName == null || ip == null) return;
 
         boolean inMaxProjectionMode = false;
+        String directoryDelimiter = ImageNameLogic.getDirectoryDelimiter(imageName);
         if (planeNumber == -1) {
-            setTitle(imageName.substring(imageName.lastIndexOf("/")));
+            setTitle(imageName.substring(imageName.lastIndexOf(directoryDelimiter)));
         } else if (planeNumber == Integer.MAX_VALUE) {
             // this will be the hook used to identify that a MAXIMUM INTESITY PROJECTION is being used
-            setTitle(imageName.substring(imageName.lastIndexOf("/")) + " - Maximum Intensity Projection");
+            setTitle(imageName.substring(imageName.lastIndexOf(directoryDelimiter)) + " - Maximum Intensity Projection");
             inMaxProjectionMode = true;
         } else {
-            setTitle(imageName.substring(imageName.lastIndexOf("/")) + " (plane " + planeNumber + ")");
+
+            setTitle(imageName.substring(imageName.lastIndexOf(directoryDelimiter)) + " (plane " + planeNumber + ")");
         }
 
         if (ip != null)

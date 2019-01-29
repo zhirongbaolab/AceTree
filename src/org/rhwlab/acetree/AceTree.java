@@ -527,10 +527,14 @@ public class AceTree extends JPanel
                 this.iImgWin.setVisible(false);
                 this.iImgWin.dispose();
             }
-            this.iImgWin = new ImageWindow(this.imageManager.makeImageNameForTitle(),
+            this.iImgWin = new ImageWindow("",
                                             this.imageManager.bringUpImageSeries(),
                                             this.iPlayerControl,
                                             this.imageManager);
+            // now that the image series has been processed by imageManager.bringUpImageSeries(), make a title for the window
+            this.iImgWin.setTitle(this.imageManager.makeImageNameForTitle());
+
+            // give the ImageWindow access to AceTree and NucleiMgr (Note: awful code practice, but remains because of legacy implementation - should be heavily refactored)
             this.iImgWin.setAceTree(this);
             this.iImgWin.setNucleiMgr(this.iNucleiMgr);
 
@@ -1800,7 +1804,7 @@ public class AceTree extends JPanel
             	Component compFocusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
             	Window windowFocusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusedWindow();
             	if (compFocusOwner instanceof JButton) {
-            		println("its a button");
+            		//println("its a button");
             		//((JButton)compFocusOwner).doClick();
             	}
             	println("setKeyboardActions, " + compFocusOwner);
@@ -2543,7 +2547,7 @@ public class AceTree extends JPanel
 
         	setCurrentCell(c, requestedTime, CONTROLCALLBACK);
 
-            System.out.println(transformTitle());
+            //System.out.println(transformTitle());
         }
     }
 
