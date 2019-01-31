@@ -219,7 +219,6 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
       //transplant of addsingle add cell function executed when root is
 	  //pred or none chosen
      */
-
     protected String addCell(int x, int y) {
     	int time = iAceTree.getImageTime()+iAceTree.getTimeInc();
         Vector nuclei = ImageWindow.cNucleiMgr.getNucleiRecord().elementAt(time - 1);
@@ -272,7 +271,7 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
 		System.out.println("adding tween");
 		String ID=addCell(x,y);
 		//set to late and rebuild
-		int time =iAceTree.getImageTime()+iAceTree.getTimeInc();
+		int time = iAceTree.getImageTime() + iAceTree.getTimeInc();
 		iRelinkTime.setText(Integer.toString(time));
 		iRelinkNuc.setText(ID);
 		relinkAndRebuild();

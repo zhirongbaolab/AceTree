@@ -804,13 +804,10 @@ public class AceTree extends JPanel
 
 
 	public void buildTree(boolean doIdentity) {
-        System.out.println("Building lineage tree");
+        System.out.println("Building lineage tree..");
 
         iShowAnnotationsSave = iShowAnnotations;
         setShowAnnotations(false);
-
-//        iShowCentroids = false;
-//        iShowC.setText(SHOWC);
 
         if (doIdentity) {
             iNucleiMgr.processNuclei(doIdentity, this.configManager.getNucleiConfig().getNamingMethod());
@@ -3069,7 +3066,7 @@ public class AceTree extends JPanel
     }
 
     public void killCell(int x) {
-    	println("killCell");
+    	println("\n\nkillCell");
 
     	int currenttimeNuclei = this.imageManager.getCurrImageTime() + iTimeInc - 1;
     	Vector nuclei = iNucleiMgr.getElementAt(currenttimeNuclei);
@@ -3082,7 +3079,7 @@ public class AceTree extends JPanel
             if (!n.identity.equals(name))
             	continue;
 
-            System.out.println("Nullifying status of: " + n.identity);
+            System.out.println("Nullifying status of: " + n.identity + " at " + (currenttimeNuclei + 1));
             n.status = Nucleus.NILLI;
             break;
         }
