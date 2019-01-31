@@ -1834,9 +1834,9 @@ public class AceTree extends JPanel
         if (c == iRoot) {
             //this.imageManager.setCurrImageTime(1);
             this.imageManager.setCurrImagePlane(15);
-
         } else {
-            this.imageManager.setCurrImageTime(c.getTime());
+            //System.out.println("Setting current image time: " + c.getTime());
+            //this.imageManager.setCurrImageTime(c.getTime());
             this.imageManager.setCurrImagePlane((int)((double)c.getPlane() + HALFROUND));
 
         }
