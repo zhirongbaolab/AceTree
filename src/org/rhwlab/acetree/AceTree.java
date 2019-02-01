@@ -879,7 +879,7 @@ public class AceTree extends JPanel
         }
 
 
-        System.out.println("returning: " + c.getName());
+        //System.out.println("returning: " + c.getName());
         return c;
     }
 
@@ -963,7 +963,7 @@ public class AceTree extends JPanel
      * @param time
      */
     public void setStartingCell(Cell c, int time) {
-        System.out.println("setStartingCell, cell, time: " + c + CS + time);
+        //System.out.println("setStartingCell, cell, time: " + c + CS + time);
 
         // if the nuclei passed isn't the root of the tree
         if (c != iRoot) {
@@ -2635,7 +2635,7 @@ public class AceTree extends JPanel
 
 
         if (iCurrentCell.getFateInt() == Cell.DIED) {
-            System.out.println("Cell died, turning tracking off");
+            //System.out.println("Cell died, turning tracking off");
             iCurrentCellPresent = false;
             //this.imageManager.setCurrImageTime(this.imageManager.getCurrImageTime() + iTimeInc);
             //this.imageManager.setCurrImageTime(this.imageManager.getCurrImageTime());
@@ -2887,8 +2887,10 @@ public class AceTree extends JPanel
             showTreeCell(iCurrentCell);
         } else if (source == PREVTIME) {
             //System.out.println("Prevtime called at: " + this.imageManager.getCurrImageTime());
-        	Vector nuclei1 = iNucleiMgr.getElementAt(this.imageManager.getCurrImageTime() + iTimeInc);
-            Vector nuclei0 = iNucleiMgr.getElementAt(this.imageManager.getCurrImageTime() + iTimeInc - 1);
+        	//Vector nuclei1 = iNucleiMgr.getElementAt(this.imageManager.getCurrImageTime() + iTimeInc);
+            //Vector nuclei0 = iNucleiMgr.getElementAt(this.imageManager.getCurrImageTime() + iTimeInc - 1);
+            Vector nuclei1 = iNucleiMgr.getElementAt(this.imageManager.getCurrImageTime());
+            Vector nuclei0 = iNucleiMgr.getElementAt(this.imageManager.getCurrImageTime() - 1);
 
             //System.out.println("Queried nucs at times: " + (this.imageManager.getCurrImageTime() + iTimeInc) + ", " + (this.imageManager.getCurrImageTime() + iTimeInc - 1));
             //System.out.println("Looking for parent of " + iCurrentCell.getName() + " at those times");
@@ -3052,7 +3054,8 @@ public class AceTree extends JPanel
 
 
     public void relinkNucleus() {
-        int time = this.imageManager.getCurrImageTime() + iTimeInc;
+        //int time = this.imageManager.getCurrImageTime() + iTimeInc;
+        int time = this.imageManager.getCurrImageTime();
         if (iNucRelinkDialog == null) {
 	        iNucRelinkDialog = new UnifiedNucRelinkDialog(this, iMainFrame, false, iCurrentCell, time);
 			// this var is now always set to inucrelink or null
@@ -3066,7 +3069,8 @@ public class AceTree extends JPanel
     public void killCell(int x) {
     	println("\n\nkillCell");
 
-    	int currenttimeNuclei = this.imageManager.getCurrImageTime() + iTimeInc - 1;
+    	//int currenttimeNuclei = this.imageManager.getCurrImageTime() + iTimeInc - 1;
+        int currenttimeNuclei = this.imageManager.getCurrImageTime() - 1;
     	Vector nuclei = iNucleiMgr.getElementAt(currenttimeNuclei);
     	
     	String name = iCurrentCell.getName();

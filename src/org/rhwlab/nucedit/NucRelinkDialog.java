@@ -425,7 +425,7 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 		//set active cell to start time to aid review
 		if(c!=null){
 			iAceTree.setStartingCell(c, strTime);
-			System.out.println("Setting starting in relink "+c);
+			//System.out.println("Setting starting in relink "+c);
 		}
 		iEditLog.setModified(true);
 		//dispose();
