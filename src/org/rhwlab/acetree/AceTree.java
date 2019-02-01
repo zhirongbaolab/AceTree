@@ -2139,7 +2139,7 @@ public class AceTree extends JPanel
 		 				try {
 			 				Cell c = (Cell)iAncesTree.getCellsByName().get(selected);
 			 				if (c != null) {
-			 					System.out.println("Setting active cell to: "+selected);
+			 					//System.out.println("Setting active cell to: "+selected);
 				 				showTreeCell(c);
 				                if (c.getTime() < 0) {
 				                    if (iCurrentCell != null) 
@@ -2622,8 +2622,6 @@ public class AceTree extends JPanel
 	   if (iTimeInc != 0) {
            iTimeInc++;
        }
-        // flip the MIP flag if AceTree is showing a MIP right now
-        //this.imageManager.setCurrImageMIP(false);
 
         iCallSaveImage = true;
         //int now = this.imageManager.getCurrImageTime() + iTimeInc;
@@ -2872,7 +2870,7 @@ public class AceTree extends JPanel
         } else if (source == CONTROLCALLBACK) {
             showSelectedCell(c, time);
         } else if (source == NEXTTIME) {
-            //System.out.println("Source is nexttime, time is: " + time);
+            //System.out.println("Source is nexttime, setting image time to: " + time);
             this.imageManager.setCurrImageTime(time);
             iTimeInc = 0;
             Cell currentCellSave = iCurrentCell;
@@ -3265,6 +3263,7 @@ public class AceTree extends JPanel
     }
 
     public boolean nextImage() {
+        //System.out.println("CALLED NEXTIMAGE");
 		if(iImgWin != null) {
             iImgWin.setSpecialEffect(null);
         }
