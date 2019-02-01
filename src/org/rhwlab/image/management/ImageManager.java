@@ -596,28 +596,27 @@ public class ImageManager {
         // first check if we're dealing with 8 bit or 16 bit images
         if (this.imageConfig.getUseStack() == 0) { // 8bit
             String fullPath = ImageNameLogic.appendTimeAndPlaneTo8BittifPrefix(this.imageConfig.getImagePrefixes()[0], this.currentImageTime, this.currentImagePlane);
-            return fullPath.substring(fullPath.lastIndexOf("/"));
+            String directoryDelimiter = ImageNameLogic.getDirectoryDelimiter(fullPath);
+            return fullPath.substring(fullPath.lastIndexOf(directoryDelimiter));
 
         } else if (this.imageConfig.getUseStack() == 1) { //16bit
             // check if there are multiple stacks defining the color channels of the image series, or if all channels are contained in a single stack
             if (this.imageConfig.getNumChannels() == -1) {
                 // single stack with one or more color channels
                 String fullPath = ImageNameLogic.appendTimeToSingle16BitTIFPrefix(this.imageConfig.getImagePrefixes()[0], this.currentImageTime);
-                return fullPath.substring(fullPath.lastIndexOf("/"));
-                //return ImageNameLogic.appendTimeToSingle16BitTIFPrefix(this.imageConfig.getImagePrefixes()[0], this.currentImageTime);
+                String directoryDelimiter = ImageNameLogic.getDirectoryDelimiter(fullPath);
+                return fullPath.substring(fullPath.lastIndexOf(directoryDelimiter));
             } else if (this.imageConfig.getNumChannels() > 1) {
                 // multiple stacks containing multiple image channels for an image series
                 for (String s : this.imageConfig.getImagePrefixes()) {
                     if (!s.isEmpty()) {
                         String fullPath = ImageNameLogic.appendTimeToSingle16BitTIFPrefix(s, this.currentImageTime);
-                        return fullPath.substring(fullPath.lastIndexOf("/"));
+                        String directoryDelimiter = ImageNameLogic.getDirectoryDelimiter(fullPath);
+                        return fullPath.substring(fullPath.lastIndexOf(directoryDelimiter));
                     }
                 }
-
-                //return ImageNameLogic.appendTimeToSingle16BitTIFPrefix(this.imageConfig.getImagePrefixes()[0], this.currentImageTime);
             }
         }
-
         return "";
     }
 

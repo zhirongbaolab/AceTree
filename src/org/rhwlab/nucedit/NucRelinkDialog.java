@@ -352,7 +352,8 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 		Object o = e.getSource();
 		String cmd = e.getActionCommand();
 		if (cmd.equals(SETEARLYCELL)) {
-			int time = iAceTree.getImageTime() + iAceTree.getTimeInc();
+			int time = iAceTree.getImageTime();
+			System.out.println("Early cell time is: " + time);
 			iLinkTime.setText(String.valueOf(time));
 			iLinkNuc.setText(iAceTree.getCurrentCell().getName());
 			iStartArmed=true;
@@ -360,7 +361,8 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 			iLinkTime.setText(String.valueOf((iAceTree.getNucleiMgr()).getStartingIndex()));
 			iLinkNuc.setText(AceTree.ROOTNAME);
 		} else if (cmd.equals(SETLATECELL)) {
-			int time = iAceTree.getImageTime() + iAceTree.getTimeInc();
+			int time = iAceTree.getImageTime();
+			System.out.println("Late cell time is: " + time);
 			iRelinkTime.setText(String.valueOf(time));
 			iRelinkNuc.setText(iAceTree.getCurrentCell().getName());
 

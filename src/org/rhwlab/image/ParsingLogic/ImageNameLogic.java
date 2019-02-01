@@ -112,21 +112,24 @@ public class ImageNameLogic {
     public static String reconfigureImagePathFrom8bitTo16bit(String _8bitImagePath) {
         System.out.println("\nReconfiguring image path for an 8bit image to a 16bit TIF, if possible. ImageNameLogic.reconfigureImagePathFrom8BithTo16Bit()");
 
-        //try using layered images two directories up
-        int fileNameIdx = _8bitImagePath.lastIndexOf(FORWARDSLASH);
+        // try using layered images two directories up
+        String directoryDelimiter = getDirectoryDelimiter(_8bitImagePath);
+        int fileNameIdx = _8bitImagePath.lastIndexOf(directoryDelimiter);
 
         // find the name of the file i.e. cut off everything having to do with either an absolute or relative path in the string passed
         String fileName;
         if (fileNameIdx > 0) {
             fileName = _8bitImagePath.substring(fileNameIdx+1);
         } else {
-            fileNameIdx = _8bitImagePath.lastIndexOf(BACKSLASH);
-            if (fileNameIdx > 0) {
-                fileName = _8bitImagePath.substring(fileNameIdx+1);
-            } else {
-                System.out.println("Couldn't access filename (i.e. substring after last '/') when trying to convert 8bit image name to 16bit. Returning 8bit image filename.");
-                return _8bitImagePath;
-            }
+            System.out.println("Couldn't access filename (i.e. substring after last '/' or '\\') when trying to convert 8bit image name to 16bit. Returning 8bit image filename.");
+            return _8bitImagePath;
+
+//            fileNameIdx = _8bitImagePath.lastIndexOf(BACKSLASH);
+//            if (fileNameIdx > 0) {
+//                fileName = _8bitImagePath.substring(fileNameIdx+1);
+//            } else {
+//
+//            }
         }
 
         // if this is an 8bit image, it is a slice and should have an identifier for the plane number. Let's look for it
@@ -180,14 +183,14 @@ public class ImageNameLogic {
 
         String fileNameUpdate = filePrefix + t_ + ext;
 
-        int removeDirsIdx = _8bitImagePath.indexOf("image/tif");
+        int removeDirsIdx = _8bitImagePath.indexOf("image" + directoryDelimiter + "tif");
         if (removeDirsIdx > 0) {
             String filePre = _8bitImagePath.substring(0, removeDirsIdx);
 
             String finalPath = filePre + fileNameUpdate;
             return finalPath;
         } else {
-            System.out.println("8bit image is not contained in .../image/tif/ subdirectory so 16bit image couldn't be located. Returning 8bit image filename");
+            System.out.println("8bit image is not contained in .../image/tif/ or ...\\image\\tif\\ subdirectory so 16bit image couldn't be located. Returning 8bit image filename");
             return _8bitImagePath;
         }
     }
@@ -603,7 +606,7 @@ public class ImageNameLogic {
     }
 
     public static String getDirectoryDelimiter(String path) {
-        System.out.println(path);
+        //System.out.println(path);
         if (path.lastIndexOf(FORWARDSLASH) != -1)
         {
             //System.out.println("found forwardslash");

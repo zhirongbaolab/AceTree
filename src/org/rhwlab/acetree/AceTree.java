@@ -527,10 +527,14 @@ public class AceTree extends JPanel
                 this.iImgWin.setVisible(false);
                 this.iImgWin.dispose();
             }
-            this.iImgWin = new ImageWindow(this.imageManager.makeImageNameForTitle(),
+            this.iImgWin = new ImageWindow("",
                                             this.imageManager.bringUpImageSeries(),
                                             this.iPlayerControl,
                                             this.imageManager);
+            // now that the image series has been processed by imageManager.bringUpImageSeries(), make a title for the window
+            this.iImgWin.setTitle(this.imageManager.makeImageNameForTitle());
+
+            // give the ImageWindow access to AceTree and NucleiMgr (Note: awful code practice, but remains because of legacy implementation - should be heavily refactored)
             this.iImgWin.setAceTree(this);
             this.iImgWin.setNucleiMgr(this.iNucleiMgr);
 
@@ -800,13 +804,10 @@ public class AceTree extends JPanel
 
 
 	public void buildTree(boolean doIdentity) {
-        System.out.println("Building lineage tree");
+        System.out.println("Building lineage tree..");
 
         iShowAnnotationsSave = iShowAnnotations;
         setShowAnnotations(false);
-
-//        iShowCentroids = false;
-//        iShowC.setText(SHOWC);
 
         if (doIdentity) {
             iNucleiMgr.processNuclei(doIdentity, this.configManager.getNucleiConfig().getNamingMethod());
@@ -1800,7 +1801,7 @@ public class AceTree extends JPanel
             	Component compFocusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
             	Window windowFocusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusedWindow();
             	if (compFocusOwner instanceof JButton) {
-            		println("its a button");
+            		//println("its a button");
             		//((JButton)compFocusOwner).doClick();
             	}
             	println("setKeyboardActions, " + compFocusOwner);
@@ -1833,9 +1834,9 @@ public class AceTree extends JPanel
         if (c == iRoot) {
             //this.imageManager.setCurrImageTime(1);
             this.imageManager.setCurrImagePlane(15);
-
         } else {
-            this.imageManager.setCurrImageTime(c.getTime());
+            //System.out.println("Setting current image time: " + c.getTime());
+            //this.imageManager.setCurrImageTime(c.getTime());
             this.imageManager.setCurrImagePlane((int)((double)c.getPlane() + HALFROUND));
 
         }
@@ -2543,7 +2544,7 @@ public class AceTree extends JPanel
 
         	setCurrentCell(c, requestedTime, CONTROLCALLBACK);
 
-            System.out.println(transformTitle());
+            //System.out.println(transformTitle());
         }
     }
 
@@ -3065,7 +3066,7 @@ public class AceTree extends JPanel
     }
 
     public void killCell(int x) {
-    	println("killCell");
+    	println("\n\nkillCell");
 
     	int currenttimeNuclei = this.imageManager.getCurrImageTime() + iTimeInc - 1;
     	Vector nuclei = iNucleiMgr.getElementAt(currenttimeNuclei);
@@ -3078,7 +3079,7 @@ public class AceTree extends JPanel
             if (!n.identity.equals(name))
             	continue;
 
-            System.out.println("Nullifying status of: " + n.identity);
+            System.out.println("Nullifying status of: " + n.identity + " at " + (currenttimeNuclei + 1));
             n.status = Nucleus.NILLI;
             break;
         }
