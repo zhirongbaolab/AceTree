@@ -353,7 +353,7 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 		String cmd = e.getActionCommand();
 		if (cmd.equals(SETEARLYCELL)) {
 			int time = iAceTree.getImageTime();
-			System.out.println("Early cell time is: " + time);
+			//System.out.println("Early cell time is: " + time);
 			iLinkTime.setText(String.valueOf(time));
 			iLinkNuc.setText(iAceTree.getCurrentCell().getName());
 			iStartArmed=true;
@@ -362,7 +362,7 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 			iLinkNuc.setText(AceTree.ROOTNAME);
 		} else if (cmd.equals(SETLATECELL)) {
 			int time = iAceTree.getImageTime();
-			System.out.println("Late cell time is: " + time);
+			//System.out.println("Late cell time is: " + time);
 			iRelinkTime.setText(String.valueOf(time));
 			iRelinkNuc.setText(iAceTree.getCurrentCell().getName());
 
@@ -424,8 +424,23 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 		
 		//set active cell to start time to aid review
 		if(c!=null){
+            System.out.println("Setting starting cell in relink " + c + " at startTime: " + strTime);
+
+			/**
+			 * the convention for relinking is to select the later, unnamed cell and then link it back to the earlier time.
+			 * In this case, the time doesn't change because the first linked point is supposed to be shown when relinking.
+			 * However, users can also relink in the forward direction i.e. select the earlier named cell first and walk
+			 * forward to the unnamed cell. In this case, we end up viewing the later frame when applying the relink, so
+			 * we want to show the first frame after that relink is made
+			 */
+			if (iAceTree.getImageManager().getCurrImageTime() != strTime) {
+				iAceTree.getImageManager().setCurrImageTime(strTime);
+
+				// also update the annotation
+				iAceTree.iImgWin.updateCurrentCellAnnotation(c, new Cell(""), strTime);
+			}
 			iAceTree.setStartingCell(c, strTime);
-			//System.out.println("Setting starting in relink "+c);
+			iAceTree.updateDisplay();
 		}
 		iEditLog.setModified(true);
 		//dispose();

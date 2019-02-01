@@ -3100,7 +3100,6 @@ public class AceTree extends JPanel
 		if(c != null) {
             System.out.println("Setting starting cell c: " + c + " at time: " + currenttimeNuclei);
 			setStartingCell(c, currenttimeNuclei);
-
 		}
     }
 
