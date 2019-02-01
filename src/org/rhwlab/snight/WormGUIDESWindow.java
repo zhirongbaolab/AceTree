@@ -59,7 +59,7 @@ public class WormGUIDESWindow extends MainApp {
         externallySetStartTime = this.imageManager.getCurrImageTime();
 
         timePropertyMainApp.addListener(((observable, oldValue, newValue) -> {
-
+ 			//System.out.println("Time property in WormGUIDES has changed and is now: " + newValue.intValue());
             // we need to first rule out changes to the time property that are a result of AceTree's control over WormGUIDES
             // i.e. only those time changes that originate in WormGUIDES should update AceTree
             if (newValue.intValue() == this.imageManager.getCurrImageTime()) {
@@ -69,6 +69,7 @@ public class WormGUIDESWindow extends MainApp {
         	// we'll route these through some different update styles depending on how the time is being changed in WormGUIDES
 			// either by play mode, step forward/backward button, or slider change
         	if (newValue.intValue() == (oldValue.intValue() + 1)) {
+        		//System.out.println("Looks like wormguides moved forward an image, so move acetree forward an image");
 				aceTree.nextImage();
 			} else if (newValue.intValue() == (oldValue.intValue() - 1)) {
 				aceTree.prevImage();
