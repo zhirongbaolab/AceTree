@@ -75,18 +75,32 @@ public class NucleiConfig {
                  String zipFile = configData.get(s);
 
                 // check if it's a relative path
-                if (zipFile != null && (!new File(zipFile).isAbsolute() || zipFile.charAt(0) == '.')) {
+                if (zipFile != null && ImageNameLogic.isPathRelative(zipFile)) {
                     // prepend so this is an absolute path
-                    if (configFileName.lastIndexOf(ImageNameLogic.FORWARDSLASH) != -1) {
-                        zipFile = configFileName.substring(0, configFileName.lastIndexOf(ImageNameLogic.FORWARDSLASH) + 1) + zipFile.substring(zipFile.lastIndexOf(ImageNameLogic.FORWARDSLASH)+1);
-                    } else if (configFileName.lastIndexOf(ImageNameLogic.BACKSLASH) != -1) {
-                        zipFile = configFileName.substring(0, configFileName.lastIndexOf(ImageNameLogic.BACKSLASH) + 1) + zipFile.substring(zipFile.lastIndexOf(ImageNameLogic.BACKSLASH)+1);
-                    } else {
-                        System.out.println("Couldn't update relative nuc .zip path to absolute because the file separator couldn't be determined. Make " +
+                    String directoryDelimiter = ImageNameLogic.getDirectoryDelimiter(zipFile);
+                    if (directoryDelimiter.isEmpty()) {
+                        System.out.println("Couldn't update relative nuc .zip path to absolute because the zip's file separator couldn't be determined. Make " +
                                 "sure they are consistent.");
+                        return;
                     }
-                }
 
+                    // we need to make sure that we're working with the same directory delimiter in the config file and the zip file, because we're going to build
+                    // the absolute path to the zip from the config file
+                    String directoryDelimiter1 = ImageNameLogic.getDirectoryDelimiter(configFileName);
+                    if (directoryDelimiter1.isEmpty()) {
+                        System.out.println("Couldn't update relative nuc .zip path to absolute because the config file's separator couldn't be determined.");
+                        return;
+                    }
+
+                    // are the delimiters the same?
+                    if (!directoryDelimiter1.equals(directoryDelimiter)) {
+                        // update the zip file's delimiters to that of the config file (because we know the config file's are valid, they're what got us this far)
+                        zipFile = zipFile.replace(directoryDelimiter.charAt(0), directoryDelimiter1.charAt(0));
+                    }
+
+                    zipFile = configFileName.substring(0, configFileName.lastIndexOf(directoryDelimiter1) + 1) + zipFile.substring(zipFile.lastIndexOf(directoryDelimiter1)+1);
+                    System.out.println("NucleiConfig update relative nuc zip path to: " + zipFile);
+                }
                 this.zipFileName = zipFile;
             } else if (s.toLowerCase().equals(namingMethodKey.toLowerCase())) {
                 this.namingMethod = Integer.parseInt(configData.get(s));

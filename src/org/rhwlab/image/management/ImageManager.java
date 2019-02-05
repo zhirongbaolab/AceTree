@@ -185,6 +185,9 @@ public class ImageManager {
                         System.out.println("Attempt to generate 16bit image file name from 8bit image file name failed. Can't bring up image series");
                         return null;
                     }
+                } else {
+                    System.out.println("Provided image file doesn't follow 8bit deleted convention. Can't bring up image series.");
+                    return null;
                 }
             } else {
                 // if we've reached here, either the supplied file exists, or a 16bit corollary was found and we will now proceed with that

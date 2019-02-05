@@ -242,21 +242,17 @@ public class ImageNameLogic {
         String filename_after_channel_text = iSIM_image_filename.substring(iSIM_image_filename.indexOf(endOfChannelTextIdentifier));
 
         // iterate over the other files in the directory, looking for a file that has the same prefix and suffix as the given image and a different channel identifier
-        int containingDirLastCharIdx = iSIM_image_filename.lastIndexOf(FORWARDSLASH);
-        if (containingDirLastCharIdx == -1) {
-            containingDirLastCharIdx = iSIM_image_filename.lastIndexOf(BACKSLASH);
-            if (containingDirLastCharIdx == -1) {
-                System.out.println("Couldn't extract containing directory path from supplied image name. Make sure an absolute path has been supplied.");
-                return "";
-            }
-        }
-
-        // save the directory delimiter for the supplied image to check against any files that are iterated over
-        String directoryDelimiter = getDirectoryDelimiter(iSIM_image_filename);
+        String directoryDelimiter = getDirectoryDelimiter(iSIM_image_filename); // save the directory delimiter for the supplied image to check against any files that are iterated over
         if (directoryDelimiter.isEmpty()) {
             System.out.println("Couldn't extract directory delimiter from config supplied image file: " + iSIM_image_filename);
             return "";
         }
+        int containingDirLastCharIdx = iSIM_image_filename.lastIndexOf(directoryDelimiter);
+        if (containingDirLastCharIdx == -1) {
+            System.out.println("Couldn't extract containing directory path from supplied image name. Make sure an absolute path has been supplied.");
+            return "";
+        }
+
 
         String containingDir = iSIM_image_filename.substring(0, containingDirLastCharIdx);
         File[] fList = new File(containingDir).listFiles();
@@ -273,7 +269,7 @@ public class ImageNameLogic {
 
                 if (!directoryDelimiter.equals(directoryDelimiter1)) {
                     // replace the delimiter in the queried file with that used in the supplied file
-                    filename.replaceAll(directoryDelimiter1, directoryDelimiter);
+                    filename.replace(directoryDelimiter1.charAt(0), directoryDelimiter.charAt(0));
                 }
 
 
@@ -358,27 +354,27 @@ public class ImageNameLogic {
         } else if (diSPIM_image_filename.contains(SPIM)) {
             System.out.println("\nLocating second channel for diSPIM single view images (just using one scope view) given: " + diSPIM_image_filename);
 
-            int lastSlashIdx = diSPIM_image_filename.lastIndexOf(FORWARDSLASH);
+            String directoryDelimiter = getDirectoryDelimiter(diSPIM_image_filename);
+            if (directoryDelimiter.isEmpty()) {
+                System.out.println("Directory delimiter couldn't be found.");
+                return "";
+            }
+            int lastSlashIdx = diSPIM_image_filename.lastIndexOf(directoryDelimiter);
             if (lastSlashIdx == -1) {
-                lastSlashIdx = diSPIM_image_filename.lastIndexOf(BACKSLASH);
-                if (lastSlashIdx == -1) {
-                    System.out.println("Image path not properly configured. Can't separate path and image name.");
-                    return "";
-                }
+                System.out.println("Image path not properly configured. Can't separate path and image name.");
+                return "";
             }
 
             String imageNameNoPath = diSPIM_image_filename.substring(lastSlashIdx + 1);
 
             // now we want to move up a directory and get the directory name that this image resides in (for the diSPIM, the directory is named
             // by the scope parameters for this view - specifically, the wavelength of light with format ### nm/
-            int secondToLastSlashIdx = diSPIM_image_filename.substring(0, lastSlashIdx).lastIndexOf(FORWARDSLASH);
+            int secondToLastSlashIdx = diSPIM_image_filename.substring(0, lastSlashIdx).lastIndexOf(directoryDelimiter);
             if (secondToLastSlashIdx == -1) {
-                secondToLastSlashIdx = diSPIM_image_filename.substring(0, lastSlashIdx).lastIndexOf(BACKSLASH);
-                if (secondToLastSlashIdx == -1) {
-                    System.out.println("Image path not properly configured. Can't identify containing directory.");
-                    return "";
-                }
+                System.out.println("Image path not properly configured. Can't identify containing directory.");
+                return "";
             }
+
             // the path up until the second to last slash is the directory which contains both views and their images (of which one has been supplied
             String directoryWithScopeViewSubfolders = diSPIM_image_filename.substring(0, secondToLastSlashIdx);
 
@@ -464,11 +460,12 @@ public class ImageNameLogic {
 
         String imageName = "";
         // first make sure we can extract just the file name and get rid of the path
-        if (filename.lastIndexOf(FORWARDSLASH) != -1) {
-            imageName = filename.substring(filename.lastIndexOf(FORWARDSLASH));
-        } else if (filename.lastIndexOf(BACKSLASH) != -1) {
-            imageName = filename.substring(filename.lastIndexOf(BACKSLASH));
+        String directoryDelimiter = getDirectoryDelimiter(filename);
+        if (directoryDelimiter.isEmpty()) {
+            System.out.println("Couldn't determine directory delimiter when checking if slice image.");
+            return false;
         }
+        imageName = filename.substring(filename.lastIndexOf(directoryDelimiter));
 
         // if we got the file name, proceed
         if (!imageName.isEmpty()) {
@@ -687,6 +684,12 @@ public class ImageNameLogic {
         return "";
     }
 
+    public static boolean isPathRelative(String path) {
+        if (path == null || path.isEmpty()) return false;
+
+        return (!new File(path).isAbsolute() || path.charAt(0) == '.');
+    }
+
     public static void main(String[] args) {
 //        String test = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/09082016_lineage/image/tif/KB_BV395_09082016_1_s1-t001-p01.tif";
 //        String secondChannelAttempt = findSecondColorChannelFromSliceImage(test);
@@ -713,5 +716,9 @@ public class ImageNameLogic {
 
         //String test = "/Users/bradenkatzman/Desktop/ForBraden/iSIM-test data/KB_BV591_03192018_w1iSIM - FITC - 525-50_s1_t1.TIF";
         //System.out.println(findSecondiSIMColorChannel(test));
+
+//        String test = "./delimiter_test/hello/hi.txt";
+//        test = test.replace("/".charAt(0), "\\".charAt(0));
+//        System.out.println(test);
     }
 }
