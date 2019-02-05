@@ -117,7 +117,7 @@ public class ImageConfig {
                     }
 
                     // if the image file name is not absolute, prepend it with the absolute path in the configFileName
-                    imageFile = configFileName.substring(0, configFileName.lastIndexOf(directoryDelimiter1) + 1) + imageFile.substring(imageFile.lastIndexOf(directoryDelimiter1)+1);
+                    imageFile = configFileName.substring(0, configFileName.lastIndexOf(directoryDelimiter1) + 1) + imageFile.substring(imageFile.indexOf(directoryDelimiter1)+1);
                     System.out.println("Updating relative image file path to absolute: " + imageFile);
                 }
                 this.providedImageFileName = imageFile;

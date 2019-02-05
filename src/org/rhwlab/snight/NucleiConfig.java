@@ -98,7 +98,7 @@ public class NucleiConfig {
                         zipFile = zipFile.replace(directoryDelimiter.charAt(0), directoryDelimiter1.charAt(0));
                     }
 
-                    zipFile = configFileName.substring(0, configFileName.lastIndexOf(directoryDelimiter1) + 1) + zipFile.substring(zipFile.lastIndexOf(directoryDelimiter1)+1);
+                    zipFile = configFileName.substring(0, configFileName.lastIndexOf(directoryDelimiter1) + 1) + zipFile.substring(zipFile.indexOf(directoryDelimiter1)+1);
                     System.out.println("NucleiConfig update relative nuc zip path to: " + zipFile);
                 }
                 this.zipFileName = zipFile;
