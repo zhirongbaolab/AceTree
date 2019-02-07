@@ -844,7 +844,8 @@ public class ImageNameLogic {
 //        System.out.println(updatedStr);
 //
 //        String iSIM_test = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/ForBraden/iSIM_test data/KB_BV591_03192018_w1iSIM - FITC - 525-50_s1_t1.TIF";
-//        String iSIM_result = findSecondiSIMColorChannel(iSIM_test);
+        String iSIM_test = "L:/shahp2/ForBraden/iSIM_test data/KB_BV591_03192018_w2iSIM - TxRed - 600-50_s1_t3.TIF";
+        String iSIM_result = findSecondiSIMColorChannel(iSIM_test);
 //
 //        String diSPIM_fused_test = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/09082016_lineage/Color1/Decon/Decon_1.TIF";
 //        String diSPIM_fused_result = findSecondDiSPIMColorChannel(diSPIM_fused_test);
