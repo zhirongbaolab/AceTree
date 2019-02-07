@@ -98,8 +98,24 @@ public class NucleiConfig {
                         zipFile = zipFile.replace(directoryDelimiter.charAt(0), directoryDelimiter1.charAt(0));
                     }
 
-                    zipFile = configFileName.substring(0, configFileName.lastIndexOf(directoryDelimiter1) + 1) + zipFile.substring(zipFile.indexOf(directoryDelimiter1)+1);
-                    System.out.println("NucleiConfig update relative nuc zip path to: " + zipFile);
+                    if (ImageNameLogic.isRelativePathDownstream(zipFile)) {
+                        // if the nuc zip is relative either in the same directory or downstream, just prepend it with the absolute path in the configFileName
+                        zipFile = configFileName.substring(0, configFileName.lastIndexOf(directoryDelimiter1) + 1) + zipFile.substring(zipFile.indexOf(directoryDelimiter1)+1);
+                        System.out.println("NucleiConfig update relative nuc zip path to: " + zipFile);
+                    } else if (ImageNameLogic.isRelativePathUpstream(zipFile)) {
+                        // if the nuc zip is relative upstream, we'll need to walk back along the config file path according to the relative path specified by the zip file
+                        int numUpstreamDirectoriesSpecified = ImageNameLogic.getNumberOfUpstreamDirectoriesSpecifiedInRelativePath(zipFile);
+
+                        // make sure that there are more directories in the config file path
+                        int numDirectoriesInAbsPath = ImageNameLogic.getNumberOfDirectoriesInAbsolutePath(configFileName);
+                        if (numUpstreamDirectoriesSpecified < numDirectoriesInAbsPath) {
+                            zipFile = ImageNameLogic.getFirstNDirectoriesInAbsolutePath(configFileName, numDirectoriesInAbsPath - numUpstreamDirectoriesSpecified) + ImageNameLogic.getImagePathAfterUpstreamDirectoryCharacters(zipFile);
+                            System.out.println("Updating relative nuc zip file path to absolute: " + zipFile);
+                        } else {
+                            System.out.println("The number of upstream directories specified in the relative nuc zip file path is greater than the total number of nested directories in the absolute path of the config file");
+                        }
+                    }
+
                 }
                 this.zipFileName = zipFile;
             } else if (s.toLowerCase().equals(namingMethodKey.toLowerCase())) {

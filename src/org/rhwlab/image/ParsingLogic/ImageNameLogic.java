@@ -19,6 +19,10 @@ public class ImageNameLogic {
     private static char UNDERSCORE = '_';
     private static char DASH = '-';
     private static String PERIOD = ".";
+    private static String upstreamDirectoryID_1 = "../";
+    private static String upstreamDirectoryID_2 = "..\\";
+    private static String downstreamDirectoryID_1 = "./";
+    private static String downstreamDirectoryID_2 = ".\\";
 
     // static variables for iSIM data directory parsing
     private static String endOfChannelTextIdentifier = "_s";
@@ -684,17 +688,156 @@ public class ImageNameLogic {
         return "";
     }
 
+    /**
+     * Method to determine whether a path is relative. Does not distinguish between
+     * relative paths that define files that are upstream or downstream i.e. ../ or ./
+     * @param path
+     * @return
+     */
     public static boolean isPathRelative(String path) {
         if (path == null || path.isEmpty()) return false;
 
-        return (!new File(path).isAbsolute() || path.charAt(0) == '.');
+        return (path.charAt(0) == '.');
+        //return (!new File(path).isAbsolute() || path.charAt(0) == '.');
+    }
+
+    /**
+     * Determines if a relative path (check for relative should already be made
+     * before calling this method, but it checks anyway for safety) is upstream
+     * i.e. is the listed file in a containing directory i.e. does the path start
+     * with "../"
+     * @param path
+     * @return
+     */
+    public static boolean isRelativePathUpstream(String path) {
+        if (!isPathRelative(path)) return false;
+
+        return path.startsWith(upstreamDirectoryID_1) || path.startsWith(upstreamDirectoryID_2);
+    }
+
+    /**
+     * Determines if a relative path is downstream OR contained
+     * in the same directory as another file i.e. does the path
+     * start with "./"
+     * @param path
+     * @return
+     */
+    public static boolean isRelativePathDownstream(String path) {
+        if (!isPathRelative(path)) return false;
+
+        return path.startsWith(downstreamDirectoryID_1) || path.startsWith(downstreamDirectoryID_2);
+    }
+
+    /**
+     * Determines the number of upstream directories that are specified at the start of a relative path
+     * e.g.
+     * ../../../ = 3
+     * ../../ = 2
+     * ../ = 1
+     * @param path
+     * @return
+     */
+    public static int getNumberOfUpstreamDirectoriesSpecifiedInRelativePath(String path) {
+        if (!isPathRelative(path) || isRelativePathDownstream(path)) return 0;
+
+        int upDirCount = 0;
+
+        for (int i = 0; i < path.length() - upstreamDirectoryID_1.length(); i += upstreamDirectoryID_1.length()) {
+            if (path.substring(i, i + upstreamDirectoryID_1.length()).equals(upstreamDirectoryID_1) ||
+                path.substring(i, i + upstreamDirectoryID_2.length()).equals(upstreamDirectoryID_2)) {
+                upDirCount++;
+            } else {
+                // return if the condition isn't met because these have to be consecutive from the start of the string to be valid
+                return upDirCount;
+            }
+        }
+
+        return upDirCount;
+    }
+
+    /**
+     * Used to determine the number of nested directories in a config file's path
+     * @param path
+     * @return
+     */
+    public static int getNumberOfDirectoriesInAbsolutePath(String path) {
+        if (path == null || path.isEmpty() || isPathRelative(path)) return 0;
+
+        String dd = getDirectoryDelimiter(path);
+        if (dd.isEmpty()) {
+            System.out.println("Couldn't extract directory delimiter from string when parsing relative path. ImageNameLogic.getNumberOfDirectoriesInAbsolutePath().");
+            return 0;
+        }
+        char directoryDelimiter = dd.charAt(0);
+
+        // we need to subtract one because absolute paths will be prepended with a delimiter
+        return Math.toIntExact(path.chars().filter(ch -> ch == directoryDelimiter).count()) - 1;
+    }
+
+    /**
+     * Returns the first N directories of an absolute path in string form. This is used
+     * in conjuction with the methods above the append a relative path that specifies
+     * upstream directories with an absolute path
+     * @param path
+     * @param N - the number of directories in path that should be returned in a single string
+     * @return
+     */
+    public static String getFirstNDirectoriesInAbsolutePath(String path, int N) {
+        //System.out.println((path == null) + ", " +  path.isEmpty() + ", " +  isPathRelative(path) + ", " +
+        //        (N < 1) + ", " +  (getNumberOfDirectoriesInAbsolutePath(path) < N));
+
+        if (path == null || path.isEmpty() || isPathRelative(path) ||
+                N < 1 || getNumberOfDirectoriesInAbsolutePath(path) < N) return "";
+
+        String dd = getDirectoryDelimiter(path);
+        if (dd.isEmpty()) {
+            System.out.println("Couldn't extract directory delimiter from string when parsing relative path. ImageNameLogic.getFirstNDirectoriesInAbsolutePath().");
+            return "";
+        }
+        char directoryDelimiter = dd.charAt(0);
+
+        int numDelimitersParsed = 0;
+        int i = path.indexOf(directoryDelimiter)+1;
+        for (; i < path.length() && numDelimitersParsed < N; i++) {
+            if (path.charAt(i) == directoryDelimiter) {
+                numDelimitersParsed++;
+            }
+        }
+
+        return path.substring(0, i);
+    }
+
+    /**
+     * Returns a substring in a path which consists of all characters that occur after
+     * the upstream directory substrings. This is used to concatenate a relative path with
+     * upstream directory substrings with an absolute path
+     * e.g.
+     * ../../../directory1/file.txt --> directory1/file.txt
+     * @param path
+     * @return
+     */
+    public static String getImagePathAfterUpstreamDirectoryCharacters(String path) {
+        if (path == null || path.isEmpty()) return "";
+
+        String dd = getDirectoryDelimiter(path);
+        if (dd.isEmpty()) {
+            System.out.println("Couldn't extract directory delimiter from string when parsing relative path. ImageNameLogic.getImagePathAfterUpstreamDirectoryCharacters().");
+            return "";
+        }
+        char directoryDelimiter = dd.charAt(0);
+
+        int i = 0;
+        for (; i < path.length(); i++) {
+            // break out of the loop when we find the first characters that's not a directory delimiter or a period
+            if (path.charAt(i) != directoryDelimiter && path.charAt(i) != PERIOD.charAt(0)) break;
+        }
+
+        return path.substring(i);
     }
 
     public static void main(String[] args) {
 //        String test = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/09082016_lineage/image/tif/KB_BV395_09082016_1_s1-t001-p01.tif";
 //        String secondChannelAttempt = findSecondColorChannelFromSliceImage(test);
-//
-//
 //
 //        String updatedStr = reconfigureImagePathFrom8bitTo16bit(test);
 //        System.out.println(updatedStr);
@@ -708,17 +851,30 @@ public class ImageNameLogic {
 //        String diSPIM_singleview_test = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/ForBraden/diSPIM_singleviews/SPIMA/488 nm/SPIMA-0.tif";
 //        String diSPIM_singleview_result = findSecondDiSPIMColorChannel(diSPIM_singleview_test);
 
-        //String test = "hello" + BACKSLASH + "image" + BACKSLASH + "tif" + BACKSLASH + "myfile.tif";
-        //System.out.println(doesImageFollow8bitDeletedConvention(test));
+//        String test = "hello" + BACKSLASH + "image" + BACKSLASH + "tif" + BACKSLASH + "myfile.tif";
+//        System.out.println(doesImageFollow8bitDeletedConvention(test));
 
 //        String test = "L:\\shahp2\\ForBraden\\diSPIM_singleviews\\SPIMB\\488 nm\\SPIMB-4.tif";
 //        System.out.println(getImagePrefix(test));
 
-        //String test = "/Users/bradenkatzman/Desktop/ForBraden/iSIM-test data/KB_BV591_03192018_w1iSIM - FITC - 525-50_s1_t1.TIF";
-        //System.out.println(findSecondiSIMColorChannel(test));
+//        String test = "/Users/bradenkatzman/Desktop/ForBraden/iSIM-test data/KB_BV591_03192018_w1iSIM - FITC - 525-50_s1_t1.TIF";
+//        System.out.println(findSecondiSIMColorChannel(test));
 
 //        String test = "./delimiter_test/hello/hi.txt";
 //        test = test.replace("/".charAt(0), "\\".charAt(0));
 //        System.out.println(test);
+
+//        String path = "..\\..\\..\\hello.txt";
+//        System.out.println(getNumberOfUpstreamDirectoriesSpecifiedInRelativePath(path));
+
+//        String path = "C:\\Users\\blah\\blah\\blah\\blah\\blah\\text.txt";
+//        System.out.println(getNumberOfDirectoriesInAbsolutePath(path));
+
+//        String path = "C:/Users/blah2/blah3/blah4/file.txt";
+//        int N = 2;
+//        System.out.println(getFirstNDirectoriesInAbsolutePath(path, 3));
+
+//        String path = "..\\data\\more_data\\image.jpg";
+//        System.out.println(getImagePathAfterUpstreamDirectoryCharacters(path));
     }
 }

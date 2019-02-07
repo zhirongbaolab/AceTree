@@ -116,9 +116,23 @@ public class ImageConfig {
                         imageFile = imageFile.replace(directoryDelimiter, directoryDelimiter1);
                     }
 
-                    // if the image file name is not absolute, prepend it with the absolute path in the configFileName
-                    imageFile = configFileName.substring(0, configFileName.lastIndexOf(directoryDelimiter1) + 1) + imageFile.substring(imageFile.indexOf(directoryDelimiter1)+1);
-                    System.out.println("Updating relative image file path to absolute: " + imageFile);
+                    if (ImageNameLogic.isRelativePathDownstream(imageFile)) {
+                        // if the image file is relative either in the same directory or downstream, just prepend it with the absolute path in the configFileName
+                        imageFile = configFileName.substring(0, configFileName.lastIndexOf(directoryDelimiter1) + 1) + imageFile.substring(imageFile.indexOf(directoryDelimiter1)+1);
+                        System.out.println("Updating relative image file path to absolute: " + imageFile);
+                    } else if (ImageNameLogic.isRelativePathUpstream(imageFile)) {
+                        // if the image file is relative upstream, we'll need to walk back along the config file path according to the relative path specified by the image file
+                        int numUpstreamDirectoriesSpecified = ImageNameLogic.getNumberOfUpstreamDirectoriesSpecifiedInRelativePath(imageFile);
+                        // make sure that there are more directories in the config file path
+
+                        int numDirectoriesInAbsPath = ImageNameLogic.getNumberOfDirectoriesInAbsolutePath(configFileName);
+                        if (numUpstreamDirectoriesSpecified < numDirectoriesInAbsPath) {
+                            imageFile = ImageNameLogic.getFirstNDirectoriesInAbsolutePath(configFileName, numDirectoriesInAbsPath - numUpstreamDirectoriesSpecified) + ImageNameLogic.getImagePathAfterUpstreamDirectoryCharacters(imageFile);
+                            System.out.println("Updating relative image file path to absolute: " + imageFile);
+                        } else {
+                            System.out.println("The number of upstream directories specified in the relative image path is greater than the total number of nested directories in the absolute path of the config file");
+                        }
+                    }
                 }
                 this.providedImageFileName = imageFile;
 
