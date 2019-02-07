@@ -224,7 +224,7 @@ public class ImageNameLogic {
         System.out.println("\nLooking for second iSIM color channel given: " + iSIM_image_filename);
 
         // extract the prefix before the w# identifier
-        int _wIdx = iSIM_image_filename.indexOf("_w");
+        int _wIdx = iSIM_image_filename.lastIndexOf("_w");
         if (_wIdx == -1) {
             System.out.println("Couldn't extract channel identifier from iSIM image file name");
             return "";
@@ -243,7 +243,7 @@ public class ImageNameLogic {
         int channelNumberID = Character.getNumericValue(channelNumberIDChar);
         int channelNumberID_idx = _wIdx + 2;
 
-        String filename_after_channel_text = iSIM_image_filename.substring(iSIM_image_filename.indexOf(endOfChannelTextIdentifier));
+        String filename_after_channel_text = iSIM_image_filename.substring(iSIM_image_filename.lastIndexOf(endOfChannelTextIdentifier));
 
         // iterate over the other files in the directory, looking for a file that has the same prefix and suffix as the given image and a different channel identifier
         String directoryDelimiter = getDirectoryDelimiter(iSIM_image_filename); // save the directory delimiter for the supplied image to check against any files that are iterated over
@@ -291,6 +291,7 @@ public class ImageNameLogic {
             return "";
         }
 
+        System.out.println("Second iSIM color channel not found");
         return "";
     }
 
@@ -336,7 +337,7 @@ public class ImageNameLogic {
         if (diSPIM_image_filename.contains(COLOR)) {
             System.out.println("\nLocating second channel for diSPIM fused images given: " + diSPIM_image_filename);
             // figure out if the image file is in the Color1 or Color2 directory
-            char colorNumber = diSPIM_image_filename.charAt(diSPIM_image_filename.indexOf(COLOR) + COLOR.length());
+            char colorNumber = diSPIM_image_filename.charAt(diSPIM_image_filename.lastIndexOf(COLOR) + COLOR.length());
 
             char colorNumberSwap = '0';
             if (colorNumber == '1') {
@@ -349,9 +350,9 @@ public class ImageNameLogic {
             }
 
             // swap the colors and return
-            String secondDiSPIMFusedChannel = diSPIM_image_filename.substring(0, diSPIM_image_filename.indexOf(COLOR) + COLOR.length())
+            String secondDiSPIMFusedChannel = diSPIM_image_filename.substring(0, diSPIM_image_filename.lastIndexOf(COLOR) + COLOR.length())
                     + colorNumberSwap
-                    + diSPIM_image_filename.substring(diSPIM_image_filename.indexOf(COLOR) + COLOR.length() + 1);
+                    + diSPIM_image_filename.substring(diSPIM_image_filename.lastIndexOf(COLOR) + COLOR.length() + 1);
             System.out.println("Second channel for fused diSPIM data found at: " + secondDiSPIMFusedChannel);
 
             return secondDiSPIMFusedChannel;
