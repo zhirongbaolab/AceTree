@@ -176,7 +176,7 @@ public class KillCellsDialog extends GenericDialog {
     	iCandidateCells.add(nuclei);
        	collectCandidateCells();
     	iNumCellsToEnd= iCandidateCells.size();
-    	System.out.println("Parsed successors for "+ iCellName +"at time "+ iTime +" found "+ iNumCellsToEnd);
+    	System.out.println("Parsed successors for "+ iCellName +" at time "+ iTime +" found "+ iNumCellsToEnd);
     	
     	if(iNucleiMgr.getCurrentCellData(iCellName, iTime)==null){
     		System.out.println("Attempt to delete nonexistent cell quitting");
