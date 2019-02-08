@@ -169,8 +169,8 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
     		String strCellName = iLinkNuc.getText();
     		int x = e.getX();
     		int y = e.getY();
-    		int z = iAceTree.getImagePlane() + iAceTree.getPlaneInc();
-    		int time = iAceTree.getImageTime() + iAceTree.getTimeInc();
+    		int z = iAceTree.getImageManager().getCurrImagePlane();
+    		int time = iAceTree.getImageManager().getCurrImageTime();
 		
     		if(!iStartArmed || strCellName.equals(AceTree.ROOTNAME)){
 				String ID = addCell(x,y);
@@ -198,12 +198,19 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
     		}
     		
     		//find ref to what we just created now that its renamed
-			Nucleus itself = ImageWindow.cNucleiMgr.findClosestNucleusXYZ(x, y, z, time);
+			Nucleus itself = iAceTree.getNucleiMgr().findClosestNucleusXYZ(x, y, z, time);
 			//System.out.println("found nucleus"+itself);
 			Cell itselfcell = (Cell)(iAceTree.getAncesTree().getCellsByName().get(itself.identity));
 			//set it as active cell for actree
 			iAceTree.setStartingCell(itselfcell,time);
-			//iAceTree.setShowAnnotations(showNames);
+
+			// we need to call an update now
+			iAceTree.getImageManager().setCurrImageTime(time);
+			iAceTree.iImgWin.addAnnotation(x, y, true);
+			iAceTree.updateDisplay();
+
+
+
 			//set it as current early cell
 			iLinkTime.setText(Integer.toString(time));
 			iLinkNuc.setText(itself.identity);
@@ -220,8 +227,8 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
 	  //pred or none chosen
      */
     protected String addCell(int x, int y) {
-    	int time = iAceTree.getImageTime()+iAceTree.getTimeInc();
-        Vector nuclei = ImageWindow.cNucleiMgr.getNucleiRecord().elementAt(time - 1);
+    	int time = iAceTree.getImageManager().getCurrImageTime();
+        Vector nuclei = iAceTree.getNucleiMgr().getNucleiRecord().elementAt(time - 1);
         Nucleus n = new Nucleus();
         n.index = nuclei.size() + 1;
         String hashKey = NucUtils.makeHashKey(time, n);
@@ -229,7 +236,7 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
         n.status = 1;
         n.x = x;
         n.y = y;
-        int plane= iAceTree.getImagePlane() + iAceTree.getPlaneInc();
+        int plane= iAceTree.getImageManager().getCurrImagePlane();
         n.z = plane;
 		System.out.println("make nucleus "+x+" "+y+" "+plane+" "+time);
 		//	Nucleus nclose = ImageWindow.cNucleiMgr.findClosestNucleus(x,y,plane,time);
@@ -262,7 +269,8 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
         c.setParent(root);
 		
 		iAceTree.setCurrentCell(c, time, AceTree.RIGHTCLICKONEDITIMAGE);
-		iAceTree.getImageWindow().addAnnotation(x, y, true);
+		iAceTree.iImgWin.addAnnotation(x, y, true);
+		iAceTree.updateDisplay();
 		return(n.identity);
     }
     
@@ -271,11 +279,11 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
 		System.out.println("adding tween");
 		String ID=addCell(x,y);
 		//set to late and rebuild
-		int time = iAceTree.getImageTime() + iAceTree.getTimeInc();
+		int time = iAceTree.getImageManager().getCurrImageTime();
 		iRelinkTime.setText(Integer.toString(time));
 		iRelinkNuc.setText(ID);
 		relinkAndRebuild();
-		
+
 		// try and set active timepoint to intermediate point at end of interpolation
 		//name will not be right if addition has created a bifurcation
 		// so search for C at time should fail returning null
@@ -287,6 +295,7 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
 		if(c!=null)
 			System.out.println("not null so setting current cell "+c);
 		iAceTree.setStartingCell(c,time);
+		iAceTree.updateDisplay();
     }
 
 

@@ -2798,6 +2798,7 @@ public class AceTree extends JPanel
     }
 
     public void setCurrentCell(Cell c, int time, int source) {
+        //System.out.println("Set current cell for: " + c.getName() + " at time: " + time);
     	if(iCellsByName == null)
     		return;
 
@@ -3054,7 +3055,6 @@ public class AceTree extends JPanel
 
 
     public void relinkNucleus() {
-        //int time = this.imageManager.getCurrImageTime() + iTimeInc;
         int time = this.imageManager.getCurrImageTime();
         if (iNucRelinkDialog == null) {
 	        iNucRelinkDialog = new UnifiedNucRelinkDialog(this, iMainFrame, false, iCurrentCell, time);

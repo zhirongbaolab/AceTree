@@ -99,12 +99,10 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 		// later time
 		Border blackline = BorderFactory.createLineBorder(Color.black);
 		Border bothBorder = BorderFactory.createEmptyBorder(0,10,0,10);
-		//Border botBorder = BorderFactory.createEmptyBorder(0,0,10,0);
 
 		JPanel pEnd = new JPanel();
 		pEnd.setLayout(new BoxLayout(pEnd, BoxLayout.PAGE_AXIS));
 		pEnd.setAlignmentX(Component.CENTER_ALIGNMENT);
-		//pEnd.setBorder(blackline);
 
 		iRelinkButton = new JButton(SETLATECELL);
 		iRelinkButton.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -114,27 +112,17 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 		label.setAlignmentX(CENTER_ALIGNMENT);
 		pEnd.add(label);
 
-		
-		//s.setBorder(topBorder);
 		pEnd.add(iRelinkButton);
 		  pEnd.add(Box.createVerticalGlue());
-		//pEnd.add(new JLabel(""));
-		//pEnd.add(s);
 
-		
-		//
 		JPanel bothl = new JPanel();
 		bothl.setLayout(new BoxLayout(bothl,BoxLayout.LINE_AXIS));
-		//bothl.setBorder(bothBorder);
+
 		bothl.setAlignmentX(Component.CENTER_ALIGNMENT);
 
 		JPanel s = new JPanel();
 		s.setLayout(new BoxLayout(s,BoxLayout.PAGE_AXIS));
-		
-		//s.setLayout(new GridLayout(1,1));
-		//s = new JPanel();
-		//s.setLayout(new FlowLayout());
-		//s.setAlignmentX(Component.CENTER_ALIGNMENT);
+
 		label = new JLabel(RELINKTIME);
 		s.add(label);
 		label = new JLabel(RELINKNUC);
@@ -144,45 +132,19 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 		
 		s = new JPanel();
 		s.setLayout(new BoxLayout(s,BoxLayout.PAGE_AXIS));
-		//iRelinkTime = new JTextField();
-		//iRelinkTime.setColumns(5);
+
 		iRelinkTime = new JLabel(FIVE);
-		// iRelinkTime.setBorder(blackline);
-		//iRelinkTime.setColumns(5);
+
 		s.add(iRelinkTime);
-		//s.setBorder(topBorder);
-
-		//bothl.add(s);
-		//pEnd.add(s);
-
-		//s = new JPanel();
-		//s.setLayout(new FlowLayout());
-		//s.setAlignmentX(Component.CENTER_ALIGNMENT);
-		//s.setLayout(new BoxLayout(s,BoxLayout.PAGE_AXIS));
 		iRelinkNuc = new JLabel(TWELVE);
-		//iRelinkNuc.setBorder(blackline);
-		//iRelinkNuc.setColumns(12);
-		//iRelinkNuc.setText(cell.getName());
 		s.add(iRelinkNuc);
-			//s.setBorder(botBorder);
-		//pEnd.add(s);
+
 		bothl.add(s);
 		pEnd.add(bothl);
 		  pEnd.add(Box.createVerticalGlue());
-		 // pEnd.add(new JLabel(" "));
-		//pEnd.setPreferredSize(new Dimension(WIDTH,110));
+
 		 pWhole.add(Box.createVerticalGlue());
 		pWhole.add(pEnd);
-
-
-		//JPanel xp = new JPanel();
-		//xp.setBorder(blackline);
-		//xp.setLayout(new BoxLayout(xp, BoxLayout.PAGE_AXIS));
-		//Border b = BorderFactory.createEmptyBorder(10,0,10,0);
-
-		//s = new JPanel();
-		// s.setLayout(new GridLayout(3,1));
-		//s.add(new JLabel(""));
 
 		iApplyAndRebuild = new JButton(APPLYANDREBUILD);
 		iApplyAndRebuild.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -434,6 +396,7 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 			 * we want to show the first frame after that relink is made
 			 */
 			if (iAceTree.getImageManager().getCurrImageTime() != strTime) {
+				iAceTree.getImageManager().setCurrImageTime(strTime);
 				iAceTree.getImageManager().setCurrImageTime(strTime);
 
 				// also update the annotation
