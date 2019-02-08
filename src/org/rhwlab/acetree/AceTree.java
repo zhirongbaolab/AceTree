@@ -3112,8 +3112,8 @@ public class AceTree extends JPanel
     }
 
     public void killCells() {
-        int time = this.imageManager.getCurrImageTime() + iTimeInc;
-        new KillCellsDialog(this, iMainFrame,true, iCurrentCell, time, iEditLog);
+        //int time = this.imageManager.getCurrImageTime() + iTimeInc;
+        new KillCellsDialog(this, iMainFrame,true, iCurrentCell, this.imageManager.getCurrImageTime(), iEditLog);
     }
 
     public void pausePlayerControl() {
