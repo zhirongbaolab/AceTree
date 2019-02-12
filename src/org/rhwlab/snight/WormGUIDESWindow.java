@@ -52,7 +52,12 @@ public class WormGUIDESWindow extends MainApp {
 		t.start();
 		// set up a change listener on the time property in AceTree and call observe when it's changed
         this.imageManager.getTimeProperty().addListener((observable, oldValue, newValue) -> {
-            updateTime(newValue.intValue());
+        	// only update if the origin of the change is from AceTree
+        	if (newValue.intValue() != timePropertyMainApp.get()) {
+				//System.out.println("Updating WG time from AceTree change");
+				updateTime(newValue.intValue());
+			}
+
         });
 
         // set WormGUIDES start time to current image time in AceTree
@@ -72,6 +77,7 @@ public class WormGUIDESWindow extends MainApp {
         		//System.out.println("Looks like wormguides moved forward an image, so move acetree forward an image");
 				aceTree.nextImage();
 			} else if (newValue.intValue() == (oldValue.intValue() - 1)) {
+        		//System.out.println("Looks like wormguides moved backward an image, so move acetree backward an image");
 				aceTree.prevImage();
 			} else {
             	// turn off tracking
@@ -89,6 +95,7 @@ public class WormGUIDESWindow extends MainApp {
 			}
         }));
 
+        // toggle the movie control buttons in the respective apps when either one is in Play mode
         isPlayButtonEnabled.addListener(((observable, oldValue, newValue) -> {
             if (newValue) { // if WormGUIDES is in play mode
                 aceTree.getPlayerControl().disableTimeAndPlaneControlButtons();
