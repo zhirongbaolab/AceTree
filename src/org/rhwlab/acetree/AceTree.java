@@ -855,7 +855,7 @@ public class AceTree extends JPanel
 
     private Cell walkUpToAGoodCell() {
         Cell c = null;
-        System.out.println("Looking for a starting cell beginning at root: " + iRoot.getName());
+        //System.out.println("Looking for a starting cell beginning at root: " + iRoot.getName());
         if (iRoot.getChildCount() <= 1) {
             return iRoot;
         }
@@ -884,7 +884,7 @@ public class AceTree extends JPanel
     }
 
     public void restoreTree(String shortName) {
-        System.out.println("\n\nAceTree.restoreTree called: " + shortName);
+        //System.out.println("\n\nAceTree.restoreTree called: " + shortName);
         iMainFrame.setTitle(TITLE + ": " + shortName);
         //new Throwable().printStackTrace();
         NucleiMgr nucMgr = iNucleiMgrHash.get(shortName);

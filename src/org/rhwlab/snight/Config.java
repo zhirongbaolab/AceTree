@@ -100,6 +100,8 @@ public class Config {
     public String configsToString() {
         return nucConfig.toString() + imageConfig.toString();
     }
+
+    public String getConfigFileName() { return iConfigFileName; }
     //******************************************************************************************************************
 
 
