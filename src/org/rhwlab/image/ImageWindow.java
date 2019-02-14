@@ -637,16 +637,14 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 
         iImgCanvas.repaint();
 
-        //if (planeNumber != Integer.MAX_VALUE) {
-            if(iImageZoomerPanel!=null){
-                BufferedImage image = BufferedImageCreator.create((ColorProcessor)iImgPlus.getProcessor());
-                iImageZoomerPanel.updateImage(image);
-            }
-            if (iImageZoomerFrame != null) {
-                BufferedImage image = BufferedImageCreator.create((ColorProcessor)iImgPlus.getProcessor());
-                iImageZoomerFrame.updateImage(image);
-            }
-        //}
+        if(iImageZoomerPanel!=null){
+            BufferedImage image = BufferedImageCreator.create((ColorProcessor)iImgPlus.getProcessor());
+            iImageZoomerPanel.updateImage(image);
+        }
+        if (iImageZoomerFrame != null) {
+            BufferedImage image = BufferedImageCreator.create((ColorProcessor)iImgPlus.getProcessor());
+            iImageZoomerFrame.updateImage(image);
+        }
     }
 
     /**
@@ -936,13 +934,13 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
     
     @SuppressWarnings("unused")
 	protected void showCentroids(boolean isInMaxProjectionMode) {
-        int time = iAceTree.getImageManager().getCurrImageTime() + iTimeInc;
+        int time = iAceTree.getImageManager().getCurrImageTime();
         if (time < 0) {
             iAceTree.getImageManager().setCurrImageTime(1);
             iTimeInc = 0;
         }
         
-        Vector v = cNucleiMgr.getElementAt(iAceTree.getImageManager().getCurrImageTime() + iTimeInc - 1);
+        Vector v = cNucleiMgr.getElementAt(iAceTree.getImageManager().getCurrImageTime() - 1);
         
         ImageProcessor iproc = getImagePlus().getProcessor();
         iproc.setColor(COLOR[iDispProps[NCENTROID].iLineageNum]);
@@ -962,7 +960,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
                 x = cNucleiMgr.nucDiameter(n, n.z);
             } else {
                 x = cNucleiMgr.nucDiameter(n,
-                        iAceTree.getImageManager().getCurrImagePlane() + iPlaneInc);
+                        iAceTree.getImageManager().getCurrImagePlane());
             }
             if (x > 0) {
             	// Manage bookmarked cells
@@ -1027,7 +1025,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 
     @SuppressWarnings("unused")
 	protected void showAnnotations(boolean inMaxProjectionMode) {
-        Vector v = cNucleiMgr.getNucleiRecord().elementAt(iAceTree.getImageManager().getCurrImageTime()  + iTimeInc - 1);
+        Vector v = cNucleiMgr.getNucleiRecord().elementAt(iAceTree.getImageManager().getCurrImageTime()  - 1);
         int size = v.size();
         int [] x = new int[size];
         int [] y = new int[size];
@@ -1048,7 +1046,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
                 // if we're in max projection mode, then we want to show all annotations so we'll add all annotations
                 if (inMaxProjectionMode) {
                     annots.add(ai);
-                } else if (cNucleiMgr.hasCircle(n, iAceTree.getImageManager().getCurrImagePlane() + iPlaneInc)) {
+                } else if (cNucleiMgr.hasCircle(n, iAceTree.getImageManager().getCurrImagePlane())) {
                     annots.add(ai);
                 }
             }
@@ -1380,14 +1378,20 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
                 iIsRightMouseButton = false;
             }
             if (button == MouseEvent.BUTTON3|e.isControlDown()) {
-                Nucleus n = cNucleiMgr.findClosestNucleus(x2,y2, iAceTree.getImageManager().getCurrImagePlane() + iPlaneInc, iAceTree.getImageManager().getCurrImageTime() + iTimeInc);
+                Nucleus n;
+                if (iAceTree.getImageManager().isCurrImageMIP()) {
+                    n = cNucleiMgr.findClosestNucleus(x2,y2, iAceTree.getImageManager().getCurrImageTime());
+                } else {
+                    n = cNucleiMgr.findClosestNucleus(x2,y2, iAceTree.getImageManager().getCurrImagePlane(), iAceTree.getImageManager().getCurrImageTime());
+                }
+
                 if (n == null) {
                 	//System.out.println("No nucleus selected to be active, cannot set current cell.");
                 	return;
                 }
                 Cell c = iAceTree.getCellByName(n.identity);
                 if (c != null) {
-	                iAceTree.setCurrentCell(c, iAceTree.getImageManager().getCurrImageTime() + iTimeInc, AceTree.RIGHTCLICKONIMAGE);
+	                iAceTree.setCurrentCell(c, iAceTree.getImageManager().getCurrImageTime(), AceTree.RIGHTCLICKONIMAGE);
 	                //System.out.println("Current cell set to "+n.identity);
                 }
             } 
@@ -1412,16 +1416,21 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
         int timeInc = 0;
         int planeInc = 0;
         if (iIsMainImgWindow) {
-            timeInc = iAceTree.getTimeInc();
-            planeInc = iAceTree.getPlaneInc();
+            timeInc = iAceTree.getImageManager().getCurrImageTime();
+            planeInc = iAceTree.getImageManager().getCurrImagePlane();
         }
         String name = "";
-        Nucleus n = cNucleiMgr.findClosestNucleus(x, y, iAceTree.getImageManager().getCurrImageTime() + iTimeInc);
+        Nucleus n;
+        if (iAceTree.getImageManager().isCurrImageMIP()) {
+            n = cNucleiMgr.findClosestNucleus(x,y, iAceTree.getImageManager().getCurrImageTime());
+        } else {
+            n = cNucleiMgr.findClosestNucleus(x,y, iAceTree.getImageManager().getCurrImagePlane(), iAceTree.getImageManager().getCurrImageTime());
+        }
         if (n != null) {
             if (iAceTree.getImageManager().isCurrImageMIP()) {
                 //System.out.println("setting name: " + n.identity);
               name = n.identity;
-            } else if (cNucleiMgr.hasCircle(n, iAceTree.getImageManager().getCurrImagePlane() + iPlaneInc)) {
+            } else if (cNucleiMgr.hasCircle(n, iAceTree.getImageManager().getCurrImagePlane())) {
                 name = n.identity;
             }
         }
