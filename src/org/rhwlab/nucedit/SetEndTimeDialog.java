@@ -50,7 +50,7 @@ public class SetEndTimeDialog extends JDialog implements ActionListener {
             s.add(label);
             iEndTime = new JTextField();
             iEndTime.setColumns(5);
-            iEndTime.setText(String.valueOf(iNucleiMgr.getEndingIndex()));
+            iEndTime.setText(String.valueOf(iAceTree.getConfig().getNucleiConfig().getEndingIndex()));
             s.add(iEndTime);
             p.add(s);
 
@@ -74,7 +74,7 @@ public class SetEndTimeDialog extends JDialog implements ActionListener {
         Object o = e.getSource();
         if (o == iDoit) {
             int endTime = Integer.parseInt(iEndTime.getText());
-            iAceTree.setEndingIndex(endTime);
+            iAceTree.getConfig().getNucleiConfig().setEndingIndex(endTime);
         }
         dispose();
 

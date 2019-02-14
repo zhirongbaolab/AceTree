@@ -181,6 +181,7 @@ public class KillDeepNucsDialog  extends JDialog implements ActionListener {
         if (implement) {
             iAceTree.clearTree();
             iAceTree.buildTree(true);
+            iAceTree.updateDisplay();
 
         }
 		//println("estimateNucs, " + iZLim + CS + iCount);

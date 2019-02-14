@@ -112,8 +112,8 @@ public class Lazarus extends JDialog  implements ActionListener, ListSelectionLi
         iLazers = new Hashtable();
         iNamesAvailable = false;
         //iTest = 1;
-        int t1 = iNucleiMgr.getConfig().iStartingIndex;
-        int t2 = iNucleiMgr.getConfig().iEndingIndex;
+        int t1 = iAceTree.getConfig().getImageConfig().getStartingIndex();
+        int t2 = iAceTree.getConfig().getImageConfig().getEndingIndex();
         String [] sa = iTextField.getText().split(":");
         int maxTime = Integer.parseInt(sa[0]);
         String filter = "";
@@ -235,6 +235,7 @@ public class Lazarus extends JDialog  implements ActionListener, ListSelectionLi
         //Cell c = iCurrentCell;
         iAceTree.clearTree();
         iAceTree.buildTree(true);
+        iAceTree.updateDisplay();
         //if (c != null) iAceTree.setStartingCell(c, time);
         makeInitialList();
 

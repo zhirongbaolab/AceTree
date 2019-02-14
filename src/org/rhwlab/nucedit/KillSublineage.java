@@ -50,7 +50,7 @@ public class KillSublineage extends JPanel implements ActionListener {
 		this.setAlignmentX(CENTER_ALIGNMENT);	
 		iNucleiMgr = aceTree.getNucleiMgr();
     	iEditLog = aceTree.getEditLog();
-    	int time =  iAceTree.getImageTime()+ iAceTree.getTimeInc();
+    	int time =  iAceTree.getImageManager().getCurrImageTime();
 
         Cell cell = iAceTree.getCurrentCell();
         iCellToKill=cell;
@@ -218,7 +218,10 @@ public class KillSublineage extends JPanel implements ActionListener {
 			Hashtable h = ances.getCellsByName();
 			if (c != null) c = (Cell)h.get(c.getName());
 			System.out.println("killSublineage.actionPerformed: " + c + CS + strTime);
-			if (c != null) iAceTree.setStartingCell(c, strTime);
+			if (c != null) {
+				iAceTree.setStartingCell(c, strTime);
+				iAceTree.updateDisplay();
+			}
 			
 
     }

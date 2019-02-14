@@ -290,7 +290,7 @@ public class KillCellsDialog extends GenericDialog {
 	            c = (Cell)iAceTree.getAncesTree().getCells().get(newnuc.hashKey);
             }
             iAceTree.setStartingCell(c, strTime);
-            
+            iAceTree.updateDisplay();
             dispose();
         } else super.actionPerformed(e);
 

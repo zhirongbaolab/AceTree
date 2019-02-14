@@ -97,6 +97,7 @@ public class GenericDialog extends JDialog implements ActionListener {
                 //System.out.println("GenericDialog.actionPerformed rebuilding");
                 iAceTree.clearTree();
                 iAceTree.buildTree(true);
+                iAceTree.updateDisplay();
 		// }
             dispose();
         }
