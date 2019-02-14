@@ -903,8 +903,8 @@ public class AceTree extends JPanel
         iCellsByName = iAncesTree.getCellsByName();
         setShowAnnotations(false);
         iShow.setText(SHOW);
-        iShowCentroids = false;
-        iShowC.setText(SHOWC);
+        //iShowCentroids = false;
+        //iShowC.setText(SHOWC);
         Cell.setEndingIndexS(this.configManager.getImageConfig().getEndingIndex()); // what does this do?
 
         Cell c = walkUpToAGoodCell();
