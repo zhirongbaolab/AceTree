@@ -92,7 +92,7 @@ public final class NucEditDialog extends JDialog implements ActionListener {
         iTimeField.setFocusLostBehavior(JFormattedTextField.PERSIST);
         iTimeField.setColumns(5);
         //iTime = 1;
-        iTime = acetree.getImageTime() + acetree.getTimeInc();
+        iTime = acetree.getImageManager().getCurrImageTime();
         iTimeField.setValue(String.valueOf(iTime));
         s.add(iTimeField);
         iButton = new JButton(READ);

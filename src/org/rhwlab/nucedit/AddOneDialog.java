@@ -178,11 +178,11 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
         if (o == iRelink) {
             iAceTree.relinkNucleus();
             //iAdjust.setSelected(true);
-            iParent.refreshDisplay();
+            iAceTree.updateDisplay();
         } else if (o == iKillCells) {
                 iAceTree.killCells();
 		//    iAdjust.setSelected(true);
-                iParent.refreshDisplay();
+            iAceTree.updateDisplay();
 		//        } 
 // 	else if( o== iAddSeries){
 // 	    //added -as
@@ -200,10 +200,12 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
 	    Cell c = iCurrentCell;
 	    iAceTree.clearTree();
 	    iAceTree.buildTree(true);
+	    iAceTree.updateDisplay();
 	    //iEditLog.setModified(true);
 	    //System.out.println("actionPerformed: " + c + C.CS + time);
 	    if (c != null)
 	    	iAceTree.setStartingCell(c, time);
+            iAceTree.updateDisplay();
 	    // iAdjust.setSelected(true);
 
 //         } else if (o == iRebuildOnly) {
@@ -222,7 +224,7 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
             updateCurrentInfo(false);
             setKeypadEnabled(true);
             //println("EIDialog2.actionPerformed:3 iCurrentCell: " + iCurrentCell);
-            Nucleus n = ImageWindow.cNucleiMgr.getNucleusFromHashkey(iCurrentCell.getHashKey(), iImageTime + iTimeInc);
+            Nucleus n = iAceTree.getNucleiMgr().getNucleusFromHashkey(iCurrentCell.getHashKey(), iAceTree.getImageManager().getCurrImageTime());
             if(n==null)
             	return;
             
@@ -256,8 +258,8 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
                 String oldName = n.identity;
                 n.identity = iName.getText();
                 iCurrentCell.setName(n.identity);
-                //iParent.updateCellAnnotation(iCurrentCell, oldName, iImageTime + iTimeInc);
                 iParent.updateCellAnnotation(iCurrentCell, oldName, iImageTime);
+                iAceTree.updateDisplay();
             }
             
             // Force name button handled here
@@ -313,7 +315,7 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
             	checkTimesAndPropogateValue("D");
             	
             }
-            iParent.refreshDisplay();
+            iAceTree.updateDisplay();
         }
 
     }
@@ -334,7 +336,7 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
     	Nucleus n;
     	// perform range check on  start end time
     	for (int i=starttime;i<=endtime;i++){
-    		n = ImageWindow.cNucleiMgr.getNucleusFromHashkey(iCurrentCell.getHashKey(), i);
+    		n = iAceTree.getNucleiMgr().getNucleusFromHashkey(iCurrentCell.getHashKey(), i);
     		if (n==null) validrange=false;
     	}
     	//if exists in range iterate over range
@@ -342,7 +344,7 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
     	if(validrange){
 
     		for (int i=starttime;i<=endtime;i++){
-    			n = ImageWindow.cNucleiMgr.getNucleusFromHashkey(iCurrentCell.getHashKey(), i);
+    			n = iAceTree.getNucleiMgr().getNucleusFromHashkey(iCurrentCell.getHashKey(), i);
     			if(field.equals("X")){
     				n.x = Integer.parseInt(iX.getText());
     				//System.out.println("Valid Range X");
@@ -379,7 +381,7 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
 	    if (button == 3) {
             updateCurrentInfo(false);
             //Nucleus n = ImageWindow.cNucleiMgr.findClosestNucleus(e.getX(), e.getY(), iImagePlane + iPlaneInc, iImageTime + iTimeInc);
-            Nucleus n = ImageWindow.cNucleiMgr.findClosestNucleus(e.getX(), e.getY(), iImagePlane, iImageTime);
+            Nucleus n = iAceTree.getNucleiMgr().findClosestNucleus(e.getX(), e.getY(), iAceTree.getImageManager().getCurrImagePlane(), iAceTree.getImageManager().getCurrImageTime());
             if (n == null) {
                 System.out.println("cant find closest nucleus");
                 return;
@@ -389,9 +391,10 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
             //System.out.println("mouseClicked1: " + c + C.CS + iCurrentCell
             //        + C.CS + iImagePlane + C.CS + iPlaneInc);
             //iAceTree.setCurrentCell(c, iImageTime + iTimeInc, AceTree.RIGHTCLICKONEDITIMAGE);
-            iAceTree.setCurrentCell(c, iImageTime, AceTree.RIGHTCLICKONEDITIMAGE);
+            iAceTree.setCurrentCell(c, iAceTree.getImageManager().getCurrImageTime(), AceTree.RIGHTCLICKONEDITIMAGE);
             iNucleus = n;
             updateTextFields();
+            iAceTree.updateDisplay();
 
         } // else if (button == 2) {
 //             addCell(e.getX(), e.getY(), false);
@@ -403,8 +406,8 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
         //System.out.println("addCell: " + x + C.CS + y);
         updateCurrentInfo(false);
         //int time = iImageTime + iTimeInc;
-        int time = iImageTime;
-        Vector nuclei = ImageWindow.cNucleiMgr.getNucleiRecord().elementAt(time - 1);
+        int time = iAceTree.getImageManager().getCurrImageTime();
+        Vector nuclei = iAceTree.getNucleiMgr().getNucleiRecord().elementAt(time - 1);
         Nucleus n = new Nucleus();
         n.index = nuclei.size() + 1;
         String hashKey = NucUtils.makeHashKey(time, n);
@@ -413,7 +416,7 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
         n.status = 1;
         n.x = x;
         n.y = y;
-        n.z = iImagePlane + iPlaneInc;
+        n.z = iAceTree.getImageManager().getCurrImagePlane();
         n.size = iNucSize;
         n.identity = "_" + hashKey;
         n.predecessor = -1;
@@ -438,12 +441,13 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
 
 
 
+
 	//        iAdjust.setSelected(true);
         setKeypadEnabled(true);
         iName.setText(n.identity);
 
+        iAceTree.updateDisplay();
 
-        iParent.refreshDisplay();
         //System.out.println("addCell: " + iCurrentCell);
         //iAceTree.clearTree();
         //iAceTree.buildTree(true);
@@ -461,13 +465,13 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
 
     protected void updateCurrentInfo(boolean detectChange) {
         //System.out.println("EditImage.updateCurrentInfo called: " + new GregorianCalendar().getTime());
-        iImageTime = iAceTree.getImageTime();
+        iImageTime = iAceTree.getImageManager().getCurrImageTime();
         iImagePlane = iAceTree.getImagePlane();
         iTimeInc = iAceTree.getTimeInc();
         iPlaneInc = iAceTree.getPlaneInc();
         iCurrentCell = iAceTree.getCurrentCell();
         //Vector nuclei = ImageWindow.cNucleiMgr.getNuclei(iImageTime + iTimeInc - 1);
-        Vector nuclei = ImageWindow.cNucleiMgr.getNuclei(iImageTime - 1);
+        Vector nuclei = iAceTree.getNucleiMgr().getNuclei(iImageTime - 1);
         iNucleus = NucUtils.getCurrentCellNucleus(nuclei, iCurrentCell);
         
         // Force named cell does not get set to iCurrentCell -DT
@@ -813,6 +817,4 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
 		//println("AddOneDialog.windowLostFocus, ");
 
 	}
-
-
 }
