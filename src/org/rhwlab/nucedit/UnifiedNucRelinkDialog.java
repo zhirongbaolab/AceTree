@@ -164,7 +164,7 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
     		return;
     	// System.out.println("process mouse event in unifiednucrelink"+addKeyframeActive);
     	//boolean showNames = iAceTree.getShowAnnotations();
-    	if(addKeyframeActive&iWarned.isSelected()){
+    	if(addKeyframeActive & iWarned.isSelected()) {
     		//System.out.println("Good for adding nucleus.");
     		String strCellName = iLinkNuc.getText();
     		int x = e.getX();
@@ -172,13 +172,15 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
     		int z = iAceTree.getImageManager().getCurrImagePlane();
     		int time = iAceTree.getImageManager().getCurrImageTime();
 		
-    		if(!iStartArmed || strCellName.equals(AceTree.ROOTNAME)){
+    		if(!iStartArmed || strCellName.equals(AceTree.ROOTNAME)) {
 				String ID = addCell(x,y);
     			//rebuild and rename
 				//System.out.println("Rebuild tree and rename nucleus.");
     			iAceTree.clearTree();
     			iAceTree.buildTree(true);
-    		}else{
+
+
+    		} else {
     			int startTime;
     			try {
     				 startTime = Integer.parseInt(iLinkTime.getText());
@@ -196,6 +198,11 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
 				}
 
     		}
+
+			// update WormGUIDES data if it's open
+			if (iAceTree.iAceMenuBar.view != null) {
+				iAceTree.iAceMenuBar.view.updateData(time);
+			}
     		
     		//find ref to what we just created now that its renamed
 			Nucleus itself = iAceTree.getNucleiMgr().findClosestNucleusXYZ(x, y, z, time);
@@ -207,9 +214,8 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
 			// we need to call an update now
 			iAceTree.getImageManager().setCurrImageTime(time);
 			iAceTree.iImgWin.addAnnotation(x, y, true);
+
 			iAceTree.updateDisplay();
-
-
 
 			//set it as current early cell
 			iLinkTime.setText(Integer.toString(time));
@@ -270,7 +276,7 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
 		
 		iAceTree.setCurrentCell(c, time, AceTree.RIGHTCLICKONEDITIMAGE);
 		iAceTree.iImgWin.addAnnotation(x, y, true);
-		iAceTree.updateDisplay();
+		//iAceTree.updateDisplay();
 		return(n.identity);
     }
     
@@ -295,7 +301,6 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
 		if(c!=null)
 			System.out.println("not null so setting current cell "+c);
 		iAceTree.setStartingCell(c,time);
-		iAceTree.updateDisplay();
     }
 
 

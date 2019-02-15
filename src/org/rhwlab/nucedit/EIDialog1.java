@@ -247,7 +247,11 @@ public class EIDialog1 extends JDialog implements ActionListener, WindowFocusLis
                 c.setParameters(iAceTree.getImageManager().getCurrImageTime(), iAceTree.getImageManager().getCurrImageTime(), n);
                 Cell root = iAceTree.getAncesTree().getRoot();
                 c.setParent(parent);
-                //iAceTree.setCurrentCell(c, time, AceTree.CONTROLCALLBACK);
+
+                if (iAceTree.iAceMenuBar.view != null) {
+                    iAceTree.iAceMenuBar.view.rebuildData();
+                }
+
                 iAceTree.setCurrentCell(c, iAceTree.getImageManager().getCurrImageTime(), AceTree.RIGHTCLICKONEDITIMAGE);
                 iParent.addAnnotation(x, y, true);
                 iName.setText(iNucleus.identity);
@@ -256,10 +260,7 @@ public class EIDialog1 extends JDialog implements ActionListener, WindowFocusLis
                 iAceTree.updateDisplay();
 
             }
-
         }
-
-
     }
 
     protected void updateCurrentInfo(boolean detectChange) {
@@ -358,6 +359,11 @@ public class EIDialog1 extends JDialog implements ActionListener, WindowFocusLis
             Cell c = iCurrentCell;
             iAceTree.clearTree();
             iAceTree.buildTree(true);
+
+            if (iAceTree.iAceMenuBar.view != null) {
+                iAceTree.iAceMenuBar.view.rebuildData();
+            }
+
             if (c != null) iAceTree.setStartingCell(c, time);
             iAceTree.updateDisplay();
         }

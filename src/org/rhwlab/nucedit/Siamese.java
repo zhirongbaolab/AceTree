@@ -240,6 +240,12 @@ public class Siamese extends JDialog implements ActionListener, ListSelectionLis
     private void rebuildAndRename() {
         iAceTree.clearTree();
         iAceTree.buildTree(true);
+
+        // update WormGUIDES data if it's open
+        if (iAceTree.iAceMenuBar.view != null) {
+            iAceTree.iAceMenuBar.view.rebuildData();
+        }
+
         iNamesAvailable = false;
         iListModel.clear();
         initialize();

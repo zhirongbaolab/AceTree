@@ -97,6 +97,12 @@ public class GenericDialog extends JDialog implements ActionListener {
                 //System.out.println("GenericDialog.actionPerformed rebuilding");
                 iAceTree.clearTree();
                 iAceTree.buildTree(true);
+
+                // update WormGUIDES data if it's open
+                if (iAceTree.iAceMenuBar.view != null) {
+                    iAceTree.iAceMenuBar.view.rebuildData();
+                }
+
                 iAceTree.updateDisplay();
 		// }
             dispose();

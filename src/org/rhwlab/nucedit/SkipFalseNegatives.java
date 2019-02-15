@@ -313,6 +313,12 @@ public class SkipFalseNegatives extends JDialog implements ActionListener {
             if (o == iApplyAndRebuild) {
                 iAceTree.clearTree();
                 iAceTree.buildTree(true);
+
+                // update WormGUIDES data if it's open
+                if (iAceTree.iAceMenuBar.view != null) {
+                    iAceTree.iAceMenuBar.view.rebuildData();
+                }
+
                 AncesTree ances = iAceTree.getAncesTree();
                 Hashtable h = ances.getCellsByName();
                 Cell c = (Cell)h.get(strCellName);

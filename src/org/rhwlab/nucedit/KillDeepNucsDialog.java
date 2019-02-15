@@ -181,6 +181,11 @@ public class KillDeepNucsDialog  extends JDialog implements ActionListener {
         if (implement) {
             iAceTree.clearTree();
             iAceTree.buildTree(true);
+
+            if (iAceTree.iAceMenuBar.view != null) {
+                iAceTree.iAceMenuBar.view.rebuildData();
+            }
+
             iAceTree.updateDisplay();
 
         }

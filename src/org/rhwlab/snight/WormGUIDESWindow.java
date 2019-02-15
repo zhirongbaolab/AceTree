@@ -9,6 +9,8 @@ import org.rhwlab.image.management.ImageManager;
 
 import java.util.Vector;
 
+import static application_src.application_model.loaders.AceTreeTableLineageDataLoader.setOriginToZero;
+
 /**
  * Class to open WormGUIDES via AceTree
  *
@@ -103,5 +105,20 @@ public class WormGUIDESWindow extends MainApp {
                 aceTree.getPlayerControl().enableTimeAndPlaneControlButtons();
             }
         }));
+	}
+
+	public void rebuildData() {
+		nucleiMgrAdapter.updateCellOccurencesAndPositions();
+
+		// shift the positions to the center
+		setOriginToZero(nucleiMgrAdapter, false);
+	}
+
+	public void updateData(int time) {
+		nucleiMgrAdapter.updateCellOccurencesAndPositions(time, true);
+	}
+
+	public void updateData(int startTime, int endTime) {
+		nucleiMgrAdapter.updateCellOccurencesAndPositions(startTime, endTime);
 	}
 }

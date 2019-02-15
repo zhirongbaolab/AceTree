@@ -200,6 +200,12 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
 	    Cell c = iCurrentCell;
 	    iAceTree.clearTree();
 	    iAceTree.buildTree(true);
+
+            // update WormGUIDES data if it's open
+            if (iAceTree.iAceMenuBar.view != null) {
+                iAceTree.iAceMenuBar.view.rebuildData();
+            }
+
 	    iAceTree.updateDisplay();
 	    //iEditLog.setModified(true);
 	    //System.out.println("actionPerformed: " + c + C.CS + time);

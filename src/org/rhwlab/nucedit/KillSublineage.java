@@ -213,6 +213,12 @@ public class KillSublineage extends JPanel implements ActionListener {
 
 				iAceTree.clearTree();
 			iAceTree.buildTree(true);
+
+			// update WormGUIDES data if it's open
+			if (iAceTree.iAceMenuBar.view != null) {
+				iAceTree.iAceMenuBar.view.rebuildData();
+			}
+
 			iEditLog.setModified(true);
 			AncesTree ances = iAceTree.getAncesTree();
 			Hashtable h = ances.getCellsByName();

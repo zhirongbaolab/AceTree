@@ -235,6 +235,12 @@ public class Lazarus extends JDialog  implements ActionListener, ListSelectionLi
         //Cell c = iCurrentCell;
         iAceTree.clearTree();
         iAceTree.buildTree(true);
+
+        // update WormGUIDES data if it's open
+        if (iAceTree.iAceMenuBar.view != null) {
+            iAceTree.iAceMenuBar.view.rebuildData();
+        }
+
         iAceTree.updateDisplay();
         //if (c != null) iAceTree.setStartingCell(c, time);
         makeInitialList();
