@@ -385,8 +385,14 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 		Cell c = (Cell)h.get(strCellName);
 		
 		//set active cell to start time to aid review
-		if(c!=null){
+		if(c != null){
             System.out.println("Setting starting cell in relink " + c + " at startTime: " + strTime);
+
+            // make a call to the WormGUIDES window to rebuild it's scene. Sometimes, relinking throws WG into an error
+			// so we'll rebuild this time
+            if (iAceTree.iAceMenuBar.view != null) {
+            	iAceTree.iAceMenuBar.view.buildScene();
+			}
 
 			/**
 			 * the convention for relinking is to select the later, unnamed cell and then link it back to the earlier time.
