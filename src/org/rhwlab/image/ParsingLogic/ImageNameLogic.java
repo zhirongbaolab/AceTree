@@ -51,6 +51,11 @@ public class ImageNameLogic {
     public static String tifDir_2 = "\\tif\\";
     public static String tifRDir_2 = "\\tifR\\";
 
+    private static String sliceDeleteConventionTIFStr_1 = "/image/tif/";
+    private static String sliceDeleteConventionTIFStr_2 = "\\image\\tif\\";
+    private static String sliceDeleteConventionTIFRStr_1 = "/image/tifR/";
+    private static String sliceDeleteConventionTIFRStr_2 = "\\image\\tifR\\";
+
     /**
      * @author Braden Katzman
      *
@@ -208,7 +213,7 @@ public class ImageNameLogic {
 
         String fileNameUpdate = filePrefix + t_ + ext;
 
-        int removeDirsIdx = _8bitImagePath.indexOf("image" + directoryDelimiter + "tif");
+        int removeDirsIdx = _8bitImagePath.indexOf("image" + directoryDelimiter + "tif");// this will handle the tif and tifR cases
         if (removeDirsIdx > 0) {
             String filePre = _8bitImagePath.substring(0, removeDirsIdx);
 
@@ -472,7 +477,10 @@ public class ImageNameLogic {
     public static boolean doesImageFollow8bitDeletedConvention(String filename) {
         if (filename == null || filename.isEmpty()) return false;
 
-        return filename.contains("/image/tif/") || filename.contains(BACKSLASH + "image" + BACKSLASH + "tif" + BACKSLASH);
+        return filename.contains(sliceDeleteConventionTIFStr_1) ||
+                filename.contains(sliceDeleteConventionTIFStr_2) ||
+                 filename.contains(sliceDeleteConventionTIFRStr_1) ||
+                  filename.contains(sliceDeleteConventionTIFRStr_2);
     }
 
     /**
