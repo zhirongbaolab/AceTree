@@ -609,7 +609,10 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
      * @param planeNumber
      */
     public void refreshDisplay(String imageName, ImagePlus ip, int planeNumber) {
-        if (imageName == null || ip == null) return;
+        if (imageName == null || ip == null) {
+            System.out.println("Null image attempting to load: " + iAceTree.getImageManager().getCurrentImageName());
+            return;
+        }
 
         boolean inMaxProjectionMode = false;
         String directoryDelimiter = ImageNameLogic.getDirectoryDelimiter(imageName);

@@ -376,7 +376,7 @@ public class ImageManager {
     private ImagePlus makeImageFrom8Bittif(String tif_8bit) {
         if (!new File(tif_8bit).exists()) {
             System.out.println("*** The file: " + tif_8bit + " does NOT exist on this system ***");
-            return new ImagePlus();
+            return null;
         }
         ImagePlus ip = new Opener().openImage(tif_8bit); // no need for other arguments, the file is just a single plane at a single timepoint
         if (ip != null) {
@@ -390,26 +390,21 @@ public class ImageManager {
                 ImagePlus ip2 = new Opener().openImage(secondColorChannelAttempt);
                 if (ip2 != null) {
                     if (tif_8bit.contains(ImageNameLogic.tifDir) || tif_8bit.contains(ImageNameLogic.tifDir_2)) {
-                        ip = ImageConversionManager.convertMultiple8bittifsToRGB(ip, ip2, this.imageConfig);
+                        return ImageConversionManager.convertMultiple8bittifsToRGB(ip, ip2, this.imageConfig);
                     } else if (tif_8bit.contains(ImageNameLogic.tifRDir) || tif_8bit.contains(ImageNameLogic.tifRDir_2)) {
-                        ip = ImageConversionManager.convertMultiple8bittifsToRGB(ip2, ip, this.imageConfig);
+                        return ImageConversionManager.convertMultiple8bittifsToRGB(ip2, ip, this.imageConfig);
                     }
-
                 } else {
                     System.out.println("System found second color channel image for tif slice series, but could not open the image. Just opening single image. Image not opened: " + secondColorChannelAttempt);
-                    ip = ImageConversionManager.convert8bittifToRGB(ip, this.imageConfig);
+                    return ImageConversionManager.convert8bittifToRGB(ip, this.imageConfig);
                 }
             } else {
                 // a second color channel was not found, so just load the single image
-                ip = ImageConversionManager.convert8bittifToRGB(ip, this.imageConfig);
+                return ImageConversionManager.convert8bittifToRGB(ip, this.imageConfig);
             }
-        } else {
-            ip = new ImagePlus();
-            ImageProcessor iproc = new ColorProcessor(this.imageWidth, this.imageHeight);
-            ip.setProcessor(tif_8bit, iproc);
         }
 
-        return ip;
+        return null;
     }
     private ImagePlus makeImageFrom8Bittif() { return makeImageFrom8Bittif(this.currentImageName); }
 
@@ -421,7 +416,7 @@ public class ImageManager {
     private ImagePlus makeImageFrom16bitSliceTIF(String TIF_slice_16bit) {
         if (!new File(TIF_slice_16bit).exists()) {
             System.out.println("*** The file: " + TIF_slice_16bit + " does NOT exist on this system ***");
-            return new ImagePlus();
+            return null;
         }
 
         ImagePlus ip = new Opener().openImage(TIF_slice_16bit);
@@ -429,14 +424,10 @@ public class ImageManager {
             this.imageWidth = ip.getWidth();
             this.imageHeight = ip.getHeight();
 
-            ip = ImageConversionManager.convert16bitSliceTIFToRGB(ip, this.imageConfig);
-        } else {
-            ip = new ImagePlus();
-            ImageProcessor iproc = new ColorProcessor(this.imageWidth, this.imageHeight);
-            ip.setProcessor(TIF_slice_16bit, iproc);
+            return ImageConversionManager.convert16bitSliceTIFToRGB(ip, this.imageConfig);
         }
 
-        return ip;
+        return null;
     }
     private ImagePlus makeImageFrom16bitSliceTIF() { return makeImageFrom16bitSliceTIF(this.currentImageName); }
 
@@ -448,7 +439,7 @@ public class ImageManager {
     private ImagePlus makeImageFromSingle16BitTIF(String TIF_16bit) {
         if (!new File(TIF_16bit).exists()) {
             System.out.println("*** The file: " + TIF_16bit + " does NOT exist on this system ***");
-            return new ImagePlus();
+            return null;
         }
 
         ImagePlus ip = new Opener().openImage(TIF_16bit, this.currentImagePlane);
@@ -457,14 +448,10 @@ public class ImageManager {
             this.imageWidth = ip.getWidth();
             this.imageHeight = ip.getHeight();
 
-            ip = ImageConversionManager.convertSingle16BitTIFToRGB(ip, this.imageConfig);
-        } else {
-            ip = new ImagePlus();
-            ImageProcessor iproc = new ColorProcessor(this.imageWidth, this.imageHeight);
-            ip.setProcessor(TIF_16bit, iproc);
+            return ImageConversionManager.convertSingle16BitTIFToRGB(ip, this.imageConfig);
         }
 
-        return ip;
+        return null;
     }
     private ImagePlus makeImageFromSingle16BitTIF() { return makeImageFromSingle16BitTIF(this.currentImageName); }
 
@@ -476,7 +463,8 @@ public class ImageManager {
     private ImagePlus makeImageFromMultiple16BitTIFs(String[] TIFs_16bit_names) {
         ImagePlus[] TIFs_16bit = new ImagePlus[TIFs_16bit_names.length];
 
-        for (int i = 0; i < TIFs_16bit_names.length; i++) {
+        int i = 0;
+        for (; i < TIFs_16bit_names.length; i++) {
             if (!TIFs_16bit_names[i].isEmpty() && new File(TIFs_16bit_names[i]).exists()) {
                 TIFs_16bit[i] = new Opener().openImage(TIFs_16bit_names[i], this.currentImagePlane);
 
@@ -488,6 +476,18 @@ public class ImageManager {
                 this.imageWidth = TIFs_16bit[i].getWidth();
                 this.imageHeight = TIFs_16bit[i].getHeight();
             }
+        }
+
+        // error check. make sure at least one image is valid
+        boolean valid = false;
+        for (int k = 0; k < i; k++) {
+            if (TIFs_16bit[k] != null) {
+                valid = true;
+                break;
+            }
+        }
+        if (!valid) {
+            return null;
         }
 
         /** determine the exact configuration among the 6 possible options of multiple channels:
