@@ -47,6 +47,7 @@ public class NucleiConfig {
 
 
     private static int NEWCANONICALID = 3;
+    private static String zipNucDir = "nuclei/";
     /**
      * Constructor called by Config constructor which has built a hashmap of configuration values
      * from an XML file
@@ -196,6 +197,8 @@ public class NucleiConfig {
     public double getZPixRes() { return this.zRes/this.xyRes; } // this value is
     public MeasureCSV getMeasureCSV() { return this.measureCSV; }
 
+    public String getZipNucDir() { return zipNucDir; }
+
     @Override
     public String toString() {
         String toString = NL
@@ -213,5 +216,6 @@ public class NucleiConfig {
 
     private static String CS = ", ";
     private static String NL = "\n";
+
 
 }

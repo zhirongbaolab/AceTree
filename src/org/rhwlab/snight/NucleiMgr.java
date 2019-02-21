@@ -16,6 +16,7 @@ import java.util.zip.ZipEntry;
 
 import org.rhwlab.acetree.NucUtils;
 import org.rhwlab.image.ImageWindow;
+import org.rhwlab.image.ParsingLogic.ImageNameLogic;
 import org.rhwlab.nucedit.EditLog;
 import org.rhwlab.tree.AncesTree;
 import org.rhwlab.tree.Cell;
@@ -129,6 +130,11 @@ public class NucleiMgr {
         // set the weights of the nuclei based on the expression correlation method specified in the XML
         computeRWeights();
         System.gc(); // clean up
+
+        // set the parameter entry for saving purposes
+        setParameterEntry(nucConfig.getZipFileName().
+                substring(0,
+                        nucConfig.getZipFileName().lastIndexOf(ImageNameLogic.getDirectoryDelimiter(nucConfig.getZipFileName())) + 1));
     }
 
 

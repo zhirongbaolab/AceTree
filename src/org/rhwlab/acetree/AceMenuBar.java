@@ -623,8 +623,8 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
 		    iFileChooser.setFileFilter(filter);
 
             JFileChooser fileChooser = iFileChooser; //new JFileChooser(".");
-            Config config = iAceTree.getNucleiMgr().getConfig();
-            String s = config.iConfigFileName;
+            Config config = iAceTree.getConfig();
+            String s = config.getConfigFileName();
             println("AceMenuBar.actionListener: " + s);
             String ss = new File(s).getParent();
             fileChooser.setCurrentDirectory(new File(ss));
@@ -650,7 +650,7 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
             }
             //fileChooser.setFileFilter(new MyFilter("*.dat"));
         } else if (iSaveConfig == o) {
-            Config config = iAceTree.getNucleiMgr().getConfig();
+            Config config = iAceTree.getConfig();
             config.saveConfigXMLFile();
 	} else if(iJLaunch == o) {
 	    //launch imagej
