@@ -46,8 +46,15 @@ public class ImageNameLogic {
     private static String planeStrAlt = "_p";
     private static String ZERO_PAD = "0";
 
-    private static String tifDir = "/tif/";
-    private static String tifRDir = "/tifR/";
+    public static String tifDir = "/tif/";
+    public static String tifRDir = "/tifR/";
+    public static String tifDir_2 = "\\tif\\";
+    public static String tifRDir_2 = "\\tifR\\";
+
+    private static String sliceDeleteConventionTIFStr_1 = "/image/tif/";
+    private static String sliceDeleteConventionTIFStr_2 = "\\image\\tif\\";
+    private static String sliceDeleteConventionTIFRStr_1 = "/image/tifR/";
+    private static String sliceDeleteConventionTIFRStr_2 = "\\image\\tifR\\";
 
     /**
      * @author Braden Katzman
@@ -66,16 +73,35 @@ public class ImageNameLogic {
                     tifRDir +
                     slice_image.substring(slice_image.indexOf(tifDir) + tifDir.length());
 
-            //System.out.println(secondChannelAttempt);
             if (new File(secondChannelAttempt).exists()) {
+                //System.out.println(secondChannelAttempt);
                 return secondChannelAttempt;
             }
         } else if (slice_image.contains(tifRDir)) {
             String secondChannelAttempt = slice_image.substring(0, slice_image.indexOf(tifRDir)) +
                     tifDir +
-                    slice_image.substring(slice_image.indexOf(tifRDir) + tifDir.length()+1);
-            //System.out.println(secondChannelAttempt);
+                    slice_image.substring(slice_image.indexOf(tifRDir) + tifRDir.length());
+
             if (new File(secondChannelAttempt).exists()) {
+                ///System.out.println(secondChannelAttempt);
+                return secondChannelAttempt;
+            }
+        } else if (slice_image.contains(tifDir_2)) {
+            String secondChannelAttempt = slice_image.substring(0, slice_image.indexOf(tifDir_2)) +
+                    tifRDir_2 +
+                    slice_image.substring(slice_image.indexOf(tifDir_2) + tifDir_2.length());
+
+            if (new File(secondChannelAttempt).exists()) {
+                //System.out.println(secondChannelAttempt);
+                return secondChannelAttempt;
+            }
+        } else if (slice_image.contains(tifRDir_2)) {
+            String secondChannelAttempt = slice_image.substring(0, slice_image.indexOf(tifRDir_2)) +
+                    tifDir_2 +
+                    slice_image.substring(slice_image.indexOf(tifRDir_2) + tifRDir_2.length());
+
+            if (new File(secondChannelAttempt).exists()) {
+                //System.out.println(secondChannelAttempt);
                 return secondChannelAttempt;
             }
         }
@@ -187,7 +213,7 @@ public class ImageNameLogic {
 
         String fileNameUpdate = filePrefix + t_ + ext;
 
-        int removeDirsIdx = _8bitImagePath.indexOf("image" + directoryDelimiter + "tif");
+        int removeDirsIdx = _8bitImagePath.indexOf("image" + directoryDelimiter + "tif");// this will handle the tif and tifR cases
         if (removeDirsIdx > 0) {
             String filePre = _8bitImagePath.substring(0, removeDirsIdx);
 
@@ -451,7 +477,10 @@ public class ImageNameLogic {
     public static boolean doesImageFollow8bitDeletedConvention(String filename) {
         if (filename == null || filename.isEmpty()) return false;
 
-        return filename.contains("/image/tif/") || filename.contains(BACKSLASH + "image" + BACKSLASH + "tif" + BACKSLASH);
+        return filename.contains(sliceDeleteConventionTIFStr_1) ||
+                filename.contains(sliceDeleteConventionTIFStr_2) ||
+                 filename.contains(sliceDeleteConventionTIFRStr_1) ||
+                  filename.contains(sliceDeleteConventionTIFRStr_2);
     }
 
     /**
@@ -837,15 +866,15 @@ public class ImageNameLogic {
     }
 
     public static void main(String[] args) {
-//        String test = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/09082016_lineage/image/tif/KB_BV395_09082016_1_s1-t001-p01.tif";
+//        String test = "C:\\Users\\brade\\OneDrive\\Desktop\\MSKCC\\AceTree_data\\20141022_JIM113_UNC-86myrGFP\\image\\tif\\20141022_JIM113_UNC-86myrGFP_1_s1-t001-p01.tif";
 //        String secondChannelAttempt = findSecondColorChannelFromSliceImage(test);
 //
 //        String updatedStr = reconfigureImagePathFrom8bitTo16bit(test);
 //        System.out.println(updatedStr);
 //
 //        String iSIM_test = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/ForBraden/iSIM_test data/KB_BV591_03192018_w1iSIM - FITC - 525-50_s1_t1.TIF";
-        String iSIM_test = "L:/shahp2/ForBraden/iSIM_test data/KB_BV591_03192018_w2iSIM - TxRed - 600-50_s1_t3.TIF";
-        String iSIM_result = findSecondiSIMColorChannel(iSIM_test);
+//        String iSIM_test = "L:/shahp2/ForBraden/iSIM_test data/KB_BV591_03192018_w2iSIM - TxRed - 600-50_s1_t3.TIF";
+//        String iSIM_result = findSecondiSIMColorChannel(iSIM_test);
 //
 //        String diSPIM_fused_test = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/09082016_lineage/Color1/Decon/Decon_1.TIF";
 //        String diSPIM_fused_result = findSecondDiSPIMColorChannel(diSPIM_fused_test);

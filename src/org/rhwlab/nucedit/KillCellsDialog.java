@@ -238,7 +238,7 @@ public class KillCellsDialog extends GenericDialog {
         }
         int namingMethod = AceTree.getAceTree(null).getConfig().getNucleiConfig().getNamingMethod();
         for (int i=0; i < k; i++) {
-             nuclei = (Vector)iCandidateCells.elementAt(i);
+            nuclei = (Vector)iCandidateCells.elementAt(i);
             Nucleus n = null;
             //Vector indices = new Vector();
             for (int j=0; j < nuclei.size(); j++) {
@@ -250,15 +250,6 @@ public class KillCellsDialog extends GenericDialog {
                 n.assignedID = "";
                 //indices.add(new Integer(j));
             }
-            /*
-            if (namingMethod == Identity3.MANUAL) {
-                int lastp = indices.size();
-                for (int j = lastp; j > 0; j--) {
-                    int kn = ((Integer)indices.elementAt(j - 1)).intValue();
-                    nuclei.remove(kn);
-                }
-            }
-            */
         }
         Cell c = null;
         int strTime = iTime - 1;
@@ -273,6 +264,10 @@ public class KillCellsDialog extends GenericDialog {
             iAceTree.clearTree();
             iAceTree.buildTree(true);
             iEditLog.setModified(true);
+
+            if (iAceTree.iAceMenuBar.view != null) {
+                iAceTree.iAceMenuBar.view.rebuildData();
+            }
 
             AncesTree ances = iAceTree.getAncesTree();
             Hashtable h = ances.getCellsByName();
@@ -290,7 +285,10 @@ public class KillCellsDialog extends GenericDialog {
 	            c = (Cell)iAceTree.getAncesTree().getCells().get(newnuc.hashKey);
             }
             iAceTree.setStartingCell(c, strTime);
-            
+
+
+
+            iAceTree.updateDisplay();
             dispose();
         } else super.actionPerformed(e);
 

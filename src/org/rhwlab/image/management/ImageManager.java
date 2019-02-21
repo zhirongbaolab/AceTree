@@ -389,9 +389,9 @@ public class ImageManager {
                 // a second color channel was found, so load both images as one layered, RGB image
                 ImagePlus ip2 = new Opener().openImage(secondColorChannelAttempt);
                 if (ip2 != null) {
-                    if (tif_8bit.contains("/tif/")) {
+                    if (tif_8bit.contains(ImageNameLogic.tifDir) || tif_8bit.contains(ImageNameLogic.tifDir_2)) {
                         ip = ImageConversionManager.convertMultiple8bittifsToRGB(ip, ip2, this.imageConfig);
-                    } else if (tif_8bit.contains("/tifR/")) {
+                    } else if (tif_8bit.contains(ImageNameLogic.tifRDir) || tif_8bit.contains(ImageNameLogic.tifRDir_2)) {
                         ip = ImageConversionManager.convertMultiple8bittifsToRGB(ip2, ip, this.imageConfig);
                     }
 

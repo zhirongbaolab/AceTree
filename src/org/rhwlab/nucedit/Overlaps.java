@@ -86,14 +86,12 @@ public class Overlaps extends JPanel implements ActionListener, ListSelectionLis
         initialize();
         iNamesAvailable = false;
         iTest = 1;
-        NucUtils.setZPixRes(iNucleiMgr.getZPixRes());
-        int t1 = iNucleiMgr.getConfig().iStartingIndex;
-        int t2 = iNucleiMgr.getConfig().iEndingIndex;
+        NucUtils.setZPixRes(iAceTree.getConfig().getNucleiConfig().getZPixRes());
         String [] sa = iTextField.getText().split(":");
         int maxTime = Integer.parseInt(sa[0]);
 
-        t1 = Integer.parseInt(iTextField2.getText());
-        t2 = Integer.parseInt(iTextField.getText());
+        int t1 = Integer.parseInt(iTextField2.getText());
+        int t2 = Integer.parseInt(iTextField.getText());
 
 
         String filter = "";
@@ -180,14 +178,12 @@ public class Overlaps extends JPanel implements ActionListener, ListSelectionLis
         initialize();
         iNamesAvailable = false;
         iTest = 1;
-        NucUtils.setZPixRes(iNucleiMgr.getZPixRes());
-        int t1 = iNucleiMgr.getConfig().iStartingIndex;
-        int t2 = iNucleiMgr.getConfig().iEndingIndex;
+        NucUtils.setZPixRes(iAceTree.getConfig().getNucleiConfig().getZPixRes());
         String [] sa = iTextField.getText().split(":");
         int maxTime = Integer.parseInt(sa[0]);
 
-        t1 = Integer.parseInt(iTextField2.getText());
-        t2 = Integer.parseInt(iTextField.getText());
+        int t1 = Integer.parseInt(iTextField2.getText());
+        int t2 = Integer.parseInt(iTextField.getText());
 
 
         String filter = "";
@@ -249,6 +245,12 @@ public class Overlaps extends JPanel implements ActionListener, ListSelectionLis
     private void rebuildAndRename() {
         iAceTree.clearTree();
         iAceTree.buildTree(true);
+
+        // update WormGUIDES data if it's open
+        if (iAceTree.iAceMenuBar.view != null) {
+            iAceTree.iAceMenuBar.view.rebuildData();
+        }
+
         iNamesAvailable = false;
         iListModel.clear();
         initialize();
@@ -266,7 +268,7 @@ public class Overlaps extends JPanel implements ActionListener, ListSelectionLis
     private static final double TOL = 0.7;
 
     private int jump(CellData cd0, CellData cd1) {
-        double zPixRes = iNucleiMgr.getZPixRes();
+        double zPixRes = iAceTree.getConfig().getNucleiConfig().getZPixRes();
         Nucleus n0 = cd0.iNucleus;
         Nucleus n1 = cd1.iNucleus;
         int x = n0.x;

@@ -903,8 +903,8 @@ public class AceTree extends JPanel
         iCellsByName = iAncesTree.getCellsByName();
         setShowAnnotations(false);
         iShow.setText(SHOW);
-        iShowCentroids = false;
-        iShowC.setText(SHOWC);
+        //iShowCentroids = false;
+        //iShowC.setText(SHOWC);
         Cell.setEndingIndexS(this.configManager.getImageConfig().getEndingIndex()); // what does this do?
 
         Cell c = walkUpToAGoodCell();
@@ -3085,15 +3085,24 @@ public class AceTree extends JPanel
             n.status = Nucleus.NILLI;
             break;
         }
-        prevImage();
 
         // added rebuild code
         clearTree();
         buildTree(true);
 
+        // update WormGUIDES data if it's open
+        if (iAceMenuBar.view != null) {
+            iAceMenuBar.view.rebuildData();
+        }
+
+        prevImage();
+
         // add find self at previous time code from relink
         AncesTree ances = getAncesTree();
 		Hashtable h = ances.getCellsByName();
+
+
+
 		Cell c = (Cell)h.get(name);
 		
 		// set active cell to start time to aid review
@@ -3159,6 +3168,12 @@ public class AceTree extends JPanel
         iNucleiMgr.clearAllHashkeys();
         clearTree();
         buildTree(true);
+
+        // update WormGUIDES data if it's open
+        if (iAceMenuBar.view != null) {
+            iAceMenuBar.view.rebuildData();
+        }
+
         setStartingCell((Cell)iRoot.getFirstChild(), this.configManager.getImageConfig().getStartingIndex());
         iEditLog.setModified(true);
 

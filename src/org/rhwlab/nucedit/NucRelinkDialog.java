@@ -380,8 +380,16 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 		//println("\n\nNucRelinkDialog.actionPerformed: applyAndRebuild");
 		iAceTree.clearTree();
 		iAceTree.buildTree(true);
+
+		// update WormGUIDES data if it's open
+		if (iAceTree.iAceMenuBar.view != null) {
+			iAceTree.iAceMenuBar.view.rebuildData();
+		}
+
 		AncesTree ances = iAceTree.getAncesTree();
 		Hashtable h = ances.getCellsByName();
+
+
 		Cell c = (Cell)h.get(strCellName);
 		
 		//set active cell to start time to aid review
@@ -402,7 +410,6 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 			 * we want to show the first frame after that relink is made
 			 */
 			if (iAceTree.getImageManager().getCurrImageTime() != strTime) {
-				iAceTree.getImageManager().setCurrImageTime(strTime);
 				iAceTree.getImageManager().setCurrImageTime(strTime);
 
 				// also update the annotation

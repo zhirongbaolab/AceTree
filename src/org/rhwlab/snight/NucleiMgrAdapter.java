@@ -81,8 +81,6 @@ public class NucleiMgrAdapter implements LineageData {
 				}
 			}
 		}
-
-
 	}
 
 	private void preprocessCellPositions() {
@@ -100,6 +98,43 @@ public class NucleiMgrAdapter implements LineageData {
 			allPositions.add(positions_at_time);
 		}
 		//System.out.println("Size of allPositions = " + allPositions.size());
+	}
+
+	public void updateCellOccurencesAndPositions() {
+		cellOccurences.clear();
+		allPositions.clear();
+
+		preprocessCellOccurrences();
+		preprocessCellPositions();
+	}
+
+	public void updateCellOccurencesAndPositions(int startTime, int endTime) {
+		// check that the range is valid
+
+		for (int i = startTime; i <= endTime; i++) {
+			updateCellOccurencesAndPositions(i, false);
+		}
+
+		preprocessCellOccurrences();
+	}
+
+	public void updateCellOccurencesAndPositions(int time, boolean performCellOccurenceUpdate) {
+		// check that the time is valid
+		ArrayList<double[]> positions_at_time = new ArrayList<>();
+
+		double[][] positions = getPositions(time, true);
+
+		for (int j = 0; j < positions.length; j++) {
+			double[] coords = positions[j];
+
+			positions_at_time.add(coords);
+		}
+
+		allPositions.set(time, positions_at_time);
+
+		if (performCellOccurenceUpdate) {
+			preprocessCellOccurrences();
+		}
 	}
 
 	@Override
