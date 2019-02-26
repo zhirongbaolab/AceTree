@@ -731,6 +731,20 @@ public class ImageNameLogic {
     }
 
     /**
+     * Method that provides support for reading files that are implicitly relative
+     * i.e. those files that just have a file name listed and are not prepended
+     * with any form of './ or ../'
+     * @param path
+     * @return
+     */
+    public static boolean isPathImplicitRelative(String path) {
+        if (path == null || path.isEmpty()) return false;
+
+        // determine if just a file name is listed by checking whether there is a directory delimiter or not
+        return getDirectoryDelimiter(path).equals("");
+    }
+
+    /**
      * Determines if a relative path (check for relative should already be made
      * before calling this method, but it checks anyway for safety) is upstream
      * i.e. is the listed file in a containing directory i.e. does the path start

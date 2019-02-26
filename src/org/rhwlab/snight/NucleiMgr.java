@@ -96,7 +96,7 @@ public class NucleiMgr {
      * @param nucConfig
      */
     public NucleiMgr(NucleiConfig nucConfig) {
-        System.out.println("Creating a NucleiMgr using a NucleiConfig object. 10/2018 revisions");
+        System.out.println("\nCreating a NucleiMgr using a NucleiConfig object. 10/2018 revisions");
         this.nucConfig = nucConfig;
         this.iMeasureCSV = nucConfig.getMeasureCSV();
 
