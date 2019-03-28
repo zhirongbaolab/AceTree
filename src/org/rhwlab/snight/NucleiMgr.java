@@ -133,8 +133,9 @@ public class NucleiMgr {
 
         // set the parameter entry for saving purposes
         setParameterEntry(nucConfig.getZipFileName().
-                substring(0,
-                        nucConfig.getZipFileName().lastIndexOf(ImageNameLogic.getDirectoryDelimiter(nucConfig.getZipFileName())) + 1));
+                substring(
+                        nucConfig.getZipFileName().lastIndexOf(ImageNameLogic.getDirectoryDelimiter(nucConfig.getZipFileName())) + 1,
+                        nucConfig.getZipFileName().lastIndexOf(".zip")));
     }
 
 
@@ -859,6 +860,7 @@ public class NucleiMgr {
 
     public void setParameterEntry(String parameterLocation) {
         iParameterEntry = PARAMETERS + "/" + parameterLocation + PARAMETERS;
+        System.out.println("Set nuc zip parameter entry location as: " + iParameterEntry);
     }
 
     public String getParameterEntry() {

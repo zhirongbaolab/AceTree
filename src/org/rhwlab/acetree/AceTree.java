@@ -3044,7 +3044,7 @@ public class AceTree extends JPanel
         System.out.println("saveNuclei: " + file);
         //iEditLog.showMe();
         NucZipper nz = new NucZipper(file, iNucleiMgr, configManager);
-        nz = null;
+
         //iEditLog.setModified(false);
         System.out.println("Finished saving nuclei.");
     }
