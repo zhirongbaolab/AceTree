@@ -91,7 +91,7 @@ public class NucleiMgr {
      * @author Braden Katzman
      *
      * Now that the configuration for the nuclei .zip has been modularized, the manager
-     * takes this object as an argument and manages nuclei processing
+     * takes this object as an argument and manages nu lei processing
      *
      * @param nucConfig
      */
