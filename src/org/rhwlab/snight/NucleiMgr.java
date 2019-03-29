@@ -1158,6 +1158,14 @@ public class NucleiMgr {
         return sa;
     }
 
+    /**
+     * Don't delete - used by Acebatch2
+     * @param nr
+     */
+    public void setNucleiRecord(Vector nr) {
+        nuclei_record = nr;
+    }
+
     public boolean isNucConfigNull() { return nucConfig == null; }
     public NucleiConfig getNucConfig() { return nucConfig; }
 
