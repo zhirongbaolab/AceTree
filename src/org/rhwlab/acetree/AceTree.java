@@ -103,6 +103,7 @@ import javax.swing.JList;
 import javax.swing.KeyStroke;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
@@ -229,6 +230,11 @@ public class AceTree extends JPanel
 
     private static boolean fullGUI = false;
 
+    // booleans to control tree selection changes and determine their origins
+    boolean treeValueChangedFromMouseClick;
+    boolean treeValueChangedFromImageChange;
+    boolean treeValueChangedFromStartup;
+
     /*
      * Revisions 10/2018 to image loading pipeline - grouping these variables together
      * because they figure heavily in the revised pipeline
@@ -306,6 +312,10 @@ public class AceTree extends JPanel
         }
         
         iKeyQueue = new LinkedList<Integer>();
+
+        this.treeValueChangedFromMouseClick = false;
+        this.treeValueChangedFromImageChange = false;
+        this.treeValueChangedFromStartup = true;
     }
 
     /* Function: transformTitle
@@ -834,6 +844,7 @@ public class AceTree extends JPanel
 
         iTree.updateUI();
         setTreeSelectionMode();
+        setTreeSelectionListener();
 
         // assume that P0 is the root, and look for the first child present in the nuclei
         Cell c = walkUpToAGoodCell();
@@ -1056,6 +1067,42 @@ public class AceTree extends JPanel
         ((DefaultTreeCellRenderer)(iTree.getCellRenderer())).setOpenIcon(null);
         ((DefaultTreeCellRenderer)(iTree.getCellRenderer())).setClosedIcon(null);
         ((DefaultTreeCellRenderer)(iTree.getCellRenderer())).setLeafIcon(null);
+    }
+
+    private void setTreeSelectionListener() {
+        iTree.addTreeSelectionListener((TreeSelectionEvent tse) -> {
+            if (this.treeValueChangedFromMouseClick) {
+                //System.out.println("Tree value changed listener detects value was changed from mouse click on tree. Setting that flag to false and returning");
+                this.treeValueChangedFromMouseClick = false;
+                return;
+            } else if (this.treeValueChangedFromImageChange) {
+                //System.out.println("Tree value changed listener detects value was changed from image change. Setting that flag to false and returning");
+                this.treeValueChangedFromImageChange = false;
+                return;
+            } else if(this.treeValueChangedFromStartup) {
+                this.treeValueChangedFromStartup = false;
+            } else {
+                //System.out.println("Tree value change listener detects value was changed from arrow keys on tree. Updating current cell in image window to tree selection");
+                Cell c = (Cell) iTree.getLastSelectedPathComponent();
+                if (c != null) {
+                    if (c.getTime() < 0) {
+                        if (iCurrentCell != null)
+                            c = iCurrentCell;
+                        else return;
+                    }
+                    int time = c.getTime();
+                    setCurrentCell(c, time, LEFTCLICKONTREE); // just use LEFTCLICKONTREE because it accomplishes what is needed
+                } else {
+                    System.out.println("Tree item is null");
+                }
+
+                // turn off all flags in case they've somehow been turned on
+                this.treeValueChangedFromMouseClick = false;
+                this.treeValueChangedFromImageChange = false;
+
+                return;
+            }
+        });
     }
 
     private void displayTree() {
@@ -2207,7 +2254,8 @@ public class AceTree extends JPanel
 		@SuppressWarnings({ "unused", "static-access" })
 		public void mouseClicked(MouseEvent e) {
             int button = e.getButton();
-            //System.out.println("TreeMouseAdapter.mouseClicked: " + button);
+            //System.out.println("TreeMouseAdapter.mouseClicked: " + button + ". Setting treeValueChangedFromMouseClick to true");
+            treeValueChangedFromMouseClick = true;
             Cell c = null;
             if (button == 2)
             	return;
@@ -2228,7 +2276,7 @@ public class AceTree extends JPanel
                     else return;
                 }
                 int time = c.getTime();
-                //println("TreeMouseAdapter.mouseClicked: " + selPath + CS + c + CS + time);
+                //println("TreeMouseAdapter.mouseClicked: " + c + CS + time);
                 setCurrentCell(c, time, LEFTCLICKONTREE);
             }
 
@@ -2244,13 +2292,6 @@ public class AceTree extends JPanel
                 setCurrentCell(c, time, RIGHTCLICKONTREE);
             }
         }
-    }
-
-
-    /** Required by TreeSelectionListener interface.
-     * */
-    public void valueChanged(TreeSelectionEvent e) {
-
     }
 
 
@@ -2692,6 +2733,8 @@ public class AceTree extends JPanel
         iTree.setSelectionInterval(row,row);
         iTree.scrollRowToVisible(row);
         iTree.makeVisible(tp);
+
+        this.treeValueChangedFromImageChange = true;
     }
 
     @SuppressWarnings("unused")
