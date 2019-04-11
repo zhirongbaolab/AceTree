@@ -154,7 +154,7 @@ public class XMLConfig implements DocHandler {
             // **********************************************
 
             String endIndex = (String)h.get("index");
-            iConfig.iConfigHash.put("ending index", endIndex);
+            iConfig.iConfigHash.put("endIdx", endIndex);
         } else if (tag.equals("naming")) {
             String namingMethod = (String)h.get("method");
             this.xmlConfigData.put("namingMethod", namingMethod);

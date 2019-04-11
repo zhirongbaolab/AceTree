@@ -456,6 +456,13 @@ public class NucleiMgr {
                 //System.out.println("Zip index: "+index);
                 if (index < 0)
                     continue; // probably a nuclei/log entry
+
+                // check if the index is less than the start index in the NucleiConfig (sometimes the case when a midpoint image file is listed in the .xml
+                if (index > 0 && index < this.nucConfig.getStartingIndex()) {
+                    System.out.println("Updated INDEX for NucConfig based on .zip entries: " + index);
+                    this.nucConfig.setStartingIndex(index);
+                }
+
                 String s = zn.readLine(ze);
                 if (s == null) {
                     if (nuclei_record.size() > index) {
