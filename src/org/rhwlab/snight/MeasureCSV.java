@@ -258,6 +258,12 @@ public class MeasureCSV {
 		return "MeasureCSV: " + r;
 	}
 
+	public void setFilePath(String filePath) {
+		if (iFilePath == null) return;
+
+		this.iFilePath = filePath;
+	}
+
 	public void writeCSV() {
 		writeCSV(iFilePath);
 	}
