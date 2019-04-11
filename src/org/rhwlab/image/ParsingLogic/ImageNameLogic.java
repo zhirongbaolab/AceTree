@@ -270,7 +270,6 @@ public class ImageNameLogic {
         int channelNumberID_idx = _wIdx + 2;
 
         String filename_after_channel_text = iSIM_image_filename.substring(iSIM_image_filename.lastIndexOf(endOfChannelTextIdentifier));
-
         // iterate over the other files in the directory, looking for a file that has the same prefix and suffix as the given image and a different channel identifier
         String directoryDelimiter = getDirectoryDelimiter(iSIM_image_filename); // save the directory delimiter for the supplied image to check against any files that are iterated over
         if (directoryDelimiter.isEmpty()) {
@@ -299,7 +298,7 @@ public class ImageNameLogic {
 
                 if (!directoryDelimiter.equals(directoryDelimiter1)) {
                     // replace the delimiter in the queried file with that used in the supplied file
-                    filename.replace(directoryDelimiter1.charAt(0), directoryDelimiter.charAt(0));
+                    filename = filename.replace(directoryDelimiter1.charAt(0), directoryDelimiter.charAt(0));
                 }
 
 
@@ -732,6 +731,20 @@ public class ImageNameLogic {
     }
 
     /**
+     * Method that provides support for reading files that are implicitly relative
+     * i.e. those files that just have a file name listed and are not prepended
+     * with any form of './ or ../'
+     * @param path
+     * @return
+     */
+    public static boolean isPathImplicitRelative(String path) {
+        if (path == null || path.isEmpty()) return false;
+
+        // determine if just a file name is listed by checking whether there is a directory delimiter or not
+        return getDirectoryDelimiter(path).equals("");
+    }
+
+    /**
      * Determines if a relative path (check for relative should already be made
      * before calling this method, but it checks anyway for safety) is upstream
      * i.e. is the listed file in a containing directory i.e. does the path start
@@ -872,7 +885,7 @@ public class ImageNameLogic {
 //        String updatedStr = reconfigureImagePathFrom8bitTo16bit(test);
 //        System.out.println(updatedStr);
 //
-//        String iSIM_test = "/media/braden/24344443-dff2-4bf4-b2c6-b8c551978b83/AceTree_data/data_post2018/ForBraden/iSIM_test data/KB_BV591_03192018_w1iSIM - FITC - 525-50_s1_t1.TIF";
+//        String iSIM_test = "C:/Users/brade/OneDrive/Desktop/MSKCC/AceTree_data/ForBraden/iSIM-test data/KB_BV591_03192018_w2iSIM - TxRed - 600-50_s1_t3.TIF";
 //        String iSIM_test = "L:/shahp2/ForBraden/iSIM_test data/KB_BV591_03192018_w2iSIM - TxRed - 600-50_s1_t3.TIF";
 //        String iSIM_result = findSecondiSIMColorChannel(iSIM_test);
 //

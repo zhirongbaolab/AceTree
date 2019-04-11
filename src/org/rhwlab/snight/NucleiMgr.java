@@ -16,6 +16,7 @@ import java.util.zip.ZipEntry;
 
 import org.rhwlab.acetree.NucUtils;
 import org.rhwlab.image.ImageWindow;
+import org.rhwlab.image.ParsingLogic.ImageNameLogic;
 import org.rhwlab.nucedit.EditLog;
 import org.rhwlab.tree.AncesTree;
 import org.rhwlab.tree.Cell;
@@ -90,12 +91,12 @@ public class NucleiMgr {
      * @author Braden Katzman
      *
      * Now that the configuration for the nuclei .zip has been modularized, the manager
-     * takes this object as an argument and manages nuclei processing
+     * takes this object as an argument and manages nu lei processing
      *
      * @param nucConfig
      */
     public NucleiMgr(NucleiConfig nucConfig) {
-        System.out.println("Creating a NucleiMgr using a NucleiConfig object. 10/2018 revisions");
+        System.out.println("\nCreating a NucleiMgr using a NucleiConfig object. 10/2018 revisions");
         this.nucConfig = nucConfig;
         this.iMeasureCSV = nucConfig.getMeasureCSV();
 
@@ -129,6 +130,12 @@ public class NucleiMgr {
         // set the weights of the nuclei based on the expression correlation method specified in the XML
         computeRWeights();
         System.gc(); // clean up
+
+        // set the parameter entry for saving purposes
+        setParameterEntry(nucConfig.getZipFileName().
+                substring(
+                        nucConfig.getZipFileName().lastIndexOf(ImageNameLogic.getDirectoryDelimiter(nucConfig.getZipFileName())) + 1,
+                        nucConfig.getZipFileName().lastIndexOf(".zip")));
     }
 
 
@@ -853,6 +860,7 @@ public class NucleiMgr {
 
     public void setParameterEntry(String parameterLocation) {
         iParameterEntry = PARAMETERS + "/" + parameterLocation + PARAMETERS;
+        System.out.println("Set nuc zip parameter entry location as: " + iParameterEntry);
     }
 
     public String getParameterEntry() {
@@ -1151,7 +1159,11 @@ public class NucleiMgr {
     }
 
     /**
+<<<<<<< HEAD
      * Don't delete. Used by Acebatch2
+=======
+     * Don't delete - used by Acebatch2
+>>>>>>> 196ae5d765c2f859c69c0ef8b3878ce8bd0f03a4
      * @param nr
      */
     public void setNucleiRecord(Vector nr) {

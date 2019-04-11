@@ -29,6 +29,7 @@ public class MeasureCSV {
 		newLine();
 
 		boolean auxInfoV1_opened = false;
+		boolean auxInfoOpenSuccess = false;
 		try {
 			// initially, try to read AuxInfo file version 2.0
 			readAuxInfoV2(filepath);
@@ -39,6 +40,7 @@ public class MeasureCSV {
 			try {
 				readAuxInfoV1(filepath, false);
 				auxInfoV1_opened = true;
+				auxInfoOpenSuccess = true;
 			} catch(IOException e) {
 				println("MeasureCSV File I/O Exception opening AuxInfo file version 1.0");
 				auxInfoV1_opened = true; // do this just so that it won't run the same code below again
@@ -57,12 +59,18 @@ public class MeasureCSV {
 			try {
 				System.out.println("Reading AuxInfo version 1 as backup to v2");
 				readAuxInfoV1(filepath, true);
+				auxInfoOpenSuccess = true;
 			} catch (IOException e) {
 				println("MeasureCSV File I/O Exception opening AuxInfo file version 1.0");
 			}
 		}
 
-
+		// in the event that an AuxInfo isn't present (this is the case when using Acebatch to generate AuxInfo files)
+        // we'll fill the hash with the default values
+        if (!auxInfoOpenSuccess) {
+		    System.out.println("Populating MeasureCSV hash with default values. Using AuxInfo version 1 conventions");
+		    populateHash(V1, false); // assume v1
+        }
 	}
 
 	/**
@@ -131,9 +139,9 @@ public class MeasureCSV {
 		String [] names = null;
 
 		if (backup) {
-			iMeasureHash_v1 = new Hashtable<String, String>();
+			iMeasureHash_v1 = new Hashtable<>();
 		} else {
-			iMeasureHash = new Hashtable<String, String>();
+			iMeasureHash = new Hashtable<>();
 		}
 
 
@@ -150,6 +158,7 @@ public class MeasureCSV {
 			String first_line = br.readLine();
 
 			populateHash(V1, true);
+			AuxInfo_v = 1;
 
 			if (br.ready()) {
 				if (first_line.length() < 2) {
@@ -180,36 +189,34 @@ public class MeasureCSV {
 	}
 
 	/**
-	 * Populate the hash table of .csv data
+	 * Populate the hash table of .csv data with default values
 	 *
 	 * @param version - indicates which version of AuxInfo file is being used. V1 or V2
 	 * @param backup - if true, use the backup hashtable to store data because it's being used if version 2.0 fails. if false, use primary hash
 	 */
 	private void populateHash(String version, boolean backup) {
 		// check if the hash is already initialized, because this method is called multiple times
-		if (iMeasureHash == null) {
-			iMeasureHash = new Hashtable<String, String>();
-		}
+        iMeasureHash = new Hashtable<>();
+
 
 		// remove this after 2.0 becomes standard
-		if (iMeasureHash_v1 == null) {
-			iMeasureHash_v1 = new Hashtable<String, String>();
-		}
+        iMeasureHash_v1 = new Hashtable<>();
 
 		if (version.equals(V1)) {
 			for (int i=0; i < att_v1.length; i++) {
 				if (backup) {
-					iMeasureHash_v1.put(att_v1[i], "");
+					iMeasureHash_v1.put(att_v1[i], defaultAtt_v1[i]);
 				} else {
-					iMeasureHash.put(att_v1[i], "");
+					iMeasureHash.put(att_v1[i], defaultAtt_v1[i]);
 				}
-
 			}
+			AuxInfo_v = 1;
 		} else if (version.equals(V2)) {
 			for (int i=0; i < att_v2.length; i++) {
-				iMeasureHash.put(att_v2[i], "");
-				iMeasureHash_v1.put(att_v1[i], "");
+				iMeasureHash.put(att_v2[i], defaultAtt_v2[i]);
+				iMeasureHash_v1.put(att_v1[i], defaultAtt_v2[i]);
 			}
+			AuxInfo_v = 2;
 		}
 	}
 
@@ -230,8 +237,11 @@ public class MeasureCSV {
 
 	public void put(String item, String value) {
 		if (item != null && value != null) {
+		    //System.out.println("Adding value: " + value + " to measure hash at item: " + item);
 			iMeasureHash.put(item, value);
-		}
+		} else {
+		    System.out.println("Couldn't put item into measure hash. item null: " + (item == null) + ", value null: " + (value == null));
+        }
 	}
 
 	public String get(String item) {
@@ -258,12 +268,11 @@ public class MeasureCSV {
 		return "MeasureCSV: " + r;
 	}
 
-	public void setFilePath(String filePath) {
-		if (iFilePath == null) return;
-
-		this.iFilePath = filePath;
+	public void setFilePath(String filepath) {
+		if (filepath != null) {
+			this.iFilePath = filepath;
+		}
 	}
-
 	public void writeCSV() {
 		writeCSV(iFilePath);
 	}

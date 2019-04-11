@@ -95,19 +95,26 @@ public class ImageConfig {
         for (String s : configData.keySet()) {
             if (s.toLowerCase().equals(this.imageFileNameKey.toLowerCase())) {
                 String imageFile = configData.get(s);
-                if (imageFile != null && ImageNameLogic.isPathRelative(imageFile)) {
-                    String directoryDelimiter = ImageNameLogic.getDirectoryDelimiter(imageFile);
-                    if (directoryDelimiter.isEmpty()) {
-                        System.out.println("Couldn't update relative image path to absolute because the file separator couldn't be determined. Make " +
-                                "sure they are consistent.");
-                        return;
-                    }
-
+                if (imageFile != null && (ImageNameLogic.isPathRelative(imageFile) || ImageNameLogic.isPathImplicitRelative(imageFile))) {
                     // we need to make sure that we're working with the same directory delimiter in the config file and the image file, because we're going to build
                     // the absolute path to the image from the config file
                     String directoryDelimiter1 = ImageNameLogic.getDirectoryDelimiter(configFileName);
                     if (directoryDelimiter1.isEmpty()) {
                         System.out.println("Couldn't extract directory delimiter from config file to build absolute path for supplied relative image file");
+                        return;
+                    }
+
+
+                    // if the image file is implicitly relative, prepend "./" or ".\" to it
+                    if (ImageNameLogic.isPathImplicitRelative(imageFile)) {
+                        imageFile = "." + directoryDelimiter1 + imageFile;
+                        System.out.println("Image file is implicitly relative, updating to: " + imageFile);
+                    }
+
+                    String directoryDelimiter = ImageNameLogic.getDirectoryDelimiter(imageFile);
+                    if (directoryDelimiter.isEmpty()) {
+                        System.out.println("Couldn't update relative image path to absolute because the file separator couldn't be determined. Make " +
+                                "sure they are consistent.");
                         return;
                     }
 

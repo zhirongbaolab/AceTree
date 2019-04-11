@@ -47,6 +47,7 @@ public class NucleiConfig {
 
 
     private static int NEWCANONICALID = 3;
+    private static String zipNucDir = "nuclei/";
     /**
      * Constructor called by Config constructor which has built a hashmap of configuration values
      * from an XML file
@@ -75,20 +76,25 @@ public class NucleiConfig {
                  String zipFile = configData.get(s);
 
                 // check if it's a relative path
-                if (zipFile != null && ImageNameLogic.isPathRelative(zipFile)) {
-                    // prepend so this is an absolute path
-                    String directoryDelimiter = ImageNameLogic.getDirectoryDelimiter(zipFile);
-                    if (directoryDelimiter.isEmpty()) {
-                        System.out.println("Couldn't update relative nuc .zip path to absolute because the zip's file separator couldn't be determined. Make " +
-                                "sure they are consistent.");
-                        return;
-                    }
-
+                if (zipFile != null && (ImageNameLogic.isPathRelative(zipFile) || ImageNameLogic.isPathImplicitRelative(zipFile))) {
                     // we need to make sure that we're working with the same directory delimiter in the config file and the zip file, because we're going to build
                     // the absolute path to the zip from the config file
                     String directoryDelimiter1 = ImageNameLogic.getDirectoryDelimiter(configFileName);
                     if (directoryDelimiter1.isEmpty()) {
                         System.out.println("Couldn't update relative nuc .zip path to absolute because the config file's separator couldn't be determined.");
+                        return;
+                    }
+
+                    // check if this is an implicitly relative zip file and if so, prepend it with "./" or ".\"
+                    if (ImageNameLogic.isPathImplicitRelative(zipFile)) {
+                        zipFile = "." + directoryDelimiter1 + zipFile;
+                        System.out.println("Nuc .zip is implicitly relative, updating to: " + zipFile);
+                    }
+
+                    String directoryDelimiter = ImageNameLogic.getDirectoryDelimiter(zipFile);
+                    if (directoryDelimiter.isEmpty()) {
+                        System.out.println("Couldn't update relative nuc .zip path to absolute because the zip's file separator couldn't be determined. Make " +
+                                "sure they are consistent.");
                         return;
                     }
 
@@ -196,6 +202,8 @@ public class NucleiConfig {
     public double getZPixRes() { return this.zRes/this.xyRes; } // this value is
     public MeasureCSV getMeasureCSV() { return this.measureCSV; }
 
+    public String getZipNucDir() { return zipNucDir; }
+
     @Override
     public String toString() {
         String toString = NL
@@ -213,5 +221,6 @@ public class NucleiConfig {
 
     private static String CS = ", ";
     private static String NL = "\n";
+
 
 }
