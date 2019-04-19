@@ -2966,10 +2966,10 @@ public class AceTree extends JPanel
         }
 
         // if the wormguides window is open, update the currently selected cell there
-        if (iAceMenuBar.view != null && !iAceMenuBar.view.isClosed()) {
-            //System.out.println("Passing name: " + iCurrentCell.getName() + " to WG for window update");
-            iAceMenuBar.view.updateSelectedEntity(iCurrentCell.getName());
-        }
+//        if (iAceMenuBar.view != null && !iAceMenuBar.view.isClosed()) {
+//            //System.out.println("Passing name: " + iCurrentCell.getName() + " to WG for window update");
+//            iAceMenuBar.view.updateSelectedEntity(iCurrentCell.getName());
+//        }
     }
 
     /**
