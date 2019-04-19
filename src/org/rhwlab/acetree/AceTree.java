@@ -2884,6 +2884,7 @@ public class AceTree extends JPanel
                 else iTrackPosition = ImageWindow.POSTERIOR;
             }
             updateDisplay();
+
         } 
         else if (source == RIGHTCLICKONEDITIMAGE) {
         	//System.out.println("AceTree.setCurrentCell RIGHTCLICKONEDITIMAGE.");
@@ -2962,6 +2963,12 @@ public class AceTree extends JPanel
                 iCurrentCell = null;
                 showTreeCell(iRoot);
             }
+        }
+
+        // if the wormguides window is open, update the currently selected cell there
+        if (iAceMenuBar.view != null && !iAceMenuBar.view.isClosed()) {
+            //System.out.println("Passing name: " + iCurrentCell.getName() + " to WG for window update");
+            iAceMenuBar.view.updateSelectedEntity(iCurrentCell.getName());
         }
     }
 
@@ -3134,7 +3141,7 @@ public class AceTree extends JPanel
         buildTree(true);
 
         // update WormGUIDES data if it's open
-        if (iAceMenuBar.view != null) {
+        if (iAceMenuBar.view != null && !iAceMenuBar.view.isClosed()) {
             iAceMenuBar.view.rebuildData();
         }
 
@@ -3213,7 +3220,7 @@ public class AceTree extends JPanel
         buildTree(true);
 
         // update WormGUIDES data if it's open
-        if (iAceMenuBar.view != null) {
+        if (iAceMenuBar.view != null && !iAceMenuBar.view.isClosed()) {
             iAceMenuBar.view.rebuildData();
         }
 

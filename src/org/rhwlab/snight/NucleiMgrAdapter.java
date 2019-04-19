@@ -74,10 +74,9 @@ public class NucleiMgrAdapter implements LineageData {
 			for (int j = 0; j < names.length; j++) {
 				String name = names[j];
 
-				if (cellOccurences.containsKey(name)) {
+				// only update end time if it is greater than the current time
+				if (cellOccurences.containsKey(name) && cellOccurences.get(name)[1] < i) {
 					cellOccurences.get(name)[1] = i;
-				} else {
-					System.out.println("no start occurence for: " + name);
 				}
 			}
 		}
