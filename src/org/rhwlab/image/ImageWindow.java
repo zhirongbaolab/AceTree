@@ -609,9 +609,13 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
      * @param planeNumber
      */
     public void refreshDisplay(String imageName, ImagePlus ip, int planeNumber) {
-        if (imageName == null || ip == null) {
-            System.out.println("Null image attempting to load: " + iAceTree.getImageManager().getCurrentImageName());
-            return;
+        // not necessary to show stdout on null image plus - it is expected behavior and we just show annotations if present
+        if (ip == null) {
+//            System.out.println("Null image attempting to load: " + iAceTree.getImageManager().getCurrentImageName());
+            // make a blank image that is the same dimension as the valid images in the dataset and we'll draw annotations on it
+            ip = new ImagePlus();
+            ImageProcessor iproc = new ColorProcessor(iImgPlus.getWidth(), iImgPlus.getHeight());
+            ip.setProcessor(imageName, iproc);
         }
 
         boolean inMaxProjectionMode = false;
