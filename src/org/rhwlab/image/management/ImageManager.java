@@ -545,6 +545,8 @@ public class ImageManager {
     public ImagePlus makeImage() {
         if (isCurrImageMIP) { return this.currentImage; }
 
+        //System.out.println("MakeImage() called with: " + this.currentImageTime + ", " + this.currentImagePlane);
+
         this.currentImage = makeImage(this.currentImageTime, this.currentImagePlane);
         //this.isCurrImageMIP = false;
         return this.currentImage;

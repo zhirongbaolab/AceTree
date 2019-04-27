@@ -1882,8 +1882,7 @@ public class AceTree extends JPanel
             //this.imageManager.setCurrImageTime(1);
             this.imageManager.setCurrImagePlane(15);
         } else {
-            //System.out.println("Setting current image time: " + c.getTime());
-            //this.imageManager.setCurrImageTime(c.getTime());
+            //System.out.println("Setting current image plane: " + (int)((double)c.getPlane() + HALFROUND));
             this.imageManager.setCurrImagePlane((int)((double)c.getPlane() + HALFROUND));
 
         }
@@ -2005,14 +2004,9 @@ public class AceTree extends JPanel
     private int trackCellPlane() {
         if (iTrackPosition != ImageWindow.NONE) {
             iPlaneInc = 0;
-            //System.out.println("Current cell (" + iCurrentCell.getName() + ") z location at time " + this.imageManager.getCurrImageTime() + " is: " + iCurrentCellZloc);
 
-            // check if the images are isotropic
-            if (this.configManager.getImageConfig().getZRes() != 1) {
-                return (int)(iCurrentCellZloc + this.configManager.getImageConfig().getZRes());
-            } else {
-                return (int)iCurrentCellZloc;
-            }
+            // return the cell's z plane (a 0-indexed field) + the offset to get a 1-indexed field corresponding to image plane
+            return (int)(iCurrentCellZloc + NUCZINDEXOFFSET);
         }
         else {
             return this.imageManager.getCurrImagePlane();
@@ -2869,7 +2863,6 @@ public class AceTree extends JPanel
             iCurrentCell = c; //(Cell)iAncesTree.getCellsByName().get(cellName);
             trackingActionsOnCurrentCellChange();
             iAceTree.forceTrackingOn();
-            //System.out.println("Right click on image cell: "+c.getName());
             showTreeCell(iCurrentCell);
             String s = makeDisplayText();
             iText.setText(s);
@@ -3011,7 +3004,6 @@ public class AceTree extends JPanel
 
             iTimeInc = requestedTime - this.imageManager.getCurrImageTime();
 
-            //System.out.println("setting current image plane to: " + (int)(n.z + HALFROUND));
             this.imageManager.setCurrImagePlane((int)(n.z + HALFROUND));
 
             iPlaneInc = 0;
@@ -3690,4 +3682,5 @@ public class AceTree extends JPanel
 
     private static void println(String s) {System.out.println(s);}
     private void newLine() {System.out.println(""); }
+    private static final double NUCZINDEXOFFSET = 0.5; // nuclei z values are 0 indexed and image planes are 1 indexed so we use the offset to equate the two
 }

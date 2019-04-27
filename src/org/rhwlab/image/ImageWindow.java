@@ -1090,7 +1090,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 
     public void updateCurrentCellAnnotation(Cell newCell, Cell old, int time) {
         //new Throwable().printStackTrace();
-        //println("updateCurrentCellAnnotation: " + newCell + CS + old + CS + time);
+        //println("updateCurrentCellAnnotation: " + newCell.getName() + CupdateCurrent + old.getName() + CS + time);
         AnnotInfo ai = null;
         if (old != null) ai = isInList(old.getName());
         if (ai != null) iAnnotsShown.remove(ai);
