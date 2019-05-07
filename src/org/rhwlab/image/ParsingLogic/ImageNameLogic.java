@@ -628,7 +628,7 @@ public class ImageNameLogic {
 
                 // if we've reached here, we know that the potentialTimeStr is all digits, so we'll treat this as the time and everything
                 // before it will be considered the image prefix
-                System.out.println("Found image prefix: " + imageName.substring(0, imageName.lastIndexOf(timeAppendCharacterType)+1));
+                //System.out.println("Found image prefix: " + imageName.substring(0, imageName.lastIndexOf(timeAppendCharacterType)+1));
                 return imageName.substring(0, imageName.lastIndexOf(timeAppendCharacterType)+1);
 
             }

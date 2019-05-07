@@ -207,7 +207,7 @@ public class ImageManager {
                     //this.currentImageTime = this.imageConfig.getStartingIndex();
 
                     return ip;
-                } else if (getImageBitDepth(imageFile) == _16BIT_ID){
+                } else if (getImageBitDepth(imageFile) == _16BIT_ID || getImageBitDepth(imageFile) == _32BIT_ID) {
                     // we now want to check whether this image file follows the iSIM or diSPIM data hierarchy conventions. If so,
                     // we'll take advantage of that knowledge and look for other files in the series
 
@@ -968,7 +968,7 @@ public class ImageManager {
 
         // check if a file that shares this image's prefix was already looked up
         if (imagesPreviouslyBitDepthChecked.containsKey(ImageNameLogic.getImagePrefix(filename))) {
-            System.out.println("Found in hash");
+            //System.out.println("Found in hash");
             return imagesPreviouslyBitDepthChecked.get(ImageNameLogic.getImagePrefix(filename));
         }
 
@@ -988,6 +988,7 @@ public class ImageManager {
     private static Hashtable<String, Integer> imagesPreviouslyBitDepthChecked;
     public static int _8BIT_ID = 8;
     public static int _16BIT_ID = 16;
+    public static int _32BIT_ID = 32;
     private static int FAIL = -1;
 
 //    public static void main(String[] args) {

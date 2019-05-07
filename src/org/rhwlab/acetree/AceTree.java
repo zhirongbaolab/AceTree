@@ -497,12 +497,14 @@ public class AceTree extends JPanel
 	            int k = bringUpSeriesData(configFileName);
 
 	            // if the return value from bringUpSeriesData wasn't 0, then a problem occurred opening the data, return
-	            if (k != 0) return; //problem finding the zipNuclei
+	            if (k != 0)  {
+	                System.out.println("Coulnd't build NucleiMgr, not bringing up image series");
+	                return; //problem finding the zipNuclei
+                }
 	        //}
 
 
 
-	        // after bringUpSeriesData() completes, the nucMgr should be in the hash
             String shortName = Config.getShortName(configFileName);
 	        iNucleiMgr = iNucleiMgrHash.get(shortName);
 
