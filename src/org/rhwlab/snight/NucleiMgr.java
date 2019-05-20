@@ -40,7 +40,6 @@ public class NucleiMgr {
     FileOutputStream 		iFOS;
     PrintWriter 			iPWriter;
     Vector<Vector<Nucleus>> nuclei_record;
-    Vector<Vector<Nucleus>> nuclei_record_backup;
     String 					iParameterEntry;
     int 					iStartingIndex;
     int 					iEndingIndex;
@@ -422,7 +421,7 @@ public class NucleiMgr {
     // here I want to read all the nuclei data in the zip file
     // even if not all of it will be processed based on the
     // iEndTime parameter setting
-    // this should allow interative editing of the nuclei "files"
+    // this should allow interactive editing of the nuclei "files"
     @SuppressWarnings("unused")
     private int readNuclei(ZipNuclei zn) {
         // the following results in all nuclei files being read\

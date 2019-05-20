@@ -770,8 +770,7 @@ public class AceTree extends JPanel
         if (iAncesTree == null) {
             return;
         }
-        Cell root = iRoot;
-        if (root == null) {
+        if (iRoot == null) {
         	println("Root is null. Acetree cannot cleartree().");
         	return;
         }
@@ -783,7 +782,6 @@ public class AceTree extends JPanel
             Cell c = (Cell)iRoot.getFirstLeaf();
             while ((cc = (Cell)c.getNextLeaf()) != null) {
                 c.removeFromParent();
-                c = null;
                 c = cc;
                 count++;
             }
@@ -793,13 +791,18 @@ public class AceTree extends JPanel
         Runtime runtime = Runtime.getRuntime();
         runtime.gc();
         println("clearTree: memory: " + runtime.freeMemory() + CS + runtime.totalMemory() + CS + runtime.maxMemory());
-        if (root != null)
-        	root.removeAllChildren();
+        if (iRoot != null)
+        	iRoot.removeAllChildren();
 
         Hashtable x = iAncesTree.getCells();
-        if (x != null)
-        	x.clear();
+        if (x != null) {
+            x.clear();
+            System.out.println("AncesTree cells size: " + iAncesTree.getCells().size());
+        }
+
+
         iTree.updateUI();
+        System.gc();
     }
 
     @SuppressWarnings("unused")
@@ -864,6 +867,7 @@ public class AceTree extends JPanel
         }
 
         setShowAnnotations(iShowAnnotationsSave);
+        System.gc();
     }
 
     private Cell walkUpToAGoodCell() {
@@ -3154,6 +3158,7 @@ public class AceTree extends JPanel
             System.out.println("Setting starting cell c: " + c + " at time: " + currenttimeNuclei);
 			setStartingCell(c, currenttimeNuclei);
 		}
+		System.gc();
     }
 
     public void killDeepNucs() {

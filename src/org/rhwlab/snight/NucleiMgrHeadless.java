@@ -886,27 +886,27 @@ public class NucleiMgrHeadless extends NucleiMgr {
 
     @Override
 	public void makeBackupNucleiRecord() {
-        System.out.println("makeBackupNucleiRecord");
-        nuclei_record_backup = new Vector();
-        Vector nuclei = null;
-        Vector nucleiNew = null;
-        Nucleus n = null;
-        Nucleus nNew = null;
-        for (int i=0; i < nuclei_record.size(); i++) {
-            nuclei = nuclei_record.elementAt(i);
-            nucleiNew = new Vector();
-            for (int j=0; j < nuclei.size(); j++) {
-                n = (Nucleus)nuclei.elementAt(j);
-                nNew = n.copy();
-                nucleiNew.add(nNew);
-            }
-            nuclei_record_backup.add(nucleiNew);
-        }
+//        System.out.println("makeBackupNucleiRecord");
+//        nuclei_record_backup = new Vector();
+//        Vector nuclei = null;
+//        Vector nucleiNew = null;
+//        Nucleus n = null;
+//        Nucleus nNew = null;
+//        for (int i=0; i < nuclei_record.size(); i++) {
+//            nuclei = nuclei_record.elementAt(i);
+//            nucleiNew = new Vector();
+//            for (int j=0; j < nuclei.size(); j++) {
+//                n = (Nucleus)nuclei.elementAt(j);
+//                nNew = n.copy();
+//                nucleiNew.add(nNew);
+//            }
+//            nuclei_record_backup.add(nucleiNew);
+//        }
     }
 
     @Override
 	public void restoreNucleiRecord() {
-        nuclei_record = nuclei_record_backup;
+        //nuclei_record = nuclei_record_backup;
     }
 
     @Override

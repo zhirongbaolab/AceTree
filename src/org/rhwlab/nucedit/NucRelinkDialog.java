@@ -332,6 +332,7 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 			relinkAndRebuild();
 		}
 		iAceTree.requestFocus();
+		System.gc();
 	}
 	protected void relinkAndRebuild(){
 		int endTime;
@@ -369,8 +370,6 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 		sb.append(iNucleiMgr.getIndex(strCellName, strTime));
 		//System.out.println(sb.toString());
 		iEditLog.append(sb.toString());
-
-		iNucleiMgr.makeBackupNucleiRecord();
 		
 		//actual generation of interp
 		createAndAddCells(endCellName, endTime, strCellName, strTime);

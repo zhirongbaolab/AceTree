@@ -549,6 +549,9 @@ public class ImageManager {
 
         this.currentImage = makeImage(this.currentImageTime, this.currentImagePlane);
         //this.isCurrImageMIP = false;
+
+        System.gc();
+
         return this.currentImage;
     }
 
