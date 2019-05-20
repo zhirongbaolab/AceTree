@@ -179,11 +179,27 @@ public class ImageConversionManager {
 
         /** this indicates 16bit images are present (because useStack = 1), *and* they should be split into two channels */
         if (imageConfig.getSplitStack() == 1) {
-            iproc.setRoi(new Rectangle(TIF_16bit.getWidth()/2, 0, TIF_16bit.getWidth()/2, TIF_16bit.getHeight()));
+            /**
+             * Defaults in an unflipped image
+             * RIGHT SIDE - GREEN
+             * LEFT SIDE - RED
+             */
+            // check if the image was flipped to make sure the correct half of the image is cropped
+            if (imageConfig.getFlipStack() == 1) {
+                iproc.setRoi(new Rectangle(TIF_16bit.getWidth()/2, 0, TIF_16bit.getWidth()/2, TIF_16bit.getHeight()));
+            } else {
+                iproc.setRoi(new Rectangle(0, 0, TIF_16bit.getWidth()/2, TIF_16bit.getHeight()));
+            }
+
             ImageProcessor croppedR = iproc.crop();
             ImagePlus croppedIPR = new ImagePlus(TIF_16bit.getTitle(), croppedR);
 
-            iproc.setRoi(new Rectangle(0, 0, TIF_16bit.getWidth()/2, TIF_16bit.getHeight()));
+            if (imageConfig.getFlipStack() == 1) {
+                iproc.setRoi(new Rectangle(0, 0, TIF_16bit.getWidth()/2, TIF_16bit.getHeight()));
+            } else {
+                iproc.setRoi(new Rectangle(TIF_16bit.getWidth()/2, 0, TIF_16bit.getWidth()/2, TIF_16bit.getHeight()));
+            }
+
             ImageProcessor croppedG = iproc.crop();
             ImagePlus croppedIPG = new ImagePlus(TIF_16bit.getTitle(), croppedG);
 
