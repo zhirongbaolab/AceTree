@@ -97,6 +97,14 @@ public class WormGUIDESWindow extends MainApp {
 			}
         }));
 
+        seletedEntityLabelMainApp.addListener((observable, oldValue, newValue) -> {
+        	if (!seletedEntityLabelMainApp.isEmpty().get() &&
+					!aceTree.getCurrentCell().getName().equals(newValue) &&
+					!oldValue.equals(newValue)) {
+				aceTree.showSelectedCell(newValue);
+			}
+		});
+
         // toggle the movie control buttons in the respective apps when either one is in Play mode
         isPlayButtonEnabled.addListener(((observable, oldValue, newValue) -> {
             if (newValue) { // if WormGUIDES is in play mode

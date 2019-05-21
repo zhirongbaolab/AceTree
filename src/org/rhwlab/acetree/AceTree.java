@@ -2972,6 +2972,14 @@ public class AceTree extends JPanel
     }
 
     /**
+     * Called from WormGUIDES to enable cell selection via WormGUIDES
+     * @param identity
+     */
+    public void showSelectedCell(String identity) {
+         showSelectedCell((Cell)iAncesTree.getCellsByName().get(identity), this.imageManager.getCurrImageTime());
+    }
+
+    /**
      * does the work required by the cell selection control
      * @param c Cell the cell desired
      * @param requestedTime int the time index where it is to be shown
