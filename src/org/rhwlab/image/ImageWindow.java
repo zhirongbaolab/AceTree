@@ -1090,7 +1090,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 
     public void updateCurrentCellAnnotation(Cell newCell, Cell old, int time) {
         //new Throwable().printStackTrace();
-        //println("updateCurrentCellAnnotation: " + newCell.getName() + CupdateCurrent + old.getName() + CS + time);
+        //println("updateCurrentCellAnnotation: " + newCell.getName() + C + updateCurrent + old.getName() + CS + time);
         AnnotInfo ai = null;
         if (old != null) ai = isInList(old.getName());
         if (ai != null) iAnnotsShown.remove(ai);
@@ -1103,7 +1103,14 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
             //println("updateCurrentCellAnnotation:3 " + n);
         }
         if ((n != null) && (isInList(newCell.getName()) == null)) {
-            ai = new AnnotInfo(newCell.getName(), n.x, n.y);
+
+            String propername = PartsList.lookupSulston(n.identity);
+            String label = n.identity;
+            if (propername != null) {
+                label = label + " " + propername;
+            }
+            ai = new AnnotInfo(label, n.x, n.y);
+
             iAnnotsShown.add(ai);
         }
     }
