@@ -100,7 +100,9 @@ public class ImageManager {
 
     // methods for runtime updates
     public void incrementImageTimeNumber(int timeIncrement) {
-        if (timeIncrement > 0
+        if (this.currentImageTime < this.imageConfig.getStartingIndex() || this.currentImageTime > this.imageConfig.getEndingIndex()) {
+            // handles the case when the easter egg feature of indexing to a time outside start and end. no movement allowed here
+        } else if (timeIncrement > 0
                 && this.currentImageTime + timeIncrement <= this.imageConfig.getEndingIndex()) {
             setCurrImageTime(this.currentImageTime + timeIncrement);
         } else if (timeIncrement < 0

@@ -2847,7 +2847,7 @@ public class AceTree extends JPanel
 
         if (c == null) {
         	if (source == CONTROLCALLBACK) {
-        	    System.out.println("Control callback showing time: " + time);
+        	    //System.out.println("Control callback showing time: " + time);
         		showSelectedCell(c, time);
         	}
         	return;

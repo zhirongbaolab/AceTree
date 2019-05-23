@@ -407,14 +407,14 @@ public class NucleiMgr {
                 iConfig.iEndingIndex = last;
                 System.out.println("Updated iConfig.iEndingIndex to: " + last);
             }
-            System.out.println("last, iEndingIndex: " + last + CS + iEndingIndex + CS  + iConfig.iEndingIndex + CS + iMovie);
+            System.out.println("last, iEndingIndex: " + last + CS + this.nucConfig.getEndingIndex() + CS + iMovie);
         } else {
             // update the nucConfig's ending index if we find that there are less zip entries than is listed in the XML file
             if (last < nucConfig.getEndingIndex()) {
-                System.out.println("Updated nucConfig.endingIndex from: " + nucConfig.getEndingIndex() + " to: " + last);
+                System.out.println("Updated nucConfig.endingIndex from: " + this.nucConfig.getEndingIndex() + " to: " + last);
                 nucConfig.setEndingIndex(last);
             }
-            System.out.println("last, endingIndex: " + last + CS + nucConfig.getEndingIndex() + CS + iMovie);
+            System.out.println("last, endingIndex: " + last + CS + this.nucConfig.getEndingIndex() + CS + iMovie);
         }
     }
 
@@ -434,7 +434,7 @@ public class NucleiMgr {
         fakeNuclei(); // for memory allocation purposes - I think?
 
         iFakeNuclei = false; //override this param
-        Nucleus n = null;
+        Nucleus n;
         int debugCount = 0;
 
         //System.out.println("readNuclei:2 " + iMovie.time_end + CS + iMovie.time_start);
@@ -444,7 +444,7 @@ public class NucleiMgr {
         //int lastNonEmptyIndex = 0;
         while (e.hasMoreElements()) {
             ZipEntry ze = e.nextElement();
-            Vector<Nucleus> v = new Vector<Nucleus>();
+            Vector<Nucleus> v = new Vector<>();
             String [] saa = zn.parseZipEntry(ze);
 
             if (saa.length < 2)
@@ -455,12 +455,6 @@ public class NucleiMgr {
                 //System.out.println("Zip index: "+index);
                 if (index < 0)
                     continue; // probably a nuclei/log entry
-
-                // check if the index is less than the start index in the NucleiConfig (sometimes the case when a midpoint image file is listed in the .xml
-                if (index > 0 && index < this.nucConfig.getStartingIndex()) {
-                    System.out.println("Updated INDEX for NucConfig based on .zip entries: " + index);
-                    this.nucConfig.setStartingIndex(index);
-                }
 
                 String s = zn.readLine(ze);
                 if (s == null) {
@@ -551,7 +545,7 @@ public class NucleiMgr {
         }
 
 
-        // Cut nuclei_record down to the latrer of the where the last nuclei file is or the iEndingIndex specified in the .xml
+        // Cut nuclei_record down to the latter of the where the last nuclei file is or the iEndingIndex specified in the .xml
         int newSize = iLastNucleiFile+1;
         if (isNucConfigNull()) {
             if (newSize < iEndingIndex)
@@ -563,10 +557,7 @@ public class NucleiMgr {
         }
 
         nuclei_record.setSize(newSize);
-
         println("readNuclei: at end, nuclei_record.size: " + nuclei_record.size());
-
-        //System.out.println("readNuclei:3 " + iMovie.time_end + CS + iMovie.time_start);
 
         return nuclei_record.size();
     }
@@ -584,9 +575,6 @@ public class NucleiMgr {
         return nuclei_record.elementAt(i);
     }
 
-    //public Identity getIdentity() {
-    //    return iIdentity;
-    //}
     public int getiEndingIndex(){
         return iEndingIndex;
     }
@@ -887,14 +875,12 @@ public class NucleiMgr {
      */
     @SuppressWarnings("unused")
     public void fakeNuclei() {
-        //println("fakeNuclei: iEndingIndex: " + iEndingIndex);
         iFakeNuclei = true;
-        nuclei_record = new Vector<Vector<Nucleus>>(); //[iEndingIndex - iStartingIndex + 1];
+        nuclei_record = new Vector<>();
         Nucleus n = null;
         int last = LAST;
-        //if (iEndingIndex > 1) last = iEndingIndex;
         for (int i=0; i < last; i++) {
-            nuclei_record.add(new Vector<Nucleus>());
+            nuclei_record.add(new Vector<>());
         }
     }
 
