@@ -2731,11 +2731,15 @@ public class AceTree extends JPanel
         iTree.makeVisible(tp);
         int row = iTree.getRowForPath(tp);
         if (row != -1) {
-            iTree.setSelectionInterval(row,row);
-            iTree.scrollRowToVisible(row);
-            iTree.makeVisible(tp);
+            try {
+                iTree.setSelectionInterval(row, row);
+                iTree.scrollRowToVisible(row);
+                iTree.makeVisible(tp);
 
-            this.treeValueChangedFromImageChange = true;
+                this.treeValueChangedFromImageChange = true;
+            } catch (NullPointerException npe) {
+                
+            }
         }
     }
 
