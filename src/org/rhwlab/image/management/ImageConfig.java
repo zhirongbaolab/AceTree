@@ -196,9 +196,9 @@ public class ImageConfig {
         }
 
         // set starting index if it wasn't explicitly given or it's unreasonable
-        if (this.startingIndex < 0) {
-            setStartingIndex(ImageNameLogic.extractTimeFromImageFileName(providedImageFileName));
-        }
+//        if (this.startingIndex < 0) {
+//            setStartingIndex(ImageNameLogic.extractTimeFromImageFileName(providedImageFileName));
+//        }
 
         setImagePrefixes();
     }
