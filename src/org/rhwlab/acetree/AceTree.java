@@ -2991,7 +2991,7 @@ public class AceTree extends JPanel
      */
     @SuppressWarnings("unused")
 	public void showSelectedCell(Cell c, int requestedTime) {
-        //System.out.println("Showing selected cell: " + c + ", " + " at time: " + requestedTime);
+        System.out.println("Showing selected cell: " + c + ", " + " at time: " + requestedTime);
     	if (iImgWin == null)
     		return;
     	
@@ -3016,7 +3016,7 @@ public class AceTree extends JPanel
         if (n != null) {
             Cell old = iCurrentCell;
 
-            //System.out.println("setting current image time to: " + c.getTime());
+            System.out.println("setting current image time to: " + requestedTime);
             //this.imageManager.setCurrImageTime(c.getTime());
             this.imageManager.setCurrImageTime(requestedTime);
 
@@ -3038,7 +3038,7 @@ public class AceTree extends JPanel
 
             showTreeCell(iCurrentCell);
 
-            int baseTime = c.getTime(); //Integer.parseInt(sa[0]);
+            //int baseTime = c.getTime(); //Integer.parseInt(sa[0]);
             iImgWin.updateCurrentCellAnnotation(iCurrentCell, old, -1);
             updateDisplay();
         }
