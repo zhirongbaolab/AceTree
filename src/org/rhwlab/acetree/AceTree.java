@@ -2738,7 +2738,7 @@ public class AceTree extends JPanel
 
                 this.treeValueChangedFromImageChange = true;
             } catch (NullPointerException npe) {
-                
+
             }
         }
     }
