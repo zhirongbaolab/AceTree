@@ -99,14 +99,24 @@ public class ImageManager {
     public IntegerProperty getTimeProperty() { return this.timeProperty; }
 
     // methods for runtime updates
+
+    /**
+     * Controller for using the arrow keys to move forward and backward in time. Implements an easter
+     * egg feature where you can access images outside of the start/end specified range by using the
+     * time controls at the bottom of the main AceTree window.
+     *
+     * @param timeIncrement
+     */
     public void incrementImageTimeNumber(int timeIncrement) {
-        if (this.currentImageTime < this.imageConfig.getStartingIndex() || this.currentImageTime > this.imageConfig.getEndingIndex()) {
-            // handles the case when the easter egg feature of indexing to a time outside start and end. no movement allowed here
-        } else if (timeIncrement > 0
-                && this.currentImageTime + timeIncrement <= this.imageConfig.getEndingIndex()) {
+//        if (this.currentImageTime + timeIncrement < this.imageConfig.getStartingIndex() || this.currentImageTime + timeIncrement > this.imageConfig.getEndingIndex()) {
+//            // handles the case when the easter egg feature of indexing to a time outside start and end. no movement allowed here
+//
+//        }
+        if (timeIncrement > 0
+                && this.currentImageTime != this.imageConfig.getEndingIndex()) {
             setCurrImageTime(this.currentImageTime + timeIncrement);
         } else if (timeIncrement < 0
-                    && this.currentImageTime + timeIncrement >= 1) {
+                    && this.currentImageTime != this.imageConfig.getStartingIndex()) {
             setCurrImageTime(this.currentImageTime + timeIncrement);
         }
     }
