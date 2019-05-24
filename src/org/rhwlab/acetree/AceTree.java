@@ -2827,20 +2827,19 @@ public class AceTree extends JPanel
         // assume initially that the transition was to a previous time
         int imageTime = this.imageManager.getCurrImageTime();
         iTimeInc = imageTime - iCurrentCell.getTime();
-
-//        System.out.println("Current image time being updated from: " + imageTime
-//                + " to (currentCell.getTime() + iTimeInc: " + iCurrentCell.getTime() +
-//                ", " +  iTimeInc + " = " + (iCurrentCell.getTime() + iTimeInc));
-
         this.imageManager.setCurrImageTime(iCurrentCell.getTime() + iTimeInc);
+
+        System.out.println("Current image time being updated from: " + imageTime
+                + " to (currentCell.getTime() + iTimeInc: " + iCurrentCell.getTime() +
+                ", " +  iTimeInc + " = " + (iCurrentCell.getTime() + iTimeInc));
 
         int imagePlane = this.imageManager.getCurrImagePlane();
         iPlaneInc = imagePlane - iCurrentCell.getPlane();
-        this.imageManager.setCurrImagePlane(iCurrentCell.getPlane());
+        this.imageManager.setCurrImagePlane(iCurrentCell.getPlane() + iPlaneInc);
 
-//        System.out.println("Current image plane being updated from: " + imagePlane
-//                + " to currentCell.getPlane() = " + iCurrentCell.getPlane() +
-//                ", with iPlaneInc =" +  iPlaneInc);
+        System.out.println("Current image plane being updated from: " + imagePlane
+                + " to currentCell.getPlane() = " + iCurrentCell.getPlane() +
+                ", with iPlaneInc =" +  iPlaneInc);
 
         //System.out.println(isTracking());
 
