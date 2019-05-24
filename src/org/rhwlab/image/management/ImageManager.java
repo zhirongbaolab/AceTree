@@ -167,15 +167,24 @@ public class ImageManager {
                             }
 
 
-                            this.currentImageName = newFileNameAttempt;
-                            ImagePlus ip = makeImageFromSingle16BitTIF(newFileNameAttempt);
+                            // set the starting time if it hasn't been manually specified
+                            int timeInSuppliedImage = ImageNameLogic.extractTimeFromImageFileName(this.imageConfig.getProvidedImageFileName());
+                            if (this.imageConfig.getStartingIndex() == -1) {
+                                // this indicates that a starting index was not supplied in the xml. set the starting index to 1 and bring up the supplied image
+                                this.imageConfig.setStartingIndex(1);
+                                this.currentImageTime = timeInSuppliedImage;
+                                this.currentImageName = this.imageConfig.getProvidedImageFileName();
+                            } else if (timeInSuppliedImage > this.imageConfig.getEndingIndex() || timeInSuppliedImage < this.imageConfig.getStartingIndex()) {
+                                this.currentImageTime = this.imageConfig.getStartingIndex();
+                                this.currentImageName = ImageNameLogic.appendTimeToSingle16BitTIFPrefix(this.imageConfig.getImagePrefixes()[0], this.imageConfig.getStartingIndex());
+                            } else if (timeInSuppliedImage >= this.imageConfig.getStartingIndex() && timeInSuppliedImage <= this.imageConfig.getEndingIndex()) {
+                                this.currentImageTime = timeInSuppliedImage;
+                                this.currentImageName = this.imageConfig.getProvidedImageFileName();
+                            }
+
+                            ImagePlus ip = makeImageFromSingle16BitTIF(this.currentImageName);
                             this.currentImage = ip;
 
-                            // set the starting time
-                            this.imageConfig.setStartingIndex(ImageNameLogic.extractTimeFromImageFileName(this.currentImageName));
-                            System.out.println("Set starting index: " + this.imageConfig.getStartingIndex());
-
-                            this.currentImageTime = this.imageConfig.getStartingIndex();
 
                             return ip;
                         } else {
@@ -199,14 +208,25 @@ public class ImageManager {
                     this.imageConfig.setFlipStack(0);
                     this.imageConfig.setSplitStack(0);
 
-                    this.currentImageName = imageFile;
-                    ImagePlus ip = makeImageFrom8Bittif(imageFile);
-                    this.currentImage = ip;
 
-                    // set the starting time
-                    this.imageConfig.setStartingIndex(ImageNameLogic.extractTimeFromImageFileName(this.currentImageName));
-                    setCurrImageTime(this.imageConfig.getStartingIndex());
-                    //this.currentImageTime = this.imageConfig.getStartingIndex();
+                    // set the starting time if it hasn't been manually specified
+                    int timeInSuppliedImage = ImageNameLogic.extractTimeFromImageFileName(this.imageConfig.getProvidedImageFileName());
+                    if (this.imageConfig.getStartingIndex() == -1) {
+                        // this indicates that a starting index was not supplied in the xml. set the starting index to 1 and bring up the supplied image
+                        this.imageConfig.setStartingIndex(1);
+                        this.currentImageTime = timeInSuppliedImage;
+                        this.currentImageName = this.imageConfig.getProvidedImageFileName();
+                    } else if (timeInSuppliedImage > this.imageConfig.getEndingIndex() || timeInSuppliedImage < this.imageConfig.getStartingIndex()) {
+                        this.currentImageTime = this.imageConfig.getStartingIndex();
+                        this.currentImageName = ImageNameLogic.appendTimeAndPlaneTo8BittifPrefix(this.imageConfig.getImagePrefixes()[0], this.imageConfig.getStartingIndex(), 1);
+                    } else if (timeInSuppliedImage >= this.imageConfig.getStartingIndex() && timeInSuppliedImage <= this.imageConfig.getEndingIndex()) {
+                        this.currentImageTime = timeInSuppliedImage;
+                        this.currentImageName = this.imageConfig.getProvidedImageFileName();
+                    }
+
+
+                    ImagePlus ip = makeImageFrom8Bittif(this.currentImageName);
+                    this.currentImage = ip;
 
                     return ip;
                 } else if (getImageBitDepth(imageFile) == _16BIT_ID || getImageBitDepth(imageFile) == _32BIT_ID) {
@@ -230,17 +250,30 @@ public class ImageManager {
                         // we need to add this second color channel to the image config so that its prefix will be maintained
                         this.imageConfig.addColorChannelImageToConfig(secondColorChannelFromiSIM);
 
-                        // because we have the full paths in this instance, we'll call the makeImage method directly with the names. During runtime,
-                        // as the user changes images, this will need to first be piped through a method to query the prefixes from ImageConfig and
-                        // append the desired time
-                        this.currentImageName = imageFile;
-                        ImagePlus ip = makeImageFromMultiple16BitTIFs(new String[]{imageFile, secondColorChannelFromiSIM});
-                        this.currentImage = ip;
+                        // set the starting time if it hasn't been manually specified
+                        String[] firstImages = null;
+                        int timeInSuppliedImage = ImageNameLogic.extractTimeFromImageFileName(this.imageConfig.getProvidedImageFileName());
+                        if (this.imageConfig.getStartingIndex() == -1) {
+                            // this indicates that a starting index was not supplied in the xml. set the starting index to 1 and bring up the supplied image
+                            this.imageConfig.setStartingIndex(1);
+                            this.currentImageTime = timeInSuppliedImage;
+                            this.currentImageName = this.imageConfig.getProvidedImageFileName();
 
-                        // set the starting time
-                        this.imageConfig.setStartingIndex(ImageNameLogic.extractTimeFromImageFileName(this.currentImageName));
-                        setCurrImageTime(this.imageConfig.getStartingIndex());
-                        //this.currentImageTime = this.imageConfig.getStartingIndex();
+                            // because we have the full paths in this instance, we'll call the makeImage method directly with the names. During runtime,
+                            // as the user changes images, this will need to first be piped through a method to query the prefixes from ImageConfig and
+                            // append the desired time
+                            firstImages = new String[]{imageFile, secondColorChannelFromiSIM};
+                        } else if (timeInSuppliedImage > this.imageConfig.getEndingIndex() || timeInSuppliedImage < this.imageConfig.getStartingIndex()) { // supplied image out of range, load first in range
+                            this.currentImageTime = this.imageConfig.getStartingIndex();
+                            firstImages = ImageNameLogic.appendTimeToMultiple16BitTifPrefixes(this.imageConfig.getImagePrefixes(), this.currentImageTime);
+                        } else if (timeInSuppliedImage >= this.imageConfig.getStartingIndex() && timeInSuppliedImage <= this.imageConfig.getEndingIndex()) {
+                            this.currentImageTime = timeInSuppliedImage;
+                            this.currentImageName = this.imageConfig.getProvidedImageFileName();
+                            firstImages = new String[]{imageFile, secondColorChannelFromiSIM};
+                        }
+
+                        ImagePlus ip = makeImageFromMultiple16BitTIFs(firstImages);
+                        this.currentImage = ip;
 
                         return ip;
                     }
@@ -263,15 +296,30 @@ public class ImageManager {
                         // add the second color channel to the image config so that its prefix will be maintained
                         this.imageConfig.addColorChannelImageToConfig(secondColorChannelFromdiSPIM);
 
-                        // call the makeImage method directory with the image names
-                        this.currentImageName = imageFile;
-                        ImagePlus ip = makeImageFromMultiple16BitTIFs(new String[]{imageFile, secondColorChannelFromdiSPIM});
-                        this.currentImage = ip;
+                        // set the starting time if it hasn't been manually specified
+                        String[] firstImages = null;
+                        int timeInSuppliedImage = ImageNameLogic.extractTimeFromImageFileName(this.imageConfig.getProvidedImageFileName());
+                        if (this.imageConfig.getStartingIndex() == -1) {
+                            // this indicates that a starting index was not supplied in the xml. set the starting index to 1 and bring up the supplied image
+                            this.imageConfig.setStartingIndex(1);
+                            this.currentImageTime = timeInSuppliedImage;
+                            this.currentImageName = this.imageConfig.getProvidedImageFileName();
 
-                        // set the starting time
-                        this.imageConfig.setStartingIndex(ImageNameLogic.extractTimeFromImageFileName(this.currentImageName));
-                        setCurrImageTime(this.imageConfig.getStartingIndex());
-                        //this.currentImageTime = this.imageConfig.getStartingIndex();
+                            // because we have the full paths in this instance, we'll call the makeImage method directly with the names. During runtime,
+                            // as the user changes images, this will need to first be piped through a method to query the prefixes from ImageConfig and
+                            // append the desired time
+                            firstImages = new String[]{imageFile, secondColorChannelFromdiSPIM};
+                        } else if (timeInSuppliedImage > this.imageConfig.getEndingIndex() || timeInSuppliedImage < this.imageConfig.getStartingIndex()) {
+                            this.currentImageTime = this.imageConfig.getStartingIndex();
+                            firstImages = ImageNameLogic.appendTimeToMultiple16BitTifPrefixes(this.imageConfig.getImagePrefixes(), this.currentImageTime);
+                        } else if (timeInSuppliedImage >= this.imageConfig.getStartingIndex() && timeInSuppliedImage <= this.imageConfig.getEndingIndex()) {
+                            this.currentImageTime = timeInSuppliedImage;
+                            this.currentImageName = this.imageConfig.getProvidedImageFileName();
+                            firstImages = new String[]{imageFile, secondColorChannelFromdiSPIM};
+                        }
+
+                        ImagePlus ip = makeImageFromMultiple16BitTIFs(firstImages);
+                        this.currentImage = ip;
 
                         return ip;
                     }
@@ -290,14 +338,24 @@ public class ImageManager {
                             this.imageConfig.setFlipStack(0);
                         }
 
-                        this.currentImageName = imageFile;
-                        ImagePlus ip = makeImageFrom16bitSliceTIF(imageFile);
-                        this.currentImage = ip;
 
-                        // set the starting time
-                        this.imageConfig.setStartingIndex(ImageNameLogic.extractTimeFromImageFileName(this.currentImageName));
-                        setCurrImageTime(this.imageConfig.getStartingIndex());
-                        //this.currentImageTime = this.imageConfig.getStartingIndex();
+                        // set the starting time if it hasn't been manually specified
+                        int timeInSuppliedImage = ImageNameLogic.extractTimeFromImageFileName(this.imageConfig.getProvidedImageFileName());
+                        if (this.imageConfig.getStartingIndex() == -1) {
+                            // this indicates that a starting index was not supplied in the xml. set the starting index to 1 and bring up the supplied image
+                            this.imageConfig.setStartingIndex(1);
+                            this.currentImageTime = timeInSuppliedImage;
+                            this.currentImageName = this.imageConfig.getProvidedImageFileName();
+                        } else if (timeInSuppliedImage > this.imageConfig.getEndingIndex() || timeInSuppliedImage < this.imageConfig.getStartingIndex()) {
+                            this.currentImageTime = this.imageConfig.getStartingIndex();
+                            this.currentImageName = ImageNameLogic.appendTimeToSingle16BitTIFPrefix(this.imageConfig.getImagePrefixes()[0], this.imageConfig.getStartingIndex());
+                        } else if (timeInSuppliedImage >= this.imageConfig.getStartingIndex() && timeInSuppliedImage <= this.imageConfig.getEndingIndex()) {
+                            this.currentImageTime = timeInSuppliedImage;
+                            this.currentImageName = this.imageConfig.getProvidedImageFileName();
+                        }
+
+                        ImagePlus ip = makeImageFrom16bitSliceTIF(this.currentImageName);
+                        this.currentImage = ip;
 
                         return ip;
                     }
@@ -314,14 +372,24 @@ public class ImageManager {
                         this.imageConfig.setFlipStack(1);
                     }
 
-                    this.currentImageName = imageFile;
-                    ImagePlus ip = makeImageFromSingle16BitTIF(imageFile);
-                    this.currentImage = ip;
 
-                    // set the starting time
-                    this.imageConfig.setStartingIndex(ImageNameLogic.extractTimeFromImageFileName(this.currentImageName));
-                    setCurrImageTime(this.imageConfig.getStartingIndex());
-                    //this.currentImageTime = this.imageConfig.getStartingIndex();
+                    // set the starting time if it hasn't been manually specified
+                    int timeInSuppliedImage = ImageNameLogic.extractTimeFromImageFileName(this.imageConfig.getProvidedImageFileName());
+                    if (this.imageConfig.getStartingIndex() == -1) {
+                        // this indicates that a starting index was not supplied in the xml. set the starting index to 1 and bring up the supplied image
+                        this.imageConfig.setStartingIndex(1);
+                        this.currentImageTime = timeInSuppliedImage;
+                        this.currentImageName = this.imageConfig.getProvidedImageFileName();
+                    } else if (timeInSuppliedImage > this.imageConfig.getEndingIndex() || timeInSuppliedImage < this.imageConfig.getStartingIndex()) {
+                        this.currentImageTime = this.imageConfig.getStartingIndex();
+                        this.currentImageName = ImageNameLogic.appendTimeToSingle16BitTIFPrefix(this.imageConfig.getImagePrefixes()[0], this.imageConfig.getStartingIndex());
+                    } else if (timeInSuppliedImage >= this.imageConfig.getStartingIndex() && timeInSuppliedImage <= this.imageConfig.getEndingIndex()) {
+                        this.currentImageTime = timeInSuppliedImage;
+                        this.currentImageName = this.imageConfig.getProvidedImageFileName();
+                    }
+
+                    ImagePlus ip = makeImageFromSingle16BitTIF(this.currentImageName);
+                    this.currentImage = ip;
 
                     return ip;
                 }
@@ -353,13 +421,31 @@ public class ImageManager {
                 }
             }
 
-            ImagePlus ip = makeImageFromMultiple16BitTIFs(images);
-            this.currentImage = ip;
 
-            // set the starting time
-            this.imageConfig.setStartingIndex(ImageNameLogic.extractTimeFromImageFileName(this.currentImageName));
-            setCurrImageTime(this.imageConfig.getStartingIndex());
-            //this.currentImageTime = this.imageConfig.getStartingIndex();
+            // set the starting time if it hasn't been manually specified
+            String[] firstImages = null;
+            int timeInSuppliedImage = ImageNameLogic.extractTimeFromImageFileName(this.imageConfig.getProvidedImageFileName());
+            if (this.imageConfig.getStartingIndex() == -1) {
+                // this indicates that a starting index was not supplied in the xml. set the starting index to 1 and bring up the supplied image
+                this.imageConfig.setStartingIndex(1);
+                this.currentImageTime = timeInSuppliedImage;
+                this.currentImageName = this.imageConfig.getProvidedImageFileName();
+
+                // because we have the full paths in this instance, we'll call the makeImage method directly with the names. During runtime,
+                // as the user changes images, this will need to first be piped through a method to query the prefixes from ImageConfig and
+                // append the desired time
+                firstImages = images;
+            } else if (timeInSuppliedImage > this.imageConfig.getEndingIndex() || timeInSuppliedImage < this.imageConfig.getStartingIndex()) {
+                this.currentImageTime = this.imageConfig.getStartingIndex();
+                firstImages = ImageNameLogic.appendTimeToMultiple16BitTifPrefixes(this.imageConfig.getImagePrefixes(), this.currentImageTime);
+            } else if (timeInSuppliedImage >= this.imageConfig.getStartingIndex() && timeInSuppliedImage <= this.imageConfig.getEndingIndex()) {
+                this.currentImageTime = timeInSuppliedImage;
+                this.currentImageName = this.imageConfig.getProvidedImageFileName();
+                firstImages = images;
+            }
+
+            ImagePlus ip = makeImageFromMultiple16BitTIFs(firstImages);
+            this.currentImage = ip;
 
             return ip;
         }
