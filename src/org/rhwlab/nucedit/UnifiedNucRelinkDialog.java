@@ -298,9 +298,11 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
 		Hashtable h = ances.getCellsByName();
 		Cell c = (Cell)h.get(iLinkNuc);	
 		//set active cell to end time to aid review
-		if(c!=null)
+		if(c!=null) {
 			System.out.println("not null so setting current cell "+c);
-		iAceTree.setStartingCell(c,time);
+			iAceTree.setStartingCell(c,time);
+		}
+
     }
 
 

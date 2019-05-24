@@ -2846,7 +2846,7 @@ public class AceTree extends JPanel
     }
 
     public void setCurrentCell(Cell c, int time, int source) {
-        //System.out.println("Set current cell for: " + c.getName() + " at time: " + time);
+        System.out.println("Set current cell for: " + c.getName() + " at time: " + time);
     	if(iCellsByName == null)
     		return;
 
