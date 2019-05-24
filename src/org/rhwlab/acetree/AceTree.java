@@ -2990,7 +2990,7 @@ public class AceTree extends JPanel
      * @param requestedTime int the time index where it is to be shown
      */
     @SuppressWarnings("unused")
-	private void showSelectedCell(Cell c, int requestedTime) {
+	public void showSelectedCell(Cell c, int requestedTime) {
         //System.out.println("Showing selected cell: " + c + ", " + " at time: " + requestedTime);
     	if (iImgWin == null)
     		return;
