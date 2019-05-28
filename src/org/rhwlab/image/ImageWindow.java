@@ -633,8 +633,10 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 
         if (ip != null)
             iImgPlus.setProcessor(imageName, ip.getProcessor());
-        if (iIsMainImgWindow && iAceTree.isTracking())
+        if (iIsMainImgWindow && iAceTree.isTracking()) {
+            //System.out.println("In imagewindow, acetree is tracking so adding main annotation");
             iAceTree.addMainAnnotation();
+        }
         if (iAceTree.getShowCentroids())
             showCentroids(inMaxProjectionMode);
         if (iAceTree.getShowAnnotations())
@@ -1415,8 +1417,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
                 //System.out.println("mouseClicked " + e.getX());
                 addAnnotation(x2, y2, false);
 
-                // TODO --> this is bad practice. shouldn't use a call back. The entire mouse handler should be lifted out of ImageWindow
-                iAceTree.updateDisplay();
+                //iAceTree.updateDisplay();
             }
             
             iAceTree.cellAnnotated(getClickedCellName(x2, y2));

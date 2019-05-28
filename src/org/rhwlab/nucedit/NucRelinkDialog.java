@@ -394,6 +394,7 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 		//set active cell to start time to aid review
 		if(c != null) {
             System.out.println("Setting starting cell in relink " + c + " at startTime: " + strTime);
+			iAceTree.treeValueChangedFromEdit = true;
 
             // make a call to the WormGUIDES window to rebuild it's scene. Sometimes, relinking throws WG into an error
 			// so we'll rebuild this time
@@ -415,7 +416,7 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 				iAceTree.iImgWin.updateCurrentCellAnnotation(c, new Cell(""), strTime);
 			}
 			iAceTree.showSelectedCell(c, strTime);
-			iAceTree.updateDisplay();
+			//iAceTree.updateDisplay();
 		}
 		iEditLog.setModified(true);
 		//dispose();

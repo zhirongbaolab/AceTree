@@ -234,6 +234,7 @@ public class AceTree extends JPanel
     boolean treeValueChangedFromMouseClick;
     boolean treeValueChangedFromImageChange;
     boolean treeValueChangedFromStartup;
+    public boolean treeValueChangedFromEdit;
 
     /*
      * Revisions 10/2018 to image loading pipeline - grouping these variables together
@@ -316,6 +317,7 @@ public class AceTree extends JPanel
         this.treeValueChangedFromMouseClick = false;
         this.treeValueChangedFromImageChange = false;
         this.treeValueChangedFromStartup = true;
+        this.treeValueChangedFromEdit = false;
     }
 
     /* Function: transformTitle
@@ -1087,6 +1089,9 @@ public class AceTree extends JPanel
                 return;
             } else if(this.treeValueChangedFromStartup) {
                 this.treeValueChangedFromStartup = false;
+            } else if (this.treeValueChangedFromEdit) { // capture the case when the tree is updated from edits being made
+                //System.out.println("Tree value changed from edit, not updating view or tree");
+                this.treeValueChangedFromEdit = false;
             } else {
                 //System.out.println("Tree value change listener detects value was changed from arrow keys on tree. Updating current cell in image window to tree selection");
                 Cell c = (Cell) iTree.getLastSelectedPathComponent();
@@ -2829,30 +2834,30 @@ public class AceTree extends JPanel
         iTimeInc = imageTime - iCurrentCell.getTime();
         this.imageManager.setCurrImageTime(iCurrentCell.getTime() + iTimeInc);
 
-        System.out.println("Current image time being updated from: " + imageTime
-                + " to (currentCell.getTime() + iTimeInc: " + iCurrentCell.getTime() +
-                ", " +  iTimeInc + " = " + (iCurrentCell.getTime() + iTimeInc));
+        //System.out.println("Current image time being updated from: " + imageTime
+        //        + " to (currentCell.getTime() + iTimeInc: " + iCurrentCell.getTime() +
+        //        ", " +  iTimeInc + " = " + (iCurrentCell.getTime() + iTimeInc));
 
         int imagePlane = this.imageManager.getCurrImagePlane();
         iPlaneInc = imagePlane - iCurrentCell.getPlane();
         this.imageManager.setCurrImagePlane(iCurrentCell.getPlane() + iPlaneInc);
 
-        System.out.println("Current image plane being updated from: " + imagePlane
-                + " to currentCell.getPlane() = " + iCurrentCell.getPlane() +
-                ", with iPlaneInc =" +  iPlaneInc);
+        //System.out.println("Current image plane being updated from: " + imagePlane
+        //        + " to currentCell.getPlane() = " + iCurrentCell.getPlane() +
+        //        ", with iPlaneInc =" +  iPlaneInc);
 
         //System.out.println(isTracking());
 
     }
 
     public void setCurrentCell(Cell c, int time, int source) {
-        System.out.println("Set current cell for: " + c.getName() + " at time: " + time);
+        //System.out.println("Set current cell for: " + c.getName() + " at time: " + time + " from source: " + source);
     	if(iCellsByName == null)
     		return;
 
         if (c == null) {
         	if (source == CONTROLCALLBACK) {
-        	    //System.out.println("Control callback showing time: " + time);
+        	    System.out.println("Control callback showing time: " + time);
         		showSelectedCell(c, time);
         	}
         	return;
@@ -2887,7 +2892,7 @@ public class AceTree extends JPanel
                 if (iCurrentCell.isAnterior()) iTrackPosition = ImageWindow.ANTERIOR;
                 else iTrackPosition = ImageWindow.POSTERIOR;
             }
-            updateDisplay();
+            //updateDisplay();
 
         } 
         else if (source == RIGHTCLICKONEDITIMAGE) {
@@ -2991,7 +2996,7 @@ public class AceTree extends JPanel
      */
     @SuppressWarnings("unused")
 	public void showSelectedCell(Cell c, int requestedTime) {
-        System.out.println("Showing selected cell: " + c + ", " + " at time: " + requestedTime);
+        //System.out.println("Showing selected cell: " + c + ", " + " at time: " + requestedTime);
     	if (iImgWin == null)
     		return;
     	
@@ -3016,7 +3021,7 @@ public class AceTree extends JPanel
         if (n != null) {
             Cell old = iCurrentCell;
 
-            System.out.println("setting current image time to: " + requestedTime);
+            //System.out.println("setting current image time to: " + requestedTime);
             //this.imageManager.setCurrImageTime(c.getTime());
             this.imageManager.setCurrImageTime(requestedTime);
 
@@ -3129,6 +3134,7 @@ public class AceTree extends JPanel
 
     public void killCell(int x) {
     	println("\n\nkillCell");
+        this.treeValueChangedFromEdit = true;
 
     	//int currenttimeNuclei = this.imageManager.getCurrImageTime() + iTimeInc - 1;
         int currenttimeNuclei = this.imageManager.getCurrImageTime() - 1;
@@ -3161,8 +3167,6 @@ public class AceTree extends JPanel
         // add find self at previous time code from relink
         AncesTree ances = getAncesTree();
 		Hashtable h = ances.getCellsByName();
-
-
 
 		Cell c = (Cell)h.get(name);
 		
