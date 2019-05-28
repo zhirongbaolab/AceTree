@@ -1005,6 +1005,7 @@ public class AceTree extends JPanel
             iCurrentCell = c;
 
             getCurrentCellParameters();
+            this.treeValueChangedFromEdit = true;
             showTreeCell(iCurrentCell);
         } else { // the nuclei passed is the root of the tree -- use default viewing parameters
             imageManager.setCurrImageTime(1);
@@ -1060,6 +1061,7 @@ public class AceTree extends JPanel
     public void expandTree() {
         Cell c = (Cell)iRoot.getFirstLeaf();
         while (c != null) {
+            //this.treeValueChangedFromEdit = true;
             showTreeCell(c);
             //System.out.println(c);
             //TreeNode [] tna = c.getPath();
@@ -2192,7 +2194,8 @@ public class AceTree extends JPanel
 			 				Cell c = (Cell)iAncesTree.getCellsByName().get(selected);
 			 				if (c != null) {
 			 					//System.out.println("Setting active cell to: "+selected);
-				 				showTreeCell(c);
+                                treeValueChangedFromEdit = true;
+                                showTreeCell(c);
 				                if (c.getTime() < 0) {
 				                    if (iCurrentCell != null) 
 				                    	c = iCurrentCell;
@@ -2286,7 +2289,6 @@ public class AceTree extends JPanel
             }
 
             else if (button == MouseEvent.BUTTON3|e.isControlDown()) {
-
                 showTreeCell(c);
                 if (c.getTime() < 0) {
                     if (iCurrentCell != null) c = iCurrentCell;
@@ -2879,6 +2881,8 @@ public class AceTree extends JPanel
             iCurrentCell = c; //(Cell)iAncesTree.getCellsByName().get(cellName);
             trackingActionsOnCurrentCellChange();
             iAceTree.forceTrackingOn();
+
+            this.treeValueChangedFromEdit = true;
             showTreeCell(iCurrentCell);
             String s = makeDisplayText();
             iText.setText(s);
@@ -2902,6 +2906,8 @@ public class AceTree extends JPanel
             iCurrentCell = c;
             trackingActionsOnCurrentCellChange();
             iAceTree.forceTrackingOn();
+
+            this.treeValueChangedFromEdit = true;
             showTreeCell(iCurrentCell);
             String s = "added cell in progress";
 	    if(iImgWin != null)
@@ -2938,6 +2944,7 @@ public class AceTree extends JPanel
                 }
             }
 
+            this.treeValueChangedFromEdit = true;
             showTreeCell(iCurrentCell);
         } else if (source == PREVTIME) {
             //System.out.println("Prevtime called at: " + this.imageManager.getCurrImageTime());
@@ -2965,11 +2972,14 @@ public class AceTree extends JPanel
 				    if(iImgWin!=null)
 				    	iImgWin.updateCurrentCellAnnotation(iCurrentCell, currentCellSave, time);
                 }
+                this.treeValueChangedFromEdit = true;
                 showTreeCell(iCurrentCell);
             } else {
                 //System.out.println("Couldn't find parent to: " + iCurrentCell.getName() + ". Turning tracking off and showing tree root");
                 iTrackPosition = ImageWindow.NONE;
                 iCurrentCell = null;
+
+                //this.treeValueChangedFromEdit = true;
                 showTreeCell(iRoot);
             }
         }
@@ -3008,6 +3018,7 @@ public class AceTree extends JPanel
 
             iCurrentCell = iRoot;
 
+            //this.treeValueChangedFromEdit = true;
             showTreeCell(iCurrentCell);
             updateDisplay();
 
@@ -3041,6 +3052,7 @@ public class AceTree extends JPanel
             	iTrackPosition = ImageWindow.ANTERIOR;
             else iTrackPosition = ImageWindow.POSTERIOR;
 
+            //this.treeValueChangedFromEdit = true;
             showTreeCell(iCurrentCell);
 
             //int baseTime = c.getTime(); //Integer.parseInt(sa[0]);
@@ -3053,6 +3065,8 @@ public class AceTree extends JPanel
             iTimeInc = 0;
             iPlaneInc = 0;
             iCurrentCell = c;
+
+            //this.treeValueChangedFromEdit = true;
             showTreeCell(iCurrentCell);
             updateDisplay();
         }
