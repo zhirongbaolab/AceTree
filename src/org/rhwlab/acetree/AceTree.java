@@ -1092,10 +1092,10 @@ public class AceTree extends JPanel
             } else if(this.treeValueChangedFromStartup) {
                 this.treeValueChangedFromStartup = false;
             } else if (this.treeValueChangedFromEdit) { // capture the case when the tree is updated from edits being made
-                //System.out.println("Tree value changed from edit, not updating view or tree");
+                System.out.println("Tree value changed from edit, not updating view or tree");
                 this.treeValueChangedFromEdit = false;
             } else {
-                //System.out.println("Tree value change listener detects value was changed from arrow keys on tree. Updating current cell in image window to tree selection");
+                System.out.println("Tree value change listener detects value was changed from arrow keys on tree. Updating current cell in image window to tree selection");
                 Cell c = (Cell) iTree.getLastSelectedPathComponent();
                 if (c != null) {
                     if (c.getTime() < 0) {
@@ -2284,7 +2284,7 @@ public class AceTree extends JPanel
                     else return;
                 }
                 int time = c.getTime();
-                //println("TreeMouseAdapter.mouseClicked: " + c + CS + time);
+                println("TreeMouseAdapter.mouseClicked: " + c + CS + time);
                 setCurrentCell(c, time, LEFTCLICKONTREE);
             }
 
@@ -2910,12 +2910,13 @@ public class AceTree extends JPanel
 
             this.treeValueChangedFromEdit = true;
             showTreeCell(iCurrentCell);
+
             String s = "added cell in progress";
 
             if(iImgWin != null)
                 iImgWin.updateCurrentCellAnnotation(iCurrentCell, old, -1);
                 iText.setText(s);
-                updateDisplay();
+                //updateDisplay();
 
         } else if (source == LEFTCLICKONTREE) {
             showSelectedCell(c, time);

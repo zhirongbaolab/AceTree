@@ -293,10 +293,9 @@ public class EIDialog1 extends JDialog implements ActionListener, WindowFocusLis
             //System.out.println("mouseClicked1: " + c + C.CS + iCurrentCell
             //        + C.CS + iImagePlane + C.CS + iPlaneInc);
             iAceTree.setCurrentCell(c, iAceTree.getImageManager().getCurrImageTime(), AceTree.RIGHTCLICKONEDITIMAGE);
+
             iAceTree.updateDisplay();
             //System.out.println("mouseClicked2: " + c + C.CS + iCurrentCell);
-            //addAnnotation(n.x, n.y, true);
-            //refreshDisplay(null);
             if (iAddSeries.isSelected()) {
                 println("right click ignored with Add series selected");
             } else if (iSetStart.isSelected()) {
@@ -318,7 +317,7 @@ public class EIDialog1 extends JDialog implements ActionListener, WindowFocusLis
                     println("recommending a rebuild:");
                 }
             }
-            iAceTree.updateDisplay();
+            //iAceTree.updateDisplay();
 
 
         } else if (button == 1) {
