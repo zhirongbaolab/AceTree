@@ -1098,7 +1098,6 @@ public class AceTree extends JPanel
                 this.treeValueChangedFromEdit = false;
                 return;
             } else {
-                System.out.println("Tree value change listener detects value was changed from arrow keys on tree. Updating current cell in image window to tree selection");
                 Cell c = (Cell) iTree.getLastSelectedPathComponent();
 
                 if (c != null) {
@@ -1109,6 +1108,8 @@ public class AceTree extends JPanel
                             c = iCurrentCell;
                         else return;
                     }
+                    System.out.println("Tree value change listener detects value was changed from arrow keys on tree. Updating current cell in image window to tree selection");
+                    
                     int time = c.getTime();
                     setCurrentCell(c, time, LEFTCLICKONTREE); // just use LEFTCLICKONTREE because it accomplishes what is needed
                 } else {
