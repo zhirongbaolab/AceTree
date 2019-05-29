@@ -377,6 +377,7 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 		//System.out.println("returned from createAndAddCells");
 		// if (cmd.equals(APPLYANDREBUILD)) {
 		//println("\n\nNucRelinkDialog.actionPerformed: applyAndRebuild");
+		iAceTree.treeValueChangedFromEdit = true;
 		iAceTree.clearTree();
 		iAceTree.buildTree(true);
 
