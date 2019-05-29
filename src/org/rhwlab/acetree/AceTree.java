@@ -2853,7 +2853,7 @@ public class AceTree extends JPanel
     }
 
     public void setCurrentCell(Cell c, int time, int source) {
-        //System.out.println("Set current cell for: " + c.getName() + " at time: " + time + " from source: " + source);
+        System.out.println("Set current cell for: " + c.getName() + " at time: " + time + " from source: " + source);
     	if(iCellsByName == null)
     		return;
 
@@ -2876,7 +2876,7 @@ public class AceTree extends JPanel
         
         // Look at this for making force named cell active
         if (source == RIGHTCLICKONIMAGE) {
-        	//System.out.println("AceTree.setCurrentCell RIGHTCLICKONIMAGE.");
+        	System.out.println("AceTree.setCurrentCell RIGHTCLICKONIMAGE.");
             Cell old = iCurrentCell;
             iCurrentCell = c; //(Cell)iAncesTree.getCellsByName().get(cellName);
             trackingActionsOnCurrentCellChange();
@@ -2884,6 +2884,7 @@ public class AceTree extends JPanel
 
             this.treeValueChangedFromEdit = true;
             showTreeCell(iCurrentCell);
+
             String s = makeDisplayText();
             iText.setText(s);
             //println("setCurrentCell:3 " + iCurrentCell + CS + old);
@@ -2910,10 +2911,11 @@ public class AceTree extends JPanel
             this.treeValueChangedFromEdit = true;
             showTreeCell(iCurrentCell);
             String s = "added cell in progress";
-	    if(iImgWin != null)
-	    	iImgWin.updateCurrentCellAnnotation(iCurrentCell, old, -1);
-            iText.setText(s);
-            updateDisplay();
+
+            if(iImgWin != null)
+                iImgWin.updateCurrentCellAnnotation(iCurrentCell, old, -1);
+                iText.setText(s);
+                updateDisplay();
 
         } else if (source == LEFTCLICKONTREE) {
             showSelectedCell(c, time);
@@ -3006,7 +3008,7 @@ public class AceTree extends JPanel
      */
     @SuppressWarnings("unused")
 	public void showSelectedCell(Cell c, int requestedTime) {
-        //System.out.println("Showing selected cell: " + c + ", " + " at time: " + requestedTime);
+        System.out.println("Showing selected cell: " + c + ", " + " at time: " + requestedTime);
     	if (iImgWin == null)
     		return;
     	
