@@ -261,6 +261,7 @@ public class KillCellsDialog extends GenericDialog {
 
         if (o == iApplyAndRebuild) {
 
+            iAceTree.treeValueChangedFromEdit = true;
             iAceTree.clearTree();
             iAceTree.buildTree(true);
             iEditLog.setModified(true);
@@ -284,6 +285,7 @@ public class KillCellsDialog extends GenericDialog {
 	            Nucleus newnuc = (Nucleus)newtime.get(0);
 	            c = (Cell)iAceTree.getAncesTree().getCells().get(newnuc.hashKey);
             }
+            iAceTree.treeValueChangedFromEdit = true;
             iAceTree.setStartingCell(c, strTime);
 
 

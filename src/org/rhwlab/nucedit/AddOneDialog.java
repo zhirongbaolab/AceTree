@@ -442,6 +442,8 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
         c.setParent(root);
         //iAceTree.setCurrentCell(c, time, AceTree.CONTROLCALLBACK);
 //        iAceTree.setCurrentCell(c, iImageTime + iTimeInc, AceTree.RIGHTCLICKONEDITIMAGE);
+
+
         iAceTree.setCurrentCell(c, time, AceTree.RIGHTCLICKONEDITIMAGE);
         iParent.addAnnotation(x, y, true);
 
@@ -452,6 +454,7 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
         setKeypadEnabled(true);
         iName.setText(n.identity);
 
+        iAceTree.treeValueChangedFromEdit = true;
         iAceTree.updateDisplay();
 
         //System.out.println("addCell: " + iCurrentCell);
