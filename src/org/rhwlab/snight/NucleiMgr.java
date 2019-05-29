@@ -728,7 +728,7 @@ public class NucleiMgr {
      * @return
      */
     public Nucleus findClosestNucleus(int mx, int my, int mz, int time) {
-        System.out.println("findClosestNucleus: " + mx + CS + my + CS + mz + CS + time);
+        //System.out.println("findClosestNucleus: " + mx + CS + my + CS + mz + CS + time);
         if (time < 1) time = 1;
         Vector<Nucleus> nuclei = null;
         try {

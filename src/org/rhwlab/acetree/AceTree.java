@@ -1094,7 +1094,7 @@ public class AceTree extends JPanel
                 this.treeValueChangedFromStartup = false;
                 return;
             } else if (this.treeValueChangedFromEdit) { // capture the case when the tree is updated from edits being made
-                System.out.println("Tree value changed from edit, not updating view or tree");
+                //System.out.println("Tree value changed from edit, not updating view or tree");
                 this.treeValueChangedFromEdit = false;
                 return;
             } else {
@@ -1108,8 +1108,8 @@ public class AceTree extends JPanel
                             c = iCurrentCell;
                         else return;
                     }
-                    System.out.println("Tree value change listener detects value was changed from arrow keys on tree. Updating current cell in image window to tree selection");
-                    
+                    //System.out.println("Tree value change listener detects value was changed from arrow keys on tree. Updating current cell in image window to tree selection");
+
                     int time = c.getTime();
                     setCurrentCell(c, time, LEFTCLICKONTREE); // just use LEFTCLICKONTREE because it accomplishes what is needed
                 } else {
@@ -2291,7 +2291,7 @@ public class AceTree extends JPanel
                     else return;
                 }
                 int time = c.getTime();
-                println("TreeMouseAdapter.mouseClicked: " + c + CS + time);
+                //println("TreeMouseAdapter.mouseClicked: " + c + CS + time);
                 setCurrentCell(c, time, LEFTCLICKONTREE);
             }
 
@@ -2860,7 +2860,7 @@ public class AceTree extends JPanel
     }
 
     public void setCurrentCell(Cell c, int time, int source) {
-        System.out.println("Set current cell for: " + c.getName() + " at time: " + time + " from source: " + source);
+        //System.out.println("Set current cell for: " + c.getName() + " at time: " + time + " from source: " + source);
     	if(iCellsByName == null)
     		return;
 
@@ -2883,7 +2883,7 @@ public class AceTree extends JPanel
         
         // Look at this for making force named cell active
         if (source == RIGHTCLICKONIMAGE) {
-        	System.out.println("AceTree.setCurrentCell RIGHTCLICKONIMAGE.");
+        	//System.out.println("AceTree.setCurrentCell RIGHTCLICKONIMAGE.");
             Cell old = iCurrentCell;
             iCurrentCell = c; //(Cell)iAncesTree.getCellsByName().get(cellName);
             trackingActionsOnCurrentCellChange();
@@ -2918,7 +2918,7 @@ public class AceTree extends JPanel
             this.treeValueChangedFromEdit = true;
             showTreeCell(iCurrentCell);
 
-            String s = "added cell in progress";
+            String s = "Add Cell in progress";
 
             if(iImgWin != null)
                 iImgWin.updateCurrentCellAnnotation(iCurrentCell, old, -1);
@@ -3016,7 +3016,7 @@ public class AceTree extends JPanel
      */
     @SuppressWarnings("unused")
 	public void showSelectedCell(Cell c, int requestedTime) {
-        System.out.println("Showing selected cell: " + c + ", " + " at time: " + requestedTime);
+        //System.out.println("Showing selected cell: " + c + ", " + " at time: " + requestedTime);
     	if (iImgWin == null)
     		return;
     	
@@ -3196,7 +3196,7 @@ public class AceTree extends JPanel
 		
 		// set active cell to start time to aid review
 		if(c != null) {
-            System.out.println("Setting starting cell c: " + c + " at time: " + currenttimeNuclei);
+            //System.out.println("Setting starting cell c: " + c + " at time: " + currenttimeNuclei);
 			this.treeValueChangedFromEdit = true;
             setStartingCell(c, currenttimeNuclei);
 		}
