@@ -856,6 +856,7 @@ public class AceTree extends JPanel
         // assume that P0 is the root, and look for the first child present in the nuclei
         Cell c = walkUpToAGoodCell();
 
+        this.treeValueChangedFromEdit = true;
         setStartingCell(c, configManager.getNucleiConfig().getStartingIndex());
 
         // set up the UI properties for the tree shown in the main AceTree tab so that cells in the tree can be selected and trigger a change in the ImageWindow
@@ -3190,7 +3191,8 @@ public class AceTree extends JPanel
 		// set active cell to start time to aid review
 		if(c != null) {
             System.out.println("Setting starting cell c: " + c + " at time: " + currenttimeNuclei);
-			setStartingCell(c, currenttimeNuclei);
+			this.treeValueChangedFromEdit = true;
+            setStartingCell(c, currenttimeNuclei);
 		}
 		System.gc();
     }
@@ -3257,6 +3259,7 @@ public class AceTree extends JPanel
             iAceMenuBar.view.rebuildData();
         }
 
+        this.treeValueChangedFromEdit = true;
         setStartingCell((Cell)iRoot.getFirstChild(), this.configManager.getImageConfig().getStartingIndex());
         iEditLog.setModified(true);
 

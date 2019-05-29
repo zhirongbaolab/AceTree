@@ -416,6 +416,7 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 				// also update the annotation
 				iAceTree.iImgWin.updateCurrentCellAnnotation(c, new Cell(""), strTime);
 			}
+			iAceTree.treeValueChangedFromEdit = true;
 			iAceTree.showSelectedCell(c, strTime);
 			//iAceTree.updateDisplay();
 		}
