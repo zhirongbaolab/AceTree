@@ -1092,13 +1092,18 @@ public class AceTree extends JPanel
                 return;
             } else if(this.treeValueChangedFromStartup) {
                 this.treeValueChangedFromStartup = false;
+                return;
             } else if (this.treeValueChangedFromEdit) { // capture the case when the tree is updated from edits being made
                 System.out.println("Tree value changed from edit, not updating view or tree");
                 this.treeValueChangedFromEdit = false;
+                return;
             } else {
                 System.out.println("Tree value change listener detects value was changed from arrow keys on tree. Updating current cell in image window to tree selection");
                 Cell c = (Cell) iTree.getLastSelectedPathComponent();
+
                 if (c != null) {
+                    if (c == iCurrentCell) return; // this cell is already selected
+
                     if (c.getTime() < 0) {
                         if (iCurrentCell != null)
                             c = iCurrentCell;
