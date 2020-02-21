@@ -3186,8 +3186,6 @@ public class AceTree extends JPanel
             iAceMenuBar.view.rebuildData();
         }
 
-        prevImage();
-
         // add find self at previous time code from relink
         AncesTree ances = getAncesTree();
 		Hashtable h = ances.getCellsByName();
@@ -3200,6 +3198,9 @@ public class AceTree extends JPanel
 			this.treeValueChangedFromEdit = true;
             setStartingCell(c, currenttimeNuclei);
 		}
+
+        prevImage();
+
 		System.gc();
     }
 
