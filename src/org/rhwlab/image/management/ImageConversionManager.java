@@ -909,36 +909,39 @@ public class ImageConversionManager {
         ColorProcessor iproc3 = new ColorProcessor(ipWidth, iproc.getHeight());
 
         if (imageConfig.getSplitStack() == 1) {
-            // crop the image so we just have the right side (originally the left, but we flipped the image horizontally)
-            iproc.setRoi(MIP_ip.getWidth()/2, 0, MIP_ip.getWidth()/2, MIP_ip.getHeight());
-            ImagePlus croppedIP = new ImagePlus("", iproc.crop());
+            // crop the image for the red channel (originally the left, but we flipped the image horizontally)
+            if (imageConfig.getFlipStack() == 1) {
+                iproc.setRoi(new Rectangle(MIP_ip.getWidth()/2, 0, MIP_ip.getWidth()/2, MIP_ip.getHeight()));
+            } else {
+                iproc.setRoi(new Rectangle(0,0,MIP_ip.getWidth()/2, MIP_ip.getHeight()));
+            }
+
+            ImagePlus croppedIPR = new ImagePlus("R", iproc.crop());
+
+            // crop the other half of the image to get green channel
+            if (imageConfig.getFlipStack() == 1) {
+                iproc.setRoi(new Rectangle(0, 0, MIP_ip.getWidth()/2, MIP_ip.getHeight()));
+            } else {
+                iproc.setRoi(new Rectangle(MIP_ip.getWidth()/2,0,MIP_ip.getWidth()/2, MIP_ip.getHeight()));
+            }
+
+            ImagePlus croppedIPG = new ImagePlus("G", iproc.crop());
 
             // set the display range from the sliders
-            if (colorChannelIdx == RED) {
-                croppedIP.setDisplayRange(ImageManager.getContrastMin1(), ImageManager.getContrastMax1());
-            } else if (colorChannelIdx == GREEN) {
-                croppedIP.setDisplayRange(ImageManager.getContrastMin2(), ImageManager.getContrastMax2());
-            } else if (colorChannelIdx == BLUE) {
-                croppedIP.setDisplayRange(ImageManager.getContrastMin3(), ImageManager.getContrastMax3());
-            }
+            croppedIPR.setDisplayRange(ImageManager.getContrastMin1(), ImageManager.getContrastMax1());
+            croppedIPG.setDisplayRange(ImageManager.getContrastMin2(),ImageManager.getContrastMax2());
 
 
             // convert the image to 8 bit
-            ImageConverter ic = new ImageConverter(croppedIP);
-            ic.convertToGray8();
+            ImageConverter icr = new ImageConverter(croppedIPR);
+            icr.convertToGray8();
+            ImageConverter icg = new ImageConverter(croppedIPG);
+            icg.convertToGray8();
 
-
-            byte[] pix = (byte [])croppedIP.getProcessor().getPixels();
+            R = (byte [])croppedIPR.getProcessor().getPixels();
+            G = (byte [])croppedIPG.getProcessor().getPixels();
 
             //iproc3.getRGB(R, G, B);
-
-            if (colorChannelIdx == RED) {
-                R = pix;
-            } else if (colorChannelIdx == GREEN) {
-                G = pix;
-            } else if (colorChannelIdx == BLUE) {
-                B = pix;
-            }
         } else {
             // set the display range from the sliders
             if (colorChannelIdx == RED) {
