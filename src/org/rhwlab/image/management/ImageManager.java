@@ -2,6 +2,7 @@ package org.rhwlab.image.management;
 
 import ij.IJ;
 import ij.ImagePlus;
+import ij.ImageStack;
 import ij.io.Opener;
 import ij.plugin.ZProjector;
 import ij.process.ColorProcessor;
@@ -890,8 +891,33 @@ public class ImageManager {
         if (this.imageConfig.getUseStack() == 0) { // 8bit
 
             // we'll need to load all of the planes in the stack before making this max projection so hold off on this for now
+            //implemented on 2/28/2020
 
+            //combine the single images of current time point into one stack
+            ImageStack is = new ImageStack(imageWidth, imageHeight);
 
+            for (int i = 0; i < imageConfig.getPlaneEnd(); i++) {
+                this.currentImageName = ImageNameLogic.appendTimeAndPlaneTo8BittifPrefix(this.imageConfig.getImagePrefixes()[0], this.currentImageTime, i + 1);
+                //testing
+                //System.out.println(this.currentImageName);
+                ImagePlus currentIP = new Opener().openImage(this.currentImageName);
+
+                if (currentIP != null) {
+                    is.addSlice(Integer.toString(i + 1), currentIP.getProcessor());
+                }
+            }
+
+            ImagePlus currentStack = new ImagePlus(Integer.toString(this.currentImageTime), is);
+
+            //set the current stack and do the projection
+            zproj.setImage(currentStack);
+            zproj.doProjection();
+
+            //convert the projection to 8bit RGB (shown in red by default)
+            this.currentImage = ImageConversionManager.convertMIPToRGB(zproj.getProjection(), 1, this.imageConfig);
+
+            this.isCurrImageMIP = true;
+            return this.currentImage;
         } else if (this.imageConfig.getUseStack() == 1) { //16bit
             // check if there are multiple stacks defining the color channels of the image series, or if all channels are contained in a single stack
             if (this.imageConfig.getNumChannels() == -1 || this.imageConfig.getNumChannels() == 1) { // legacy .XML config
