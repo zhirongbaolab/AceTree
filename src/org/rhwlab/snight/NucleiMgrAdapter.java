@@ -242,13 +242,29 @@ public class NucleiMgrAdapter implements LineageData {
 	@Override
 	public ArrayList<String> getAllCellNames() {
 		ArrayList<String> allCellNames = new ArrayList<>();
+
+		/*
+		//old code
 		for (int i = 1; i <= realTimePoints; i++) {
+			//testing
+			System.out.println("Start getting cell names at time " + i);
 			String[] namesAti = getNames(i);
+			//testing
+			System.out.println("Start getting cell names at time " + i);
 			for (String name : namesAti) {
 				if (!allCellNames.contains(name)) {
 					allCellNames.add(name);
 				}
 			}
+			//testing
+			System.out.println("Finish adding all cell names at time " + i);
+			System.out.println("Current length of allCellNames: " + allCellNames.size());
+		}
+
+		 */
+		//replace the old code for faster launch speed
+		for (Object cellname:nucleiMgr.getCellsByName().keySet()){
+			allCellNames.add((String)cellname);
 		}
 
 		return allCellNames;
