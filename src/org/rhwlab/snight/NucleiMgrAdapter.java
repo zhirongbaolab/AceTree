@@ -219,7 +219,7 @@ public class NucleiMgrAdapter implements LineageData {
 		ArrayList<Double> diametersAL = new ArrayList<Double>();
 
 		//access vector of nuclei at given time frame
-		Vector<Nucleus> v = nucleiMgr.nuclei_record.get(time);
+		Vector<Nucleus> v = nucleiMgr.nuclei_record.get(time - 1);
 
 		for (int m = 0; m < v.size(); ++m) {
 			Nucleus n = v.get(m);
