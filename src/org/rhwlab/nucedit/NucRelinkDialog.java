@@ -310,6 +310,25 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		//semaphores  merge from shooting_star_both_as AceTree source code
+		boolean SNLock = iAceTree.getSNLock();
+		if(SNLock){
+			JOptionPane.showMessageDialog(null,"Waiting for StarryNite to finish writing nuclei data");
+			//SN has locked NM, wait for it to be unlocked
+			//Pop up a dialog indicating that we're waiting
+			while(SNLock){
+				try{
+					Thread.sleep(100);
+					SNLock = iAceTree.getSNLock();
+				}
+				catch(InterruptedException ex){
+
+				}
+			}
+			JOptionPane.showMessageDialog(null,"StarryNite is done, taking over");
+		}
+		boolean success = iAceTree.ATLockNucleiMgr(true);
+
 		//System.out.println("NucRelinkDialog.actionPerformed");
 		Object o = e.getSource();
 		String cmd = e.getActionCommand();
@@ -333,6 +352,9 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 		}
 		iAceTree.requestFocus();
 		System.gc();
+
+		success = iAceTree.ATLockNucleiMgr(false);
+
 	}
 	protected void relinkAndRebuild(){
 		int endTime;

@@ -228,6 +228,10 @@ public class AceTree extends JPanel
     
     private LinkedList<Integer>	iKeyQueue;
 
+    //semaphores  merge from shooting_star_both_as AceTree source code
+    public boolean             iATNucleiMgrLock;
+    public boolean             iSNNucleiMgrLock;
+
     private static boolean fullGUI = false;
 
     // booleans to control tree selection changes and determine their origins
@@ -257,6 +261,15 @@ public class AceTree extends JPanel
     @SuppressWarnings("static-access")
 	protected AceTree(String configFileName, boolean fullGUI) {
         super();
+
+        //semaphores  merge from shooting_star_both_as AceTree source code
+        System.out.println("Initializing NM locks");
+        boolean success = SNLockNucleiMgr(false);
+        if(success){
+            System.out.println("SN unlocked");
+        }
+        success = ATLockNucleiMgr(false);
+
 		AceTree.fullGUI=fullGUI;
 
         AceTree.iAceTree = this;
@@ -318,6 +331,57 @@ public class AceTree extends JPanel
         this.treeValueChangedFromImageChange = false;
         this.treeValueChangedFromStartup = true;
         this.treeValueChangedFromEdit = false;
+    }
+
+    //semaphores  merge from shooting_star_both_as AceTree source code
+    public boolean ATLockNucleiMgr(boolean lock){
+        //Handles our semaphore for locking/unlocking NM
+        System.out.println("AT is Locking or unlocking NucleiMgr");
+        boolean success = false;
+        if(lock){
+            if(!iATNucleiMgrLock){
+                //NM is not locked, lock it and return 1
+                iATNucleiMgrLock = true;
+                success = true;
+            }
+        }
+        else{
+            //If NM is to be unlocked, just unlock it and return 1
+            iATNucleiMgrLock = false;
+            success = true;
+        }
+        //If NM was already locked, return 0
+        return success;
+    }
+
+    public boolean SNLockNucleiMgr(boolean lock){
+        //Handles our semaphore for locking/unlocking NM
+        System.out.println("SN is Locking or unlocking NucleiMgr");
+        boolean success = false;
+        if(lock){
+            System.out.println("SN Locking NM");
+            if(!iSNNucleiMgrLock){
+                //NM is not locked, lock it and return 1
+                iSNNucleiMgrLock = true;
+                success = true;
+            }
+        }
+        else{
+            System.out.println("SN Unlocking NM");
+            //If NM is to be unlocked, just unlock it and return 1
+            iSNNucleiMgrLock = false;
+            success = true;
+        }
+        //If NM was already locked, return 0
+        return success;
+    }
+
+    public boolean getSNLock(){
+        return iSNNucleiMgrLock;
+    }
+
+    public boolean getATLock(){
+        return iATNucleiMgrLock;
     }
 
     /* Function: transformTitle
@@ -3157,6 +3221,26 @@ public class AceTree extends JPanel
     }
 
     public void killCell(int x) {
+        //semaphores  merge from shooting_star_both_as AceTree source code
+        boolean SNLock = iAceTree.getSNLock();
+        if(SNLock){
+            JOptionPane.showMessageDialog(null,"Waiting for StarryNite to finish writing nuclei data");
+            //SN has locked NM, wait for it to be unlocked
+            //Pop up a dialog indicating that we're waiting
+            while(SNLock){
+                try{
+                    Thread.sleep(100);
+                    SNLock = iAceTree.getSNLock();
+                }
+                catch(InterruptedException ex){
+
+                }
+            }
+            JOptionPane.showMessageDialog(null,"StarryNite is done, taking over");
+        }
+        boolean success = iAceTree.ATLockNucleiMgr(true);
+
+        //killcell
     	println("\n\nkillCell");
         this.treeValueChangedFromEdit = true;
 
@@ -3202,10 +3286,49 @@ public class AceTree extends JPanel
         prevImage();
 
 		System.gc();
+
+        success = iAceTree.ATLockNucleiMgr(false);
     }
 
     public void killDeepNucs() {
     	new KillDeepNucsDialog(this, iMainFrame, true);
+    }
+
+    //merge from shooting_star_both_as AceTree source code
+    public void killDeepNucs(int zLim) {
+        boolean SNLock = iAceTree.getSNLock();
+        if(SNLock){
+            JOptionPane.showMessageDialog(null,"Waiting for StarryNite to finish writing nuclei data");
+            //SN has locked NM, wait for it to be unlocked
+            //Pop up a dialog indicating that we're waiting
+            while(SNLock){
+                try{
+                    Thread.sleep(100);
+                    SNLock = iAceTree.getSNLock();
+                }
+                catch(InterruptedException ex){
+
+                }
+            }
+            JOptionPane.showMessageDialog(null,"StarryNite is done, taking over");
+        }
+        boolean success = iAceTree.ATLockNucleiMgr(true);
+
+        Vector nucRec = (Vector)iNucleiMgr.getNucleiRecord();
+        for (int i=0; i < nucRec.size(); i++) {
+            Vector nuclei = (Vector)nucRec.get(i);
+            for (int j=0; j < nuclei.size(); j++) {
+                Nucleus n = (Nucleus)nuclei.get(j);
+                if (n.status == Nucleus.NILLI) continue;
+                if (n.z < zLim) continue;
+                println("killDeepNucs, " + i + CS + n);
+                n.status = Nucleus.NILLI;
+            }
+        }
+        clearTree();
+        buildTree(true);
+
+        success = iAceTree.ATLockNucleiMgr(false);
     }
 
     public void testWindow() {
