@@ -2,15 +2,7 @@ package org.rhwlab.nucedit;
 
 import java.util.Hashtable;
 import java.util.Vector;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.Box;
-import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.SwingConstants;
-import javax.swing.WindowConstants;
-import javax.swing.BoxLayout;
+import javax.swing.*;
 import java.awt.Component;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -23,9 +15,8 @@ import org.rhwlab.acetree.AceTree;
 import org.rhwlab.tree.AncesTree;
 import org.rhwlab.tree.Cell;
 import org.rhwlab.image.ImageWindow;
-import javax.swing.BorderFactory;
+
 import javax.swing.border.Border;
-import javax.swing.JCheckBox;
 
 /**
  * @author Santella
@@ -116,6 +107,25 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
     @Override
 	@SuppressWarnings("unused")
 	public void actionPerformed(ActionEvent e) {
+		//semaphores  merge from shooting_star_both_as AceTree source code
+		boolean SNLock = iAceTree.getSNLock();
+		if(SNLock){
+			JOptionPane.showMessageDialog(null,"Waiting for StarryNite to finish writing nuclei data");
+			//SN has locked NM, wait for it to be unlocked
+			//Pop up a dialog indicating that we're waiting
+			while(SNLock){
+				try{
+					Thread.sleep(100);
+					SNLock = iAceTree.getSNLock();
+				}
+				catch(InterruptedException ex){
+
+				}
+			}
+			JOptionPane.showMessageDialog(null,"StarryNite is done, taking over");
+		}
+		boolean success = iAceTree.ATLockNucleiMgr(true);
+
     	Object o = e.getSource();
     	String cmd = e.getActionCommand();
     	if (o==iAddKeyframe) {
@@ -153,6 +163,7 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
     		//iInactivate.setEnabled(false);
     		iWarned.setSelected(false);
     	}
+		success = iAceTree.ATLockNucleiMgr(false);
     }
     // here is the main new logic extending this class to
     // have functionality similar to addseries 
