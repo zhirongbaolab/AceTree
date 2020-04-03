@@ -234,6 +234,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 
         //setImageTimeAndPlaneFromTitle();
 
+        iIsMainImgWindow = iTitle.indexOf(RANDOMT) == -1 || iTitle.indexOf(RANDOMF) == -1;
         iIsRightMouseButton = false;
         iSaveImage = false;
         iSaveImageDirectory = null;
@@ -1080,11 +1081,15 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
             AnnotInfo ai = (AnnotInfo)e.nextElement();
             imgProc.moveTo(imgCan.offScreenX(ai.iX),imgCan.offScreenY(ai.iY));
             
-            // If there is a proper name appended, shwo only the proper name
-            String name = ai.iName;
+            // If there is a proper name appended, shows Sulston or terminal name base on user choice
+            String name = ai.iName.trim(); //to avoid leading space
             int i = name.indexOf(" ");
             if (i > 0)
-            	name = name.substring(i+1, name.length());
+                if (iAceTree.getShowSulstonAnnotations()) {
+                    name = name.substring(0, i+1);
+                } else {
+                    name = name.substring(i+1, name.length()).toUpperCase();
+                }
             imgProc.drawString(name);
         }
         imgPlus.updateAndDraw();
@@ -1334,6 +1339,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
      * @return
      */
     public boolean isMainImgWindow() {
+        System.out.println("------ method used --------");
         return this.iIsMainImgWindow;
     }
 

@@ -340,6 +340,8 @@ public class Options extends JDialog implements ActionListener {
             "auto"
            ,"adl"
            ,"avr"
+           ,"pdr"
+           ,"pvl"
 
        };
 

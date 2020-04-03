@@ -195,6 +195,7 @@ public class AceTree extends JPanel
     public Hashtable    iCellsByName;
 
     private boolean     iShowAnnotations;
+    private boolean     iShowSulstonAnnotations;
     private boolean     iShowAnnotationsSave;
     private boolean     iShowCentroids;
     public Integer      iTrackPosition;
@@ -292,6 +293,7 @@ public class AceTree extends JPanel
         iCurrentCellYloc = 0;
 
         setShowAnnotations(false);
+        setShowSulstonAnnotations(true);
         iShowCentroids = false;
 
         iInputCtrl = null;
@@ -662,6 +664,7 @@ public class AceTree extends JPanel
             iAceMenuBar.setClearEnabled(true);
 
 	        setShowAnnotations(true);
+	        setShowSulstonAnnotations(true);
 	        updateDisplay();
     	} catch (Throwable t) {
 			new GeneralStartupError(getMainFrame(), t);
@@ -701,6 +704,7 @@ public class AceTree extends JPanel
         //iTree.updateUI();
         buildTree(false);
         setShowAnnotations(true);
+        setShowSulstonAnnotations(true);
 
     }
 
@@ -986,7 +990,8 @@ public class AceTree extends JPanel
         updateRoot(iAncesTree.getRootCells());
         iCellsByName = iAncesTree.getCellsByName();
         setShowAnnotations(false);
-        iShow.setText(SHOW);
+        setShowSulstonAnnotations(true);
+        iShow.setText(SHOWSUL);
         //iShowCentroids = false;
         //iShowC.setText(SHOWC);
         Cell.setEndingIndexS(this.configManager.getImageConfig().getEndingIndex()); // what does this do?
@@ -1281,7 +1286,7 @@ public class AceTree extends JPanel
         iHome.addActionListener(this);
         //p.setLayout(new GridLayout(1,7));
         p.setLayout(new BoxLayout(p, BoxLayout.LINE_AXIS));
-        iShow = new JButton(SHOW);
+        iShow = new JButton(SHOWSUL);
         iShowC = new JButton(SHOWC);
         iClear = new JButton(CLEAR);
         iShow.addActionListener(this);
@@ -2442,8 +2447,13 @@ public class AceTree extends JPanel
             if (iCurrentCell.isAnterior()) iTrackPosition = ImageWindow.ANTERIOR;
             else iTrackPosition = ImageWindow.POSTERIOR;
         }
-        else if (e.getActionCommand().equals(SHOW)) {
+        else if (e.getActionCommand().equals(SHOWSUL)) {
             setShowAnnotations(true);
+            setShowSulstonAnnotations(true);
+        }
+        else if (e.getActionCommand().equals(SHOWTER)) {
+            setShowAnnotations(true);
+            setShowSulstonAnnotations(false);
         }
         else if (e.getActionCommand().equals(HIDE)) {
             setShowAnnotations(false);
@@ -3438,7 +3448,8 @@ public class AceTree extends JPanel
     public void canonical() {
         //System.out.println("AceTree.test");
         if (iCanonicalTree == null) iCanonicalTree = CanonicalTree.getCanonicalTree();
-        new AuxFrame(this, "Sulston Tree", iCanonicalTree);
+        iSulstonTree = new SulstonTree(iCanonicalTree, "Canonical Sulston Tree", iCurrentCell, false, null);
+        //new AuxFrame(this, "Sulston Tree", iCanonicalTree);
     }
 
     public void vtree() {
@@ -3591,11 +3602,24 @@ public class AceTree extends JPanel
 
     public void setShowAnnotations(boolean show) {
         iShowAnnotations = show;
+        setShowButton();
+    }
+
+    public boolean getShowSulstonAnnotations() { return iShowSulstonAnnotations; }
+
+    public void setShowSulstonAnnotations(boolean suls) {
+        iShowSulstonAnnotations = suls;
+        setShowButton();
+    }
+
+    private void setShowButton() {
         if (iShow != null) {
-            if (show) iShow.setText(HIDE);
-            else iShow.setText(SHOW);
+            if (iShowAnnotations && !iShowSulstonAnnotations) iShow.setText(HIDE);
+            else if (iShowAnnotations && iShowSulstonAnnotations) iShow.setText(SHOWTER);
+            else iShow.setText(SHOWSUL);
         }
     }
+
 
     public Cell getCurrentCell() {
         return iCurrentCell;
@@ -3695,7 +3719,8 @@ public class AceTree extends JPanel
    ,UP   = "Up Z"
    ,DOWN = "Down Z"
    ,HOME = "Cell Birth"
-   ,SHOW = "Show Names"
+   ,SHOWSUL = "Sulston Names"
+   ,SHOWTER = "Terminal Names"
    ,SHOWC = "Show Cells"
    ,HIDE = "Hide Names"
    ,HIDEC = "Hide Cells"

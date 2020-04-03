@@ -476,8 +476,9 @@ public class InitialID {
 		Nucleus n;
 		for (int i=0; i < nuclei.size(); i++) {
 			n = nuclei.elementAt(i);
-			if (n.status > -1 && !n.identity.equals(POLAR)) cell_ct++;
-			//if (n.status > -1 && n.identity.indexOf(POLAR) == -1) cell_ct++;
+			//FIXME HAD TO SWAP THIS NEW if STATEMENT WITH OLD (commented out) STATEMENT TO GET NAMING TO WORK
+			//if (n.status > -1 && !n.identity.equals(POLAR)) cell_ct++;
+			if (n.status > -1 && n.identity.indexOf(POLAR) == -1) cell_ct++;
 		}
 		return cell_ct;
 	}
