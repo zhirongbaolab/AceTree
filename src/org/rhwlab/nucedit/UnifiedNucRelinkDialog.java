@@ -128,7 +128,7 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
 
     	Object o = e.getSource();
     	String cmd = e.getActionCommand();
-    	if (o==iAddKeyframe) {
+    	if (o==iAddKeyframe || cmd.equals(SHORTCUTTRIGGER)) {
     		if(!addKeyframeActive) {
     			if(iWarned.isSelected()) {
 	    			//add cell if no start specified
@@ -316,10 +316,19 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
 
     }
 
+    public boolean getAddKeyframeActive() {
+    	return addKeyframeActive;
+	}
+
+	public void setiWarned(boolean b) {
+    	iWarned.setSelected(b);
+	}
+
 
  public final static String
        KEYFRAME = "Add Intermediate Cell"
       ,KEYFRAMEHEADER = "Add Cell as Intermediate (Optional)"
 	  ,WARNING="Warning:Is early set correctly?"
-	  ,DEACTIVATE="Deactivate";
+	  ,DEACTIVATE="Deactivate"
+	  ,SHORTCUTTRIGGER ="Short cut trigger";
 }

@@ -1353,7 +1353,7 @@ public class AceTree extends JPanel
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-    			//println("AceTree.setSpecialKeyBoardActions, ctrl_left");
+    			//println("AceTree.setSpecialKeyBoardActions, ctrl_left_a");
     			if (iAddOneDialog != null) {
     				ActionEvent ae = new ActionEvent(aceTree, 1, "LEFT");
     				iAddOneDialog.actionPerformed(ae);
@@ -1387,7 +1387,7 @@ public class AceTree extends JPanel
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-    			//println("AceTree.setSpecialKeyBoardActions, ctrl_right");
+    			//println("AceTree.setSpecialKeyBoardActions, ctrl_right_d");
     			if (iAddOneDialog == null) return;
 				ActionEvent ae = new ActionEvent(aceTree, 1, "RIGHT");
 				iAddOneDialog.actionPerformed(ae);
@@ -1420,7 +1420,7 @@ public class AceTree extends JPanel
     		private static final long serialVersionUID = 1L;
     		@Override
 			public void actionPerformed(ActionEvent e) {
-    			//println("AceTree.setSpecialKeyBoardActions, ctrl_up");
+    			//println("AceTree.setSpecialKeyBoardActions, ctrl_up_w");
     			if (iAddOneDialog == null) return;
 				ActionEvent ae = new ActionEvent(aceTree, 1, "UP");
 				//ActionEvent ae = new ActionEvent(aceTree, 1, "DOWN");
@@ -1454,7 +1454,7 @@ public class AceTree extends JPanel
         	private static final long serialVersionUID = 1L;
     		@Override
 			public void actionPerformed(ActionEvent e) {
-    			//println("AceTree.setSpecialKeyBoardActions, ctrl_down");
+    			//println("AceTree.setSpecialKeyBoardActions, ctrl_down_s");
     			if (iAddOneDialog == null) return;
 				ActionEvent ae = new ActionEvent(aceTree, 1, "DOWN");
 				//ActionEvent ae = new ActionEvent(aceTree, 1, "UP");
@@ -1473,7 +1473,7 @@ public class AceTree extends JPanel
 			public void actionPerformed(ActionEvent e) {
     			//println("AceTree.setSpecialKeyBoardActions, shift_left");
     			if (iAddOneDialog == null) return;
-				ActionEvent ae = new ActionEvent(aceTree, 1, "BIG");
+				ActionEvent ae = new ActionEvent(aceTree, 1, "SMALL");
 				iAddOneDialog.actionPerformed(ae);
 
     		}
@@ -1487,9 +1487,9 @@ public class AceTree extends JPanel
     		private static final long serialVersionUID = 1L;
     		@Override
 			public void actionPerformed(ActionEvent e) {
-    			//println("AceTree.setSpecialKeyBoardActions, shift_left");
+    			//println("AceTree.setSpecialKeyBoardActions, shift_left_a");
     			if (iAddOneDialog == null) return;
-				ActionEvent ae = new ActionEvent(aceTree, 1, "BIG");
+				ActionEvent ae = new ActionEvent(aceTree, 1, "SMALL");
 				iAddOneDialog.actionPerformed(ae);
 
     		}
@@ -1505,7 +1505,7 @@ public class AceTree extends JPanel
 			public void actionPerformed(ActionEvent e) {
     			//println("AceTree.setSpecialKeyBoardActions, shift_right");
     			if (iAddOneDialog == null) return;
-				ActionEvent ae = new ActionEvent(aceTree, 1, "SMALL");
+				ActionEvent ae = new ActionEvent(aceTree, 1, "BIG");
 				iAddOneDialog.actionPerformed(ae);
 
     		}
@@ -1519,9 +1519,9 @@ public class AceTree extends JPanel
         	private static final long serialVersionUID = 1L;
     		@Override
 			public void actionPerformed(ActionEvent e) {
-    			//println("AceTree.setSpecialKeyBoardActions, shift_right");
+    			//println("AceTree.setSpecialKeyBoardActions, shift_right_d");
     			if (iAddOneDialog == null) return;
-				ActionEvent ae = new ActionEvent(aceTree, 1, "SMALL");
+				ActionEvent ae = new ActionEvent(aceTree, 1, "BIG");
 				iAddOneDialog.actionPerformed(ae);
 
     		}
@@ -1538,7 +1538,7 @@ public class AceTree extends JPanel
     			//println("AceTree.setSpecialKeyBoardActions, shift_up");
     			if (iAddOneDialog == null) return;
 				//ActionEvent ae = new ActionEvent(aceTree, 1, "INCZ");
-				ActionEvent ae = new ActionEvent(aceTree, 1, "DECZ");
+				ActionEvent ae = new ActionEvent(aceTree, 1, "INC Z");
 				iAddOneDialog.actionPerformed(ae);
 
     		}
@@ -1552,10 +1552,10 @@ public class AceTree extends JPanel
     		private static final long serialVersionUID = 1L;
     		@Override
 			public void actionPerformed(ActionEvent e) {
-    			//println("AceTree.setSpecialKeyBoardActions, shift_up");
+    			//println("AceTree.setSpecialKeyBoardActions, shift_up_w");
     			if (iAddOneDialog == null) return;
 				//ActionEvent ae = new ActionEvent(aceTree, 1, "INCZ");
-				ActionEvent ae = new ActionEvent(aceTree, 1, "DECZ");
+				ActionEvent ae = new ActionEvent(aceTree, 1, "INC Z");
 				iAddOneDialog.actionPerformed(ae);
 
     		}
@@ -1572,7 +1572,7 @@ public class AceTree extends JPanel
     			//println("AceTree.setSpecialKeyBoardActions, shift_down");
     			if (iAddOneDialog == null) return;
 				//ActionEvent ae = new ActionEvent(aceTree, 1, "DECZ");
-				ActionEvent ae = new ActionEvent(aceTree, 1, "INCZ");
+				ActionEvent ae = new ActionEvent(aceTree, 1, "DEC Z");
 				iAddOneDialog.actionPerformed(ae);
 
     		}
@@ -1586,10 +1586,10 @@ public class AceTree extends JPanel
         	private static final long serialVersionUID = 1L;
     		@Override
 			public void actionPerformed(ActionEvent e) {
-    			//println("AceTree.setSpecialKeyBoardActions, shift_down");
+    			//println("AceTree.setSpecialKeyBoardActions, shift_down_s");
     			if (iAddOneDialog == null) return;
 				//ActionEvent ae = new ActionEvent(aceTree, 1, "DECZ");
-				ActionEvent ae = new ActionEvent(aceTree, 1, "INCZ");
+				ActionEvent ae = new ActionEvent(aceTree, 1, "DEC Z");
 				iAddOneDialog.actionPerformed(ae);
 
     		}
@@ -1796,9 +1796,9 @@ public class AceTree extends JPanel
         inputMap.put(stroke, actionKey);
         getActionMap().put(actionKey, up);
         
-        // Fast (skipping a few planes) UP using CTRL
-        s = "shift UP";
-        Action shift_up = new AbstractAction() {
+        // Fast (skipping a few planes) UP using CTRL + SHIFT
+        s = "ctrl shift UP";
+        Action ctrl_shift_up = new AbstractAction() {
         	private static final long serialVersionUID = 1L;
         	@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1810,7 +1810,7 @@ public class AceTree extends JPanel
         	}
         };
         getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(s), s);
-        getActionMap().put(s, shift_up);
+        getActionMap().put(s, ctrl_shift_up);
 
         s = "DOWN";
         Action down = new AbstractAction() {
@@ -1830,9 +1830,9 @@ public class AceTree extends JPanel
         actionMap = this.getActionMap();
         actionMap.put(actionKey, down);
         
-        // Fast (skipping a few planes) DOWN using CTRL
-        s = "shift DOWN";
-        Action shift_down = new AbstractAction() {
+        // Fast (skipping a few planes) DOWN using CTRL + SHIFT
+        s = "ctrl shift DOWN";
+        Action ctrl_shift_down = new AbstractAction() {
         	private static final long serialVersionUID = 1L;
         	@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1844,7 +1844,7 @@ public class AceTree extends JPanel
         	}
         };
     	getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(s), s);
-    	getActionMap().put(s, shift_down);
+    	getActionMap().put(s, ctrl_shift_down);
 
 
         s = "LEFT";
@@ -1865,9 +1865,9 @@ public class AceTree extends JPanel
         actionMap = this.getActionMap();
         actionMap.put(actionKey, left);
         
-        // Fast (skipping a few planes) LEFT using CTRL
-        s = "shift LEFT";
-        Action shift_left = new AbstractAction() {
+        // Fast (skipping a few planes) LEFT using CTRL + SHIFT
+        s = "ctrl shift LEFT";
+        Action ctrl_shift_left = new AbstractAction() {
         	private static final long serialVersionUID = 1L;
         	@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1875,7 +1875,7 @@ public class AceTree extends JPanel
         	}
         };
         getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(s), s);
-        getActionMap().put(s, shift_left);
+        getActionMap().put(s, ctrl_shift_left);
 
         s = "RIGHT";
         Action right = new AbstractAction(s) {
@@ -1897,9 +1897,9 @@ public class AceTree extends JPanel
         actionMap = this.getActionMap();
         actionMap.put(actionKey, right);
         
-        // Fast (skipping a few planes) UP using CTRL
-        s = "shift RIGHT";
-        Action shift_right = new AbstractAction() {
+        // Fast (skipping a few planes) UP using CTRL + SHIFT
+        s = "ctrl shift RIGHT";
+        Action ctrl_shift_right = new AbstractAction() {
         	private static final long serialVersionUID = 1L;
         	@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1908,7 +1908,7 @@ public class AceTree extends JPanel
         	}
         };
         getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(s), s);
-        getActionMap().put(s, shift_right);
+        getActionMap().put(s, ctrl_shift_right);
 
         s = "ENTER";
         Action get = new AbstractAction(s) {

@@ -90,6 +90,7 @@ import org.rhwlab.acetree.AnnotInfo;
 import org.rhwlab.image.ParsingLogic.ImageNameLogic;
 import org.rhwlab.image.management.ImageManager;
 import org.rhwlab.nucedit.AddOneDialog;
+import org.rhwlab.nucedit.NucRelinkDialog;
 import org.rhwlab.nucedit.UnifiedNucRelinkDialog;
 import org.rhwlab.snight.NucleiMgr;
 import org.rhwlab.snight.Nucleus;
@@ -1424,6 +1425,24 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
                 addAnnotation(x2, y2, false);
 
                 //iAceTree.updateDisplay();
+            }
+            //middle click turn on add intermediate cell while in edit mode
+            else if (button == MouseEvent.BUTTON2) {
+                if (iAceTree.iNucRelinkDialog == null ) return;
+                UnifiedNucRelinkDialog unrd = null;
+                try {
+                    unrd = (UnifiedNucRelinkDialog)iAceTree.iNucRelinkDialog;
+                } catch (ClassCastException cce) {
+                    return;
+                }
+                if (!unrd.getAddKeyframeActive()) {
+                    unrd.setiWarned(true);
+                } else {
+                    unrd.setiWarned(false);
+                }
+                ActionEvent ae = new ActionEvent(iAceTree, 1, UnifiedNucRelinkDialog.SHORTCUTTRIGGER);
+                unrd.actionPerformed(ae);
+                return;
             }
             
             iAceTree.cellAnnotated(getClickedCellName(x2, y2));
