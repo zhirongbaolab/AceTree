@@ -2161,7 +2161,7 @@ public class AceTree extends JPanel
             sb2.append("\nsize: " + n.size + " displayed diameter: " + sd);
             sb2.append("\ncurrent index: " + n.index);
             //sb2.append(getRedDataFromCell(time));
-            sb2.append(" weightg/r: " + n.weight);
+            sb2.append("\nexpression histone/label: " + n.weight);
             sb2.append(", " + n.rweight);
             sb2.append("\nstart=" + iCurrentCell.getTime());
             sb2.append(", end=" + iCurrentCell.getEnd());

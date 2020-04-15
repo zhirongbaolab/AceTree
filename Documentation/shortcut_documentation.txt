@@ -1,0 +1,50 @@
+Shortcuts setup code is located in AceTree.java
+
+1. setSpecialKeyboardActions() works under nucleus edit mode
+
+	(arrow key can be replaced with a/w/s/d key accordingly. For example, both ctrl-left arrow and ctrl-a can be used to move nucleus to the left.)
+
+	ctrl-left arrow --- move nucleus to the left by 1
+	ctrl-right arrow --- move nucleus to the right by 1
+	ctrl-up arrow --- move nucleus up by 1
+	ctrl-down arrow --- move nucleus down by 1
+	
+	shift-left arrow --- decrease nucleus diameter by 2
+	shift-right arrow --- increase nucleus diameter by 2
+	shift-up arrow --- move up nucleus in Z axis by 1
+	shift-down arrow --- move down nucleus in Z axis by 1
+
+	delete/backspace --- kill selected nucleus
+
+	F1 --- set early cell
+	F2 --- set late cell
+	F3 --- apply only
+	F4 --- apply and rebuild
+	F5 --- rebuild and rename
+
+2. setKeyboardActions() works in Image Window
+
+	PAGE UP --- show/hide annotation
+	PAGE DOWN --- show/hide centroids
+
+	HOME --- reset time and plane increment to 0
+	
+	left arrow --- move one time point back
+	right arrow --- move one time point forward
+	up arrow --- move one plane up
+	down arrow --- move one plane down
+
+	ctrl-shift-left arrow --- move five time point back
+	ctrl-shift-right arrow --- move five time point forward
+	ctrl-shift-up arrow --- move five plane up
+	ctrl-shift-down arrow --- move five plane down
+
+
+Implement in ImageWindow.java
+
+	mouse middle click --- turn on/off add intermediate cell under nucleus	edit mode.
+
+	
+	
+
+ 
