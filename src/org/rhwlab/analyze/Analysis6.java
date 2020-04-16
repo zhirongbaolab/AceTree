@@ -203,8 +203,8 @@ public class Analysis6 extends Log {
             int k = getSize(nuclei);
             String s = iTemplate + C.CS + i + C.CS + k;
             append(s);
-            xValues[i - 1] = i;
-            yValues[i - 1] = k;
+            xValues[i - first] = i;
+            yValues[i - first] = k;
             nuclei = (Vector)nuclei_record.elementAt(i);
         }
         return new PlotData(xValues, yValues);
@@ -310,12 +310,12 @@ public class Analysis6 extends Log {
         double [] xValues = new double[last - first + 1];
         double [] yValues = new double[last - first + 1];
         Vector nuclei = (Vector)nuclei_record.elementAt(first);
-        for (int i=first; i < last; i++) {
+        for (int i=first; i <= last; i++) {
             int k = countNuclei(nuclei);
             String s = i + C.CS + k;
             append(s);
-            xValues[i - 1] = i;
-            yValues[i - 1] = k;
+            xValues[i - first] = i;
+            yValues[i - first] = k;
             nuclei = (Vector)nuclei_record.elementAt(i);
         }
         double [] xx = new double[last - first];

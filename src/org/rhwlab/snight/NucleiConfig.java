@@ -68,6 +68,7 @@ public class NucleiConfig {
         planeStart = 1;
         startingIndex = 1;
         endingIndex = 1;
+        exprCorr = "blot";
 
         if (configData == null) return;
 
