@@ -46,19 +46,19 @@ public class ImageConversionManager {
             // Set contrast values from original image
             int ipminred = (int)(tif_8bit.getDisplayRangeMin());
             int ipmaxred = (int)(tif_8bit.getDisplayRangeMax());
-            System.out.println("ImageConversionManager set channel 1 contrast minimum, maximum from image: " + ipminred + ", " + ipmaxred);
-            ImageManager.setContrastMin1(ipminred);
-            ImageManager.setContrastMax1(ipmaxred);
+            System.out.println("ImageConversionManager set channel 2 contrast minimum, maximum from image: " + ipminred + ", " + ipmaxred);
+            ImageManager.setContrastMin2(ipminred);
+            ImageManager.setContrastMax2(ipmaxred);
 
             ImageManager.setOriginContrastValuesFlag(false);
         }
 
-        tif_8bit.setDisplayRange(ImageManager.getContrastMin1(), ImageManager.getContrastMax1());
+        tif_8bit.setDisplayRange(ImageManager.getContrastMin2(), ImageManager.getContrastMax2());
 
         iproc3.getRGB(R, G, B);
 
-        // set the RED
-        R = bpix;
+        // set the GREEN
+        G = bpix;
 
         currentRPixelMap = R;
         currentGPixelMap = G;
@@ -68,8 +68,8 @@ public class ImageConversionManager {
     }
 
     public static ImagePlus convertMultiple8bittifsToRGB(ImagePlus tif1, ImagePlus tif2, ImageConfig imageConfig) {
-        ImageProcessor iproc1 = tif1.getProcessor();
-        ImageProcessor iproc2 = tif2.getProcessor();
+        ImageProcessor iproc1 = tif2.getProcessor();
+        ImageProcessor iproc2 = tif1.getProcessor();
 
         if (imageConfig.getFlipStack() == 1) {
             iproc1.flipHorizontal();
@@ -87,14 +87,14 @@ public class ImageConversionManager {
 
         if (ImageManager.getOriginalContrastValuesFlag()) {
             // Set contrast values from original image
-            int ipminred = (int)(tif1.getDisplayRangeMin());
-            int ipmaxred = (int)(tif1.getDisplayRangeMax());
+            int ipminred = (int)(tif2.getDisplayRangeMin());
+            int ipmaxred = (int)(tif2.getDisplayRangeMax());
             System.out.println("ImageConversionManager set channel 1 contrast minimum, maximum from image: " + ipminred + ", " + ipmaxred);
             ImageManager.setContrastMin1(ipminred);
             ImageManager.setContrastMax1(ipmaxred);
 
-            int ipmingreen = (int)(tif2.getDisplayRangeMin());
-            int ipmaxgreen = (int)(tif2.getDisplayRangeMax());
+            int ipmingreen = (int)(tif1.getDisplayRangeMin());
+            int ipmaxgreen = (int)(tif1.getDisplayRangeMax());
             System.out.println("ImageConversionManager set channel 2 contrast minimum, maximum from image: " + ipmingreen + ", " + ipmaxgreen);
             ImageManager.setContrastMin2(ipmingreen);
             ImageManager.setContrastMax2(ipmaxgreen);
@@ -102,8 +102,8 @@ public class ImageConversionManager {
             ImageManager.setOriginContrastValuesFlag(false);
         }
 
-        tif1.setDisplayRange(ImageManager.getContrastMin1(), ImageManager.getContrastMax1());
-        tif2.setDisplayRange(ImageManager.getContrastMin2(), ImageManager.getContrastMax2());
+        tif2.setDisplayRange(ImageManager.getContrastMin1(), ImageManager.getContrastMax1());
+        tif1.setDisplayRange(ImageManager.getContrastMin2(), ImageManager.getContrastMax2());
 
         iproc3.getRGB(R, G, B);
 
