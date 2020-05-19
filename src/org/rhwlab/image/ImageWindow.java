@@ -90,6 +90,7 @@ import org.rhwlab.acetree.AnnotInfo;
 import org.rhwlab.image.ParsingLogic.ImageNameLogic;
 import org.rhwlab.image.management.ImageManager;
 import org.rhwlab.nucedit.AddOneDialog;
+import org.rhwlab.nucedit.NucRelinkDialog;
 import org.rhwlab.nucedit.UnifiedNucRelinkDialog;
 import org.rhwlab.snight.NucleiMgr;
 import org.rhwlab.snight.Nucleus;
@@ -234,6 +235,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
 
         //setImageTimeAndPlaneFromTitle();
 
+        iIsMainImgWindow = iTitle.indexOf(RANDOMT) == -1 || iTitle.indexOf(RANDOMF) == -1;
         iIsRightMouseButton = false;
         iSaveImage = false;
         iSaveImageDirectory = null;
@@ -1080,11 +1082,15 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
             AnnotInfo ai = (AnnotInfo)e.nextElement();
             imgProc.moveTo(imgCan.offScreenX(ai.iX),imgCan.offScreenY(ai.iY));
             
-            // If there is a proper name appended, shwo only the proper name
-            String name = ai.iName;
+            // If there is a proper name appended, shows Sulston or terminal name base on user choice
+            String name = ai.iName.trim(); //to avoid leading space
             int i = name.indexOf(" ");
             if (i > 0)
-            	name = name.substring(i+1, name.length());
+                if (iAceTree.getShowSulstonAnnotations()) {
+                    name = name.substring(0, i+1);
+                } else {
+                    name = name.substring(i+1, name.length()).toUpperCase();
+                }
             imgProc.drawString(name);
         }
         imgPlus.updateAndDraw();
@@ -1334,6 +1340,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
      * @return
      */
     public boolean isMainImgWindow() {
+        System.out.println("------ method used --------");
         return this.iIsMainImgWindow;
     }
 
@@ -1418,6 +1425,24 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
                 addAnnotation(x2, y2, false);
 
                 //iAceTree.updateDisplay();
+            }
+            //middle click turn on add intermediate cell while in edit mode
+            else if (button == MouseEvent.BUTTON2) {
+                if (iAceTree.iNucRelinkDialog == null ) return;
+                UnifiedNucRelinkDialog unrd = null;
+                try {
+                    unrd = (UnifiedNucRelinkDialog)iAceTree.iNucRelinkDialog;
+                } catch (ClassCastException cce) {
+                    return;
+                }
+                if (!unrd.getAddKeyframeActive()) {
+                    unrd.setiWarned(true);
+                } else {
+                    unrd.setiWarned(false);
+                }
+                ActionEvent ae = new ActionEvent(iAceTree, 1, UnifiedNucRelinkDialog.SHORTCUTTRIGGER);
+                unrd.actionPerformed(ae);
+                return;
             }
             
             iAceTree.cellAnnotated(getClickedCellName(x2, y2));

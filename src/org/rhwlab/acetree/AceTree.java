@@ -195,6 +195,7 @@ public class AceTree extends JPanel
     public Hashtable    iCellsByName;
 
     private boolean     iShowAnnotations;
+    private boolean     iShowSulstonAnnotations;
     private boolean     iShowAnnotationsSave;
     private boolean     iShowCentroids;
     public Integer      iTrackPosition;
@@ -228,6 +229,10 @@ public class AceTree extends JPanel
     
     private LinkedList<Integer>	iKeyQueue;
 
+    //semaphores  merge from shooting_star_both_as AceTree source code
+    public boolean             iATNucleiMgrLock;
+    public boolean             iSNNucleiMgrLock;
+
     private static boolean fullGUI = false;
 
     // booleans to control tree selection changes and determine their origins
@@ -257,6 +262,15 @@ public class AceTree extends JPanel
     @SuppressWarnings("static-access")
 	protected AceTree(String configFileName, boolean fullGUI) {
         super();
+
+        //semaphores  merge from shooting_star_both_as AceTree source code
+        System.out.println("Initializing NM locks");
+        boolean success = SNLockNucleiMgr(false);
+        if(success){
+            System.out.println("SN unlocked");
+        }
+        success = ATLockNucleiMgr(false);
+
 		AceTree.fullGUI=fullGUI;
 
         AceTree.iAceTree = this;
@@ -279,6 +293,7 @@ public class AceTree extends JPanel
         iCurrentCellYloc = 0;
 
         setShowAnnotations(false);
+        setShowSulstonAnnotations(true);
         iShowCentroids = false;
 
         iInputCtrl = null;
@@ -318,6 +333,57 @@ public class AceTree extends JPanel
         this.treeValueChangedFromImageChange = false;
         this.treeValueChangedFromStartup = true;
         this.treeValueChangedFromEdit = false;
+    }
+
+    //semaphores  merge from shooting_star_both_as AceTree source code
+    public boolean ATLockNucleiMgr(boolean lock){
+        //Handles our semaphore for locking/unlocking NM
+        System.out.println("AT is Locking or unlocking NucleiMgr");
+        boolean success = false;
+        if(lock){
+            if(!iATNucleiMgrLock){
+                //NM is not locked, lock it and return 1
+                iATNucleiMgrLock = true;
+                success = true;
+            }
+        }
+        else{
+            //If NM is to be unlocked, just unlock it and return 1
+            iATNucleiMgrLock = false;
+            success = true;
+        }
+        //If NM was already locked, return 0
+        return success;
+    }
+
+    public boolean SNLockNucleiMgr(boolean lock){
+        //Handles our semaphore for locking/unlocking NM
+        System.out.println("SN is Locking or unlocking NucleiMgr");
+        boolean success = false;
+        if(lock){
+            System.out.println("SN Locking NM");
+            if(!iSNNucleiMgrLock){
+                //NM is not locked, lock it and return 1
+                iSNNucleiMgrLock = true;
+                success = true;
+            }
+        }
+        else{
+            System.out.println("SN Unlocking NM");
+            //If NM is to be unlocked, just unlock it and return 1
+            iSNNucleiMgrLock = false;
+            success = true;
+        }
+        //If NM was already locked, return 0
+        return success;
+    }
+
+    public boolean getSNLock(){
+        return iSNNucleiMgrLock;
+    }
+
+    public boolean getATLock(){
+        return iATNucleiMgrLock;
     }
 
     /* Function: transformTitle
@@ -598,6 +664,7 @@ public class AceTree extends JPanel
             iAceMenuBar.setClearEnabled(true);
 
 	        setShowAnnotations(true);
+	        setShowSulstonAnnotations(true);
 	        updateDisplay();
     	} catch (Throwable t) {
 			new GeneralStartupError(getMainFrame(), t);
@@ -637,6 +704,7 @@ public class AceTree extends JPanel
         //iTree.updateUI();
         buildTree(false);
         setShowAnnotations(true);
+        setShowSulstonAnnotations(true);
 
     }
 
@@ -922,7 +990,8 @@ public class AceTree extends JPanel
         updateRoot(iAncesTree.getRootCells());
         iCellsByName = iAncesTree.getCellsByName();
         setShowAnnotations(false);
-        iShow.setText(SHOW);
+        setShowSulstonAnnotations(true);
+        iShow.setText(SHOWSUL);
         //iShowCentroids = false;
         //iShowC.setText(SHOWC);
         Cell.setEndingIndexS(this.configManager.getImageConfig().getEndingIndex()); // what does this do?
@@ -1217,7 +1286,7 @@ public class AceTree extends JPanel
         iHome.addActionListener(this);
         //p.setLayout(new GridLayout(1,7));
         p.setLayout(new BoxLayout(p, BoxLayout.LINE_AXIS));
-        iShow = new JButton(SHOW);
+        iShow = new JButton(SHOWSUL);
         iShowC = new JButton(SHOWC);
         iClear = new JButton(CLEAR);
         iShow.addActionListener(this);
@@ -1284,7 +1353,7 @@ public class AceTree extends JPanel
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-    			//println("AceTree.setSpecialKeyBoardActions, ctrl_left");
+    			//println("AceTree.setSpecialKeyBoardActions, ctrl_left_a");
     			if (iAddOneDialog != null) {
     				ActionEvent ae = new ActionEvent(aceTree, 1, "LEFT");
     				iAddOneDialog.actionPerformed(ae);
@@ -1318,7 +1387,7 @@ public class AceTree extends JPanel
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-    			//println("AceTree.setSpecialKeyBoardActions, ctrl_right");
+    			//println("AceTree.setSpecialKeyBoardActions, ctrl_right_d");
     			if (iAddOneDialog == null) return;
 				ActionEvent ae = new ActionEvent(aceTree, 1, "RIGHT");
 				iAddOneDialog.actionPerformed(ae);
@@ -1351,7 +1420,7 @@ public class AceTree extends JPanel
     		private static final long serialVersionUID = 1L;
     		@Override
 			public void actionPerformed(ActionEvent e) {
-    			//println("AceTree.setSpecialKeyBoardActions, ctrl_up");
+    			//println("AceTree.setSpecialKeyBoardActions, ctrl_up_w");
     			if (iAddOneDialog == null) return;
 				ActionEvent ae = new ActionEvent(aceTree, 1, "UP");
 				//ActionEvent ae = new ActionEvent(aceTree, 1, "DOWN");
@@ -1385,7 +1454,7 @@ public class AceTree extends JPanel
         	private static final long serialVersionUID = 1L;
     		@Override
 			public void actionPerformed(ActionEvent e) {
-    			//println("AceTree.setSpecialKeyBoardActions, ctrl_down");
+    			//println("AceTree.setSpecialKeyBoardActions, ctrl_down_s");
     			if (iAddOneDialog == null) return;
 				ActionEvent ae = new ActionEvent(aceTree, 1, "DOWN");
 				//ActionEvent ae = new ActionEvent(aceTree, 1, "UP");
@@ -1404,7 +1473,7 @@ public class AceTree extends JPanel
 			public void actionPerformed(ActionEvent e) {
     			//println("AceTree.setSpecialKeyBoardActions, shift_left");
     			if (iAddOneDialog == null) return;
-				ActionEvent ae = new ActionEvent(aceTree, 1, "BIG");
+				ActionEvent ae = new ActionEvent(aceTree, 1, "SMALL");
 				iAddOneDialog.actionPerformed(ae);
 
     		}
@@ -1418,9 +1487,9 @@ public class AceTree extends JPanel
     		private static final long serialVersionUID = 1L;
     		@Override
 			public void actionPerformed(ActionEvent e) {
-    			//println("AceTree.setSpecialKeyBoardActions, shift_left");
+    			//println("AceTree.setSpecialKeyBoardActions, shift_left_a");
     			if (iAddOneDialog == null) return;
-				ActionEvent ae = new ActionEvent(aceTree, 1, "BIG");
+				ActionEvent ae = new ActionEvent(aceTree, 1, "SMALL");
 				iAddOneDialog.actionPerformed(ae);
 
     		}
@@ -1436,7 +1505,7 @@ public class AceTree extends JPanel
 			public void actionPerformed(ActionEvent e) {
     			//println("AceTree.setSpecialKeyBoardActions, shift_right");
     			if (iAddOneDialog == null) return;
-				ActionEvent ae = new ActionEvent(aceTree, 1, "SMALL");
+				ActionEvent ae = new ActionEvent(aceTree, 1, "BIG");
 				iAddOneDialog.actionPerformed(ae);
 
     		}
@@ -1450,9 +1519,9 @@ public class AceTree extends JPanel
         	private static final long serialVersionUID = 1L;
     		@Override
 			public void actionPerformed(ActionEvent e) {
-    			//println("AceTree.setSpecialKeyBoardActions, shift_right");
+    			//println("AceTree.setSpecialKeyBoardActions, shift_right_d");
     			if (iAddOneDialog == null) return;
-				ActionEvent ae = new ActionEvent(aceTree, 1, "SMALL");
+				ActionEvent ae = new ActionEvent(aceTree, 1, "BIG");
 				iAddOneDialog.actionPerformed(ae);
 
     		}
@@ -1469,7 +1538,7 @@ public class AceTree extends JPanel
     			//println("AceTree.setSpecialKeyBoardActions, shift_up");
     			if (iAddOneDialog == null) return;
 				//ActionEvent ae = new ActionEvent(aceTree, 1, "INCZ");
-				ActionEvent ae = new ActionEvent(aceTree, 1, "DECZ");
+				ActionEvent ae = new ActionEvent(aceTree, 1, "INC Z");
 				iAddOneDialog.actionPerformed(ae);
 
     		}
@@ -1483,10 +1552,10 @@ public class AceTree extends JPanel
     		private static final long serialVersionUID = 1L;
     		@Override
 			public void actionPerformed(ActionEvent e) {
-    			//println("AceTree.setSpecialKeyBoardActions, shift_up");
+    			//println("AceTree.setSpecialKeyBoardActions, shift_up_w");
     			if (iAddOneDialog == null) return;
 				//ActionEvent ae = new ActionEvent(aceTree, 1, "INCZ");
-				ActionEvent ae = new ActionEvent(aceTree, 1, "DECZ");
+				ActionEvent ae = new ActionEvent(aceTree, 1, "INC Z");
 				iAddOneDialog.actionPerformed(ae);
 
     		}
@@ -1503,7 +1572,7 @@ public class AceTree extends JPanel
     			//println("AceTree.setSpecialKeyBoardActions, shift_down");
     			if (iAddOneDialog == null) return;
 				//ActionEvent ae = new ActionEvent(aceTree, 1, "DECZ");
-				ActionEvent ae = new ActionEvent(aceTree, 1, "INCZ");
+				ActionEvent ae = new ActionEvent(aceTree, 1, "DEC Z");
 				iAddOneDialog.actionPerformed(ae);
 
     		}
@@ -1517,10 +1586,10 @@ public class AceTree extends JPanel
         	private static final long serialVersionUID = 1L;
     		@Override
 			public void actionPerformed(ActionEvent e) {
-    			//println("AceTree.setSpecialKeyBoardActions, shift_down");
+    			//println("AceTree.setSpecialKeyBoardActions, shift_down_s");
     			if (iAddOneDialog == null) return;
 				//ActionEvent ae = new ActionEvent(aceTree, 1, "DECZ");
-				ActionEvent ae = new ActionEvent(aceTree, 1, "INCZ");
+				ActionEvent ae = new ActionEvent(aceTree, 1, "DEC Z");
 				iAddOneDialog.actionPerformed(ae);
 
     		}
@@ -1727,9 +1796,9 @@ public class AceTree extends JPanel
         inputMap.put(stroke, actionKey);
         getActionMap().put(actionKey, up);
         
-        // Fast (skipping a few planes) UP using CTRL
-        s = "shift UP";
-        Action shift_up = new AbstractAction() {
+        // Fast (skipping a few planes) UP using CTRL + SHIFT
+        s = "ctrl shift UP";
+        Action ctrl_shift_up = new AbstractAction() {
         	private static final long serialVersionUID = 1L;
         	@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1741,7 +1810,7 @@ public class AceTree extends JPanel
         	}
         };
         getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(s), s);
-        getActionMap().put(s, shift_up);
+        getActionMap().put(s, ctrl_shift_up);
 
         s = "DOWN";
         Action down = new AbstractAction() {
@@ -1761,9 +1830,9 @@ public class AceTree extends JPanel
         actionMap = this.getActionMap();
         actionMap.put(actionKey, down);
         
-        // Fast (skipping a few planes) DOWN using CTRL
-        s = "shift DOWN";
-        Action shift_down = new AbstractAction() {
+        // Fast (skipping a few planes) DOWN using CTRL + SHIFT
+        s = "ctrl shift DOWN";
+        Action ctrl_shift_down = new AbstractAction() {
         	private static final long serialVersionUID = 1L;
         	@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1775,7 +1844,7 @@ public class AceTree extends JPanel
         	}
         };
     	getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(s), s);
-    	getActionMap().put(s, shift_down);
+    	getActionMap().put(s, ctrl_shift_down);
 
 
         s = "LEFT";
@@ -1796,9 +1865,9 @@ public class AceTree extends JPanel
         actionMap = this.getActionMap();
         actionMap.put(actionKey, left);
         
-        // Fast (skipping a few planes) LEFT using CTRL
-        s = "shift LEFT";
-        Action shift_left = new AbstractAction() {
+        // Fast (skipping a few planes) LEFT using CTRL + SHIFT
+        s = "ctrl shift LEFT";
+        Action ctrl_shift_left = new AbstractAction() {
         	private static final long serialVersionUID = 1L;
         	@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1806,7 +1875,7 @@ public class AceTree extends JPanel
         	}
         };
         getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(s), s);
-        getActionMap().put(s, shift_left);
+        getActionMap().put(s, ctrl_shift_left);
 
         s = "RIGHT";
         Action right = new AbstractAction(s) {
@@ -1828,9 +1897,9 @@ public class AceTree extends JPanel
         actionMap = this.getActionMap();
         actionMap.put(actionKey, right);
         
-        // Fast (skipping a few planes) UP using CTRL
-        s = "shift RIGHT";
-        Action shift_right = new AbstractAction() {
+        // Fast (skipping a few planes) UP using CTRL + SHIFT
+        s = "ctrl shift RIGHT";
+        Action ctrl_shift_right = new AbstractAction() {
         	private static final long serialVersionUID = 1L;
         	@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1839,7 +1908,7 @@ public class AceTree extends JPanel
         	}
         };
         getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(s), s);
-        getActionMap().put(s, shift_right);
+        getActionMap().put(s, ctrl_shift_right);
 
         s = "ENTER";
         Action get = new AbstractAction(s) {
@@ -2092,7 +2161,7 @@ public class AceTree extends JPanel
             sb2.append("\nsize: " + n.size + " displayed diameter: " + sd);
             sb2.append("\ncurrent index: " + n.index);
             //sb2.append(getRedDataFromCell(time));
-            sb2.append(" weightg/r: " + n.weight);
+            sb2.append("\nexpression histone/label: " + n.weight);
             sb2.append(", " + n.rweight);
             sb2.append("\nstart=" + iCurrentCell.getTime());
             sb2.append(", end=" + iCurrentCell.getEnd());
@@ -2378,8 +2447,13 @@ public class AceTree extends JPanel
             if (iCurrentCell.isAnterior()) iTrackPosition = ImageWindow.ANTERIOR;
             else iTrackPosition = ImageWindow.POSTERIOR;
         }
-        else if (e.getActionCommand().equals(SHOW)) {
+        else if (e.getActionCommand().equals(SHOWSUL)) {
             setShowAnnotations(true);
+            setShowSulstonAnnotations(true);
+        }
+        else if (e.getActionCommand().equals(SHOWTER)) {
+            setShowAnnotations(true);
+            setShowSulstonAnnotations(false);
         }
         else if (e.getActionCommand().equals(HIDE)) {
             setShowAnnotations(false);
@@ -3157,6 +3231,26 @@ public class AceTree extends JPanel
     }
 
     public void killCell(int x) {
+        //semaphores  merge from shooting_star_both_as AceTree source code
+        boolean SNLock = iAceTree.getSNLock();
+        if(SNLock){
+            JOptionPane.showMessageDialog(null,"Waiting for StarryNite to finish writing nuclei data");
+            //SN has locked NM, wait for it to be unlocked
+            //Pop up a dialog indicating that we're waiting
+            while(SNLock){
+                try{
+                    Thread.sleep(100);
+                    SNLock = iAceTree.getSNLock();
+                }
+                catch(InterruptedException ex){
+
+                }
+            }
+            JOptionPane.showMessageDialog(null,"StarryNite is done, taking over");
+        }
+        boolean success = iAceTree.ATLockNucleiMgr(true);
+
+        //killcell
     	println("\n\nkillCell");
         this.treeValueChangedFromEdit = true;
 
@@ -3202,10 +3296,49 @@ public class AceTree extends JPanel
         prevImage();
 
 		System.gc();
+
+        success = iAceTree.ATLockNucleiMgr(false);
     }
 
     public void killDeepNucs() {
     	new KillDeepNucsDialog(this, iMainFrame, true);
+    }
+
+    //merge from shooting_star_both_as AceTree source code
+    public void killDeepNucs(int zLim) {
+        boolean SNLock = iAceTree.getSNLock();
+        if(SNLock){
+            JOptionPane.showMessageDialog(null,"Waiting for StarryNite to finish writing nuclei data");
+            //SN has locked NM, wait for it to be unlocked
+            //Pop up a dialog indicating that we're waiting
+            while(SNLock){
+                try{
+                    Thread.sleep(100);
+                    SNLock = iAceTree.getSNLock();
+                }
+                catch(InterruptedException ex){
+
+                }
+            }
+            JOptionPane.showMessageDialog(null,"StarryNite is done, taking over");
+        }
+        boolean success = iAceTree.ATLockNucleiMgr(true);
+
+        Vector nucRec = (Vector)iNucleiMgr.getNucleiRecord();
+        for (int i=0; i < nucRec.size(); i++) {
+            Vector nuclei = (Vector)nucRec.get(i);
+            for (int j=0; j < nuclei.size(); j++) {
+                Nucleus n = (Nucleus)nuclei.get(j);
+                if (n.status == Nucleus.NILLI) continue;
+                if (n.z < zLim) continue;
+                println("killDeepNucs, " + i + CS + n);
+                n.status = Nucleus.NILLI;
+            }
+        }
+        clearTree();
+        buildTree(true);
+
+        success = iAceTree.ATLockNucleiMgr(false);
     }
 
     public void testWindow() {
@@ -3315,7 +3448,8 @@ public class AceTree extends JPanel
     public void canonical() {
         //System.out.println("AceTree.test");
         if (iCanonicalTree == null) iCanonicalTree = CanonicalTree.getCanonicalTree();
-        new AuxFrame(this, "Sulston Tree", iCanonicalTree);
+        iSulstonTree = new SulstonTree(iCanonicalTree, "Canonical Sulston Tree", iCurrentCell, false, null);
+        //new AuxFrame(this, "Sulston Tree", iCanonicalTree);
     }
 
     public void vtree() {
@@ -3468,11 +3602,24 @@ public class AceTree extends JPanel
 
     public void setShowAnnotations(boolean show) {
         iShowAnnotations = show;
+        setShowButton();
+    }
+
+    public boolean getShowSulstonAnnotations() { return iShowSulstonAnnotations; }
+
+    public void setShowSulstonAnnotations(boolean suls) {
+        iShowSulstonAnnotations = suls;
+        setShowButton();
+    }
+
+    private void setShowButton() {
         if (iShow != null) {
-            if (show) iShow.setText(HIDE);
-            else iShow.setText(SHOW);
+            if (iShowAnnotations && !iShowSulstonAnnotations) iShow.setText(HIDE);
+            else if (iShowAnnotations && iShowSulstonAnnotations) iShow.setText(SHOWTER);
+            else iShow.setText(SHOWSUL);
         }
     }
+
 
     public Cell getCurrentCell() {
         return iCurrentCell;
@@ -3572,7 +3719,8 @@ public class AceTree extends JPanel
    ,UP   = "Up Z"
    ,DOWN = "Down Z"
    ,HOME = "Cell Birth"
-   ,SHOW = "Show Names"
+   ,SHOWSUL = "Sulston Names"
+   ,SHOWTER = "Terminal Names"
    ,SHOWC = "Show Cells"
    ,HIDE = "Hide Names"
    ,HIDEC = "Hide Cells"

@@ -8,21 +8,62 @@ package org.rhwlab.analyze;
 
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.DecimalFormat;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.GregorianCalendar;
 import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
+import javax.swing.JToolBar;
+
 import org.rhwlab.acetree.AceTree;
+import org.rhwlab.acetree.NucUtils;
+import org.rhwlab.analyze.Analysis2.PlotData;
+import org.rhwlab.image.ImageWindow;
+import org.rhwlab.snight.Identity3;
+import org.rhwlab.snight.Loc;
+import org.rhwlab.snight.Movie;
 import org.rhwlab.snight.NucleiMgr;
 import org.rhwlab.snight.Nucleus;
+import org.rhwlab.snight.Parameters;
 import org.rhwlab.tree.AncesTree;
+import org.rhwlab.tree.CanonicalTree;
 import org.rhwlab.tree.Cell;
 import org.rhwlab.utils.C;
+import org.rhwlab.utils.CleanString;
+import org.rhwlab.utils.EUtils;
 import org.rhwlab.utils.Line;
 import org.rhwlab.utils.Log;
+
+import gov.noaa.pmel.sgt.dm.SGTMetaData;
+import gov.noaa.pmel.sgt.dm.SimpleLine;
+import gov.noaa.pmel.sgt.swing.JPlotLayout;
+import gov.noaa.pmel.util.Domain;
+import ij.ImagePlus;
+import ij.gui.OvalRoi;
+import ij.gui.PlotWindow;
+import ij.io.FileSaver;
+import ij.process.ByteProcessor;
+import ij.process.ImageProcessor;
 
 /**
  * Consider building this out to extract normalized cell position
@@ -45,7 +86,8 @@ public class Analysis6 extends Log {
     private double     iXA; // for angle()
     private double     iYA;
     private double     iZA;
-    private JTextField iTextField;
+    private JTextField iTextField_prefix; //prefix for sizes
+    private JTextField iTextField_endTime; //prefix for sizes
     private Hashtable   iNamingHash;
     private Hashtable   iCompletedCellsHash;
     private char        iTag;
@@ -59,7 +101,8 @@ public class Analysis6 extends Log {
 
 
     public Analysis6(String title) {
-        super(title);
+        //super(title);
+        super("Nuclei Counts vs Time");
         showMe();
         buildOutToolBar();
         initialize();
@@ -69,12 +112,23 @@ public class Analysis6 extends Log {
 
     }
     private void buildOutToolBar() {
-        iToolBar.setMaximumSize(new Dimension(500,20));
+        //iToolBar.setMaximumSize(new Dimension(500,20));
+        iToolBar.setMinimumSize(new Dimension(500,20));
+
         iToolBar.add(new JLabel("prefix:"));
-        iTextField = new JTextField();
-        iTextField.setColumns(15);
-        iTextField.setText("ABal");
-        iToolBar.add(iTextField);
+
+        iTextField_prefix = new JTextField();
+        iTextField_prefix.setColumns(15);
+        iTextField_prefix.setText("ABal");
+        iToolBar.add(iTextField_prefix);
+
+        iToolBar.add(new JLabel("End Time:"));
+
+        iTextField_endTime = new JTextField();
+        iTextField_endTime.setColumns(15);
+        iTextField_endTime.setText("240");
+        iToolBar.add(iTextField_endTime);
+
         JButton jb = null;
         jb = new JButton(CLEAR);
         addToolBarButton(jb);
@@ -82,13 +136,14 @@ public class Analysis6 extends Log {
         addToolBarButton(jb);
         jb = new JButton(TEST2);
         addToolBarButton(jb);
-        jb = new JButton(TEST3);
-        addToolBarButton(jb);
+        //jb = new JButton(TEST3);
+        //addToolBarButton(jb);
 
 
     }
 
     public void initialize() {
+        System.out.println("initializing");
         iAceTree = AceTree.getAceTree(null);
         iNucleiMgr = iAceTree.getNucleiMgr();
         nuclei_record = iNucleiMgr.getNucleiRecord();
@@ -108,12 +163,17 @@ public class Analysis6 extends Log {
         append("test3 entered");
     }
 
-    /*private void test2() {
+    private void sizes() {
         append("test2 entered: " );
         PlotData pd = getSizeVsTime();
         String yLabel = "nucleus size";
         String xLabel = "time";
-        String title = iNucleiMgr.getConfig().iConfigFileName; //"angle vs time";
+        String title;
+        if (iNucleiMgr.isNucConfigNull()) {
+            title = iNucleiMgr.getConfig().iConfigFileName; //"angle vs time";
+        } else {
+            title = iAceTree.getConfig().getShortName();
+        }
         File f = new File(title);
         JPlotLayout plotLayout = plotlayout(f.getName(), 600, 400, xLabel, yLabel, pd.xValues, pd.yValues);
         JFrame frame = new JFrame("nucleus size vs time");
@@ -121,16 +181,21 @@ public class Analysis6 extends Log {
         frame.getContentPane().add(plotLayout, BorderLayout.CENTER);
         frame.pack();
         frame.setVisible(true);
-    }*/
+    }
 
     private String iTemplate;
 
     private PlotData getSizeVsTime() {
+        System.out.println("getting cell sizes vs time");
         initialize();
-        iTemplate = iTextField.getText();
+        iTemplate = iTextField_prefix.getText();
         NucleiMgr nucMgr = iNucleiMgr;
-        int first = nucMgr.getConfig().iStartingIndex;
-        int last = nucMgr.getConfig().iEndingIndex;
+        int first = nucMgr.getStartingIndex();
+        if (!nucMgr.isNucConfigNull()) {
+            first = nucMgr.getNucConfig().getStartingIndex();
+        }
+        //int last = nucMgr.getConfig().iEndingIndex;
+        int last = Integer.parseInt(iTextField_endTime.getText());
         double [] xValues = new double[last - first + 1];
         double [] yValues = new double[last - first + 1];
         Vector nuclei = (Vector)nuclei_record.elementAt(first);
@@ -138,8 +203,8 @@ public class Analysis6 extends Log {
             int k = getSize(nuclei);
             String s = iTemplate + C.CS + i + C.CS + k;
             append(s);
-            xValues[i - 1] = i;
-            yValues[i - 1] = k;
+            xValues[i - first] = i;
+            yValues[i - first] = k;
             nuclei = (Vector)nuclei_record.elementAt(i);
         }
         return new PlotData(xValues, yValues);
@@ -153,6 +218,7 @@ public class Analysis6 extends Log {
         while (e.hasMoreElements()) {
             Nucleus n = (Nucleus)e.nextElement();
             String name = n.identity;
+            String prefix = iTextField_prefix.getText();
             if (name.indexOf(iTemplate) < 0) continue;
             if (name.equals(iTemplate)) {
                 rtn = n.size;
@@ -177,12 +243,17 @@ public class Analysis6 extends Log {
 
     }
 
-    /*private void test1() {
+    private void counts() {
         append("Analysis6.test1 entered");
         PlotData pd = getCellCountVsTime();
         String yLabel = "cell count";
         String xLabel = "time";
-        String title = iNucleiMgr.getConfig().iConfigFileName; //"angle vs time";
+        String title;
+        if (iNucleiMgr.isNucConfigNull()) {
+            title = iNucleiMgr.getConfig().iConfigFileName; //"angle vs time";
+        } else {
+            title = iAceTree.getConfig().getShortName();
+        }
         File f = new File(title);
         JPlotLayout plotLayout = plotlayout(f.getName(), 480, 320, xLabel, yLabel, pd.xValues, pd.yValues);
         JFrame frame = new JFrame("cell count vs time");
@@ -190,13 +261,13 @@ public class Analysis6 extends Log {
         frame.getContentPane().add(plotLayout, BorderLayout.CENTER);
         frame.pack();
         frame.setVisible(true);
-    }*/
+    }
 
-/*    private JPlotLayout plotlayout(String title, String xLabel, String yLabel, double [] xValues, double [] yValues) {
+    private JPlotLayout plotlayout(String title, String xLabel, String yLabel, double [] xValues, double [] yValues) {
         return plotlayout(title, 240, 160, xLabel, yLabel, xValues, yValues);
-    }*/
+    }
 
-  /*  private JPlotLayout plotlayout(String title, int width, int height, String xLabel, String yLabel, double [] xValues, double [] yValues) {
+    private JPlotLayout plotlayout(String title, int width, int height, String xLabel, String yLabel, double [] xValues, double [] yValues) {
         JPlotLayout layout_ = new JPlotLayout(false, false, false, "bogus", null, false);
         //layout_.setSize(new Dimension(240,160));
         layout_.setSize(new Dimension(width,height));
@@ -212,34 +283,39 @@ public class Analysis6 extends Log {
         layout_.addData(data, "");
         Domain d = layout_.getRange();
         //System.out.println(title + C.CS  + d.getYRange());
-        
+        /*
         d.setYRange(new Range2D(-80, 10));
         try {
             layout_.setRange(d);
         } catch(Exception e) {
             e.printStackTrace();
         }
-        
+        */
 
         layout_.setBatch(false);
         return layout_;
 
-    }*/
+    }
 
     private PlotData getCellCountVsTime() {
+        System.out.println("getting cell counts vs time");
         initialize();
         NucleiMgr nucMgr = iNucleiMgr;
-        int first = nucMgr.getConfig().iStartingIndex;
-        int last = nucMgr.getConfig().iEndingIndex;
+        int first = nucMgr.getStartingIndex();
+        if (!nucMgr.isNucConfigNull()) {
+            first = nucMgr.getNucConfig().getStartingIndex();
+        }
+        //int last = nucMgr.getConfig().iEndingIndex;
+        int last = Integer.parseInt(iTextField_endTime.getText());
         double [] xValues = new double[last - first + 1];
         double [] yValues = new double[last - first + 1];
         Vector nuclei = (Vector)nuclei_record.elementAt(first);
-        for (int i=first; i < last; i++) {
+        for (int i=first; i <= last; i++) {
             int k = countNuclei(nuclei);
             String s = i + C.CS + k;
             append(s);
-            xValues[i - 1] = i;
-            yValues[i - 1] = k;
+            xValues[i - first] = i;
+            yValues[i - first] = k;
             nuclei = (Vector)nuclei_record.elementAt(i);
         }
         double [] xx = new double[last - first];
@@ -279,14 +355,28 @@ public class Analysis6 extends Log {
     }
 
 
-    /*public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e) {
         String s = e.getActionCommand();
+
+        //check user input
+        int ending_index = iNucleiMgr.getNucConfig().getEndingIndex();
+        try {
+            if(Integer.parseInt(iTextField_endTime.getText()) > ending_index) {
+                System.out.println("Integer entered is larger than the Ending Index, automatically reset to Ending Index");
+                iTextField_endTime.setText("" + ending_index);
+            }
+        } catch (Exception err) {
+            System.out.println("non integer text is entered, automatically reset to Ending Index");
+            iTextField_endTime.setText("" + ending_index);
+        }
+        //end check user input
+
         if (s.equals(TEST1)) {
             append(TEST1);
-            test1();
+            counts();
         } else if (s.equals(TEST2)) {
             append(TEST2);
-            test2();
+            sizes();
         } else if (s.equals(TEST3)) {
             append(TEST3);
             //test3();
@@ -297,14 +387,14 @@ public class Analysis6 extends Log {
             append(TEST5);
             iText.setText("");
         } else super.actionPerformed(e);
-    }*/
+    }
 
     private static final String
          CLEAR = "Clear"
         ,LINE  = "                                        "
         ,ANGLE = "Angle"
-        ,TEST1 = "Test1"
-        ,TEST2 = "Test2"
+        ,TEST1 = "Counts"
+        ,TEST2 = "Sizes"
         ,TEST3 = "Test3"
         ,TEST4 = "Test4"
         ,TEST5 = "Test5"

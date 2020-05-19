@@ -14,23 +14,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.util.Vector;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JRadioButton;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
-import javax.swing.BoxLayout;
-import javax.swing.SwingConstants;
-import javax.swing.WindowConstants;
-import javax.swing.JSeparator;
+import javax.swing.*;
 
 import org.rhwlab.acetree.AceTree;
 import org.rhwlab.acetree.NucUtils;
@@ -171,6 +155,25 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
      */
     @Override
 	public void actionPerformed(ActionEvent e) {
+        //semaphores  merge from shooting_star_both_as AceTree source code
+        boolean SNLock = iAceTree.getSNLock();
+        if(SNLock){
+            JOptionPane.showMessageDialog(null,"Waiting for StarryNite to finish writing nuclei data");
+            //SN has locked NM, wait for it to be unlocked
+            //Pop up a dialog indicating that we're waiting
+            while(SNLock){
+                try{
+                    Thread.sleep(100);
+                    SNLock = iAceTree.getSNLock();
+                }
+                catch(InterruptedException ex){
+
+                }
+            }
+            JOptionPane.showMessageDialog(null,"StarryNite is done, taking over");
+        }
+        boolean success = iAceTree.ATLockNucleiMgr(true);
+
         Object o = e.getSource();
         String cmd = e.getActionCommand();
         //println("EIDialog2.actionPerformed: " + o);
@@ -323,6 +326,8 @@ public class AddOneDialog extends JDialog implements ActionListener, WindowFocus
             }
             iAceTree.updateDisplay();
         }
+
+        success = iAceTree.ATLockNucleiMgr(false);
 
     }
 

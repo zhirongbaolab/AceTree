@@ -219,7 +219,7 @@ public class NucleiMgrAdapter implements LineageData {
 		ArrayList<Double> diametersAL = new ArrayList<Double>();
 
 		//access vector of nuclei at given time frame
-		Vector<Nucleus> v = nucleiMgr.nuclei_record.get(time);
+		Vector<Nucleus> v = nucleiMgr.nuclei_record.get(time - 1);
 
 		for (int m = 0; m < v.size(); ++m) {
 			Nucleus n = v.get(m);
@@ -242,14 +242,28 @@ public class NucleiMgrAdapter implements LineageData {
 	@Override
 	public ArrayList<String> getAllCellNames() {
 		ArrayList<String> allCellNames = new ArrayList<>();
+
+		/*
+		//old code
 		for (int i = 1; i <= realTimePoints; i++) {
 			String[] namesAti = getNames(i);
+
 			for (String name : namesAti) {
 				if (!allCellNames.contains(name)) {
 					allCellNames.add(name);
 				}
 			}
 		}
+		*/
+
+		//replace the old code for faster launch speed
+		for (Object cellname:nucleiMgr.getCellsByName().keySet()){
+			String cname = (String)cellname;
+			allCellNames.add(cname);
+		}
+
+		//sort names list by string length, so that parent always appear in front of children
+		Collections.sort(allCellNames, Comparator.comparing(String::length));
 
 		return allCellNames;
 	}

@@ -221,11 +221,11 @@ public class Identity3 {
         int i;
         Vector<Nucleus> nuclei = null;
         int breakout = 0;
-        
+
         /*
          * Iterate over all time points 
          */
-        for (i = start[0]; i < m; i++) {
+        for (i = start[0]; i <= m; i++) {
         	//System.out.println("\n----------------------------\n"+
         						//"usecanonicalrules "+i);
             if (breakout > 0) {
@@ -238,7 +238,12 @@ public class Identity3 {
             nuclei = nuclei_record.elementAt(i - 1);
             nuc_ct = nuclei.size();
             Nucleus parent = null;
-            Vector<Nucleus> nextNuclei = nuclei_record.elementAt(i);
+            Vector<Nucleus> nextNuclei;
+            if (i < m) {
+                nextNuclei = nuclei_record.elementAt(i);
+            } else {
+                nextNuclei = null;
+            }
             
             /*
              * Iterate over the nuclei at the current time point
@@ -262,7 +267,7 @@ public class Identity3 {
                 	
                 	// Try to only use the Nuc... name when there is no forced name in assignedID
                 	if (parent.assignedID.equals(""))
-                		pname = NUC + EUtils.makePaddedInt(i + 1) + "_" + z + "_" + parent.x + "_" + parent.y;
+                		pname = NUC + EUtils.makePaddedInt(i) + "_" + z + "_" + parent.x + "_" + parent.y;
                 	else {
                 		pname = parent.assignedID;
                 	}
@@ -274,31 +279,33 @@ public class Identity3 {
                
                 
                 // check if valid division
-                boolean good = (parent.successor1 > 0 && parent.successor2 > 0);
-                if (!good) {
-                    // not dividing so just extend the name
-                    if (parent.successor1 > 0) {
-                        Nucleus n = nextNuclei.elementAt(parent.successor1 - 1);
-                        if (n.assignedID.length() <= 0) {
-                            //println("useCanonicalRules, XXXXXX, " + i + CS + j + CS + parent.identity + CS + parent.status + CS + n.identity);
-                        	//println("useCanonicalRules, XXXXXX, "+parent.identity);
-                        	n.identity = pname;
+                if (nextNuclei != null) {
+                    boolean good = (parent.successor1 > 0 && parent.successor2 > 0);
+                    if (!good) {
+                        // not dividing so just extend the name
+                        if (parent.successor1 > 0) {
+                            Nucleus n = nextNuclei.elementAt(parent.successor1 - 1);
+                            if (n.assignedID.length() <= 0) {
+                                //println("useCanonicalRules, XXXXXX, " + i + CS + j + CS + parent.identity + CS + parent.status + CS + n.identity);
+                                //println("useCanonicalRules, XXXXXX, "+parent.identity);
+                                n.identity = pname;
+                            }
                         }
+                        continue;
                     }
-                    continue;
-                }
-                
-                // this canonical parent is dividing
-                Nucleus dau1 = nextNuclei.elementAt(parent.successor1 - 1);
-                Nucleus dau2 = nextNuclei.elementAt(parent.successor2 - 1);
-                //System.out.println("about to assign names to children of: " + parent.identity + " - " + dau1.identity + ", " + dau2.identity);
-               
-                /*
-                 * Assign names via DivisionCaller
-                 */
-                if (parent != null && dau1 != null && dau2 != null) {
-                	iDivisionCaller.assignNames(parent, dau1, dau2);
-                	usePreassignedID(dau1, dau2);
+
+                    // this canonical parent is dividing
+                    Nucleus dau1 = nextNuclei.elementAt(parent.successor1 - 1);
+                    Nucleus dau2 = nextNuclei.elementAt(parent.successor2 - 1);
+                    //System.out.println("about to assign names to children of: " + parent.identity + " - " + dau1.identity + ", " + dau2.identity);
+
+                    /*
+                     * Assign names via DivisionCaller
+                     */
+                    if (parent != null && dau1 != null && dau2 != null) {
+                        iDivisionCaller.assignNames(parent, dau1, dau2);
+                        usePreassignedID(dau1, dau2);
+                    }
                 }
             }
         }

@@ -459,7 +459,7 @@ public class NucleiMgr {
                 String s = zn.readLine(ze);
                 if (s == null) {
                     if (nuclei_record.size() > index) {
-                        System.out.println("setting element in nuc record");
+                        //System.out.println("setting element in nuc record");
                         nuclei_record.setElementAt(v, index);
                         //lastNonEmptyIndex = index;
                         if (index > iLastNucleiFile)

@@ -61,13 +61,14 @@ public class NucleiConfig {
         // prevent errors by initializing everything
         zipFileName = axisGiven = "";
         namingMethod = NEWCANONICALID; // the default naming method
-        polarSize = -1;
+        polarSize = 45; //default to 45
         angle = -1.;
 
         // default to a value that won't break the program
         planeStart = 1;
         startingIndex = 1;
         endingIndex = 1;
+        exprCorr = "blot";
 
         if (configData == null) return;
 
@@ -152,9 +153,9 @@ public class NucleiConfig {
         // the convention for the AuxInfo file is to have it share the base name of the .zip file, so we pass the
         // MeasureCSV constructor the base name of the zip and it will append it with the proper text and extension
         // to find the AuxInfo if the user has set up their directory and files correctly
-        int preExtIdx = zipFileName.lastIndexOf(".");
+        int preExtIdx = configFileName.lastIndexOf(".");
         if (preExtIdx > 0) {
-            this.measureCSV = new MeasureCSV(zipFileName.substring(0, preExtIdx));
+            this.measureCSV = new MeasureCSV(configFileName.substring(0, preExtIdx));
             System.out.println("The contents of the AuxInfo file (now stored in the NucleiConfig as a MeasureCSV object: " +
                     measureCSV.toString());
         } else {

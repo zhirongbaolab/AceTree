@@ -312,9 +312,10 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
         iJuvenesence.addActionListener(this);
         qualityGroupmenu.add(iJuvenesence);
 
-        iZafer1 = new JMenuItem("Zafer1");
-        iZafer1.addActionListener(this);
-        qualityGroupmenu.add(iZafer1);
+        //	Zafer1 commented out - relies on SVM output from StarryNite companion program (Aydin et al) that is not routinely implemented
+        //iZafer1 = new JMenuItem("Zafer1");
+        //iZafer1.addActionListener(this);
+        //qualityGroupmenu.add(iZafer1);
 
         iOrientation = new JMenuItem("Orientation");
         iOrientation.addActionListener(this);
@@ -323,6 +324,12 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
         iOverlaps = new JMenuItem("Overlaps");
         iOverlaps.addActionListener(this);
         qualityGroupmenu.add(iOverlaps);
+
+        iAnalyze6 = new JMenuItem(ANALYSIS6); //Cell count and nuc size vs time
+        iAnalyze6.setText("Nuclei vs Time");
+        iAnalyze6.addActionListener(this);
+        qualityGroupmenu.add(iAnalyze6);
+
         //end quality control submenu
 
 		if(fullgui){
@@ -402,11 +409,11 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
         iAncestralTree = new JMenuItem(SULSTON);
         iAncestralTree.addActionListener(this);
         menu.add(iAncestralTree);
-		if(fullgui){
+		//if(fullgui){
 	        iSulstonTree = new JMenuItem(CANONICAL);
 	        iSulstonTree.addActionListener(this);
 	        menu.add(iSulstonTree);
-		}
+		//}
         iVTree = new JMenuItem(VTREE);
         iVTree.addActionListener(this);
         menu.add(iVTree);
@@ -426,6 +433,9 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
 		iViewImgWin = new JMenuItem("Image Window");
 		iViewImgWin.addActionListener(this);
 		menu.add(iViewImgWin);
+        iViewEllipse = new JMenuItem(VIEWELLIPSE);
+        iViewEllipse.addActionListener(this);
+        menu.add(iViewEllipse);
 		
 		// the 3D menu
 		menu = new JMenu("3D Rendering");
@@ -442,10 +452,7 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
 	        add(menu);
 	        i2Dsave = new JCheckBoxMenuItem(TWODSAVE);
 	        i2Dsave.addItemListener(this);
-	        menu.add(i2Dsave);	   
-	        iViewEllipse = new JMenuItem(VIEWELLIPSE);
-	        iViewEllipse.addActionListener(this);
-	        menu.add(iViewEllipse);
+	        menu.add(i2Dsave);
 		}
 
 		if(fullgui){
@@ -714,7 +721,6 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
         	iAceTree.showDeathsAdjacencies();
         } else if (iLazarus == o) {
         	iAceTree.showLazarus();
-            //new Lazarus();
         } else if (iSiamese == o) {
         	iAceTree.showSiamese();
         } else if (iJuvenesence == o) {
@@ -864,7 +870,7 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
         ,ATVTREE = "Save tree as Newick file"
         ,SULSTON = "Interactive Lineage"
         ,VTREE = "Lineage Plot"
-        ,CANONICAL = "Sulston tree"
+        ,CANONICAL = "Canonical Sulston tree"
         ,SHOW = "Show"
         ,NUCLEI = "nuclei"
         ,EDIT = "Edit"
