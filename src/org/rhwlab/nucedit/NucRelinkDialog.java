@@ -515,6 +515,8 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 			nucleiAdd.add(n);
 		}
 		nEnd.predecessor = n.index;
+		nEnd.rwraw = 1;
+		n.rwraw = 1;
 		//System.out.print("nEnd: " + nEnd);
 	}
 

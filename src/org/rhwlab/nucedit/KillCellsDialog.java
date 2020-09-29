@@ -260,6 +260,7 @@ public class KillCellsDialog extends GenericDialog {
                 if (!n.identity.equals(iCellName)) 
                 	continue;
                 n.status = Nucleus.NILLI;
+                n.rwraw = 1;
                 n.identity = "";
                 n.assignedID = "";
                 //indices.add(new Integer(j));
