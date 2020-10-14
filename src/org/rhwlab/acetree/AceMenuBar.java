@@ -12,10 +12,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URL;
 import java.util.Vector;
 import javax.swing.JCheckBoxMenuItem;
@@ -66,6 +63,7 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
     JMenuItem iOpen;
     JMenuItem iOpenSeries;
     JMenuItem iOptions;
+    JMenuItem iReload;
     JMenuItem iSave;
     JMenuItem iSaveConfig;
     JMenuItem iJLaunch;
@@ -213,6 +211,12 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
         iOptions.addActionListener(this);
         menu.add(iOptions);
         menu.addSeparator();
+
+        //reload auxinfo
+        iReload = new JMenuItem(RELOAD);
+        iReload.addActionListener(this);
+        menu.add(iReload);
+
         iFileChooser = new JFileChooser("./*.zip");
         iSave = new JMenuItem(SAVE);
         iSave.addActionListener(this);
@@ -622,6 +626,58 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
         } else if (iOptions == o) {
             options();
 
+        } else if (iReload == o) {
+
+            System.out.println("\n*** Reload AuxInfo, triggering a full rebuild ***");
+            String configPath = iAceTree.getConfig().getConfigFileName();
+            String path = configPath.substring(0, configPath.lastIndexOf("."));
+
+            //check if the Auxinfo file exist
+            boolean auxfilefounded = false;
+            File auxfile_v1 = new File(path + "AuxInfo.csv");
+            File auxfile_v2 = new File(path + "AuxInfo_v2.csv");
+            if (auxfile_v1.exists() || auxfile_v2.exists()) {
+                auxfilefounded = true;
+            }
+
+            //if Auxinfo file not found, save nuclei zip and issue system call to AceBatch2
+            if (!auxfilefounded) {
+                System.out.println("Auxinfo file not found, saving nuclei zip");
+                String zipPath = iAceTree.getConfig().getNucleiConfig().getZipFileName();
+                File zipfile = new File(zipPath);
+                iAceTree.saveNuclei(zipfile);
+
+                System.out.println("Issue system call to AceBatch2 to create Auxinfo file");
+                ProcessBuilder pb = new ProcessBuilder();
+                String cmd = "java -Xmx500m -jar ";
+                String projectPath = AceMenuBar.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+                String jarLoc = projectPath.substring(0, projectPath.lastIndexOf("/"))  + "/Acebatch2.jar";
+                cmd = cmd + jarLoc + " Measure " + configPath;
+                pb.command("bash", "-c", cmd);
+                try {
+                    Process pr = pb.start();
+                    StringBuilder output = new StringBuilder();
+                    BufferedReader bf = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+                    String line;
+                    while((line = bf.readLine()) != null) {
+                        output.append(line + "\n");
+                    }
+                    int exitVal = pr.waitFor();
+                    if (exitVal == 0) {
+                        System.out.println("Auxinfo file created successfully");
+                    } else {
+                        System.out.println("Failed to create Auxinfo file, fall back to defualt Auxinfo values");
+                    }
+                } catch (IOException err) {
+                    err.printStackTrace();
+                } catch (InterruptedException err) {
+                    err.printStackTrace();
+                }
+
+            }
+
+            iAceTree.bringUpSeriesUI(configPath);
+
         } else if(iSave == o) {
 		    ExampleFileFilter filter = new ExampleFileFilter();
 		    filter.addExtension("zip");
@@ -854,6 +910,7 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
         ,OPENSERIES = "Open series"
         ,CLEARALL = "Clear all"
         ,OPTIONS = "Options"
+        ,RELOAD = "Reload Auxinfo file"
         ,SAVE = "Save nuclei as zip"
         ,SAVECONFIG = "Save config file"
 	,IJ = "Launch ImageJ"
