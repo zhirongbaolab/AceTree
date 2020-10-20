@@ -603,6 +603,8 @@ public class NucleiMgr {
         return iMeasureCSV;
     }
 
+    public void setMeasureCSV(MeasureCSV measureCSV) { iMeasureCSV = measureCSV; }
+
     public EditLog getEditLog() {
         return iEditLog;
     }

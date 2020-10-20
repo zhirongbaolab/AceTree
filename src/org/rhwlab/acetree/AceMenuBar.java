@@ -42,6 +42,7 @@ import org.rhwlab.image.DepthViews;
 import org.rhwlab.nucedit.Overlaps;
 import org.rhwlab.nucedit.SkipFalseNegatives;
 import org.rhwlab.snight.Config;
+import org.rhwlab.snight.MeasureCSV;
 import org.rhwlab.snight.WormGUIDESWindow;
 import org.rhwlab.tree.SubTrees;
 import org.rhwlab.utils.C;
@@ -676,7 +677,14 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
 
             }
 
-            iAceTree.bringUpSeriesUI(configPath);
+            MeasureCSV measureCSV = new MeasureCSV(path);
+            iAceTree.getNucleiMgr().getNucConfig().setMeasureCSV(measureCSV);
+            iAceTree.getNucleiMgr().setMeasureCSV(measureCSV);
+            iAceTree.buildTree(true);
+            //reset the Image window to align with the AceTree window
+            iAceTree.getImageWindow().clearAnnotations();
+            iAceTree.showSelectedCell(iAceTree.getCurrentCell(), iAceTree.getCurrentCell().getTime());
+
 
         } else if(iSave == o) {
 		    ExampleFileFilter filter = new ExampleFileFilter();

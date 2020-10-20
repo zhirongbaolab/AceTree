@@ -190,6 +190,7 @@ public class NucleiConfig {
     public void setAxisGiven(String axisGiven) {
         this.axisGiven = axisGiven;
     }
+    public void setMeasureCSV(MeasureCSV measureCSV) { this.measureCSV = measureCSV; }
 
     // accessors
     public String getZipFileName() { return this.zipFileName; }
