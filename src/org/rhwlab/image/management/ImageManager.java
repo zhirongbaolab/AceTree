@@ -45,6 +45,8 @@ public class ImageManager {
     private int imageHeight;
     private int imageWidth;
     private boolean isCurrImageMIP;
+    private boolean timeChange;
+    private boolean planeChange;
 
     private IntegerProperty timeProperty;
 
@@ -74,6 +76,8 @@ public class ImageManager {
         this.currentImagePlane = 15; // usually about the middle of the stack
         this.setOriginalContrastValues = true;
         this.isCurrImageMIP = false;
+        this.timeChange = false;
+        this.planeChange = false;
 
         // timeProperty is a variable that is needed for the 3D Window and harmless when not used
         this.timeProperty = new SimpleIntegerProperty(this.currentImageTime);
@@ -81,15 +85,27 @@ public class ImageManager {
 
     // methods to set runtime parameters
     public void setCurrImageTime(int time) {
+        int prevImageTime = currentImageTime;
         this.currentImageTime = time;
+        if (currentImageTime != prevImageTime) {
+            timeChange = true;
+        }
         this.timeProperty.set(this.currentImageTime);
     }
     public int getCurrImageTime() { return this.currentImageTime; }
 
+    public void setTimeChange(boolean timeChange) { this.timeChange = timeChange; }
+
     public void setCurrImagePlane(int plane) {
+        int prevImagePlane = currentImagePlane;
         this.currentImagePlane = plane;
+        if (currentImagePlane != prevImagePlane) {
+            planeChange = true;
+        }
     }
     public int getCurrImagePlane() { return this.currentImagePlane; }
+
+    public void setPlaneChange(boolean planeChange) { this.planeChange = planeChange; }
 
     public void setCurrImage(ImagePlus currImg) { this.currentImage = currImg; }
     public ImagePlus getCurrentImage() { return this.currentImage; }
@@ -642,7 +658,11 @@ public class ImageManager {
      * @return
      */
     public ImagePlus makeImage() {
+        System.out.println("make image, plane change: " + planeChange + ", time change: " + timeChange);
         if (isCurrImageMIP) { return this.currentImage; }
+
+        //if plane & time do not change, simply return currentImage
+        if (!planeChange && !timeChange) { return this.currentImage; }
 
         //System.out.println("MakeImage() called with: " + this.currentImageTime + ", " + this.currentImagePlane);
 

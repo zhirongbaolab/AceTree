@@ -2026,6 +2026,10 @@ public class AceTree extends JPanel
         
         if(iAddOneDialog!=null)
         	iAddOneDialog.updateCellInfo();
+
+        //reset timechange and planechange flag in imageManager
+        this.imageManager.setTimeChange(false);
+        this.imageManager.setPlaneChange(false);
     }
 
     @SuppressWarnings("static-access")
@@ -3001,7 +3005,7 @@ public class AceTree extends JPanel
 
         } else if (source == LEFTCLICKONTREE) {
             showSelectedCell(c, time);
-            updateDisplay();
+            //updateDisplay();
             //if (iImage3D != null) iImage3D.insertContent(getImageTitle());
 
         } else if (source == RIGHTCLICKONTREE) {
