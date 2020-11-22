@@ -141,11 +141,11 @@ public class ImageManager {
     public void incrementImagePlaneNumber(int planeIncrement) {
         if (planeIncrement > 0
                 && this.currentImagePlane + planeIncrement <= this.imageConfig.getPlaneEnd()) {
-            this.currentImagePlane += planeIncrement;
+            setCurrImagePlane(this.currentImagePlane + planeIncrement);
         }
         else if (planeIncrement < 0
                     && this.currentImagePlane + planeIncrement >= 1) {
-            this.currentImagePlane += planeIncrement;
+            setCurrImagePlane(this.currentImagePlane + planeIncrement);
         }
     }
 
