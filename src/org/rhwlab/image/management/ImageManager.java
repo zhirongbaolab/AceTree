@@ -52,6 +52,7 @@ public class ImageManager {
 
     private static boolean setOriginalContrastValues; // not quite sure what this is used for
     private static int contrastMin1, contrastMin2, contrastMax1, contrastMax2, contrastMin3, contrastMax3;
+    private static boolean contrastChange;
     private static final int MAX8BIT = 255, MAX16BIT = 65535;
     private static final int GREEN_ID = 1;
     private static final int RED_ID = 2;
@@ -78,6 +79,7 @@ public class ImageManager {
         this.isCurrImageMIP = false;
         this.timeChange = false;
         this.planeChange = false;
+        this.contrastChange = false;
 
         // timeProperty is a variable that is needed for the 3D Window and harmless when not used
         this.timeProperty = new SimpleIntegerProperty(this.currentImageTime);
@@ -94,8 +96,6 @@ public class ImageManager {
     }
     public int getCurrImageTime() { return this.currentImageTime; }
 
-    public void setTimeChange(boolean timeChange) { this.timeChange = timeChange; }
-
     public void setCurrImagePlane(int plane) {
         int prevImagePlane = currentImagePlane;
         this.currentImagePlane = plane;
@@ -104,8 +104,6 @@ public class ImageManager {
         }
     }
     public int getCurrImagePlane() { return this.currentImagePlane; }
-
-    public void setPlaneChange(boolean planeChange) { this.planeChange = planeChange; }
 
     public void setCurrImage(ImagePlus currImg) { this.currentImage = currImg; }
     public ImagePlus getCurrentImage() { return this.currentImage; }
@@ -658,19 +656,22 @@ public class ImageManager {
      * @return
      */
     public ImagePlus makeImage() {
-        System.out.println("make image, plane change: " + planeChange + ", time change: " + timeChange);
         if (isCurrImageMIP) { return this.currentImage; }
 
         //if plane & time do not change, simply return currentImage
-        if (!planeChange && !timeChange) { return this.currentImage; }
+        if (!planeChange && !timeChange && !contrastChange) { return this.currentImage; }
 
         //System.out.println("MakeImage() called with: " + this.currentImageTime + ", " + this.currentImagePlane);
 
         this.currentImage = makeImage(this.currentImageTime, this.currentImagePlane);
         //this.isCurrImageMIP = false;
 
-        System.gc();
+        //System.gc();
 
+        //reset planeChange, timeChange, contrastChange
+        planeChange = false;
+        timeChange = false;
+        contrastChange = false;
         return this.currentImage;
     }
 
@@ -1080,12 +1081,30 @@ public class ImageManager {
 
     // accessors and mutators for static variables
     public static void setOriginContrastValuesFlag(boolean OCVF) { setOriginalContrastValues = OCVF; }
-    public static void setContrastMin1(int cMin1) { contrastMin1 = cMin1; }
-    public static void setContrastMin2(int cMin2) { contrastMin2 = cMin2; }
-    public static void setContrastMin3(int cMin3) { contrastMin3 = cMin3; }
-    public static void setContrastMax1(int cMax1) { contrastMax1 = cMax1; }
-    public static void setContrastMax2(int cMax2) { contrastMax2 = cMax2; }
-    public static void setContrastMax3(int cMax3) { contrastMax3 = cMax3; }
+    public static void setContrastMin1(int cMin1) {
+        contrastChange = true;
+        contrastMin1 = cMin1;
+    }
+    public static void setContrastMin2(int cMin2) {
+        contrastChange = true;
+        contrastMin2 = cMin2;
+    }
+    public static void setContrastMin3(int cMin3) {
+        contrastChange = true;
+        contrastMin3 = cMin3;
+    }
+    public static void setContrastMax1(int cMax1) {
+        contrastChange = true;
+        contrastMax1 = cMax1;
+    }
+    public static void setContrastMax2(int cMax2) {
+        contrastChange = true;
+        contrastMax2 = cMax2;
+    }
+    public static void setContrastMax3(int cMax3) {
+        contrastChange = true;
+        contrastMax3 = cMax3;
+    }
     public static boolean getOriginalContrastValuesFlag() { return setOriginalContrastValues; }
     public static int getContrastMin1() { return contrastMin1; }
     public static int getContrastMin2() { return contrastMin2; }

@@ -2026,10 +2026,6 @@ public class AceTree extends JPanel
         
         if(iAddOneDialog!=null)
         	iAddOneDialog.updateCellInfo();
-
-        //reset timechange and planechange flag in imageManager
-        this.imageManager.setTimeChange(false);
-        this.imageManager.setPlaneChange(false);
     }
 
     @SuppressWarnings("static-access")
