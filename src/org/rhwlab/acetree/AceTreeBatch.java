@@ -44,7 +44,7 @@ public class AceTreeBatch {
         nucMgr.processNuclei(true, nucMgr.getConfig().iNamingMethod);
         String config = nucMgr.getConfig().getShortName();
         iNucleiMgr = nucMgr;
-        System.gc();
+        // System.gc();
         return 0;
     }
     

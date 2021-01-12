@@ -141,7 +141,7 @@ public class NucleiMgrHeadless extends NucleiMgr {
             }
         }
         computeRWeights();
-        System.gc();
+        // System.gc();
 
 
 
@@ -206,7 +206,7 @@ public class NucleiMgrHeadless extends NucleiMgr {
             }
         }
         computeRWeights();
-        System.gc();
+        // System.gc();
 
 
 	}

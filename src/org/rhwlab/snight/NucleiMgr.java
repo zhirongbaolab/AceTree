@@ -128,7 +128,7 @@ public class NucleiMgr {
 
         // set the weights of the nuclei based on the expression correlation method specified in the XML
         computeRWeights();
-        System.gc(); // clean up
+        // System.gc(); // clean up
 
         // set the parameter entry for saving purposes
         setParameterEntry(nucConfig.getZipFileName().
@@ -233,7 +233,7 @@ public class NucleiMgr {
             }
         }
         computeRWeights();
-        System.gc();
+        // System.gc();
     }
 
     public NucleiMgr(Config config, PrintWriter printWriter) {
@@ -296,7 +296,7 @@ public class NucleiMgr {
             }
         }
         computeRWeights();
-        System.gc();
+        // System.gc();
     }
 
     public int getStartTime() {

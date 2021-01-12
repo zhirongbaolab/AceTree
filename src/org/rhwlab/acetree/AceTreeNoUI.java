@@ -222,7 +222,7 @@ public class AceTreeNoUI {
             iAceMenuBar.addToRecent(configName);
         }
         */
-        System.gc();
+        // System.gc();
         return 0;
     }
 

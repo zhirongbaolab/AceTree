@@ -351,7 +351,7 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 			relinkAndRebuild();
 		}
 		iAceTree.requestFocus();
-		System.gc();
+		// System.gc();
 
 		success = iAceTree.ATLockNucleiMgr(false);
 

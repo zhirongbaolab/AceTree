@@ -539,7 +539,7 @@ public class AceTree extends JPanel
     		newLine();
 
 	        // garbage collection call - just to keep things tidy and running with enough memory - doesn't hurt
-	        System.gc();
+	        //  System.gc();
 
             System.out.println("*** Starting Nuclei configuration including: building NucConfig, NucManager, processing nuclei and assigning names ***");
 
@@ -670,7 +670,7 @@ public class AceTree extends JPanel
 			new GeneralStartupError(getMainFrame(), t);
     	}
 
-    	System.gc();
+    	// System.gc();
     }
 
     public void bringUpSeriesUI(Config config) {
@@ -679,7 +679,7 @@ public class AceTree extends JPanel
         
     	String configFileName = config.iConfigFileName;
         System.out.println("bringUpSeriesUI: " + configFileName);
-        System.gc();
+        // System.gc();
         // check to see if the series is already in the hash
         String shortName = Config.getShortName(configFileName);
         NucleiMgr nucMgr = iNucleiMgrHash.get(shortName); // usually null - nucMgr created below in bringUpSeriesData()
@@ -758,7 +758,7 @@ public class AceTree extends JPanel
         // always put the newly built nucmgr in the hash
         iNucleiMgrHash.put(config, nucMgr);
         
-        System.gc();
+        // System.gc();
         return 0;
     }
 
@@ -783,7 +783,7 @@ public class AceTree extends JPanel
             	iAceMenuBar.addToRecent(configName);
         }
         
-        System.gc();
+        // System.gc();
         return 0;
     }
 
@@ -819,7 +819,7 @@ public class AceTree extends JPanel
 
     public void removeRecent(String item) {
         iNucleiMgrHash.remove(item);
-        System.gc();
+        // System.gc();
     }
 
     @SuppressWarnings("unused")
@@ -828,10 +828,10 @@ public class AceTree extends JPanel
         while (e.hasMoreElements()) {
             NucleiMgr nm = iNucleiMgrHash.get(e.nextElement());
             nm = null;
-            System.gc();
+            // System.gc();
         }
         iNucleiMgrHash = new Hashtable<String, NucleiMgr>();
-        System.gc();
+        // System.gc();
     }
 
     // Removes all leaves from working tree
@@ -872,7 +872,7 @@ public class AceTree extends JPanel
 
 
         iTree.updateUI();
-        System.gc();
+        // System.gc();
     }
 
     @SuppressWarnings("unused")
@@ -938,7 +938,7 @@ public class AceTree extends JPanel
         }
 
         setShowAnnotations(iShowAnnotationsSave);
-        System.gc();
+        // System.gc();
     }
 
     private Cell walkUpToAGoodCell() {
@@ -3295,7 +3295,7 @@ public class AceTree extends JPanel
 
         prevImage();
 
-		System.gc();
+		// System.gc();
 
         success = iAceTree.ATLockNucleiMgr(false);
     }
