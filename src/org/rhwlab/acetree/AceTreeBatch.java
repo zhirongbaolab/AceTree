@@ -23,7 +23,7 @@ public class AceTreeBatch {
         else println("AceTreeBatch, good series");
         String realSave = iNucleiMgr.getConfig().iZipFileName;
         File file = new File(realSave);
-        NucZipper nz = new NucZipper(file, iNucleiMgr);
+        NucZipper nz = new NucZipper(file, iNucleiMgr, null);
         println("AceTreeBatch, " + realSave);
         println("AceTreeBatch, saved");
 
@@ -44,7 +44,7 @@ public class AceTreeBatch {
         nucMgr.processNuclei(true, nucMgr.getConfig().iNamingMethod);
         String config = nucMgr.getConfig().getShortName();
         iNucleiMgr = nucMgr;
-        System.gc();
+        // System.gc();
         return 0;
     }
     

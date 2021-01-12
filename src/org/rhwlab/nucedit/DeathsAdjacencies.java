@@ -121,8 +121,8 @@ public class DeathsAdjacencies extends JDialog implements ActionListener, ListSe
         //println("test1 entered");
         iNamesAvailable = false;
         iTest = 1;
-        int t1 = iNucleiMgr.getConfig().iStartingIndex;
-        int t2 = iNucleiMgr.getConfig().iEndingIndex;
+        int t1 = iAceTree.getConfig().getImageConfig().getStartingIndex();
+        int t2 = iAceTree.getConfig().getImageConfig().getEndingIndex();
         String [] sa = iTextField.getText().split(":");
         int maxTime = Integer.parseInt(sa[0]);
         String filter = "";
@@ -168,13 +168,13 @@ public class DeathsAdjacencies extends JDialog implements ActionListener, ListSe
         //System.out.println("\nAnalysis5.test1 entered");
         iCellName = iAceTree.getCurrentCell().getName();
         //iTextField.setText(iCellName);
-        iTime = iAceTree.getImageTime() + iAceTree.getTimeInc();
+        iTime = iAceTree.getImageManager().getCurrImageTime();
         //println("test1: " + iTime);
         Vector nuclei = (Vector)nuclei_record.get(iTime - 1);
         Vector nuclei2 = (Vector)nuclei_record.get(iTime);
         //iTime++; //point at the next time
         Nucleus nn = NucUtils.getCurrentCellData(nuclei, iCellName);
-        double zPixRes = iNucleiMgr.getZPixRes();
+        double zPixRes = iAceTree.getConfig().getNucleiConfig().getZPixRes();
         int x = nn.x;
         int y = nn.y;
         int z = (int)(zPixRes * nn.z);
@@ -215,7 +215,7 @@ public class DeathsAdjacencies extends JDialog implements ActionListener, ListSe
 
             //println(i + CS + dd.id + CS + dd.d + CS + dd.x + CS + dd.y + CS + dd.z);
         }
-        imgWin.refreshDisplay(null);
+        imgWin.refreshDisplay();
         iNamesAvailable = true;
     }
 
@@ -230,14 +230,14 @@ public class DeathsAdjacencies extends JDialog implements ActionListener, ListSe
         iNamesAvailable = false;
         iCellName = iAceTree.getCurrentCell().getName();
         //iTextField.setText(iCellName);
-        iTime = iAceTree.getImageTime() + iAceTree.getTimeInc();
+        iTime = iAceTree.getImageManager().getCurrImageTime();
         //println("test3: " + iTime);
         Vector nuclei = (Vector)nuclei_record.get(iTime - 1);
         Vector nuclei2 = null;
         if (iTime > 1) nuclei2 = (Vector)nuclei_record.get(iTime - 2);
 
         //println("iZPixRes: " + iNucleiMgr.getZPixRes());
-        double zPixRes = iNucleiMgr.getZPixRes();
+        double zPixRes = iAceTree.getConfig().getNucleiConfig().getZPixRes();
         Nucleus nn = NucUtils.getCurrentCellData(nuclei, iCellName);
         int x1 = nn.x;
         int y1 = nn.y;
@@ -290,7 +290,7 @@ public class DeathsAdjacencies extends JDialog implements ActionListener, ListSe
         if (nuclei2 != null) {
             iListModel.addElement("#nuclei at time " + (iTime - 1) + " near " + iCellName + " at time " + iTime);
             addItems(v2, imgWin);
-            imgWin.refreshDisplay(null);
+            imgWin.refreshDisplay();
         }
         iNamesAvailable = true;
     }
@@ -368,7 +368,7 @@ public class DeathsAdjacencies extends JDialog implements ActionListener, ListSe
     private static final double TOL = 0.7;
 
     private int jump(CellData cd0, CellData cd1) {
-        double zPixRes = iNucleiMgr.getZPixRes();
+        double zPixRes = iAceTree.getConfig().getNucleiConfig().getZPixRes();
         Nucleus n0 = cd0.iNucleus;
         Nucleus n1 = cd1.iNucleus;
         int x = n0.x;
@@ -405,8 +405,8 @@ public class DeathsAdjacencies extends JDialog implements ActionListener, ListSe
         println("test4 clicked");
         iNamesAvailable = false;
         iTest = 4;
-        iTime = iAceTree.getImageTime() + iAceTree.getTimeInc();
-        double zPixRes = iNucleiMgr.getZPixRes();
+        iTime = iAceTree.getImageManager().getCurrImageTime();
+        double zPixRes = iAceTree.getConfig().getNucleiConfig().getZPixRes();
         //println("test1: " + iTime);
         Vector nuclei = (Vector)nuclei_record.get(iTime - 1);
         for (int i=0; i < nuclei.size(); i++) {

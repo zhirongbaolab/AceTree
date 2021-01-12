@@ -7,6 +7,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -85,14 +87,27 @@ public class InputCtrl extends JPanel implements ActionListener {
 
         JLabel[] labels = new JLabel[labelStrings.length];
         JComponent[] fields = new JComponent[labelStrings.length];
+
         int fieldNum = 0;
-        MaskFormatter mf = createFormatter("#################");
+
+        MaskFormatter mf = createFormatter("#######");
         iTimeField = new JFormattedTextField(mf);
         iTimeField.setFocusLostBehavior(JFormattedTextField.PERSIST);
+        iTimeField.addFocusListener(new FocusListener() {
+
+            public void focusGained(FocusEvent e) {
+                iTimeField.setCaretPosition(0);
+            }
+            public void focusLost(FocusEvent e) {}
+
+        });
+
         iNameField = new JTextField();
         iNameField.setColumns(15);
+
         fields[fieldNum++] = iTimeField;
         fields[fieldNum++] = iNameField;
+
         //Associate label/field pairs, add everything,
         //and lay it out.
         for (int i = 0; i < labelStrings.length; i++) {

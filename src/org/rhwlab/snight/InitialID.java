@@ -29,8 +29,16 @@ public class InitialID {
 		nuclei_record = iNucleiMgr.getNucleiRecord();
 		iParameters = parameters;
 		iNucCount = 1;
-		iEndingIndex = iNucleiMgr.iEndingIndex;
-		iMeasureCSV = measureCSV;
+
+		// distinguish between legacy conguration and revised 10/18
+		if (nucMgr.isNucConfigNull()) {
+			iEndingIndex = iNucleiMgr.iEndingIndex;
+			iMeasureCSV = measureCSV;
+		} else {
+			this.iEndingIndex = nucMgr.getNucConfig().getEndingIndex();
+			this.iMeasureCSV = nucMgr.getNucConfig().getMeasureCSV();
+		}
+
 		this.canTrans = canTrans;
 		getCoordinateParms();
 
@@ -468,8 +476,9 @@ public class InitialID {
 		Nucleus n;
 		for (int i=0; i < nuclei.size(); i++) {
 			n = nuclei.elementAt(i);
-			if (n.status > -1 && !n.identity.equals(POLAR)) cell_ct++;
-			//if (n.status > -1 && n.identity.indexOf(POLAR) == -1) cell_ct++;
+			//FIXME HAD TO SWAP THIS NEW if STATEMENT WITH OLD (commented out) STATEMENT TO GET NAMING TO WORK
+			//if (n.status > -1 && !n.identity.equals(POLAR)) cell_ct++;
+			if (n.status > -1 && n.identity.indexOf(POLAR) == -1) cell_ct++;
 		}
 		return cell_ct;
 	}

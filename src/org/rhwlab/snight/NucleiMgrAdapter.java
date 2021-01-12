@@ -1,9 +1,12 @@
 package org.rhwlab.snight;
 
 import application_src.application_model.data.LineageData;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import org.rhwlab.image.management.ImageManager;
 
 import java.util.*;
-/*
+/**
  * Adapter to interface AceTree 3D Viewing with WormGUIDES
  *
  * Created: Oct. 2, 2015
@@ -20,18 +23,18 @@ public class NucleiMgrAdapter implements LineageData {
 	private double[] xyzScale;
 
 
-	public NucleiMgrAdapter(NucleiMgr nucleiMgr) {
+	public NucleiMgrAdapter(NucleiMgr nucleiMgr, Config config) {
 		this.nucleiMgr = nucleiMgr;
-		this.cellOccurences = new Hashtable<String, int[]>();
-		this.realTimePoints = nucleiMgr.iEndingIndex; // initialize to this to avoid errors
-		this.allPositions = new ArrayList<ArrayList<double[]>>();
+		this.cellOccurences = new Hashtable<>();
+		this.realTimePoints = config.getNucleiConfig().getEndingIndex(); // initialize to this to avoid errors
+		this.allPositions = new ArrayList<>();
 		preprocessCellOccurrences();
 		preprocessCellPositions();
 		setIsSulstonModeFlag(nucleiMgr.iAncesTree.sulstonmode);
-		System.out.println("NucleiMgrAdapter has isSulstonMode: " + isSulston);
+		//System.out.println("NucleiMgrAdapter has isSulstonMode: " + isSulston);
 		this.xyzScale = new double[3];
-		this.xyzScale[0] = this.xyzScale[1] = nucleiMgr.iConfig.iXy_res;
-		this.xyzScale[2] = nucleiMgr.iConfig.iZ_res;
+		this.xyzScale[0] = this.xyzScale[1] = config.getNucleiConfig().getXyRes();
+		this.xyzScale[2] = config.getNucleiConfig().getZRes();
 	}
 
 	private void preprocessCellOccurrences() {
@@ -45,6 +48,7 @@ public class NucleiMgrAdapter implements LineageData {
 
 			if (names.length == 0) {
 				this.realTimePoints = i;
+				//System.out.println("Real time points is: " + i);
 				break;
 			}
 
@@ -70,19 +74,16 @@ public class NucleiMgrAdapter implements LineageData {
 			for (int j = 0; j < names.length; j++) {
 				String name = names[j];
 
-				if (cellOccurences.containsKey(name)) {
+				// only update end time if it is greater than the current time
+				if (cellOccurences.containsKey(name) && cellOccurences.get(name)[1] < i) {
 					cellOccurences.get(name)[1] = i;
-				} else {
-					System.out.println("no start occurence for: " + name);
 				}
 			}
 		}
-
-
 	}
 
 	private void preprocessCellPositions() {
-		for (int i = 0; i < realTimePoints; i++) {
+		for (int i = 1; i <= realTimePoints; i++) {
 			ArrayList<double[]> positions_at_time = new ArrayList<double[]>();
 
 			double[][] positions = getPositions(i, true);
@@ -95,6 +96,44 @@ public class NucleiMgrAdapter implements LineageData {
 
 			allPositions.add(positions_at_time);
 		}
+		//System.out.println("Size of allPositions = " + allPositions.size());
+	}
+
+	public void updateCellOccurencesAndPositions() {
+		cellOccurences.clear();
+		allPositions.clear();
+
+		preprocessCellOccurrences();
+		preprocessCellPositions();
+	}
+
+	public void updateCellOccurencesAndPositions(int startTime, int endTime) {
+		// check that the range is valid
+
+		for (int i = startTime; i <= endTime; i++) {
+			updateCellOccurencesAndPositions(i, false);
+		}
+
+		preprocessCellOccurrences();
+	}
+
+	public void updateCellOccurencesAndPositions(int time, boolean performCellOccurenceUpdate) {
+		// check that the time is valid
+		ArrayList<double[]> positions_at_time = new ArrayList<>();
+
+		double[][] positions = getPositions(time, true);
+
+		for (int j = 0; j < positions.length; j++) {
+			double[] coords = positions[j];
+
+			positions_at_time.add(coords);
+		}
+
+		allPositions.set(time, positions_at_time);
+
+		if (performCellOccurenceUpdate) {
+			preprocessCellOccurrences();
+		}
 	}
 
 	@Override
@@ -103,8 +142,8 @@ public class NucleiMgrAdapter implements LineageData {
 			ArrayList<String> namesAL = new ArrayList<>(); //named to distinguish between return String[] array
 
 			//access vector of nuclei at given time frame
-			Vector<Nucleus> v = nucleiMgr.nuclei_record.get(time);
-//				Vector v = (Vector) nucleiMgr.nuclei_record.get(time - 1);
+//			Vector<Nucleus> v = nucleiMgr.nuclei_record.get(time);
+				Vector<Nucleus> v = nucleiMgr.nuclei_record.get(time - 1);
 
 			//copy nuclei identities to ArrayList names AL
 			for (int m = 0; m < v.size(); ++m) {
@@ -132,7 +171,8 @@ public class NucleiMgrAdapter implements LineageData {
 			preprocessCellPositions();
 		}
 
-		ArrayList<double[]> positions = allPositions.get(time);
+		//System.out.println("Trying to access position data at time: " + time);
+		ArrayList<double[]> positions = allPositions.get(time - 1);
 
 		double[][] positions_array = new double[positions.size()][3];
 
@@ -147,11 +187,11 @@ public class NucleiMgrAdapter implements LineageData {
 		ArrayList<ArrayList<Double>> positionsAL = new ArrayList<ArrayList<Double>>();
 
 		//access vector of nuclei at given time frame
-		Vector<Nucleus> v = nucleiMgr.nuclei_record.get(time);
+		Vector<Nucleus> v = nucleiMgr.nuclei_record.get(time-1);
 
 		//copy nuclei positions to ArrayList positionsAL
 		for (int m = 0; m < v.size(); ++m) {
-			Nucleus n = (Nucleus) v.get(m);
+			Nucleus n = v.get(m);
 			if (n.status == 1) {
 				ArrayList<Double> position = new ArrayList<Double>(Arrays.asList((double)n.x, (double)n.y, (double)n.z));
 				positionsAL.add(position);
@@ -179,10 +219,10 @@ public class NucleiMgrAdapter implements LineageData {
 		ArrayList<Double> diametersAL = new ArrayList<Double>();
 
 		//access vector of nuclei at given time frame
-		Vector<Nucleus> v = nucleiMgr.nuclei_record.get(time);
+		Vector<Nucleus> v = nucleiMgr.nuclei_record.get(time - 1);
 
 		for (int m = 0; m < v.size(); ++m) {
-			Nucleus n = (Nucleus) v.get(m);
+			Nucleus n = v.get(m);
 			if (n.status == 1) {
 				diametersAL.add((double)n.size);
 			}
@@ -202,14 +242,28 @@ public class NucleiMgrAdapter implements LineageData {
 	@Override
 	public ArrayList<String> getAllCellNames() {
 		ArrayList<String> allCellNames = new ArrayList<>();
-		for (int i = 0; i < realTimePoints; i++) {
+
+		/*
+		//old code
+		for (int i = 1; i <= realTimePoints; i++) {
 			String[] namesAti = getNames(i);
+
 			for (String name : namesAti) {
 				if (!allCellNames.contains(name)) {
 					allCellNames.add(name);
 				}
 			}
 		}
+		*/
+
+		//replace the old code for faster launch speed
+		for (Object cellname:nucleiMgr.getCellsByName().keySet()){
+			String cname = (String)cellname;
+			allCellNames.add(cname);
+		}
+
+		//sort names list by string length, so that parent always appear in front of children
+		Collections.sort(allCellNames, Comparator.comparing(String::length));
 
 		return allCellNames;
 	}

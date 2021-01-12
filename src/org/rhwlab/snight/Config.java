@@ -21,16 +21,106 @@ import javax.swing.JFileChooser;
 //import org.rhwlab.acetree.AceTree;
 
 import org.rhwlab.help.FileError;
+import org.rhwlab.image.management.ImageConfig;
 
 
 /**
- * @author biowolp
+ * Revised 10/2018
+ * @author Braden Katzman
  *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * The refactored version of this class now acts as a top level manager of the respective NucleiConfig and ImageConfig classes
  */
 public class Config {
+
+    //******************************************************************************************************************
+    // main vars
     public String       iConfigFileName;
+    private NucleiConfig nucConfig;
+    private ImageConfig imageConfig;
+
+    // helper vars
+    private String XML_ext = ".xml";
+
+    /**
+     * Revised constructor
+     * @author Braden Katzman
+     *
+     * This constructor takes a file name, opens and parses it, and separates the contents into the
+     * respective NucleiConfig and ImageConfig objects
+     *
+     * @param configFileName
+     */
+    public Config(String configFileName) {
+        // error check
+        if (configFileName == null || configFileName.isEmpty()) return;
+
+        this.iConfigFileName = configFileName;
+
+        // check what kind of file it is
+        int test_idx = configFileName.lastIndexOf(".");
+        if (test_idx > 0) {
+            if (configFileName.substring(test_idx).equals(XML_ext)) {
+                XMLConfig xmlConfigLoader = new XMLConfig();
+                Hashtable<String, String> xmlConfigData = xmlConfigLoader.loadConfigDataFromXMLFile(configFileName);
+
+                // TESTING *******************************************
+//                for (String s : xmlConfigData.keySet()) {
+//                    System.out.println("k, v: " + s + ", " + xmlConfigLoader.getXMLConfigDataHash().get(s));
+//                }
+                // TESTING *******************************************
+
+                // use the data to populate the two config classes
+                this.nucConfig = new NucleiConfig(xmlConfigData, configFileName);
+                this.imageConfig = new ImageConfig(xmlConfigData, configFileName);
+
+                // WHAT NEEDS TO BE DONE TO MAKE UP FOR SETSTARTINGPARMS ?
+            }
+        }
+    }
+
+    public String getShortName() {
+        //System.out.println("Configuration file name: "+iConfigFileName);
+        String s = iConfigFileName;
+        return getShortName(s);
+    }
+
+    public static String getShortName(String longName) {
+        int k = longName.lastIndexOf(File.separator);
+        return longName.substring(k + 1);
+    }
+
+    public NucleiConfig getNucleiConfig() {
+        return this.nucConfig;
+    }
+
+    public ImageConfig getImageConfig() {
+        return this.imageConfig;
+    }
+
+    public String configsToString() {
+        return nucConfig.toString() + imageConfig.toString();
+    }
+
+    public String getConfigFileName() { return iConfigFileName; }
+    //******************************************************************************************************************
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // REVISE ALL OF THESE VARS
     public String       iParent;
     public Hashtable    iConfigHash;
     public String       iZipFileName; // a full path to the zip with nuclei and parameters
@@ -68,29 +158,8 @@ public class Config {
     public FileError	iZipFileError;
     public int			iSplitChannelImage; // whether to split image into two channels for 16-bit mode
 
-    //  private AceTree iAceTree;
-    @Override
-	public String toString() {
-        StringBuffer sb = new StringBuffer("Config");
-        sb.append(NL +  "iConfigFileName" + CS + iConfigFileName);
-        sb.append(NL + "iParent" + CS + iParent);
-        sb.append(NL + "iZipFileName" + CS + iZipFileName);
-        sb.append(NL + "iZipNucDir" + CS + iZipNucDir);
-        sb.append(NL + "iTypicalImage" + CS + iTypicalImage);
-        sb.append(NL + "iZipTifFilePath" + CS + iZipTifFilePath);
-        sb.append(NL + "iTifPrefix" + CS + iTifPrefix);
-        sb.append(NL + "iStartingIndex" + CS + iStartingIndex);
-        sb.append(NL + "iEndingIndex" + CS + iEndingIndex);
-        sb.append(NL + "iPlaneStart" + CS + iPlaneStart);
-        sb.append(NL + "iPlaneEnd" + CS + iPlaneEnd);
-        sb.append(NL + "iNamingMethod" + CS + iNamingMethod);
-        sb.append(NL + "iUseZip" + CS + iUseZip);
-		sb.append(NL + "iUseStack" + CS + iUseStack);
-        sb.append(NL + "iAxisGiven" + CS + iAxisGiven);
-        sb.append(NL + "iSplitChannelImage" + CS + iSplitChannelImage);
 
-        return sb.toString();
-    }
+
 
 
     public Config() {
@@ -133,11 +202,7 @@ public class Config {
             getStartingParms();
             setStartingParms();
         }
-        // COMMENTED THIS OUT 10/01/18 because if this is called with XML is true, then the XML config has already
-        // been made and populated the iConfigHash
-        // else {
-        	//new XMLConfig(configFile, this);
-        //}
+
         showStartingParms();
     }
 
@@ -609,18 +674,6 @@ public class Config {
         System.out.println("showStartingParms end");
     }
 
-    public String getShortName() {
-    	//System.out.println("Configuration file name: "+iConfigFileName);
-        String s = iConfigFileName;
-        return getShortName(s);
-    }
-
-    public static String getShortName(String longName) {
-        int k = longName.lastIndexOf("/");
-        //System.out.println("Configuration file name (short): "+longName.substring(k + 1));
-        return longName.substring(k + 1);
-    }
-
 
     final public static String
          HELPMSG = "you must provide file: "
@@ -721,6 +774,29 @@ public class Config {
     public static final String [] REDCHOICE = {
         "none", "global", "local", "blot", "cross"
     };
+
+    @Override
+    public String toString() {
+        StringBuffer sb = new StringBuffer("Config");
+        sb.append(NL +  "iConfigFileName" + CS + iConfigFileName);
+        sb.append(NL + "iParent" + CS + iParent);
+        sb.append(NL + "iZipFileName" + CS + iZipFileName);
+        sb.append(NL + "iZipNucDir" + CS + iZipNucDir);
+        sb.append(NL + "iTypicalImage" + CS + iTypicalImage);
+        sb.append(NL + "iZipTifFilePath" + CS + iZipTifFilePath);
+        sb.append(NL + "iTifPrefix" + CS + iTifPrefix);
+        sb.append(NL + "iStartingIndex" + CS + iStartingIndex);
+        sb.append(NL + "iEndingIndex" + CS + iEndingIndex);
+        sb.append(NL + "iPlaneStart" + CS + iPlaneStart);
+        sb.append(NL + "iPlaneEnd" + CS + iPlaneEnd);
+        sb.append(NL + "iNamingMethod" + CS + iNamingMethod);
+        sb.append(NL + "iUseZip" + CS + iUseZip);
+        sb.append(NL + "iUseStack" + CS + iUseStack);
+        sb.append(NL + "iAxisGiven" + CS + iAxisGiven);
+        sb.append(NL + "iSplitChannelImage" + CS + iSplitChannelImage);
+
+        return sb.toString();
+    }
 
     public static void main(String [] args) {
         String s = "/nfs/waterston/murray/20090425_ceh-34_4_L1/dats/20090425_ceh-34_4_L1.dat";

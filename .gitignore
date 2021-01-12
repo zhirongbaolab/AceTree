@@ -8,3 +8,5 @@
 src/.DS_STORE
 src/MANIFEST/MANIFEST.MF
 AceTree.iml
+src/.DS_store
+*.DS_store

@@ -99,12 +99,10 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 		// later time
 		Border blackline = BorderFactory.createLineBorder(Color.black);
 		Border bothBorder = BorderFactory.createEmptyBorder(0,10,0,10);
-		//Border botBorder = BorderFactory.createEmptyBorder(0,0,10,0);
 
 		JPanel pEnd = new JPanel();
 		pEnd.setLayout(new BoxLayout(pEnd, BoxLayout.PAGE_AXIS));
 		pEnd.setAlignmentX(Component.CENTER_ALIGNMENT);
-		//pEnd.setBorder(blackline);
 
 		iRelinkButton = new JButton(SETLATECELL);
 		iRelinkButton.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -114,27 +112,17 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 		label.setAlignmentX(CENTER_ALIGNMENT);
 		pEnd.add(label);
 
-		
-		//s.setBorder(topBorder);
 		pEnd.add(iRelinkButton);
 		  pEnd.add(Box.createVerticalGlue());
-		//pEnd.add(new JLabel(""));
-		//pEnd.add(s);
 
-		
-		//
 		JPanel bothl = new JPanel();
 		bothl.setLayout(new BoxLayout(bothl,BoxLayout.LINE_AXIS));
-		//bothl.setBorder(bothBorder);
+
 		bothl.setAlignmentX(Component.CENTER_ALIGNMENT);
 
 		JPanel s = new JPanel();
 		s.setLayout(new BoxLayout(s,BoxLayout.PAGE_AXIS));
-		
-		//s.setLayout(new GridLayout(1,1));
-		//s = new JPanel();
-		//s.setLayout(new FlowLayout());
-		//s.setAlignmentX(Component.CENTER_ALIGNMENT);
+
 		label = new JLabel(RELINKTIME);
 		s.add(label);
 		label = new JLabel(RELINKNUC);
@@ -144,45 +132,19 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 		
 		s = new JPanel();
 		s.setLayout(new BoxLayout(s,BoxLayout.PAGE_AXIS));
-		//iRelinkTime = new JTextField();
-		//iRelinkTime.setColumns(5);
+
 		iRelinkTime = new JLabel(FIVE);
-		// iRelinkTime.setBorder(blackline);
-		//iRelinkTime.setColumns(5);
+
 		s.add(iRelinkTime);
-		//s.setBorder(topBorder);
-
-		//bothl.add(s);
-		//pEnd.add(s);
-
-		//s = new JPanel();
-		//s.setLayout(new FlowLayout());
-		//s.setAlignmentX(Component.CENTER_ALIGNMENT);
-		//s.setLayout(new BoxLayout(s,BoxLayout.PAGE_AXIS));
 		iRelinkNuc = new JLabel(TWELVE);
-		//iRelinkNuc.setBorder(blackline);
-		//iRelinkNuc.setColumns(12);
-		//iRelinkNuc.setText(cell.getName());
 		s.add(iRelinkNuc);
-			//s.setBorder(botBorder);
-		//pEnd.add(s);
+
 		bothl.add(s);
 		pEnd.add(bothl);
 		  pEnd.add(Box.createVerticalGlue());
-		 // pEnd.add(new JLabel(" "));
-		//pEnd.setPreferredSize(new Dimension(WIDTH,110));
+
 		 pWhole.add(Box.createVerticalGlue());
 		pWhole.add(pEnd);
-
-
-		//JPanel xp = new JPanel();
-		//xp.setBorder(blackline);
-		//xp.setLayout(new BoxLayout(xp, BoxLayout.PAGE_AXIS));
-		//Border b = BorderFactory.createEmptyBorder(10,0,10,0);
-
-		//s = new JPanel();
-		// s.setLayout(new GridLayout(3,1));
-		//s.add(new JLabel(""));
 
 		iApplyAndRebuild = new JButton(APPLYANDREBUILD);
 		iApplyAndRebuild.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -348,11 +310,31 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		//semaphores  merge from shooting_star_both_as AceTree source code
+		boolean SNLock = iAceTree.getSNLock();
+		if(SNLock){
+			JOptionPane.showMessageDialog(null,"Waiting for StarryNite to finish writing nuclei data");
+			//SN has locked NM, wait for it to be unlocked
+			//Pop up a dialog indicating that we're waiting
+			while(SNLock){
+				try{
+					Thread.sleep(100);
+					SNLock = iAceTree.getSNLock();
+				}
+				catch(InterruptedException ex){
+
+				}
+			}
+			JOptionPane.showMessageDialog(null,"StarryNite is done, taking over");
+		}
+		boolean success = iAceTree.ATLockNucleiMgr(true);
+
 		//System.out.println("NucRelinkDialog.actionPerformed");
 		Object o = e.getSource();
 		String cmd = e.getActionCommand();
 		if (cmd.equals(SETEARLYCELL)) {
-			int time = iAceTree.getImageTime() + iAceTree.getTimeInc();
+			int time = iAceTree.getImageTime();
+			//System.out.println("Early cell time is: " + time);
 			iLinkTime.setText(String.valueOf(time));
 			iLinkNuc.setText(iAceTree.getCurrentCell().getName());
 			iStartArmed=true;
@@ -360,7 +342,8 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 			iLinkTime.setText(String.valueOf((iAceTree.getNucleiMgr()).getStartingIndex()));
 			iLinkNuc.setText(AceTree.ROOTNAME);
 		} else if (cmd.equals(SETLATECELL)) {
-			int time = iAceTree.getImageTime() + iAceTree.getTimeInc();
+			int time = iAceTree.getImageTime();
+			//System.out.println("Late cell time is: " + time);
 			iRelinkTime.setText(String.valueOf(time));
 			iRelinkNuc.setText(iAceTree.getCurrentCell().getName());
 
@@ -368,6 +351,10 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 			relinkAndRebuild();
 		}
 		iAceTree.requestFocus();
+		// System.gc();
+
+		success = iAceTree.ATLockNucleiMgr(false);
+
 	}
 	protected void relinkAndRebuild(){
 		int endTime;
@@ -405,8 +392,6 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 		sb.append(iNucleiMgr.getIndex(strCellName, strTime));
 		//System.out.println(sb.toString());
 		iEditLog.append(sb.toString());
-
-		iNucleiMgr.makeBackupNucleiRecord();
 		
 		//actual generation of interp
 		createAndAddCells(endCellName, endTime, strCellName, strTime);
@@ -414,16 +399,48 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 		//System.out.println("returned from createAndAddCells");
 		// if (cmd.equals(APPLYANDREBUILD)) {
 		//println("\n\nNucRelinkDialog.actionPerformed: applyAndRebuild");
+		iAceTree.treeValueChangedFromEdit = true;
 		iAceTree.clearTree();
 		iAceTree.buildTree(true);
+
+		// update WormGUIDES data if it's open
+		if (iAceTree.iAceMenuBar.view != null) {
+			iAceTree.iAceMenuBar.view.rebuildData();
+		}
+
 		AncesTree ances = iAceTree.getAncesTree();
 		Hashtable h = ances.getCellsByName();
+
+
 		Cell c = (Cell)h.get(strCellName);
 		
 		//set active cell to start time to aid review
-		if(c!=null){
-			iAceTree.setStartingCell(c, strTime);
-			System.out.println("Setting starting in relink "+c);
+		if(c != null) {
+            System.out.println("Setting starting cell in relink " + c + " at startTime: " + strTime);
+			iAceTree.treeValueChangedFromEdit = true;
+
+            // make a call to the WormGUIDES window to rebuild it's scene. Sometimes, relinking throws WG into an error
+			// so we'll rebuild this time
+            if (iAceTree.iAceMenuBar.view != null) {
+            	iAceTree.iAceMenuBar.view.buildScene();
+			}
+
+			/**
+			 * the convention for relinking is to select the later, unnamed cell and then link it back to the earlier time.
+			 * In this case, the time doesn't change because the first linked point is supposed to be shown when relinking.
+			 * However, users can also relink in the forward direction i.e. select the earlier named cell first and walk
+			 * forward to the unnamed cell. In this case, we end up viewing the later frame when applying the relink, so
+			 * we want to show the first frame after that relink is made
+			 */
+			if (iAceTree.getImageManager().getCurrImageTime() != strTime) {
+				iAceTree.getImageManager().setCurrImageTime(strTime);
+
+				// also update the annotation
+				iAceTree.iImgWin.updateCurrentCellAnnotation(c, new Cell(""), strTime);
+			}
+			iAceTree.treeValueChangedFromEdit = true;
+			iAceTree.showSelectedCell(c, strTime);
+			//iAceTree.updateDisplay();
 		}
 		iEditLog.setModified(true);
 		//dispose();
@@ -498,6 +515,8 @@ public class NucRelinkDialog extends JDialog implements ActionListener {
 			nucleiAdd.add(n);
 		}
 		nEnd.predecessor = n.index;
+		nEnd.rwraw = 1;
+		n.rwraw = 1;
 		//System.out.print("nEnd: " + nEnd);
 	}
 

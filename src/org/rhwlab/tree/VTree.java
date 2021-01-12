@@ -61,7 +61,7 @@ public class VTree implements ActionListener {
         AceTree acetree = AceTree.getAceTree(null);
         NucleiMgr nucleiMgr = acetree.getNucleiMgr();
         JFrame.setDefaultLookAndFeelDecorated(false);
-        String s = nucleiMgr.getConfig().iConfigFileName;
+        String s = acetree.getConfig().getConfigFileName();
         File fs = new File(s);
         s = fs.getName();
         iFrame.setTitle(s);
@@ -111,21 +111,6 @@ public class VTree implements ActionListener {
         pWhole.add(iLabelRoot);
         pWhole.add(iLabelLeaves);
 
-
-        /*
-        iPng = new JRadioButton("png file");
-        iPs = new JRadioButton("postscript");
-        ButtonGroup bg = new ButtonGroup();
-        bg.add(iPng);
-        bg.add(iPs);
-        iPs.setSelected(true);
-        JPanel jp = new JPanel(new GridLayout(1,0));
-        Border blackline = BorderFactory.createLineBorder(Color.black);
-        jp.setBorder(blackline);
-        jp.add(iPng);
-        jp.add(iPs);
-        pWhole.add(jp);
-        */
         JScrollPane sPane = new JScrollPane(pWhole);
         return sPane;
     }

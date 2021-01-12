@@ -17,6 +17,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
+import java.util.GregorianCalendar;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -208,20 +209,19 @@ public class EIDialog1 extends JDialog implements ActionListener, WindowFocusLis
             Cell c = (Cell)h.get(iNucleus.identity);
             Cell parent = (Cell)c.getParent();
             updateCurrentInfo(false);
-            int time = iImageTime + iTimeInc;
-            Vector nuclei_record = ImageWindow.cNucleiMgr.getNucleiRecord();
+            Vector nuclei_record = iAceTree.getNucleiMgr().getNucleiRecord();
             Vector nucleiAdd = null;
-            int deltaT = time - iPrevTime;
+            int deltaT = iAceTree.getImageManager().getCurrImageTime() - iPrevTime;
             int startx = iNucleus.x;
             int starty = iNucleus.y;
             float startz = iNucleus.z;
-            float z = iImagePlane + iPlaneInc;
+            float z = iAceTree.getImageManager().getCurrImagePlane();
             int prevTime = iPrevTime;
             Nucleus n = null;
-            for (int k=prevTime + 1; k <= time; k++) {
+            for (int k=prevTime + 1; k <= iAceTree.getImageManager().getCurrImageTime(); k++) {
                 nucleiAdd = (Vector)nuclei_record.elementAt(k - 1);
 
-                if (k < time || iLinkNucleus == null) {
+                if (k < iAceTree.getImageManager().getCurrImageTime() || iLinkNucleus == null) {
                     n = iNucleus.copy();
                     int deltaM = k - prevTime;
                     n.x = (x - startx)*deltaM/deltaT + startx;
@@ -242,29 +242,31 @@ public class EIDialog1 extends JDialog implements ActionListener, WindowFocusLis
                 }
                 iNucleus = n;
 
-                c = new Cell(n.identity, time);
+                c = new Cell(n.identity, iAceTree.getImageManager().getCurrImageTime());
                 c.setHashKey(iNucleus.hashKey);
-                c.setParameters(time, time, n);
+                c.setParameters(iAceTree.getImageManager().getCurrImageTime(), iAceTree.getImageManager().getCurrImageTime(), n);
                 Cell root = iAceTree.getAncesTree().getRoot();
                 c.setParent(parent);
-                //iAceTree.setCurrentCell(c, time, AceTree.CONTROLCALLBACK);
-                iAceTree.setCurrentCell(c, iImageTime + iTimeInc, AceTree.RIGHTCLICKONEDITIMAGE);
+
+                if (iAceTree.iAceMenuBar.view != null) {
+                    iAceTree.iAceMenuBar.view.rebuildData();
+                }
+
+                iAceTree.setCurrentCell(c, iAceTree.getImageManager().getCurrImageTime(), AceTree.RIGHTCLICKONEDITIMAGE);
                 iParent.addAnnotation(x, y, true);
                 iName.setText(iNucleus.identity);
                 iTime.setText(String.valueOf(k));
                 iPrevTime = k;
+                iAceTree.updateDisplay();
 
             }
-
         }
-
-
     }
 
     protected void updateCurrentInfo(boolean detectChange) {
-        //System.out.println("EditImage.updateCurrentInfo called: " + new GregorianCalendar().getTime());
-        iImageTime = iAceTree.getImageTime();
-        iImagePlane = iAceTree.getImagePlane();
+        System.out.println("EditImage.updateCurrentInfo called: " + new GregorianCalendar().getTime());
+        iImageTime = iAceTree.getImageManager().getCurrImageTime();
+        iImagePlane = iAceTree.getImageManager().getCurrImagePlane();
         iTimeInc = iAceTree.getTimeInc();
         iPlaneInc = iAceTree.getPlaneInc();
         iCurrentCell = iAceTree.getCurrentCell();
@@ -281,7 +283,7 @@ public class EIDialog1 extends JDialog implements ActionListener, WindowFocusLis
         println("processMouseEvent, " + button);
         if (button == 3) {
             updateCurrentInfo(false);
-            Nucleus n = ImageWindow.cNucleiMgr.findClosestNucleus(e.getX(), e.getY(), iImagePlane + iPlaneInc, iImageTime + iTimeInc);
+            Nucleus n = iAceTree.getNucleiMgr().findClosestNucleus(e.getX(), e.getY(), iAceTree.getImageManager().getCurrImagePlane(), iAceTree.getImageManager().getCurrImageTime());
             if (n == null) {
                 System.out.println("cant find closest nucleus");
                 return;
@@ -290,15 +292,15 @@ public class EIDialog1 extends JDialog implements ActionListener, WindowFocusLis
 
             //System.out.println("mouseClicked1: " + c + C.CS + iCurrentCell
             //        + C.CS + iImagePlane + C.CS + iPlaneInc);
-            iAceTree.setCurrentCell(c, iImageTime + iTimeInc, AceTree.RIGHTCLICKONEDITIMAGE);
+            iAceTree.setCurrentCell(c, iAceTree.getImageManager().getCurrImageTime(), AceTree.RIGHTCLICKONEDITIMAGE);
+
+            iAceTree.updateDisplay();
             //System.out.println("mouseClicked2: " + c + C.CS + iCurrentCell);
-            //addAnnotation(n.x, n.y, true);
-            //refreshDisplay(null);
             if (iAddSeries.isSelected()) {
                 println("right click ignored with Add series selected");
             } else if (iSetStart.isSelected()) {
                 iName.setText(n.identity);
-                iPrevTime = iImageTime + iTimeInc;
+                iPrevTime = iImageTime;
                 iTime.setText(String.valueOf(iPrevTime));
 
                 iNucleus = n;
@@ -315,7 +317,7 @@ public class EIDialog1 extends JDialog implements ActionListener, WindowFocusLis
                     println("recommending a rebuild:");
                 }
             }
-            iParent.refreshDisplay(null);
+            //iAceTree.updateDisplay();
 
 
         } else if (button == 1) {
@@ -352,37 +354,43 @@ public class EIDialog1 extends JDialog implements ActionListener, WindowFocusLis
         Object o = e.getSource();
         if (o == iRebuildAndRename) {
             updateCurrentInfo(false);
-            int time = iImageTime + iTimeInc;
+            int time = iAceTree.getImageManager().getCurrImageTime();
             Cell c = iCurrentCell;
             iAceTree.clearTree();
             iAceTree.buildTree(true);
+
+            if (iAceTree.iAceMenuBar.view != null) {
+                iAceTree.iAceMenuBar.view.rebuildData();
+            }
+
             if (c != null) iAceTree.setStartingCell(c, time);
+            iAceTree.updateDisplay();
         }
-        Nucleus n = ImageWindow.cNucleiMgr.getNucleusFromHashkey(iCurrentCell.getHashKey(), iImageTime + iTimeInc);
+        Nucleus n = iAceTree.getNucleiMgr().getNucleusFromHashkey(iCurrentCell.getHashKey(), iAceTree.getImageManager().getCurrImageTime());
         if (o == iUp) {
             n.y--;
-            iParent.refreshDisplay(null);
+            iAceTree.updateDisplay();
 
         }
         else if (o == iDown) {
             n.y++;
-            iParent.refreshDisplay(null);
+            iAceTree.updateDisplay();
         }
         else if (o == iLeft) {
             n.x--;
-            iParent.refreshDisplay(null);
+            iAceTree.updateDisplay();
         }
         else if (o == iRight) {
             n.x++;
-            iParent.refreshDisplay(null);
+            iAceTree.updateDisplay();
         }
         else if (o == iBig) {
             n.size += 2;
-            iParent.refreshDisplay(null);
+            iAceTree.updateDisplay();
         }
         else if (o == iSmall) {
             n.size -= 2;
-            iParent.refreshDisplay(null);
+            iAceTree.updateDisplay();
         }
 
     }

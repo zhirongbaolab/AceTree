@@ -643,7 +643,7 @@ public class VTreeImplZ {
                         }
                 }
                 // this is where we write names for true leaves
-                if (i == 0 && j % nameInterval  == 0) handleString(x, iNucleiMgr.getEndingIndex() + xOffset + 10, k);
+                if (i == 0 && j % nameInterval  == 0) handleString(x, iAceTree.getConfig().getNucleiConfig().getEndingIndex() + xOffset + 10, k);
                 // this is where the y location of things is incremented
                 k += iKincInit * (parent.getLeafCount() - 1);
             }

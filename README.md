@@ -1,12 +1,10 @@
 AceTree open source imaging analysis software from Starrynite project
 
-Note that the master branch is not the most current AceTree, the image loading refactor branch is currently (10/2/2019) the most up to date. 
-
 Sample data and combined starrynite Acetreee distrubutions of various vintages can be found on the project website: http://starrynite.sourceforge.net/
 
 AceTree developers prefer the IntelliJ IDE, though Eclipse and others can also be used.
 
-**NOTE instructions for setting up IDE projects etc for each of the Bao lab software packages can be found in the top level git repository Developer Documentation.  
+**NOTE instructions for setting up IDE projects etc for each of the Bao lab software packages can be found in the top level git repository Developer Documentation. 
 
 AceTree requires JRE 8 and uses the java compiler version 1.8.
 

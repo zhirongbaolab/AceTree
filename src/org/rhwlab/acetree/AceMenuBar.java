@@ -12,10 +12,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URL;
 import java.util.Vector;
 import javax.swing.JCheckBoxMenuItem;
@@ -45,6 +42,7 @@ import org.rhwlab.image.DepthViews;
 import org.rhwlab.nucedit.Overlaps;
 import org.rhwlab.nucedit.SkipFalseNegatives;
 import org.rhwlab.snight.Config;
+import org.rhwlab.snight.MeasureCSV;
 import org.rhwlab.snight.WormGUIDESWindow;
 import org.rhwlab.tree.SubTrees;
 import org.rhwlab.utils.C;
@@ -66,6 +64,7 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
     JMenuItem iOpen;
     JMenuItem iOpenSeries;
     JMenuItem iOptions;
+    JMenuItem iReload;
     JMenuItem iSave;
     JMenuItem iSaveConfig;
     JMenuItem iJLaunch;
@@ -151,6 +150,8 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
 
     Vector iConfigsVector;
 
+    public WormGUIDESWindow view;
+
     /**
      *
      */
@@ -211,6 +212,12 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
         iOptions.addActionListener(this);
         menu.add(iOptions);
         menu.addSeparator();
+
+        //reload auxinfo
+        iReload = new JMenuItem(RELOAD);
+        iReload.addActionListener(this);
+        menu.add(iReload);
+
         iFileChooser = new JFileChooser("./*.zip");
         iSave = new JMenuItem(SAVE);
         iSave.addActionListener(this);
@@ -310,9 +317,10 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
         iJuvenesence.addActionListener(this);
         qualityGroupmenu.add(iJuvenesence);
 
-        iZafer1 = new JMenuItem("Zafer1");
-        iZafer1.addActionListener(this);
-        qualityGroupmenu.add(iZafer1);
+        //	Zafer1 commented out - relies on SVM output from StarryNite companion program (Aydin et al) that is not routinely implemented
+        //iZafer1 = new JMenuItem("Zafer1");
+        //iZafer1.addActionListener(this);
+        //qualityGroupmenu.add(iZafer1);
 
         iOrientation = new JMenuItem("Orientation");
         iOrientation.addActionListener(this);
@@ -321,6 +329,12 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
         iOverlaps = new JMenuItem("Overlaps");
         iOverlaps.addActionListener(this);
         qualityGroupmenu.add(iOverlaps);
+
+        iAnalyze6 = new JMenuItem(ANALYSIS6); //Cell count and nuc size vs time
+        iAnalyze6.setText("Nuclei vs Time");
+        iAnalyze6.addActionListener(this);
+        qualityGroupmenu.add(iAnalyze6);
+
         //end quality control submenu
 
 		if(fullgui){
@@ -400,11 +414,11 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
         iAncestralTree = new JMenuItem(SULSTON);
         iAncestralTree.addActionListener(this);
         menu.add(iAncestralTree);
-		if(fullgui){
+		//if(fullgui){
 	        iSulstonTree = new JMenuItem(CANONICAL);
 	        iSulstonTree.addActionListener(this);
 	        menu.add(iSulstonTree);
-		}
+		//}
         iVTree = new JMenuItem(VTREE);
         iVTree.addActionListener(this);
         menu.add(iVTree);
@@ -424,45 +438,18 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
 		iViewImgWin = new JMenuItem("Image Window");
 		iViewImgWin.addActionListener(this);
 		menu.add(iViewImgWin);
+        iViewEllipse = new JMenuItem(VIEWELLIPSE);
+        iViewEllipse.addActionListener(this);
+        menu.add(iViewEllipse);
 		
 		// the 3D menu
 		menu = new JMenu("3D Rendering");
 		menu.addActionListener(this);
 		add(menu);
-		
-		// add to 3d submenu
-		//if(fullgui){
-	    //    i3D = new JMenuItem(THREED);
-	    //    i3D.addActionListener(this);
-	    //    menu.add(i3D);
-		//}
+
 		i3D3 = new JMenuItem(THREED4);
         i3D3.addActionListener(this);
         menu.add(i3D3);
-		
-//        i3D2 = new JMenuItem(THREED2);
-//        i3D2.addActionListener(this);
-//        menu.add(i3D2);
-//
-//        i3DViewer =new JMenuItem(NEWTHREEDVIEW);
-//        i3DViewer.addActionListener(this);
-//        menu.add(i3DViewer);
-
-	//if(fullgui){      
- 	// i3Dsave = new JCheckBoxMenuItem(THREEDSAVE);
-   //     i3Dsave.addItemListener(this);
-   //     menu.add(i3Dsave);
-	//}
-     //  i3D2save = new JCheckBoxMenuItem(THREEDTWOSAVE);
-     //  i3D2save.addItemListener(this);
-    //    menu.add(i3D2save);
-      //  i3D2Zsave = new JCheckBoxMenuItem(THREEDTWOZSAVE);
-      //  i3D2Zsave.addItemListener(this);
-      //  menu.add(i3D2Zsave);
-	//end 3d submenu
-
-
-
 
 		if(fullgui){ 
 	        // the view
@@ -470,22 +457,8 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
 	        add(menu);
 	        i2Dsave = new JCheckBoxMenuItem(TWODSAVE);
 	        i2Dsave.addItemListener(this);
-	        menu.add(i2Dsave);	   
-	        iViewEllipse = new JMenuItem(VIEWELLIPSE);
-	        iViewEllipse.addActionListener(this);
-	        menu.add(iViewEllipse);
+	        menu.add(i2Dsave);
 		}
- 
-	//iZoomView = new JMenuItem(ZOOMVIEW);
-        //iZoomView.addActionListener(this);
-	// menu.add(iZoomView);
-	
-	//	iDepthViews = new JMenuItem(DEPTHVIEWS);
-        //iDepthViews.addActionListener(this);
-	// menu.add(iDepthViews);
-	//iAnnotationProperties = new JMenuItem(ANNOTATIONPROPERTIES);
-        //iAnnotationProperties.addActionListener(this);
-        //menu.add(iAnnotationProperties);
 
 		if(fullgui){
 	        iAllCentroids = new JMenuItem(ALLCENTROIDS);
@@ -511,9 +484,6 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
 	        iTestWindow = new JMenuItem("TestWindow");
 	        iTestWindow.addActionListener(this);
 	        menu.add(iTestWindow);
-	        //iDebugLog = new JMenuItem(DEBUGLOG);
-	        //iDebugLog.addActionListener(this);
-	        //menu.add(iDebugLog);
 	        setEnabled(false);
 	        iClearTree.setEnabled(false);
 		}
@@ -636,15 +606,6 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
 
                 iAceTree.setConfigFileName(path);
                 iAceTree.bringUpSeriesUI(path);
-                //iAceTree.setConfigFileName(file.getName());
-                //boolean haveConfig = iAceTree.getStartingParms();
-                //if (haveConfig) {
-                //    iAceTree.readNuclei();
-                //    setEnabled(true);
-                //}
-
-            } else {
-                //System.out.println("Open command cancelled by user.");
             }
         } 
         else if (iBookmark == o) {
@@ -661,12 +622,69 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
                 File file = iFileChooser.getSelectedFile();
                 String path = file.getPath();
                 iAceTree.openSeveralConfigs(path);
-                //iAceTree.setConfigFileName(file.getPath());
-                //iAceTree.bringUpSeriesUI(path);
             }
 
         } else if (iOptions == o) {
             options();
+
+        } else if (iReload == o) {
+
+            System.out.println("\n*** Reload AuxInfo, triggering a full rebuild ***");
+            String configPath = iAceTree.getConfig().getConfigFileName();
+            String path = configPath.substring(0, configPath.lastIndexOf("."));
+
+            //check if the Auxinfo file exist
+            boolean auxfilefounded = false;
+            File auxfile_v1 = new File(path + "AuxInfo.csv");
+            File auxfile_v2 = new File(path + "AuxInfo_v2.csv");
+            if (auxfile_v1.exists() || auxfile_v2.exists()) {
+                auxfilefounded = true;
+            }
+
+            //if Auxinfo file not found, save nuclei zip and issue system call to AceBatch2
+            if (!auxfilefounded) {
+                System.out.println("Auxinfo file not found, saving nuclei zip");
+                String zipPath = iAceTree.getConfig().getNucleiConfig().getZipFileName();
+                File zipfile = new File(zipPath);
+                iAceTree.saveNuclei(zipfile);
+
+                System.out.println("Issue system call to AceBatch2 to create Auxinfo file");
+                ProcessBuilder pb = new ProcessBuilder();
+                String cmd = "java -Xmx500m -jar ";
+                String projectPath = AceMenuBar.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+                String jarLoc = projectPath.substring(0, projectPath.lastIndexOf("/"))  + "/Acebatch2.jar";
+                cmd = cmd + jarLoc + " Measure " + configPath;
+                pb.command("bash", "-c", cmd);
+                try {
+                    Process pr = pb.start();
+                    StringBuilder output = new StringBuilder();
+                    BufferedReader bf = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+                    String line;
+                    while((line = bf.readLine()) != null) {
+                        output.append(line + "\n");
+                    }
+                    int exitVal = pr.waitFor();
+                    if (exitVal == 0) {
+                        System.out.println("Auxinfo file created successfully");
+                    } else {
+                        System.out.println("Failed to create Auxinfo file, fall back to defualt Auxinfo values");
+                    }
+                } catch (IOException err) {
+                    err.printStackTrace();
+                } catch (InterruptedException err) {
+                    err.printStackTrace();
+                }
+
+            }
+
+            MeasureCSV measureCSV = new MeasureCSV(path);
+            iAceTree.getNucleiMgr().getNucConfig().setMeasureCSV(measureCSV);
+            iAceTree.getNucleiMgr().setMeasureCSV(measureCSV);
+            iAceTree.buildTree(true);
+            //reset the Image window to align with the AceTree window
+            iAceTree.getImageWindow().clearAnnotations();
+            iAceTree.showSelectedCell(iAceTree.getCurrentCell(), iAceTree.getCurrentCell().getTime());
+
 
         } else if(iSave == o) {
 		    ExampleFileFilter filter = new ExampleFileFilter();
@@ -676,8 +694,8 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
 		    iFileChooser.setFileFilter(filter);
 
             JFileChooser fileChooser = iFileChooser; //new JFileChooser(".");
-            Config config = iAceTree.getNucleiMgr().getConfig();
-            String s = config.iConfigFileName;
+            Config config = iAceTree.getConfig();
+            String s = config.getConfigFileName();
             println("AceMenuBar.actionListener: " + s);
             String ss = new File(s).getParent();
             fileChooser.setCurrentDirectory(new File(ss));
@@ -703,21 +721,20 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
             }
             //fileChooser.setFileFilter(new MyFilter("*.dat"));
         } else if (iSaveConfig == o) {
-            Config config = iAceTree.getNucleiMgr().getConfig();
+            Config config = iAceTree.getConfig();
             config.saveConfigXMLFile();
-	} else if(iJLaunch ==o){
+	} else if(iJLaunch == o) {
 	    //launch imagej
 	    ImageJ ijin = new ImageJ();// ij.Main.launch();
+
 	    //if image window exists open the current slice
-	    if  (iAceTree.getImageWindow()!=null){ 
-		System.out.println("loading image "+iAceTree.getImageWindow().getCurrentImageName());
-		ImagePlus imp=ij.IJ.openImage(iAceTree.getImageWindow().getCurrentImageName());
-		imp.show();
-		//FileInfo fi = new FileInfo();
-		//fi.fileName = iAceTree.getImageWindow().getCurrentImageName();
-		//FileOpener test=new FileOpener(fi);
-		//	test.open();
+	    if  (iAceTree.getImageWindow() != null){
+		    System.out.println("ImageJ loading image: " + iAceTree.getImageManager().getCurrentImageName());
+		    ImagePlus imp=ij.IJ.openImage(iAceTree.getImageManager().getCurrentImageName());
+		    imp.show();
 	    }
+
+
         } else if (iExit == o) {
             iAceTree.exit();
 
@@ -766,20 +783,15 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
             iAceTree.editTraverse();
         } else if (iAdjacencies == o) {
         	iAceTree.showDeathsAdjacencies();
-            //new DeathsAdjacencies("Deaths and Adjacencies Dialog");
         } else if (iLazarus == o) {
         	iAceTree.showLazarus();
-            //new Lazarus();
         } else if (iSiamese == o) {
         	iAceTree.showSiamese();
-            //new Siamese("Siamese");
         } else if (iJuvenesence == o) {
         	iAceTree.showJuvenesence();
-            //new Juvenesence();
         } else if (iZafer1 == o) {
             iAceTree.showZafer1();
         } else if (iOrientation == o) {
-            //new Orientation();
             iAceTree.showOrientation();
         } else if (iOverlaps == o) {
             new Overlaps();
@@ -791,8 +803,6 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
             new SkipFalseNegatives();
         } else if (iKillCells == o) {
             iAceTree.killCells();
-	    // } else if (iKillDeepNucs == o) {
-	    //  iAceTree.killDeepNucs();
         } else if (iSetEndTime == o) {
             iAceTree.setEndTime();
         } else if (iIncrementEndTime == o) {
@@ -812,12 +822,14 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
         } else if (iTest == o) {
             iAceTree.test();
         }else if (i3D3 == o) {
-        	WormGUIDESWindow view = new WormGUIDESWindow(iAceTree.getNucleiMgr());
-        	view.initializeWormGUIDES();
+        	if (view == null) {
+        	    view = new WormGUIDESWindow(iAceTree);
+                view.initializeWormGUIDES();
+            } else {
+                view.showMainStage();
+            }
         } else if (i3D2Z == o) {
-            
-	    //}else if (iAnnotationProperties ==o){
-	    //iAceTree.getImageWindow().launchImageParamsDialog();
+
         } else if (iViewEllipse == o) {
             new EllipseViewer();
         } else if (iDepthViews == o) {
@@ -826,10 +838,6 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
             iAceTree.allCentroidsView();
         } else if (iCellMovementImage == o) {
             iAceTree.cellMovementImage();
-            //int time = iAceTree.getImageTime();
-            //int timeinc = iAceTree.getTimeInc();
-            //int plane = iAceTree.getImagePlane();
-            //new CellMovementImage(time + timeinc, plane);
         } else if (iDebugLog == o) {
             iDLog.showMe();
         } else if (iAbout == o) {
@@ -851,9 +859,6 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
         } else if (iTestWindow == o) {
         	iAceTree.testWindow();
         }
-
-        //System.out.println("AceMenuBar.actionPerformed exiting");
-
     }
 
     @Override
@@ -913,6 +918,7 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
         ,OPENSERIES = "Open series"
         ,CLEARALL = "Clear all"
         ,OPTIONS = "Options"
+        ,RELOAD = "Reload Auxinfo file"
         ,SAVE = "Save nuclei as zip"
         ,SAVECONFIG = "Save config file"
 	,IJ = "Launch ImageJ"
@@ -929,7 +935,7 @@ public class AceMenuBar extends JMenuBar implements ActionListener, ItemListener
         ,ATVTREE = "Save tree as Newick file"
         ,SULSTON = "Interactive Lineage"
         ,VTREE = "Lineage Plot"
-        ,CANONICAL = "Sulston tree"
+        ,CANONICAL = "Canonical Sulston tree"
         ,SHOW = "Show"
         ,NUCLEI = "nuclei"
         ,EDIT = "Edit"

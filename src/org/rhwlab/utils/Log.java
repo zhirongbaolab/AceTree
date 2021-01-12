@@ -62,11 +62,14 @@ public class Log extends JPanel implements ActionListener {
         iText.setEditable(false);
         iText.setFont(new Font("Monospaced", Font.PLAIN, 12));
         iPane = new JScrollPane(iText);
+
         iPane.setMaximumSize(new Dimension(Integer.MAX_VALUE,Integer.MAX_VALUE));
         //JCheckBox jcb = new JCheckBox("always");
         //addToolBarButton(jcb);
         add(iPane);
         iFrame = new JFrame(iTitle);
+        iFrame.setPreferredSize(new Dimension(600, 300));
+
         //iMenu = new JMenu("File");
         //iFrame.getContentPane().add(iMenu);
         iFrame.setJMenuBar(createMenuBar());

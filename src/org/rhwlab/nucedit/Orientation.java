@@ -83,7 +83,7 @@ public class Orientation extends JDialog implements ActionListener, ListSelectio
 
         Identity3 identity = iNucleiMgr.getIdentity();
         String axis = identity.getAxis();
-        double zpixres = iNucleiMgr.getZPixRes();
+        double zpixres = iAceTree.getConfig().getNucleiConfig().getZPixRes();
         MeasureCSV measureCSV = iNucleiMgr.getMeasureCSV();
 //        iDivisionCaller = new DivisionCaller(axis, zpixres, measureCSV);
         iDivisionCaller = new DivisionCaller(measureCSV, axis, zpixres);
@@ -135,14 +135,13 @@ public class Orientation extends JDialog implements ActionListener, ListSelectio
         initialize();
         iNamesAvailable = false;
         iTest = 1;
-        NucUtils.setZPixRes(iNucleiMgr.getZPixRes());
-        int t1 = iNucleiMgr.getConfig().iStartingIndex;
-        int t2 = iNucleiMgr.getConfig().iEndingIndex;
+        NucUtils.setZPixRes(iAceTree.getConfig().getNucleiConfig().getZPixRes());
+
         String [] sa = iTextField.getText().split(":");
         int maxTime = Integer.parseInt(sa[0]);
 
-        t1 = Integer.parseInt(iTextField2.getText());
-        t2 = Integer.parseInt(iTextField.getText());
+        int t1 = Integer.parseInt(iTextField2.getText());
+        int t2 = Integer.parseInt(iTextField.getText());
         iCutoff = Double.parseDouble(iTextField3.getText());
 
         iListModel.clear();
@@ -236,23 +235,19 @@ public class Orientation extends JDialog implements ActionListener, ListSelectio
         Identity3 identity = iNucleiMgr.getIdentity();
         String axis = identity.getAxis();
         System.out.println("Initializing axis in Orientation.java: " + axis);
-        double zpixres = iNucleiMgr.getZPixRes();
+        double zpixres = iAceTree.getConfig().getNucleiConfig().getZPixRes();
         MeasureCSV measureCSV = iNucleiMgr.getMeasureCSV();
 //        iDivisionCaller = new DivisionCaller(axis, zpixres, measureCSV);
         iDivisionCaller = new DivisionCaller(measureCSV, axis, zpixres);
 
-        Config config = iNucleiMgr.getConfig();
+        Config config = iAceTree.getConfig();
         String shortName = config.getShortName();
-        
-        // This sets up an incorrect .xml file name
+
         // Not sure what the orientation window is supposed to do but it works with this series name
         String series = shortName.substring(0, shortName.indexOf("."));
         iSeries = series;
         
-        //iSeries = shortName;
-        
         println("initialize, " + series + CS + shortName);
-        //println("initialize, " + shortName);
     }
 
 

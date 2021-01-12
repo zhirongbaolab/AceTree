@@ -237,7 +237,7 @@ public class SkipFalseNegatives extends JDialog implements ActionListener {
         
         Nucleus n = iNucleiMgr.getCurrentCellData(strCellName, strTime);
         if (n == null) return;
-        int endingIndex = iNucleiMgr.getEndingIndex();
+        int endingIndex = iAceTree.getConfig().getNucleiConfig().getEndingIndex();
         Nucleus nc = null;
         int i;
         for (i = strTime + 1 + strIncrement; i <= endingIndex; i++) {
@@ -252,6 +252,7 @@ public class SkipFalseNegatives extends JDialog implements ActionListener {
         
         Cell cc = (Cell)iAceTree.getAncesTree().getCellsByName().get(nc.identity);
         iAceTree.setCurrentCell(cc, i, AceTree.CONTROLCALLBACK);
+        iAceTree.updateDisplay();
 
         iRelinkTime.setText(String.valueOf(i));
         iRelinkNuc.setText(nc.identity);
@@ -264,7 +265,7 @@ public class SkipFalseNegatives extends JDialog implements ActionListener {
         Object o = e.getSource();
         if (o == iLinkButton) {
             //iAceTree.forceTrackingOn();
-            int time = iAceTree.getImageTime() + iAceTree.getTimeInc();
+            int time = iAceTree.getImageManager().getCurrImageTime();
             iLinkTime.setText(String.valueOf(time));
             iLinkNuc.setText(iAceTree.getCurrentCell().getName());
         } else if (o == iSkipFalseNegativesButton) {
@@ -312,11 +313,18 @@ public class SkipFalseNegatives extends JDialog implements ActionListener {
             if (o == iApplyAndRebuild) {
                 iAceTree.clearTree();
                 iAceTree.buildTree(true);
+
+                // update WormGUIDES data if it's open
+                if (iAceTree.iAceMenuBar.view != null) {
+                    iAceTree.iAceMenuBar.view.rebuildData();
+                }
+
                 AncesTree ances = iAceTree.getAncesTree();
                 Hashtable h = ances.getCellsByName();
                 Cell c = (Cell)h.get(strCellName);
                 iAceTree.setStartingCell(c, LARGETIME);
                 iEditLog.setModified(true);
+                iAceTree.updateDisplay();
             }
         }
     }

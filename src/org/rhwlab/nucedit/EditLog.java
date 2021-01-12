@@ -35,11 +35,11 @@ public class EditLog /*extends Log*/ {
     // try dummy functions to make other code feasible
     public void append(String s) {
         s = null;
-        System.gc();
+        // System.gc();
     }
     public void appendx(String s) {
         s = null;
-        System.gc();
+        // System.gc();
     }
     public String getTime() {
         return "";
