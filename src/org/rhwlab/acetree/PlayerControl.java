@@ -38,6 +38,7 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
    JButton iStepUp;
    JButton iStepDown;
    JButton iStepChannel;
+   JButton maximumIntensityProjection;
    JButton iProperties;
    JButton iContrast;
    JLabel iZoomLabel;
@@ -91,9 +92,15 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
 	  iStepDown.setToolTipText("Slice Down");
 	  iToolBar.add(iStepDown);
 	  iToolBar.add(new JToolBar.Separator());
-	  iStepChannel = makeButton("/images/StepChannel16");
+
+	  // assume the image series will be RG
+	  iStepChannel = makeButton("/images/StepChannelRG");
 	  iStepChannel.setToolTipText("Channel Visibility");
 	  iToolBar.add(iStepChannel);
+
+	  maximumIntensityProjection = makeButton("/images/mip");
+      maximumIntensityProjection.setToolTipText("Maximum Intensity Projection");
+      iToolBar.add(maximumIntensityProjection);
 	  iProperties = makeButton("/images/Properties");
 	  iProperties.setToolTipText("Annotation Display");
 	  iToolBar.add(iProperties);
@@ -102,7 +109,7 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
 	  iContrast.setToolTipText("Adjust Contrast");
 	  iToolBar.add(iContrast);
 	  iToolBar.add(new JToolBar.Separator());
-	  
+
 	  iZoomPlus = makeButton("/images/ZoomPlus16");
 	  iZoomPlus.setToolTipText("Zoom In");
 	  iToolBar.add(iZoomPlus);
@@ -158,10 +165,12 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
 	public void run() {
         boolean b; // enables run to exit when movie hits the wall
         while (iRunning) {
-            if (iForward) 
-            	b = iAceTree.nextImage();
-            else 
-            	b = iAceTree.prevImage();
+            if (iForward) {
+                b = iAceTree.nextImage();
+            } else {
+                b = iAceTree.prevImage();
+            }
+
             if (b) {
                 try {
                     Thread.sleep(iDwell);
@@ -176,9 +185,25 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
         iPause.setEnabled(false);
     }
 
+    // called from the WormGUIDESWindow when the WormGUIDES app goes into play mode. We want to disable
+    public void disableTimeAndPlaneControlButtons() {
+      iPlay.setEnabled(false);
+      iPause.setEnabled(false);
+      iReverse.setEnabled(false);
+      iStepForward.setEnabled(false);
+      iStepBack.setEnabled(false);
+      iStepUp.setEnabled(false);
+      iStepDown.setEnabled(false);
+    }
 
-    public void stop() {
-    	iRunning = false;
+    public void enableTimeAndPlaneControlButtons() {
+        iPlay.setEnabled(true);
+        iPause.setEnabled(false);
+        iReverse.setEnabled(true);
+        iStepForward.setEnabled(true);
+        iStepBack.setEnabled(true);
+        iStepUp.setEnabled(true);
+        iStepDown.setEnabled(true);
     }
 
     public void pause() {
@@ -186,6 +211,11 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
         setEnabledAll(true);
         iPause.setEnabled(false);
 
+        // flip the WormGUIDES play icon if it is not null
+        if (iAceTree.iAceMenuBar.view != null) {
+            iAceTree.iAceMenuBar.view.flipPlayButtonIcon();
+            iAceTree.iAceMenuBar.view.enableTimeControls();
+        }
     }
 
     public void addToToolbar(JComponent element)
@@ -206,8 +236,14 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
             iForward = true;
             setEnabledAll(false);
             iPause.setEnabled(true);
-            new Thread(this, "TEST").start();
 
+            // flip the WormGUIDES play icon if it is not null, and disable the time controls
+            if (iAceTree.iAceMenuBar.view != null) {
+                iAceTree.iAceMenuBar.view.flipPlayButtonIcon();
+                iAceTree.iAceMenuBar.view.disableTimeControls();
+            }
+
+            new Thread(this, "TEST").start();
         } else if (o == iReverse) {
             //iEventPusher = new EventPusher(iAceTree, 30);
             //iEventPusher.start(false);
@@ -216,8 +252,13 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
             iForward = false;
             setEnabledAll(false);
             iPause.setEnabled(true);
-            new Thread(this, "TEST").start();
 
+            if (iAceTree.iAceMenuBar.view != null) {
+                iAceTree.iAceMenuBar.view.flipPlayButtonIcon();
+                iAceTree.iAceMenuBar.view.disableTimeControls();
+            }
+
+            new Thread(this, "TEST").start();
         } else if (o == iStepForward) {
             if (iRunning)
             	return;
@@ -233,11 +274,59 @@ public class PlayerControl extends JPanel implements ActionListener, Runnable {
 		} else if (o == iStepChannel) {
 		    iAceTree.toggleColor();
 		    iAceTree.updateDisplay();
-		} else if (o == iProperties) {
+		} else if (o == maximumIntensityProjection) {
+            iAceTree.maximumIntensityProjection(true);
+        } else if (o == iProperties) {
 		    iAceTree.getImageWindow().launchImageParamsDialog();
 		} else if (o == iContrast) {
 			iAceTree.getImageWindow().launchContrastTool();
 		}
+    }
+
+    /**
+     * See XML documentation for explanation of numChannels to color combo cases
+     */
+    public void updateColorChannelToggleButton() {
+        String imageName = "";
+
+        int numChannels = this.iAceTree.getImageManager().getImageConfig().getNumChannels();
+        if (numChannels == -1) {
+            imageName = "/images/StepChannelRG";
+        } else if (numChannels == 1) {
+            imageName = "/images/StepChannelR";
+        } else if (numChannels == 2) {
+            // check if RG
+            if (!this.iAceTree.getImageManager().getImageConfig().getImageChannels()[0].isEmpty() && !this.iAceTree.getImageManager().getImageConfig().getImageChannels()[1].isEmpty()) {
+                imageName = "/images/StepChannelRG";
+            }
+
+            // check if G
+            if (this.iAceTree.getImageManager().getImageConfig().getImageChannels()[0].isEmpty() && !this.iAceTree.getImageManager().getImageConfig().getImageChannels()[1].isEmpty()) {
+                imageName = "/images/StepChannelG";
+            }
+        } else if (numChannels >= 3) {// check if RGB
+            if (!this.iAceTree.getImageManager().getImageConfig().getImageChannels()[0].isEmpty() && !this.iAceTree.getImageManager().getImageConfig().getImageChannels()[1].isEmpty() && !this.iAceTree.getImageManager().getImageConfig().getImageChannels()[2].isEmpty()) {
+                imageName = "/images/StepChannelRGB";
+            }
+            // check if GB
+            if (this.iAceTree.getImageManager().getImageConfig().getImageChannels()[0].isEmpty() && !this.iAceTree.getImageManager().getImageConfig().getImageChannels()[1].isEmpty() && !this.iAceTree.getImageManager().getImageConfig().getImageChannels()[2].isEmpty()) {
+                imageName = "/images/StepChannelGB";
+            }
+
+            // check if RB
+            if (!this.iAceTree.getImageManager().getImageConfig().getImageChannels()[0].isEmpty() && this.iAceTree.getImageManager().getImageConfig().getImageChannels()[1].isEmpty() && !this.iAceTree.getImageManager().getImageConfig().getImageChannels()[2].isEmpty()) {
+                imageName = "/images/StepChannelRB";
+            }
+
+            // check if B
+            if (this.iAceTree.getImageManager().getImageConfig().getImageChannels()[0].isEmpty() && this.iAceTree.getImageManager().getImageConfig().getImageChannels()[1].isEmpty() && !this.iAceTree.getImageManager().getImageConfig().getImageChannels()[2].isEmpty()) {
+                imageName = "/images/StepChannelB";
+            }
+        }
+
+        String imgLoc = imageName + ".gif";
+        URL imageURL = PlayerControl.class.getResource(imgLoc);
+        iStepChannel.setIcon(new ImageIcon(imageURL, "x"));
     }
 
     public static void main(String[] args) { }

@@ -332,60 +332,60 @@ public class Analysis8 extends Log {
 
     // processes one time point, all planes
     // blanks out the data within nuclei spheres leaving the rest
-    public void test1() {
-        append(TEST1);
-        System.gc();
-        // assume at first that we deal with plane 15 of time given
-        long start = System.currentTimeMillis();
-        int k = Integer.parseInt(iTextField.getText());
-
-        /*
-        String imageFileBase = ImageWindow.cZipTifFilePath;
-        imageFileBase += "/" + ImageWindow.cTifPrefix;
-        //imageFile += "/" + ImageWindow.cTifPrefixR;
-        String imageFile = imageFileBase + iAceTree.makeImageName(k, 1);
-        append(imageFile);
-        ImageProcessor ip = getRedData(imageFile);
-        int width = ip.getWidth();
-        int height = ip.getHeight();
-        ImagePlus iplus = null;
-        iStack = null;
-        for (int plane = 1; plane <= iNucleiMgr.getPlaneEnd(); plane++) {
-            imageFile = imageFileBase + iAceTree.makeImageName(k, plane);
-            ImageProcessor iproc = getRedData(imageFile);
-            if (iplus == null) {
-                iplus = new ImagePlus(String.valueOf(plane), iproc);
-                iStack = iplus.getStack();
-            } else {
-                iStack.addSlice(String.valueOf(plane), iproc);
-            }
-
-        }
-        */
-        makeStack(k);
-        Vector allCircles = makeAllCircles(k);
-        processAllCircles(allCircles);
-        iStackPlus = new ImagePlus("Stack", iStack);
-        iStackWindow = new StackWindow(iStackPlus);
-        iBlankStackWindow = new StackWindow(iBlankStackPlus);
-        subtractShadows();
-        append("new StackWindow: " + iStackWindow);
-        System.out.println("new StackWindow: " + iStackWindow);
-        //iStackPlus.show();
-        long elapsed = System.currentTimeMillis() - start;
-        append("elapsedTime: " + elapsed);
-
-        /*
-        System.out.println("ip=" + ip);
-        ImagePlus iplus = new ImagePlus("test", ip);
-        ij.gui.ImageWindow iwin = new ij.gui.ImageWindow(iplus);
-        processImage(iplus);
-        //iplus.getProcessor().resetRoi();
-        iplus.setRoi((Roi)null);
-        iplus.getProcessor().add(-100);
-        iwin.updateImage(iplus);
-        */
-    }
+//    public void test1() {
+//        append(TEST1);
+//        System.gc();
+//        // assume at first that we deal with plane 15 of time given
+//        long start = System.currentTimeMillis();
+//        int k = Integer.parseInt(iTextField.getText());
+//
+//        /*
+//        String imageFileBase = ImageWindow.cZipTifFilePath;
+//        imageFileBase += "/" + ImageWindow.cTifPrefix;
+//        //imageFile += "/" + ImageWindow.cTifPrefixR;
+//        String imageFile = imageFileBase + iAceTree.makeImageName(k, 1);
+//        append(imageFile);
+//        ImageProcessor ip = getRedData(imageFile);
+//        int width = ip.getWidth();
+//        int height = ip.getHeight();
+//        ImagePlus iplus = null;
+//        iStack = null;
+//        for (int plane = 1; plane <= iNucleiMgr.getPlaneEnd(); plane++) {
+//            imageFile = imageFileBase + iAceTree.makeImageName(k, plane);
+//            ImageProcessor iproc = getRedData(imageFile);
+//            if (iplus == null) {
+//                iplus = new ImagePlus(String.valueOf(plane), iproc);
+//                iStack = iplus.getStack();
+//            } else {
+//                iStack.addSlice(String.valueOf(plane), iproc);
+//            }
+//
+//        }
+//        */
+//        makeStack(k);
+//        Vector allCircles = makeAllCircles(k);
+//        processAllCircles(allCircles);
+//        iStackPlus = new ImagePlus("Stack", iStack);
+//        iStackWindow = new StackWindow(iStackPlus);
+//        iBlankStackWindow = new StackWindow(iBlankStackPlus);
+//        subtractShadows();
+//        append("new StackWindow: " + iStackWindow);
+//        System.out.println("new StackWindow: " + iStackWindow);
+//        //iStackPlus.show();
+//        long elapsed = System.currentTimeMillis() - start;
+//        append("elapsedTime: " + elapsed);
+//
+//        /*
+//        System.out.println("ip=" + ip);
+//        ImagePlus iplus = new ImagePlus("test", ip);
+//        ij.gui.ImageWindow iwin = new ij.gui.ImageWindow(iplus);
+//        processImage(iplus);
+//        //iplus.getProcessor().resetRoi();
+//        iplus.setRoi((Roi)null);
+//        iplus.getProcessor().add(-100);
+//        iwin.updateImage(iplus);
+//        */
+//    }
 
     private void subtractShadows() {
         ImageStack base = iStackPlus.getStack();
@@ -551,30 +551,30 @@ public class Analysis8 extends Log {
     }
 
 
-    private void makeStack(int time) {
-        String imageFileBase = ImageWindow.cZipTifFilePath;
-        //imageFileBase += "/" + ImageWindow.cTifPrefix;
-        imageFileBase += "/" + ImageWindow.cTifPrefixR;
-        String imageFile = imageFileBase + iAceTree.makeImageName(time, 1);
-        append(imageFile);
-        ImageProcessor ip = getRedData(imageFile);
-        int width = ip.getWidth();
-        int height = ip.getHeight();
-        int numPlanes = iNucleiMgr.getPlaneEnd();
-        iBlankStackPlus = createBlankStack("new stack", width, height, numPlanes);
-        ImagePlus iplus = null;
-        iStack = null;
-        for (int plane = 1; plane <= iNucleiMgr.getPlaneEnd(); plane++) {
-            imageFile = imageFileBase + iAceTree.makeImageName(time, plane);
-            ImageProcessor iproc = getRedData(imageFile);
-            if (iplus == null) {
-                iplus = new ImagePlus(String.valueOf(plane), iproc);
-                iStack = iplus.getStack();
-            } else {
-                iStack.addSlice(String.valueOf(plane), iproc);
-            }
-        }
-    }
+//    private void makeStack(int time) {
+//        String imageFileBase = ImageWindow.cZipTifFilePath;
+//        //imageFileBase += "/" + ImageWindow.cTifPrefix;
+//        imageFileBase += "/" + ImageWindow.cTifPrefixR;
+//        String imageFile = imageFileBase + iAceTree.makeImageName(time, 1);
+//        append(imageFile);
+//        ImageProcessor ip = getRedData(imageFile);
+//        int width = ip.getWidth();
+//        int height = ip.getHeight();
+//        int numPlanes = iNucleiMgr.getPlaneEnd();
+//        iBlankStackPlus = createBlankStack("new stack", width, height, numPlanes);
+//        ImagePlus iplus = null;
+//        iStack = null;
+//        for (int plane = 1; plane <= iNucleiMgr.getPlaneEnd(); plane++) {
+//            imageFile = imageFileBase + iAceTree.makeImageName(time, plane);
+//            ImageProcessor iproc = getRedData(imageFile);
+//            if (iplus == null) {
+//                iplus = new ImagePlus(String.valueOf(plane), iproc);
+//                iStack = iplus.getStack();
+//            } else {
+//                iStack.addSlice(String.valueOf(plane), iproc);
+//            }
+//        }
+//    }
 
 
     private void processStack() {
@@ -610,29 +610,29 @@ public class Analysis8 extends Log {
 
     }
 
-    private ImageProcessor getRedData(String greenName) {
-        //System.out.println("getRedData: " + greenName + C.CS + ImageWindow.cUseZip);
-        if (ImageWindow.cUseZip == 2) return getRedZipData(greenName);
-        FileInputStream fis;
-        ImagePlus ip = null;
-        //String ss = "/home/biowolp/AncesTree/temp2/images/050405-t050-p15.tif";
-        try {
-            fis = new FileInputStream(greenName);
-            byte [] ba = ImageWindow.readByteArray(fis);
-            ip = ImageWindow.openTiff(new ByteArrayInputStream(ba), false);
-            fis.close();
-	    if(ImageWindow.imagewindowUseStack==1) {
-		int markerChannel=1;
-		ip=ImageWindow.splitImage(ip,markerChannel);
-	    }
-            //ip = readData(fis);
-        } catch(IOException ioe) {
-            //System.out.println("ImageWindow.test3 exception ");
-            //System.out.println(ioe);
-        }
-        if (ip != null) return ip.getProcessor();
-        else return null;
-    }
+//    private ImageProcessor getRedData(String greenName) {
+//        //System.out.println("getRedData: " + greenName + C.CS + ImageWindow.cUseZip);
+//        if (ImageWindow.cUseZip == 2) return getRedZipData(greenName);
+//        FileInputStream fis;
+//        ImagePlus ip = null;
+//        //String ss = "/home/biowolp/AncesTree/temp2/images/050405-t050-p15.tif";
+//        try {
+//            fis = new FileInputStream(greenName);
+//            byte [] ba = ImageWindow.readByteArray(fis);
+//            ip = ImageWindow.openTiff(new ByteArrayInputStream(ba), false);
+//            fis.close();
+//	    if(ImageWindow.imagewindowUseStack==1) {
+//		int markerChannel=1;
+//		ip=ImageWindow.splitImage(ip,markerChannel);
+//	    }
+//            //ip = readData(fis);
+//        } catch(IOException ioe) {
+//            //System.out.println("ImageWindow.test3 exception ");
+//            //System.out.println(ioe);
+//        }
+//        if (ip != null) return ip.getProcessor();
+//        else return null;
+//    }
 
     private ImageProcessor getRedZipData(String redName) {
         ZipImage zipImage = new ZipImage(redName);
@@ -696,7 +696,7 @@ public class Analysis8 extends Log {
 	public void actionPerformed(ActionEvent e) {
         String s = e.getActionCommand();
         if (s.equals(TEST1)) {
-            test1();
+            //test1();
         } else if (s.equals(TEST2)) {
             append(TEST2);
             test2();

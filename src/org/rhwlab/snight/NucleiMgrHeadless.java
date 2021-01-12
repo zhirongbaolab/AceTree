@@ -141,7 +141,7 @@ public class NucleiMgrHeadless extends NucleiMgr {
             }
         }
         computeRWeights();
-        System.gc();
+        // System.gc();
 
 
 
@@ -206,7 +206,7 @@ public class NucleiMgrHeadless extends NucleiMgr {
             }
         }
         computeRWeights();
-        System.gc();
+        // System.gc();
 
 
 	}
@@ -267,26 +267,16 @@ public class NucleiMgrHeadless extends NucleiMgr {
         String zipTifFilePath = ImageWindow.cZipTifFilePath;
         String tifPrefix = ImageWindow.cTifPrefix;
         String tifPrefixR = ImageWindow.cTifPrefixR;
-        int useZip = ImageWindow.cUseZip;
-        int width = ImageWindow.cImageHeight;
-        int height = ImageWindow.cImageWidth;
         // now feed it my parameters
-        sendStaticParametersToImageWindow();
         // make up a sample image name
         int plane = iMovie.plane_start;
         int time = iStartingIndex;
         String imageName = makeImageName(time, plane);
         // now "make" the image
-        ImageWindow.makeImage(getConfig().iTifPrefix + imageName);
-        iImageWidth = ImageWindow.cImageWidth;
-        iImageHeight = ImageWindow.cImageHeight;
         // now restore ImageWindow
         ImageWindow.cZipTifFilePath = zipTifFilePath;
         ImageWindow.cTifPrefix = tifPrefix;
         ImageWindow.cTifPrefixR = tifPrefixR;
-        ImageWindow.cUseZip = useZip;
-        ImageWindow.cImageWidth = width;
-        ImageWindow.cImageHeight = height;
     }
 
     private String makeImageName(int time, int plane) {
@@ -333,74 +323,6 @@ public class NucleiMgrHeadless extends NucleiMgr {
         p.polar_size = iConfig.iPolar_size; //45;
         iMovie.plane_start = iConfig.iPlaneStart;
         iMovie.plane_end = iConfig.iPlaneEnd;
-
-    }
-
-
-    @Override
-	public Parameters readParameterInfo(String zipPath) {
-        iZipNuclei = new ZipNuclei(zipPath);
-        if (iZipNuclei.iZipFile != null) {
-            iParameters =  readParameterInfo(iZipNuclei, iParameterEntry);
-        } else {
-            iParameters = null;
-        }
-        iParameters = new Parameters();
-        iMovie = iParameters.getMovie();
-        iMovie.xy_res = .09f;
-        iMovie.z_res = 1;
-        iParameters.polar_size = 45;
-
-
-        return iParameters;
-    }
-
-    private Parameters readParameterInfo(ZipNuclei zn, String testParams) {
-        iParameters = new Parameters();
-        //iParameters.setParameters(zn, testParams);
-        // here we allow the config file to override the parameters file
-        // this makes it possible to load and view a portion of a data set
-        iMovie = iParameters.getMovie();
-        //if (iMovie.time_start < iStartingIndex) {
-        //    iMovie.time_start = iStartingIndex;
-        //}
-        //if (iMovie.time_end > iEndingIndex) {
-        //    iMovie.time_end = iEndingIndex;
-        //}
-        //if (iEndingIndex > iMovie.time_end) iEndingIndex = iMovie.time_end;
-        iMovie.tp_number = iMovie.time_end - iMovie.time_start + 1;
-        println("readParameters: iMovie.tp_number: " + iMovie.tp_number);
-        iNumNucleiFiles = iMovie.time_end - iMovie.time_start + 1;
-        System.out.println("SN_time_start: " + iMovie.time_start);
-        System.out.println("SN_time_end: " + iMovie.time_end);
-        System.out.println("SN_plane_start: " + iMovie.plane_start);
-        System.out.println("SN_plane_end: " + iMovie.plane_end);
-        //System.out.println("readParameters: " + iMovie);
-        return iParameters;
-    }
-
-    @Override
-	public void readEditLog(Log editLog) {
-        ZipEntry ze = iZipNuclei.getZipEntry(PARAMETERS + C.Fileseparator + "EditLog.txt");
-        if (ze == null) {
-            System.out.println("no edit log found");
-            iEditLog.append("\nSTART: " + new GregorianCalendar().getTime().toString());
-            iEditLog.append("from config file: " + iConfig.iConfigFileName);
-            return;
-        }
-        //System.out.println("\nREADING EDITLOG");
-        String s = null;
-        //Log log = iAceTree.getEditLog();
-        if (ze != null) {
-            //log.append(NL + "READING STORED EDITLOG " + log.getTime());
-            while ((s = iZipNuclei.readLine(ze)) != null) {
-                //System.out.println("logline: " + s);
-                iEditLog.append(s);
-            }
-            //log.append("END OF STORED EDITLOG " + log.getTime() + NL);
-
-        }
-        //System.out.println("readEditLog exiting");
 
     }
 
@@ -507,22 +429,6 @@ public class NucleiMgrHeadless extends NucleiMgr {
 
 
     }
-
-
-
-    @Override
-	public void sendStaticParametersToImageWindow() {
-        ImageWindow.setStaticParameters(
-                iConfig.iZipTifFilePath
-                ,iConfig.iTifPrefix
-                ,iConfig.iUseZip
-                ,iConfig.iSplitChannelImage
-                ,iConfig.iSplit);
-    }
-
-    //public Identity getIdentity() {
-    //    return iIdentity;
-    //}
 
     @Override
 	public Identity3 getIdentity() {
@@ -769,25 +675,15 @@ public class NucleiMgrHeadless extends NucleiMgr {
         return orientation;
     }
 
-    @Override
-	public String getConfigFileName() {
-        return iConfig.iConfigFileName;
-    }
-
 
     private void getScopeParameters() {
-        //iMovie = iParameters.getMovie();
-        //iPlaneEnd = iMovie.plane_end;
-        //iZPixRes = iMovie.z_res/iMovie.xy_res*iParameters.z_res_fudge;
-        ////NucUtils.setZPixRes(iZPixRes);
-        //if (iEndingIndex > iMovie.time_end) iEndingIndex = iMovie.time_end;
+
 
 
         if (!iFakeNuclei) {
             iMovie = iParameters.getMovie();
             iPlaneEnd = iMovie.plane_end;
             iZPixRes = iMovie.z_res/iMovie.xy_res*iParameters.z_res_fudge;
-            //println("getScopeParameters: iZPixRes: " + iZPixRes);
         } else {
                 iPlaneEnd = iConfig.iPlaneEnd;
                 iPlaneStart = iConfig.iPlaneStart;
@@ -795,11 +691,6 @@ public class NucleiMgrHeadless extends NucleiMgr {
 
         }
         NucUtils.setZPixRes(iZPixRes);
-        //System.out.println("getScopeParameters: iEndingIndex=" + iEndingIndex);
-        //System.out.println("getScopeParameters: xy_res=" + iMovie.xy_res);
-        //System.out.println("getScopeParameters: z_res=" + iMovie.z_res);
-        //System.out.println("getScopeParameters: z_res_fudge=" + iParameters.z_res_fudge);
-        //System.out.println("getScopeParameters: iZPixRes=" + iZPixRes);
     }
 
     @Override
@@ -866,22 +757,7 @@ public class NucleiMgrHeadless extends NucleiMgr {
         Parameters p = new Parameters();
         //Movie iMovie = p.getMovie();
         createDummies(p);
-        /*
-        System.out.println("fakeParameters: " + tifPath + CS + tifPrefix);
-        String s = iAceTree.makeImageName(1,15);
-        System.out.println("fakeParameters2: " + s);
-        String name = tifPath + File.separator + tifPrefix + s;
-        File f = new File(name);
-        System.out.println("fakeParameters3: " + f);
-        System.out.println("
 
-        public String makeImageName(int time, int plane)
-    {
-        return imageNameHandler(time, plane);
-    }
-
-    4: " + f.exists());
-        */
         String start = tifPath + C.Fileseparator + tifPrefix;
         int i;
         for (i=0; i <= 50; i++) {
@@ -919,18 +795,6 @@ public class NucleiMgrHeadless extends NucleiMgr {
         return p;
     }
 
-    @Override
-	public void reviewNuclei() {
-    	Vector nr = nuclei_record;
-    	for (int i=194; i < 195; i++) {
-    		Vector nuclei = (Vector)nr.get(i);
-    		for (int j=0; j < nuclei.size(); j++) {
-    			Nucleus n = (Nucleus)nuclei.get(j);
-    			println("reviewNuclei, " + i + CS + j  + CS + n);
-    		}
-    	}
-    }
-
 
     @Override
 	public void processNuclei(boolean doIdentity, int namingMethod) {
@@ -957,10 +821,6 @@ public class NucleiMgrHeadless extends NucleiMgr {
 
     }
 
-    //20051116 added this while debugging Analysis.java
-    // but I am worried that it could cause problems
-    // because of squirrely behavior of the DefaultMutableTreeNode
-    // basically I got the code from AceTree.updateRoot()
     public Cell getRoot() {
         Cell root = new Cell(AceTree.ROOTNAME);
         Vector rootCells = iAncesTree.getRootCells();
@@ -1026,27 +886,27 @@ public class NucleiMgrHeadless extends NucleiMgr {
 
     @Override
 	public void makeBackupNucleiRecord() {
-        System.out.println("makeBackupNucleiRecord");
-        nuclei_record_backup = new Vector();
-        Vector nuclei = null;
-        Vector nucleiNew = null;
-        Nucleus n = null;
-        Nucleus nNew = null;
-        for (int i=0; i < nuclei_record.size(); i++) {
-            nuclei = nuclei_record.elementAt(i);
-            nucleiNew = new Vector();
-            for (int j=0; j < nuclei.size(); j++) {
-                n = (Nucleus)nuclei.elementAt(j);
-                nNew = n.copy();
-                nucleiNew.add(nNew);
-            }
-            nuclei_record_backup.add(nucleiNew);
-        }
+//        System.out.println("makeBackupNucleiRecord");
+//        nuclei_record_backup = new Vector();
+//        Vector nuclei = null;
+//        Vector nucleiNew = null;
+//        Nucleus n = null;
+//        Nucleus nNew = null;
+//        for (int i=0; i < nuclei_record.size(); i++) {
+//            nuclei = nuclei_record.elementAt(i);
+//            nucleiNew = new Vector();
+//            for (int j=0; j < nuclei.size(); j++) {
+//                n = (Nucleus)nuclei.elementAt(j);
+//                nNew = n.copy();
+//                nucleiNew.add(nNew);
+//            }
+//            nuclei_record_backup.add(nucleiNew);
+//        }
     }
 
     @Override
 	public void restoreNucleiRecord() {
-        nuclei_record = nuclei_record_backup;
+        //nuclei_record = nuclei_record_backup;
     }
 
     @Override

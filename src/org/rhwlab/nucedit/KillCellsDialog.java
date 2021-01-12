@@ -14,12 +14,8 @@ import java.text.DecimalFormat;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JTextField;
+import javax.swing.*;
+
 import org.rhwlab.acetree.AceTree;
 import org.rhwlab.snight.Nucleus;
 import org.rhwlab.tree.AncesTree;
@@ -62,6 +58,8 @@ public class KillCellsDialog extends GenericDialog {
                 iCellName = cell.getName();
      	else
                 iCellName="";
+
+     	System.out.println("Attempting to kill cell: " + iCellName);
      	
         //Border blackline = BorderFactory.createLineBorder(Color.black);
         iEditLog = iNucleiMgr.getEditLog();
@@ -100,8 +98,8 @@ public class KillCellsDialog extends GenericDialog {
       
         // put starting cell on the list and then look for more
         // up to the point where the name changes
-        //System.out.println("KillCellsDialog: " + iNucleiMgr + CS + iTime);
-        Vector nuclei = iNucleiMgr.getNucleiRecord().elementAt(iTime - 1);
+        System.out.println("KillCellsDialog: " + iNucleiMgr + CS + iAceTree.getImageManager().getCurrImageTime());
+        Vector nuclei = iNucleiMgr.getNucleiRecord().elementAt(iAceTree.getImageManager().getCurrImageTime() - 1);
         iCandidateCells = new Vector();
         iCandidateCells.add(nuclei);
         int nmax; 
@@ -164,17 +162,35 @@ public class KillCellsDialog extends GenericDialog {
     @Override
 	@SuppressWarnings("unused")
 	public void actionPerformed(ActionEvent e) {
-    	
+        //semaphores  merge from shooting_star_both_as AceTree source code
+        boolean SNLock = iAceTree.getSNLock();
+        if(SNLock){
+            JOptionPane.showMessageDialog(null,"Waiting for StarryNite to finish writing nuclei data");
+            //SN has locked NM, wait for it to be unlocked
+            //Pop up a dialog indicating that we're waiting
+            while(SNLock){
+                try{
+                    Thread.sleep(100);
+                    SNLock = iAceTree.getSNLock();
+                }
+                catch(InterruptedException ex){
+
+                }
+            }
+            JOptionPane.showMessageDialog(null,"StarryNite is done, taking over");
+        }
+        boolean success = iAceTree.ATLockNucleiMgr(true);
+
     	//reparse candidates at beginning to double check if user has modified text fields
     	// for cell name or start time
     	iCellName=iCellToKill.getText();
     	iTime=Integer.parseInt(iKillTime.getText());
-    	Vector nuclei = iNucleiMgr.getNucleiRecord().elementAt(iTime - 1);
+    	Vector nuclei = iNucleiMgr.getNucleiRecord().elementAt(iAceTree.getImageManager().getCurrImageTime() - 1);
     	iCandidateCells = new Vector();
     	iCandidateCells.add(nuclei);
        	collectCandidateCells();
     	iNumCellsToEnd= iCandidateCells.size();
-    	System.out.println("Parsed successors for "+iCellName+"at time "+iTime+" found "+iNumCellsToEnd);
+    	System.out.println("Parsed successors for "+ iCellName +" at time "+ iTime +" found "+ iNumCellsToEnd);
     	
     	if(iNucleiMgr.getCurrentCellData(iCellName, iTime)==null){
     		System.out.println("Attempt to delete nonexistent cell quitting");
@@ -234,9 +250,9 @@ public class KillCellsDialog extends GenericDialog {
                 predecessorNuc = (Nucleus)predNuclei.elementAt(nc.predecessor - 1);
             }
         }
-        int namingMethod = AceTree.getAceTree(null).getNucleiMgr().getIdentity().getNamingMethod();
+        int namingMethod = AceTree.getAceTree(null).getConfig().getNucleiConfig().getNamingMethod();
         for (int i=0; i < k; i++) {
-             nuclei = (Vector)iCandidateCells.elementAt(i);
+            nuclei = (Vector)iCandidateCells.elementAt(i);
             Nucleus n = null;
             //Vector indices = new Vector();
             for (int j=0; j < nuclei.size(); j++) {
@@ -244,19 +260,11 @@ public class KillCellsDialog extends GenericDialog {
                 if (!n.identity.equals(iCellName)) 
                 	continue;
                 n.status = Nucleus.NILLI;
+                n.rwraw = 1;
                 n.identity = "";
                 n.assignedID = "";
                 //indices.add(new Integer(j));
             }
-            /*
-            if (namingMethod == Identity3.MANUAL) {
-                int lastp = indices.size();
-                for (int j = lastp; j > 0; j--) {
-                    int kn = ((Integer)indices.elementAt(j - 1)).intValue();
-                    nuclei.remove(kn);
-                }
-            }
-            */
         }
         Cell c = null;
         int strTime = iTime - 1;
@@ -267,14 +275,24 @@ public class KillCellsDialog extends GenericDialog {
         }
 
         if (o == iApplyAndRebuild) {
+
+            iAceTree.treeValueChangedFromEdit = true;
             iAceTree.clearTree();
             iAceTree.buildTree(true);
             iEditLog.setModified(true);
+
+            if (iAceTree.iAceMenuBar.view != null) {
+                iAceTree.iAceMenuBar.view.rebuildData();
+            }
+
             AncesTree ances = iAceTree.getAncesTree();
             Hashtable h = ances.getCellsByName();
+
             if (c != null)
             	c = (Cell)h.get(c.getName());
+
             System.out.println("killCellsDialog.actionPerformed: " + c + CS + strTime);
+
             if (c == null) {
 	            // Try to get any existing cell at strTime
 	            Vector newtime = iNucleiMgr.getNuclei(strTime-1);
@@ -282,10 +300,16 @@ public class KillCellsDialog extends GenericDialog {
 	            Nucleus newnuc = (Nucleus)newtime.get(0);
 	            c = (Cell)iAceTree.getAncesTree().getCells().get(newnuc.hashKey);
             }
+            iAceTree.treeValueChangedFromEdit = true;
             iAceTree.setStartingCell(c, strTime);
-            
+
+
+
+            iAceTree.updateDisplay();
             dispose();
         } else super.actionPerformed(e);
+
+        success = iAceTree.ATLockNucleiMgr(false);
 
     }
 

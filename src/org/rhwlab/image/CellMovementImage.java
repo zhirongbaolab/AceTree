@@ -49,7 +49,7 @@ public class CellMovementImage extends ImageWindow {
         p.add(ic, BorderLayout.CENTER);
         
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        setImageTimeAndPlaneFromTitle();
+        //setImageTimeAndPlaneFromTitle();
         iAceTree = AceTree.getAceTree(null);
         updateCurrentInfo(true);
         getContentPane().add(p);
@@ -59,12 +59,13 @@ public class CellMovementImage extends ImageWindow {
         WinEventMgr wem = new WinEventMgr();
         addWindowListener(wem);
         addWindowFocusListener(wem);
-        refreshDisplay(null);
+        refreshDisplay();
         
     }
     
     @Override
-	public ImagePlus refreshDisplay(String imageName) {
+	public void refreshDisplay() {
+        String imageName = iAceTree.getImageManager().getCurrentImageName();
         //System.out.println("CellMovementImage2.refreshDisplay called: " + new GregorianCalendar().getTime());
         //new Throwable().printStackTrace();
         if (imageName == null) imageName = iTitle;
@@ -81,7 +82,7 @@ public class CellMovementImage extends ImageWindow {
         //System.out.println("EditImage.refreshDisplay3: " + iImagePlane + C.CS + iPlaneInc);
         ImagePlus ip = null;
         //System.out.println("EditImage.refreshDisplay4: " + imageName);
-        ip = makeImage(imageName);
+        //ip = makeImage(imageName);
         switch (iAceTree.getColor()) {
         case 1: 
             ip = makeGreenImagePlus(ip);
@@ -111,11 +112,11 @@ public class CellMovementImage extends ImageWindow {
         //iSpecialEffect = null;
         iImgCanvas.repaint();
         //System.out.println("EditImage.refreshDisplay exiting: " + new GregorianCalendar().getTime());
-        return iImgPlus;
+        //return iImgPlus;
     }
 
     protected void showCentroids(int increment) {
-        int t = iImageTime + iTimeInc - 1 - increment;
+        int t = iAceTree.getImageManager().getCurrImageTime() + iTimeInc - 1 - increment;
         if (t < 0) return;
         Vector v = cNucleiMgr.getNucleiRecord().elementAt(t);
         ImageProcessor iproc = getImagePlus().getProcessor();
@@ -128,7 +129,7 @@ public class CellMovementImage extends ImageWindow {
         while(e.hasMoreElements()) {
             Nucleus n = (Nucleus)e.nextElement();
             if (n.status < 0) continue;
-            double x = cNucleiMgr.nucDiameter(n, iImagePlane + iPlaneInc);
+            double x = cNucleiMgr.nucDiameter(n, iAceTree.getImageManager().getCurrImagePlane() + iPlaneInc);
             if (x > 0) {
                 iproc.drawPolygon(EUtils.pCircle(n.x, n.y, (int)(x/2.)));
             }
@@ -138,8 +139,6 @@ public class CellMovementImage extends ImageWindow {
     
     private void updateCurrentInfo(boolean detectChange) {
         //System.out.println("EditImage.updateCurrentInfo called: " + new GregorianCalendar().getTime());
-        iImageTime = iAceTree.getImageTime();
-        iImagePlane = iAceTree.getImagePlane();
         iTimeInc = iAceTree.getTimeInc();
         iPlaneInc = iAceTree.getPlaneInc();
         //iCurrentCell = iAceTree.getCurrentCell();
@@ -149,7 +148,7 @@ public class CellMovementImage extends ImageWindow {
         @Override
 		public void windowGainedFocus(WindowEvent e) {
             //System.out.println("windowGainedFocus: " + getTitle(e));
-            refreshDisplay(null);
+            refreshDisplay();
         }
         @Override
 		public void windowClosing(WindowEvent e) {

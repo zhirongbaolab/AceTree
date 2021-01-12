@@ -95,97 +95,97 @@ public class Analysis11 extends JPanel implements ActionListener {
         add(iXZView);
     }
     
-    private void yzView(int time, int x) {
-        ImagePlus iplus = getOneYZ(time, x);
-        ImageProcessor iproc = iplus.getProcessor();
-        String s2 = iImageName +" @ x = " + x;
-        new AuxImageWindowYZ(s2, iproc, iAceTree, x);
-    }
+//    private void yzView(int time, int x) {
+//        ImagePlus iplus = getOneYZ(time, x);
+//        ImageProcessor iproc = iplus.getProcessor();
+//        String s2 = iImageName +" @ x = " + x;
+//        new AuxImageWindowYZ(s2, iproc, iAceTree, x);
+//    }
     
-    private void xzView(int time, int y) {
-        ImagePlus iplus = getOneXZ(time, y);
-        ImageProcessor iproc = iplus.getProcessor();
-        String s2 = iImageName +" @ y=" + y;
-        new AuxImageWindowXZ(s2, iproc, iAceTree, y);
+//    private void xzView(int time, int y) {
+//        ImagePlus iplus = getOneXZ(time, y);
+//        ImageProcessor iproc = iplus.getProcessor();
+//        String s2 = iImageName +" @ y=" + y;
+//        new AuxImageWindowXZ(s2, iproc, iAceTree, y);
+//
+//    }
+//
+//    private ImagePlus getOneYZ(int time, int x) {
+//        int planeEnd = iNucleiMgr.getPlaneEnd();
+//        ByteProcessor bp = new ByteProcessor(11 * planeEnd - 1, ImageWindow.cImageHeight);
+//        for (int m=1; m <= planeEnd; m++) {
+//            ImageProcessor ip = getImage(time, m);
+//            //println("test2: " + ip);
+//            for (int i=0; i < ip.getHeight(); i++) {
+//                int p = ip.getPixel(x, i);
+//                for (int k=0; k < 11; k++) {
+//                    bp.putPixel(k + m*11, i, p);
+//                }
+//            }
+//        }
+//        String s = time + "_" + x;
+//        ImagePlus iplus = new ImagePlus(s, bp);
+//        return iplus;
+//
+//    }
 
-    }
+//    private ImagePlus getOneXZ(int time, int y) {
+//        int planeEnd = iNucleiMgr.getPlaneEnd();
+//        ByteProcessor bp = new ByteProcessor(ImageWindow.cImageWidth, 11 * planeEnd - 1);
+//        for (int m=1; m <= planeEnd; m++) {
+//            ImageProcessor ip = getImage(time, m);
+//            //println("test2: " + ip + CS + time + CS + m + CS + planeEnd);
+//            for (int i=0; i < ip.getWidth(); i++) {
+//                int p = ip.getPixel(i, y);
+//                for (int k=0; k < 11; k++) {
+//                    bp.putPixel(i, k + m*11, p);
+//                    //bp.putPixel(k + m*11, i, p);
+//                }
+//            }
+//        }
+//        String s = time + "_" + y;
+//        ImagePlus iplus = new ImagePlus(s, bp);
+//        return iplus;
+//
+//    }
 
-    private ImagePlus getOneYZ(int time, int x) {
-        int planeEnd = iNucleiMgr.getPlaneEnd();
-        ByteProcessor bp = new ByteProcessor(11 * planeEnd - 1, ImageWindow.cImageHeight);
-        for (int m=1; m <= planeEnd; m++) {
-            ImageProcessor ip = getImage(time, m);
-            //println("test2: " + ip);
-            for (int i=0; i < ip.getHeight(); i++) {
-                int p = ip.getPixel(x, i);
-                for (int k=0; k < 11; k++) {
-                    bp.putPixel(k + m*11, i, p);
-                }
-            }
-        }
-        String s = time + "_" + x;
-        ImagePlus iplus = new ImagePlus(s, bp);
-        return iplus;
-        
-    }
-
-    private ImagePlus getOneXZ(int time, int y) {
-        int planeEnd = iNucleiMgr.getPlaneEnd();
-        ByteProcessor bp = new ByteProcessor(ImageWindow.cImageWidth, 11 * planeEnd - 1);
-        for (int m=1; m <= planeEnd; m++) {
-            ImageProcessor ip = getImage(time, m);
-            //println("test2: " + ip + CS + time + CS + m + CS + planeEnd);
-            for (int i=0; i < ip.getWidth(); i++) {
-                int p = ip.getPixel(i, y);
-                for (int k=0; k < 11; k++) {
-                    bp.putPixel(i, k + m*11, p);
-                    //bp.putPixel(k + m*11, i, p);
-                }
-            }
-        }
-        String s = time + "_" + y;
-        ImagePlus iplus = new ImagePlus(s, bp);
-        return iplus;
-        
-    }
-
-    private ImageProcessor getImage(int time, int plane) {
-        String imageFile = ImageWindow.cZipTifFilePath;
-        imageFile += "/" + ImageWindow.cTifPrefix;
-        imageFile += iAceTree.makeImageName(time, plane);
-        int k = imageFile.lastIndexOf("/");
-        String s = imageFile.substring(k + 1);
-        k = s.lastIndexOf("-");
-        s = s.substring(0, k);
-        //println("getImage: " + s);
-        iImageName = s;
-        ImageProcessor ip = getRedData(imageFile);
-        return ip;
-    }
+//    private ImageProcessor getImage(int time, int plane) {
+//        String imageFile = ImageWindow.cZipTifFilePath;
+//        imageFile += "/" + ImageWindow.cTifPrefix;
+//        //imageFile += iAceTree.makeImageName(time, plane);
+//        int k = imageFile.lastIndexOf("/");
+//        String s = imageFile.substring(k + 1);
+//        k = s.lastIndexOf("-");
+//        s = s.substring(0, k);
+//        //println("getImage: " + s);
+//        iImageName = s;
+//        ImageProcessor ip = getRedData(imageFile);
+//        return ip;
+//    }
     
-    private ImageProcessor getRedData(String greenName) {
-        //System.out.println("getRedData: " + greenName + C.CS + ImageWindow.cUseZip);
-        if (ImageWindow.cUseZip == 2) return getRedZipData(greenName);
-        FileInputStream fis;
-        ImagePlus ip = null;
-        //String ss = "/home/biowolp/AncesTree/temp2/images/050405-t050-p15.tif";
-        try {
-            fis = new FileInputStream(greenName);
-            byte [] ba = ImageWindow.readByteArray(fis);
-            ip = ImageWindow.openTiff(new ByteArrayInputStream(ba), false);
-            fis.close();
-	    if(ImageWindow.imagewindowUseStack==1) {
-		int markerChannel=1;
-		ip=ImageWindow.splitImage(ip,markerChannel);
-	    }
-            //ip = readData(fis);
-        } catch(IOException ioe) {
-            //System.out.println("ImageWindow.test3 exception ");
-            //System.out.println(ioe);
-        }
-        if (ip != null) return ip.getProcessor();
-        else return null;
-    }
+//    private ImageProcessor getRedData(String greenName) {
+//        //System.out.println("getRedData: " + greenName + C.CS + ImageWindow.cUseZip);
+//        if (ImageWindow.cUseZip == 2) return getRedZipData(greenName);
+//        FileInputStream fis;
+//        ImagePlus ip = null;
+//        //String ss = "/home/biowolp/AncesTree/temp2/images/050405-t050-p15.tif";
+//        try {
+//            fis = new FileInputStream(greenName);
+//            byte [] ba = ImageWindow.readByteArray(fis);
+//            ip = ImageWindow.openTiff(new ByteArrayInputStream(ba), false);
+//            fis.close();
+//	    if(ImageWindow.imagewindowUseStack==1) {
+//		int markerChannel=1;
+//		ip=ImageWindow.splitImage(ip,markerChannel);
+//	    }
+//            //ip = readData(fis);
+//        } catch(IOException ioe) {
+//            //System.out.println("ImageWindow.test3 exception ");
+//            //System.out.println(ioe);
+//        }
+//        if (ip != null) return ip.getProcessor();
+//        else return null;
+//    }
 
     
     private ImageProcessor getRedZipData(String redName) {
@@ -230,10 +230,10 @@ public class Analysis11 extends JPanel implements ActionListener {
         println("actionPerformed: " + time + CS + xy);
         Object o = e.getSource();
         if (o == iYZView) {
-            yzView(time, xy);
+            //yzView(time, xy);
             
         } else if (o == iXZView) {
-            xzView(time, xy);
+            //xzView(time, xy);
         }
 
     }

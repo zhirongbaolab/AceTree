@@ -27,10 +27,9 @@ public class NucZipper {
     /**
      * all the work is done in the constructor
      * @param file File object to store into (only the name is used)
-     * @param nucDir String path to the storage location for this file
      * @param nucleiMgr NucleiMgr object which has the nuclei data
      */
-    public NucZipper(File file, NucleiMgr nucleiMgr) {
+    public NucZipper(File file, NucleiMgr nucleiMgr, Config config) {
     	File targetFile = file;
     	String parent = file.getParent();
     	File tempFile = new File(parent + "/temp.zip");
@@ -40,7 +39,13 @@ public class NucZipper {
     		filePath = addExtNumber(filePath);
     		tempFile = new File(filePath);
     	}
-        String nucDir = nucleiMgr.getConfig().iZipNucDir;
+    	String nucDir = "";
+    	if (config != null) {
+            nucDir = config.getNucleiConfig().getZipNucDir();
+        } else {
+    	    nucDir = "nuclei/";
+        }
+
         try {
         	
             FileOutputStream fos = new FileOutputStream(tempFile);

@@ -40,7 +40,7 @@ public class Loc {
             z = (int)(n.z * nucMgr.getZPixRes());
         } else {
             x = n.x;
-            y = ImageWindow.cImageHeight - n.y;
+            y = /* ImageWindow.cImageHeight - */n.y;
             int plane_end = nucMgr.getMovie().plane_end;
             z = (int)(nucMgr.getZPixRes() * (plane_end - 1) - nucMgr.getZPixRes() * n.z);
             //System.out.println("**LOCwidth=" + ImageWindow.cImageWidth);

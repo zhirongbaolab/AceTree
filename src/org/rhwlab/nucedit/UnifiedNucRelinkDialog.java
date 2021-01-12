@@ -2,15 +2,7 @@ package org.rhwlab.nucedit;
 
 import java.util.Hashtable;
 import java.util.Vector;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.Box;
-import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.SwingConstants;
-import javax.swing.WindowConstants;
-import javax.swing.BoxLayout;
+import javax.swing.*;
 import java.awt.Component;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -23,9 +15,8 @@ import org.rhwlab.acetree.AceTree;
 import org.rhwlab.tree.AncesTree;
 import org.rhwlab.tree.Cell;
 import org.rhwlab.image.ImageWindow;
-import javax.swing.BorderFactory;
+
 import javax.swing.border.Border;
-import javax.swing.JCheckBox;
 
 /**
  * @author Santella
@@ -116,9 +107,28 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
     @Override
 	@SuppressWarnings("unused")
 	public void actionPerformed(ActionEvent e) {
+		//semaphores  merge from shooting_star_both_as AceTree source code
+		boolean SNLock = iAceTree.getSNLock();
+		if(SNLock){
+			JOptionPane.showMessageDialog(null,"Waiting for StarryNite to finish writing nuclei data");
+			//SN has locked NM, wait for it to be unlocked
+			//Pop up a dialog indicating that we're waiting
+			while(SNLock){
+				try{
+					Thread.sleep(100);
+					SNLock = iAceTree.getSNLock();
+				}
+				catch(InterruptedException ex){
+
+				}
+			}
+			JOptionPane.showMessageDialog(null,"StarryNite is done, taking over");
+		}
+		boolean success = iAceTree.ATLockNucleiMgr(true);
+
     	Object o = e.getSource();
     	String cmd = e.getActionCommand();
-    	if (o==iAddKeyframe) {
+    	if (o==iAddKeyframe || cmd.equals(SHORTCUTTRIGGER)) {
     		if(!addKeyframeActive) {
     			if(iWarned.isSelected()) {
 	    			//add cell if no start specified
@@ -153,6 +163,7 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
     		//iInactivate.setEnabled(false);
     		iWarned.setSelected(false);
     	}
+		success = iAceTree.ATLockNucleiMgr(false);
     }
     // here is the main new logic extending this class to
     // have functionality similar to addseries 
@@ -164,21 +175,23 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
     		return;
     	// System.out.println("process mouse event in unifiednucrelink"+addKeyframeActive);
     	//boolean showNames = iAceTree.getShowAnnotations();
-    	if(addKeyframeActive&iWarned.isSelected()){
+    	if(addKeyframeActive & iWarned.isSelected()) {
     		//System.out.println("Good for adding nucleus.");
     		String strCellName = iLinkNuc.getText();
     		int x = e.getX();
     		int y = e.getY();
-    		int z = iAceTree.getImagePlane() + iAceTree.getPlaneInc();
-    		int time = iAceTree.getImageTime() + iAceTree.getTimeInc();
+    		int z = iAceTree.getImageManager().getCurrImagePlane();
+    		int time = iAceTree.getImageManager().getCurrImageTime();
 		
-    		if(!iStartArmed || strCellName.equals(AceTree.ROOTNAME)){
+    		if(!iStartArmed || strCellName.equals(AceTree.ROOTNAME)) {
 				String ID = addCell(x,y);
     			//rebuild and rename
 				//System.out.println("Rebuild tree and rename nucleus.");
     			iAceTree.clearTree();
     			iAceTree.buildTree(true);
-    		}else{
+
+
+    		} else {
     			int startTime;
     			try {
     				 startTime = Integer.parseInt(iLinkTime.getText());
@@ -196,14 +209,25 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
 				}
 
     		}
+
+			// update WormGUIDES data if it's open
+			if (iAceTree.iAceMenuBar.view != null) {
+				iAceTree.iAceMenuBar.view.updateData(time);
+			}
     		
     		//find ref to what we just created now that its renamed
-			Nucleus itself = ImageWindow.cNucleiMgr.findClosestNucleusXYZ(x, y, z, time);
+			Nucleus itself = iAceTree.getNucleiMgr().findClosestNucleusXYZ(x, y, z, time);
 			//System.out.println("found nucleus"+itself);
 			Cell itselfcell = (Cell)(iAceTree.getAncesTree().getCellsByName().get(itself.identity));
 			//set it as active cell for actree
 			iAceTree.setStartingCell(itselfcell,time);
-			//iAceTree.setShowAnnotations(showNames);
+
+			// we need to call an update now
+			iAceTree.getImageManager().setCurrImageTime(time);
+			iAceTree.iImgWin.addAnnotation(x, y, true);
+
+			iAceTree.updateDisplay();
+
 			//set it as current early cell
 			iLinkTime.setText(Integer.toString(time));
 			iLinkNuc.setText(itself.identity);
@@ -219,10 +243,9 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
       //transplant of addsingle add cell function executed when root is
 	  //pred or none chosen
      */
-
     protected String addCell(int x, int y) {
-    	int time = iAceTree.getImageTime()+iAceTree.getTimeInc();
-        Vector nuclei = ImageWindow.cNucleiMgr.getNucleiRecord().elementAt(time - 1);
+    	int time = iAceTree.getImageManager().getCurrImageTime();
+        Vector nuclei = iAceTree.getNucleiMgr().getNucleiRecord().elementAt(time - 1);
         Nucleus n = new Nucleus();
         n.index = nuclei.size() + 1;
         String hashKey = NucUtils.makeHashKey(time, n);
@@ -230,7 +253,7 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
         n.status = 1;
         n.x = x;
         n.y = y;
-        int plane= iAceTree.getImagePlane() + iAceTree.getPlaneInc();
+        int plane= iAceTree.getImageManager().getCurrImagePlane();
         n.z = plane;
 		System.out.println("make nucleus "+x+" "+y+" "+plane+" "+time);
 		//	Nucleus nclose = ImageWindow.cNucleiMgr.findClosestNucleus(x,y,plane,time);
@@ -263,7 +286,8 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
         c.setParent(root);
 		
 		iAceTree.setCurrentCell(c, time, AceTree.RIGHTCLICKONEDITIMAGE);
-		iAceTree.getImageWindow().addAnnotation(x, y, true);
+		iAceTree.iImgWin.addAnnotation(x, y, true);
+		//iAceTree.updateDisplay();
 		return(n.identity);
     }
     
@@ -272,11 +296,11 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
 		System.out.println("adding tween");
 		String ID=addCell(x,y);
 		//set to late and rebuild
-		int time =iAceTree.getImageTime()+iAceTree.getTimeInc();
+		int time = iAceTree.getImageManager().getCurrImageTime();
 		iRelinkTime.setText(Integer.toString(time));
 		iRelinkNuc.setText(ID);
 		relinkAndRebuild();
-		
+
 		// try and set active timepoint to intermediate point at end of interpolation
 		//name will not be right if addition has created a bifurcation
 		// so search for C at time should fail returning null
@@ -285,15 +309,26 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
 		Hashtable h = ances.getCellsByName();
 		Cell c = (Cell)h.get(iLinkNuc);	
 		//set active cell to end time to aid review
-		if(c!=null)
+		if(c!=null) {
 			System.out.println("not null so setting current cell "+c);
-		iAceTree.setStartingCell(c,time);
+			iAceTree.setStartingCell(c,time);
+		}
+
     }
+
+    public boolean getAddKeyframeActive() {
+    	return addKeyframeActive;
+	}
+
+	public void setiWarned(boolean b) {
+    	iWarned.setSelected(b);
+	}
 
 
  public final static String
        KEYFRAME = "Add Intermediate Cell"
       ,KEYFRAMEHEADER = "Add Cell as Intermediate (Optional)"
 	  ,WARNING="Warning:Is early set correctly?"
-	  ,DEACTIVATE="Deactivate";
+	  ,DEACTIVATE="Deactivate"
+	  ,SHORTCUTTRIGGER ="Short cut trigger";
 }

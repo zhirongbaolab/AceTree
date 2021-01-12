@@ -78,10 +78,8 @@ public class AncesTree implements Comparator {
      */
     @SuppressWarnings("unused")
 	public AncesTree(Cell root, NucleiMgr nucleiMgr, int startingIndex, int endingIndex) {
-        //System.out.println("AncesTree constructor called");
         iRoot = new Cell(ROOTNAME, endingIndex, startingIndex);
         iRoot.setEndTime(1);
-        //System.out.println("AncesTree: " + iRoot.showStuff());
         iNucleiMgr = nucleiMgr;
         iStartingIndex = startingIndex;
         iEndingIndex = endingIndex;
@@ -112,17 +110,6 @@ public class AncesTree implements Comparator {
 		    if(!(s.isEmpty() || s.startsWith("N")))
 		    	sulstonmode = true;
 		}
-		//Nucleus n=nv.get(0);//nucleiMgr.findClosestNucleus(1, 1, 1);
-		//System.out.println(n);
-	 	
-		//=!(n==null||n.identity.startsWith("N",0));
-	
-		//	if( n!=null) 
-		//    System.out.println(n.identity);
-		//else 
-		//   System.out.println("n is null");
-		
-		//System.out.println("AncesTree sulston mode: "+sulstonmode);
 		if (sulstonmode){
 		    iRoot.add(createDummyNodes());
 		}
@@ -144,41 +131,7 @@ public class AncesTree implements Comparator {
     		checkFirstGeneration();
     }
 
-    @SuppressWarnings("unused")
-	public AncesTree(Cell root, NucleiMgr nucleiMgr, int startingIndex, int endingIndex, boolean test) {
-        //System.out.println("AncesTree constructor called");
-        iRoot = new Cell(ROOTNAME, endingIndex, startingIndex);
-        iRoot.setEndTime(1);
-        //System.out.println("AncesTree: " + iRoot.showStuff());
-        iNucleiMgr = nucleiMgr;
-        iStartingIndex = startingIndex;
-        iEndingIndex = endingIndex;
-        iRootEstablished = false;
-        iTempV = new Vector();
-        iCells = new Hashtable();
-        iPolarCount = 1;
-        iShowDeathsAndDivisions = false;
-        iCellCounts = new int[endingIndex + 1];
 
-        //iRoot.add(createDummyNodes());
-        //System.out.println("AncesTree1 iCells.size: " + iCells.size());
-        processEntries();
-        //System.out.println("AncesTree2 iCells.size: " + iCells.size());
-        //adjustEarlyStartTimes();
-        //adjustEarlyEndTimes();
-        extractRootCells();
-        //System.out.println("AncesTree3 iCells.size: " + iCells.size());
-
-        Cell PP = (Cell)iCellsByName.get("P");
-        int kk = PP.getChildCount();
-        //println("AncesTree.constructor, " + kk + CS + PP.getName());
-    }
-
-
-
-    
-    
-    
     private void adjustEarlyStartTimes() {
     	if (this.sulstonmode) {
     		int tEnd = 0;
@@ -283,11 +236,6 @@ public class AncesTree implements Comparator {
     	addDaughter(d2, "C", -65);
     	addDaughter(d2, "P3", -65);
 
-    	//long timeEnd = System.nanoTime();
-        //double timeDiff = (timeEnd-timeStart)/1e6;
-        //System.out.println("Time for AncesTree.createDummyNodes(): "+timeDiff+" ms.");
-        
-    	//return (Cell)iCells.get("P0");
     	return c0;
     }
 
@@ -304,14 +252,6 @@ public class AncesTree implements Comparator {
     private void extractRootCells() {
     	long timeStart = System.nanoTime();
         iRootCells = new Vector();
-        
-        /*
-        int k = iRoot.getChildCount();
-        for (int i = 0; i < k; i++) {
-            Cell x = (Cell)iRoot.getChildAt(i);
-            //System.out.println("extractRootCells, 1,  " + i + CS + x.getName());
-        }
-        */
         
         Enumeration e = iRoot.children();
         while (e.hasMoreElements()) {
@@ -402,17 +342,6 @@ public class AncesTree implements Comparator {
         
         //long timeStart2 = System.nanoTime();
         makeCellsByNameHash();
-        //long timeEnd2 = System.nanoTime();
-        //double timeDiff2 = (timeEnd2-timeStart2)/1e6;
-        //System.out.println("Time for AncesTree.makeCellsByNameHash(): "+timeDiff2+" ms.");
-        
-        //System.out.println("total cells hashed: " + iCells.size());
-        //System.out.println("total cells alive at end: " + count);
-        //System.out.println("total cells alive at end: " + countAliveCellsAtIndex(iEndingIndex));
-        
-        //long timeEnd = System.nanoTime();
-        //double timeDiff = (timeEnd-timeStart)/1e6;
-        //System.out.println("Time for AncesTree.processEntries(): "+timeDiff+" ms.");
     }
 
     private int countAliveCellsAtIndex(int k) {
@@ -444,27 +373,16 @@ public class AncesTree implements Comparator {
      */
     @SuppressWarnings("unused")
 	private int processEntry(int i) {
-    	//System.out.println("\n-------------------------------------"+
-    						//"\nAncesTree.processEntry: "+i);
-    	//long timeStart = System.nanoTime();
         int index = i;
-        //if (i == 180) {
-        //	println("debug");
-        //}
+
         if (iShowDeathsAndDivisions)
         	System.out.println("processEntry: " + i + " ************");
-        //System.out.println("processEntry: " + i + " ************");
         i--;
         Vector nuclei;
         Vector nuclei_record = iNucleiMgr.getNucleiRecord();
-        //Vector nuclei = (Vector)iNucleiMgr.getNucleiRecord().elementAt(i);
         try {
             nuclei = (Vector)nuclei_record.elementAt(i);
-            //println("processEntry:1 " + i + CS + nuclei.size());
-            //for (int x=0; x < nuclei.size(); x++) {
-            //	Nucleus n = (Nucleus)nuclei.get(x);
-            //	println(x + CS + n);
-            //}
+
         } catch(ArrayIndexOutOfBoundsException oob) {
             System.out.println("***** processEntry: " + i);
             return 1;
@@ -475,7 +393,6 @@ public class AncesTree implements Comparator {
         if (index == iStartingIndex) {
             for (int j = 0; j < nuclei.size(); j++) {
                 Nucleus n = (Nucleus)nuclei.elementAt(j);
-                //System.out.println("processEntry:2 time" + i + CS + j + CS + n.identity);
                 processRootCell(i, n);
             }
         } else {
@@ -485,13 +402,6 @@ public class AncesTree implements Comparator {
                 Nucleus n = (Nucleus)nuclei.elementAt(j);
                 //System.out.println("processEntry:3 " + i + CS + j + CS + n.identity);
                 if (n.status == -1) {
-                    // implies this cell is no longer living or real
-                    //if (prevn.status > -1 && parent != null) {
-                        //this is a new cell death
-
-                    //    parent.setEndTime(i + 1);
-                    //    parent.setEndFate(Cell.DIED);
-                    //}
                     continue;
                 }
                 if (n.predecessor == Nucleus.NILLI) {
@@ -516,8 +426,6 @@ public class AncesTree implements Comparator {
                 if (prevn.status == -1) {
                     // current nucleus points back to a dead nucleus
                     // change predecessor to root and process it as a new cell
-                    //String hashKey = makeHashKey(i + 1, n);
-                    //n.identity += "X" + hashKey;
                     n.predecessor = Nucleus.NILLI;
                     processRootCell(i, n); // call it a new one
                     continue;
@@ -607,12 +515,6 @@ public class AncesTree implements Comparator {
                     	x.removeFromParent();
                         //parent = p;
                     	iCells.remove(n.identity);
-                    	//println("processEntry, removing from iCells, " + n.identity);
-                        //System.out.println("processRootCell3: " + iCells.size());
-                    	//parent.removeAllChildren();
-                    	//parent.add(daughter);
-                    	//checkDaughters(parent);
-                    	//iCells.put(hashKey, c);
                     }
 
                     if (parent == null) {
@@ -629,8 +531,7 @@ public class AncesTree implements Comparator {
                     }
                     if (iShowDeathsAndDivisions)
                     	System.out.println(division(parent.getName(), daughter.getName()));
-                    iCells.put(daughter.getHashKey(), daughter); //#############################
-                    //println("processEntry, adding to iCells, " + daughter.getHashKey() + CS + daughter.getName());
+                    iCells.put(daughter.getHashKey(), daughter);
 
                     checkDaughters(parent);
                 }
@@ -692,8 +593,14 @@ public class AncesTree implements Comparator {
         String rname = iRoot.getName();
         //println("AncesTree.makeCellsByNameHash.put, " + rname);
         iCellsByName.put(iRoot.getName(), iRoot); //20051007
-        //System.out.println("makeCellsByNameHash - iCells.size: " + iCells.size());
-        int namingMethod = iNucleiMgr.getConfig().iNamingMethod;
+
+        int namingMethod;
+        if (iNucleiMgr.isNucConfigNull()) {
+            namingMethod = iNucleiMgr.getConfig().iNamingMethod;
+        } else {
+            namingMethod = iNucleiMgr.getNucConfig().getNamingMethod();
+        }
+
         boolean b = (namingMethod == Identity3.MANUAL);
         Enumeration e = iCells.keys();
         while (e.hasMoreElements()) {
@@ -707,22 +614,6 @@ public class AncesTree implements Comparator {
             iCellsByName.put(key, c);
             //System.out.println("makeCellsByName: " + hashKey + CS + key + CS + c.showStuff());
         }
-        /*
-        Enumeration e = iCells.elements();
-        while (e.hasMoreElements()) {
-            Cell c = (Cell)e.nextElement();
-            key = c.getName();
-            if (key.equals(POLAR) && !b) {
-                key = POLAR + ++pct;
-            }
-            iCellsByName.put(key, c);
-            System.out.println("makeCellsByName: " + key + CS + c.showStuff());
-        }
-        */
-        
-        //Cell PP = (Cell)iCellsByName.get("P");
-        //int kk = PP.getChildCount();
-        //println("AncesTree.makeCellsByName, " + kk + CS + PP.getName());
         
         // Keep lower case version of cell hash
         iCellsByNameLowerCase = new Hashtable();
@@ -750,22 +641,6 @@ public class AncesTree implements Comparator {
             System.out.println(key+CS+iCellsByName.get(key));
         }
     }
-    
-    /*
-    public Cell findCellByName(String target) {
-    	target = target.toLowerCase();
-    	Enumeration<String> e = iCellsByNameLowerCase.keys();
-        while (e.hasMoreElements()) {
-            String key = e.nextElement();
-            if (key.equals(target)) {
-            	//System.out.println("GOT IT! ("+key+")");
-            	return (Cell)iCellsByNameLowerCase.get(key);
-            }
-            //System.out.println("Not it: ("+key+")");
-        }
-        return null;
-    }
-    */
     
     public Hashtable getCellsByNameLowerCase() {
     	return iCellsByNameLowerCase;
@@ -909,7 +784,6 @@ public class AncesTree implements Comparator {
         	//println("processRootCell, removing, " + n.identity);
         	iCells.remove(n.identity);
             //System.out.println("processRootCell3: " + iCells.size() + CS + n.identity);
-        	//parent.removeAllChildren();
         	parent.add(c);
         	checkDaughters(parent);
         	//iCells.put(hashKey, c);
@@ -918,27 +792,12 @@ public class AncesTree implements Comparator {
             //System.out.println("processRootCell: adding " + c.getName());
         }
 
-        iCells.put(hashKey, c); //#############################
-        //println("processRootCell, add to iCells, " + hashKey + CS + c.getName());
-        //System.out.println("processRootCell4: " + iCells.size() + CS + c.showStuff());
-        //iCells.put(n.identity, c); //#############################
-        //System.out.println("processRootCell putting: " + c.getHashKey() + ", " + c.getName());
-        //c.showParameters();
+        iCells.put(hashKey, c);
+
         
         
     	checkForCellDeath(n, i + 1, hashKey);
-        
-    	// Only check generations-ordering if in sulston mode
-    	/*
-    	if (sulstonmode)
-    		checkFirstGeneration();
-    		*/
-    }
-    
-    // Used for debugging long loading time from .xml file with many top level elements
-    public void printCounts() {
-    	//System.out.println("checkDaughters called: "+checkDaughtersCount+" times.");
-    	//System.out.println("processRootCell called: "+processRootCount+" times.");
+
     }
 
     private void checkForCellDeath(Nucleus n, int index, String hashKey) {

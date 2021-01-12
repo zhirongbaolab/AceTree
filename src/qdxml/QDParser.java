@@ -29,6 +29,8 @@ public class QDParser {
     DOCTYPE = 14,
     PRE = 15,
     CDATA = 16;
+
+
   
   public static void parse(DocHandler doc, Reader r) throws Exception {
     Stack<Integer> st = new Stack<Integer>();

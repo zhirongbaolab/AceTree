@@ -312,7 +312,7 @@ PVPL	ABplppppaaa	Interneuron, cell body in lumbar ganglion, projects along ventr
 PVPR	ABprppppaaa	Interneuron, cell body in lumbar ganglion, projects along ventral cord to nerve ring
 PVQL	ABplapppaaa	Interneuron, projects along ventral cord to ring
 PVQR	ABprapppaaa	Interneuron, projects along ventral cord to ring
-PVR	Caappa	Interneuron, projects along ventral cord to ring
+PVR	Caappv	Interneuron, projects along ventral cord to ring
 PVT	ABplpappppa	Interneuron, projects along ventral cord to ring
 PVV	P11.paaa	ABplapappapaaa. Male specific motor neuron, ventral cord
 PVWL	TL.ppa	ABplapppppppa. Interneuron, posterior ventral cord, few synapses
@@ -391,7 +391,7 @@ RIH	ABprpappaaa	Ring interneuron
 RIML	ABplppaapap	Ring motor neuron
 RIMR	ABprppaapap	Ring motor neuron
 RIPL	ABalpapaaaa	Ring/pharynx interneuron, only direct connection between pharynx and ring
-RIPR	ABprappaaaa	Ring/pharynx interneuron, only direct connection between pharynx and ring
+RIPR	ABarappaaaa	Ring/pharynx interneuron, only direct connection between pharynx and ring
 RIR	ABprpapppaa	Ring interneuron
 RIS	ABprpappapa	Ring interneuron
 RIVL	ABplpaapaaa	Ring interneuron

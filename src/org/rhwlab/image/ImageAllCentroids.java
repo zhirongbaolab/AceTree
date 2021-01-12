@@ -62,9 +62,9 @@ public class ImageAllCentroids extends JPanel implements ActionListener {
         WinEventMgr wem = new WinEventMgr();
         iFrame.addWindowListener(wem);
         iCanvas = new CentroidsCanvas();
-        iCanvas.setSize(ImageWindow.cImageWidth, ImageWindow.cImageHeight);
+        //iCanvas.setSize(ImageWindow.cImageWidth, ImageWindow.cImageHeight);
         iFrame.add(iCanvas);
-        iFrame.setSize(ImageWindow.cImageWidth, ImageWindow.cImageHeight);
+        //iFrame.setSize(ImageWindow.cImageWidth, ImageWindow.cImageHeight);
         iFrame.setMenuBar(createMenuBar());
         //iPane = new JScrollPane(iCanvas);
         //add(iPane);
@@ -138,8 +138,8 @@ public class ImageAllCentroids extends JPanel implements ActionListener {
     
     private void drawIt(Graphics2D g, Nucleus n) {
         int ny = n.y;
-        if (iInvertY)
-        	ny = ImageWindow.cImageHeight - n.y;
+        //if (iInvertY)
+        	//ny = ImageWindow.cImageHeight - n.y;
         int plane = (int)(n.z + 0.5f);
         g.setColor(iSpectrum[plane]);
         if (iUse200MinNames && !isInSet(n.identity))

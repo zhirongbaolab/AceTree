@@ -34,6 +34,7 @@ import javax.swing.event.ListSelectionListener;
 
 import org.rhwlab.acetree.AceTree;
 import org.rhwlab.acetree.NucUtils;
+import org.rhwlab.image.ImageAllCentroids;
 import org.rhwlab.snight.Config;
 import org.rhwlab.snight.NucleiMgr;
 import org.rhwlab.snight.Nucleus;
@@ -134,14 +135,12 @@ public class Zafer1  extends JDialog implements ActionListener, ListSelectionLis
         initialize();
         iNamesAvailable = false;
         iTest = 1;
-        NucUtils.setZPixRes(iNucleiMgr.getZPixRes());
-        int t1 = iNucleiMgr.getConfig().iStartingIndex;
-        int t2 = iNucleiMgr.getConfig().iEndingIndex;
+        NucUtils.setZPixRes(iAceTree.getConfig().getNucleiConfig().getZPixRes());
         String [] sa = iTextField.getText().split(":");
         int maxTime = Integer.parseInt(sa[0]);
 
-        t1 = Integer.parseInt(iTextField2.getText());
-        t2 = Integer.parseInt(iTextField.getText());
+        int t1 = Integer.parseInt(iTextField2.getText());
+        int t2 = Integer.parseInt(iTextField.getText());
 
         iListModel.clear();
         iListModel.addElement(help());
@@ -191,15 +190,13 @@ public class Zafer1  extends JDialog implements ActionListener, ListSelectionLis
         initialize();
         iNamesAvailable = false;
         iTest = 1;
-        NucUtils.setZPixRes(iNucleiMgr.getZPixRes());
-        int t1 = iNucleiMgr.getConfig().iStartingIndex;
-        int t2 = iNucleiMgr.getConfig().iEndingIndex;
+        NucUtils.setZPixRes(iAceTree.getConfig().getNucleiConfig().getZPixRes());
         
         String [] sa = iTextField.getText().split(":");
         int maxTime = Integer.parseInt(sa[0]);
 
-        t1 = Integer.parseInt(iTextField2.getText());
-        t2 = Integer.parseInt(iTextField.getText());
+        int t1 = Integer.parseInt(iTextField2.getText());
+        int t2 = Integer.parseInt(iTextField.getText());
 
         iListModel.clear();
         iListModel.addElement(helpMovements());
@@ -247,7 +244,7 @@ public class Zafer1  extends JDialog implements ActionListener, ListSelectionLis
 	void prepareZaferDivisions() {
 		iZafer1Hash = new Hashtable();
 		iZafer2Hash = new Hashtable();
-		Config config = iNucleiMgr.getConfig();
+		Config config = iAceTree.getConfig();
 		println("prepareZaferDivisions, " + config.iParent);
 		println("prepareZaferDivisions, " + config.iConfigFileName);
 		
@@ -276,9 +273,9 @@ public class Zafer1  extends JDialog implements ActionListener, ListSelectionLis
 
 	void prepareZaferMovements() {
 		iZafer2Hash = new Hashtable();
-		Config config = iNucleiMgr.getConfig();
+		Config config = iAceTree.getConfig();
 		println("prepareZaferMovements, " + config.iParent);
-		println("prepareZaferMovements, " + config.iConfigFileName);
+		println("prepareZaferMovements, " + config.getConfigFileName());
 		File z2 = new File(config.iParent + "/svm_output_movements_called_as_divisions.txt");
 	    boolean bz2 = z2.exists();
 	    Hashtable h = null;

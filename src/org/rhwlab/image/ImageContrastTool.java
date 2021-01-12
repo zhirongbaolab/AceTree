@@ -23,9 +23,9 @@ import javax.swing.event.DocumentListener;
 
 public class ImageContrastTool extends JDialog implements ActionListener, ChangeListener {
 	
-	private JSlider iSlider1min, iSlider1max, iSlider2min, iSlider2max;
-	private JTextField iText1min, iText1max, iText2min, iText2max;
-	private double min1, max1, min2, max2;
+	private JSlider iSlider1min, iSlider1max, iSlider2min, iSlider2max, iSlider3min, iSlider3max;
+	private JTextField iText1min, iText1max, iText2min, iText2max, iText3min, iText3max;
+	private double min1, max1, min2, max2, min3, max3;
 	private JButton iReset, iCancel;
 	private int iUseStack;
 	
@@ -45,9 +45,9 @@ public class ImageContrastTool extends JDialog implements ActionListener, Change
 		
 		min1 = min2 = 0;
 		if (iUseStack == 1)
-			max1 = max2 = MAX16BIT;
+			max1 = max2 = max3 = MAX16BIT;
 		else
-			max1 = max2 = MAX8BIT;
+			max1 = max2 = max3 = MAX8BIT;
 	}
 	
 	// Add sliders, textfields, and buttons to main dialog window
@@ -88,6 +88,10 @@ public class ImageContrastTool extends JDialog implements ActionListener, Change
 								iSlider2min.setValue(sliderVal);
 							else if (iText2max == source) 
 								iSlider2max.setValue(sliderVal);
+							else if (iText3min == source)
+								iSlider3min.setValue(sliderVal);
+							else if (iText3max == source)
+								iSlider3max.setValue(sliderVal);
 						}
 					}
 					catch (Exception e2) {
@@ -180,12 +184,48 @@ public class ImageContrastTool extends JDialog implements ActionListener, Change
 		c.gridwidth = 1;
 		jpWhole.add(iText2max, c);
 
+		jl = new JLabel("Blue Channel Min");
+		iSlider3min = new JSlider(0, sliderMaxVal);
+		iSlider3min.setValue(0);
+		setTicks(iSlider3min);
+		iSlider3min.addChangeListener(this);
+		iText3min = new JTextField("0", 7);
+		iText3min.getDocument().addDocumentListener(docListener);
+		setOwner(iText3min);
+		c.gridx = 0;
+		c.gridy = 4;
+		jpWhole.add(jl, c);
+		c.gridx = 1;
+		c.gridwidth = 3;
+		jpWhole.add(iSlider3min, c);
+		c.gridx = 4;
+		c.gridwidth = 1;
+		jpWhole.add(iText3min, c);
+
+		jl = new JLabel("Blue Channel Max");
+		iSlider3max = new JSlider(0, sliderMaxVal);
+		iSlider3max.setValue(65535);
+		setTicks(iSlider3max);
+		iSlider3max.addChangeListener(this);
+		iText3max = new JTextField(""+sliderMaxVal, 7);
+		iText3max.getDocument().addDocumentListener(docListener);
+		setOwner(iText3max);
+		c.gridx = 0;
+		c.gridy = 5;
+		jpWhole.add(jl, c);
+		c.gridx = 1;
+		c.gridwidth = 3;
+		jpWhole.add(iSlider3max, c);
+		c.gridx = 4;
+		c.gridwidth = 1;
+		jpWhole.add(iText3max, c);
+
 		// Add buttons
 		iReset = new JButton("Reset");
 		iReset.addActionListener(this);
 		iCancel = new JButton("Cancel");
 		iCancel.addActionListener(this);
-		c.gridy = 4;
+		c.gridy = 6;
 		c.gridx = 1;
 		jpWhole.add(iReset, c);
 		c.gridx = 2;
@@ -221,12 +261,16 @@ public class ImageContrastTool extends JDialog implements ActionListener, Change
 		    table.put(new Integer(32768), new JLabel(""+(MAX16BIT/2)));
 		    table.put(new Integer(49152), new JLabel(""+(3*MAX16BIT/4)));
 		    table.put(new Integer(65535), new JLabel(""+MAX16BIT));
+			table.put(new Integer(49152), new JLabel(""+(3*MAX16BIT/4))); // correct for blue?
+			table.put(new Integer(65535), new JLabel(""+MAX16BIT)); // correct for blue?
 	    }
 	    else {
 	    	table.put(new Integer(64), new JLabel(""+(MAX8BIT/4)));
 		    table.put(new Integer(128), new JLabel(""+(MAX8BIT/2)));
 		    table.put(new Integer(192), new JLabel(""+(3*MAX8BIT/4)));
 		    table.put(new Integer(255), new JLabel(""+MAX8BIT));
+			table.put(new Integer(192), new JLabel(""+(3*MAX8BIT/4))); // correct for blue?
+			table.put(new Integer(255), new JLabel(""+MAX8BIT)); // correct for blue?
 	    }
 	    js.setLabelTable(table);
 	    js.setPaintLabels(true);
@@ -248,6 +292,14 @@ public class ImageContrastTool extends JDialog implements ActionListener, Change
 	public void setSlider2max(int val) {
 		iSlider2max.setValue(val);
 	}
+
+	public void setSlider3min(int val) {
+		iSlider3min.setValue(val);
+	}
+
+	public void setSlider3max(int val) {
+		iSlider3max.setValue(val);
+	}
 	
 	// Methods to retrieve references to each slider
 	public JSlider getSlider1min() {
@@ -265,6 +317,14 @@ public class ImageContrastTool extends JDialog implements ActionListener, Change
 	public JSlider getSlider2max() {
 		return iSlider2max;
 	}
+
+	public JSlider getSlider3min() {
+		return iSlider3min;
+	}
+
+	public JSlider getSlider3max() {
+		return iSlider3max;
+	}
 	
 	// Action listeners for buttons
 	@Override
@@ -281,13 +341,16 @@ public class ImageContrastTool extends JDialog implements ActionListener, Change
 	public void resetSliders() {
 		iSlider1min.setValue(0);
 		iSlider2min.setValue(0);
+		iSlider3min.setValue(0);
 		if (iUseStack == 1) {
 			iSlider1max.setValue(MAX16BIT);
 			iSlider2max.setValue(MAX16BIT);
+			iSlider3max.setValue(MAX16BIT);
 		}
 		else {
 			iSlider1max.setValue(MAX8BIT);
 			iSlider2max.setValue(MAX8BIT);
+			iSlider3max.setValue(MAX8BIT);
 		}
 	}
 	
@@ -313,12 +376,18 @@ public class ImageContrastTool extends JDialog implements ActionListener, Change
             else if (iSlider2max == source) {
             	max2 = val;
             	iText2max.setText(txt);
-            }
+            } else if (iSlider3min == source) {
+				min3 = val;
+				iText3min.setText(txt);
+			}
+			else if (iSlider3max == source) {
+				max3 = val;
+				iText3max.setText(txt);
+			}
 		}
 	}
 	
 	private static final int
 		MAX8BIT = 255,
 		MAX16BIT = 65535;
-	
 }

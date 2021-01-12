@@ -523,7 +523,7 @@ public class VTreeImpl {
 
 
     private Cell getNewTree() {
-        AncesTree ances = new AncesTree(null, iNucleiMgr, iNucleiMgr.getStartingIndex(), iEndTime);
+        AncesTree ances = new AncesTree(null, iNucleiMgr, iAceTree.getConfig().getImageConfig().getStartingIndex(), iEndTime);
         //AncesTree ances = new AncesTree(null, iNucleiMgr, 1, iEndTime);
         iCellsByName = ances.getCellsByName();
         return ances.getRoot();
@@ -900,7 +900,7 @@ public class VTreeImpl {
             iFrame = new JFrame();
             JFrame jf = iFrame;
             JFrame.setDefaultLookAndFeelDecorated(false);
-            String s = iNucleiMgr.getConfig().iConfigFileName;
+            String s = iAceTree.getConfig().getConfigFileName();
             File cf = new File(s);
             s = cf.getName();
             iShortName = s;

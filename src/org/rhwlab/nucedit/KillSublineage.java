@@ -12,12 +12,7 @@ import java.awt.event.ActionEvent;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import javax.swing.Box;
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.Border;
 
 import org.rhwlab.acetree.AceTree;
@@ -41,8 +36,8 @@ public class KillSublineage extends JPanel implements ActionListener {
 	NucleiMgr iNucleiMgr;
 	/**
 	 * @param aceTree
-	 * @param owner
-	 * @param modal
+	 * //@param owner
+	 * //@param modal
 	 */
 	@SuppressWarnings("unused")
 	public KillSublineage(AceTree aceTree) {
@@ -50,7 +45,7 @@ public class KillSublineage extends JPanel implements ActionListener {
 		this.setAlignmentX(CENTER_ALIGNMENT);	
 		iNucleiMgr = aceTree.getNucleiMgr();
     	iEditLog = aceTree.getEditLog();
-    	int time =  iAceTree.getImageTime()+ iAceTree.getTimeInc();
+    	int time =  iAceTree.getImageManager().getCurrImageTime();
 
         Cell cell = iAceTree.getCurrentCell();
         iCellToKill=cell;
@@ -143,6 +138,24 @@ public class KillSublineage extends JPanel implements ActionListener {
 	@Override
 	@SuppressWarnings("unused")
 	public void actionPerformed(ActionEvent e) {
+		//semaphores  merge from shooting_star_both_as AceTree source code
+		boolean SNLock = iAceTree.getSNLock();
+		if(SNLock){
+			JOptionPane.showMessageDialog(null,"Waiting for StarryNite to finish writing nuclei data");
+			//SN has locked NM, wait for it to be unlocked
+			//Pop up a dialog indicating that we're waiting
+			while(SNLock){
+				try{
+					Thread.sleep(100);
+					SNLock = iAceTree.getSNLock();
+				}
+				catch(InterruptedException ex){
+
+				}
+			}
+			JOptionPane.showMessageDialog(null,"StarryNite is done, taking over");
+		}
+		boolean success = iAceTree.ATLockNucleiMgr(true);
 
 		if(iNucleiMgr.getCurrentCellData(iCellName, iTime)==null){
 			System.out.println("Attempt to delete nonexistent cell quitting");
@@ -213,13 +226,23 @@ public class KillSublineage extends JPanel implements ActionListener {
 
 				iAceTree.clearTree();
 			iAceTree.buildTree(true);
+
+			// update WormGUIDES data if it's open
+			if (iAceTree.iAceMenuBar.view != null) {
+				iAceTree.iAceMenuBar.view.rebuildData();
+			}
+
 			iEditLog.setModified(true);
 			AncesTree ances = iAceTree.getAncesTree();
 			Hashtable h = ances.getCellsByName();
 			if (c != null) c = (Cell)h.get(c.getName());
 			System.out.println("killSublineage.actionPerformed: " + c + CS + strTime);
-			if (c != null) iAceTree.setStartingCell(c, strTime);
-			
+			if (c != null) {
+				iAceTree.setStartingCell(c, strTime);
+				iAceTree.updateDisplay();
+			}
+
+			success = iAceTree.ATLockNucleiMgr(false);
 
     }
 

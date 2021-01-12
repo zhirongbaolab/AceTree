@@ -111,6 +111,7 @@ public class NucEditModel {
         n.successor1 = Integer.parseInt(s);
         s = ntm.getValueAt(j, NucleiTableModel.SUCC2).toString();
         n.successor2 = Integer.parseInt(s);
+        n.rwraw = 1;
     }
     
     private void updateAddedNucleus(NucleiTableModel ntm, Nucleus n, int nucTableModelItem, int timeIndex) {
@@ -137,6 +138,7 @@ public class NucEditModel {
         s = ntm.getValueAt(j, NucleiTableModel.SUCC2).toString();
         System.out.println("updateAddedNucleus succ2: " + s);
         n.successor2 = Integer.parseInt(s);
+        n.rwraw = 1;
 
         // everything else is copied from the predecessor or successor
         //s = ntm.getValueAt(j, NucleiTableModel.PRED).toString();
