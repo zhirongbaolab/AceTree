@@ -238,6 +238,30 @@ public class NucleiMgrAdapter implements LineageData {
 		return diameters;
 	}
 
+	@Override
+	public int[] getRweights(int time) {
+		ArrayList<Integer> rweightsAL = new ArrayList<>();
+
+		//access vector of nuclei at given time frame
+		Vector<Nucleus> v = nucleiMgr.nuclei_record.get(time-1);
+
+		for (int m = 0; m < v.size(); ++m) {
+			Nucleus n = v.get(m);
+			if (n.status == 1) {
+				rweightsAL.add((int)n.rweight);
+			}
+		}
+
+		//convert ArrayList to Integer[]
+		int size = rweightsAL.size();
+		int[] rweights = new int[size];
+		for (int i = 0; i < size; ++i) {
+			rweights[i] = rweightsAL.get(i);
+		}
+
+		return rweights;
+	}
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public ArrayList<String> getAllCellNames() {
