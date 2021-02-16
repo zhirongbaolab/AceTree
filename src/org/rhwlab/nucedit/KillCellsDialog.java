@@ -309,6 +309,8 @@ public class KillCellsDialog extends GenericDialog {
             dispose();
         } else super.actionPerformed(e);
 
+        iAceTree.prevImage();
+
         success = iAceTree.ATLockNucleiMgr(false);
 
     }

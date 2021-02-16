@@ -921,11 +921,25 @@ public class AceTree extends JPanel
         setTreeSelectionMode();
         setTreeSelectionListener();
 
-        // assume that P0 is the root, and look for the first child present in the nuclei
-        Cell c = walkUpToAGoodCell();
+        // --- useful when tree rebuild is triggered externally
+        // Set display back to current cell at the same time point
+        Hashtable h = iAncesTree.getCellsByName();
+        Cell c = null;
+        int time = this.imageManager.getCurrImageTime();
+        if (iCurrentCell != null) {
+            c = (Cell)h.get(iCurrentCell.getName());
+        }
+        setStartingCell(c, time);
+        // if current cell cannot be found anymore deactivate active cell to avoid accidental change
+        Vector nuclei = iNucleiMgr.getElementAt(time);
+        Nucleus n = NucUtils.getCurrentCellNucleus(nuclei, iCurrentCell);
+        if (c != null && n == null) {
+            iCurrentCell = null;
+        }
+        updateDisplay();
+        // ---
 
         this.treeValueChangedFromEdit = true;
-        setStartingCell(c, configManager.getNucleiConfig().getStartingIndex());
 
         // set up the UI properties for the tree shown in the main AceTree tab so that cells in the tree can be selected and trigger a change in the ImageWindow
         iTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
@@ -1182,7 +1196,7 @@ public class AceTree extends JPanel
                     int time = c.getTime();
                     setCurrentCell(c, time, LEFTCLICKONTREE); // just use LEFTCLICKONTREE because it accomplishes what is needed
                 } else {
-                    System.out.println("Tree item is null");
+                    //System.out.println("Tree item is null");
                 }
 
                 // turn off all flags in case they've somehow been turned on
@@ -2026,6 +2040,10 @@ public class AceTree extends JPanel
         
         if(iAddOneDialog!=null)
         	iAddOneDialog.updateCellInfo();
+
+        if (iCurrentCell == null) {
+            iTree.clearSelection();
+        }
     }
 
     @SuppressWarnings("static-access")
