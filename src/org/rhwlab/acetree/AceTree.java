@@ -1236,11 +1236,11 @@ public class AceTree extends JPanel
         JPanel textv = new JPanel();
         textv.setLayout(new BorderLayout());
         textv.setMaximumSize(new Dimension(Integer.MAX_VALUE,150));
-        textv.setPreferredSize(new Dimension(WIDTH,HEIGHT100)); 
+        textv.setPreferredSize(new Dimension(WIDTH,HEIGHT100 + HEIGHT30));
         iText = new JTextPane();
         iText.setEditable(false);
         JScrollPane textView = new JScrollPane(iText);
-        textView.setPreferredSize(new Dimension(WIDTH,HEIGHT100));
+        textView.setPreferredSize(new Dimension(WIDTH,HEIGHT100 + HEIGHT30));
         textv.add(textView);
         add(textv);
 

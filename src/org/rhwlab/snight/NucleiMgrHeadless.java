@@ -473,7 +473,7 @@ public class NucleiMgrHeadless extends NucleiMgr {
     @Override
 	public String getIndex(String name, int time) {
         int k = 0;
-        Vector nuclei = nuclei_record.elementAt(time - 1);
+        Vector nuclei = nuclei_record.elementAt(time);
         Nucleus n = null;
         for (int j=0; j < nuclei.size(); j++) {
             n = (Nucleus)nuclei.elementAt(j);
