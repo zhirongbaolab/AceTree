@@ -65,6 +65,9 @@ public class WormGUIDESWindow extends MainApp {
         // set WormGUIDES start time to current image time in AceTree
         externallySetStartTime = this.imageManager.getCurrImageTime();
 
+        //set WormGUIDES selected cell to current cell in AceTree
+		externallySetStartCell = this.aceTree.getCurrentCell().getName();
+
         timePropertyMainApp.addListener(((observable, oldValue, newValue) -> {
  			//System.out.println("Time property in WormGUIDES has changed and is now: " + newValue.intValue());
             // we need to first rule out changes to the time property that are a result of AceTree's control over WormGUIDES

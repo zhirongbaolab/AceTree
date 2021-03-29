@@ -84,6 +84,14 @@ public class Identity3 {
         lineage_ct_p[0] = 1;
         int lin_ct = lineage_ct_p[0];
         iAxis = tryForAxis(); // sets iParameters.axis to 1 if if finds one
+        // if NEWCANONICAL and a an axis was specified we leave this function here
+        // we do not run initialID so the user can specify the initial cell names
+        if (iParameters.axis == 1 && iNamingMethod == NEWCANONICAL) {
+            println("identityAssignment, using specified axis, " + iAxis);
+            useCanonicalRules(start, lineage_ct_p);
+            return;
+
+        }
         // if no axis was specified then the initialID code will be run
         // you could still use NEWCANONICAL here if iStartingIndex is greater than one
         // but this should be phased out

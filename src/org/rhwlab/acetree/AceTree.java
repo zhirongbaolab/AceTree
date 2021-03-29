@@ -338,7 +338,7 @@ public class AceTree extends JPanel
     //semaphores  merge from shooting_star_both_as AceTree source code
     public boolean ATLockNucleiMgr(boolean lock){
         //Handles our semaphore for locking/unlocking NM
-        System.out.println("AT is Locking or unlocking NucleiMgr");
+        //System.out.println("AT is Locking or unlocking NucleiMgr");
         boolean success = false;
         if(lock){
             if(!iATNucleiMgrLock){
@@ -358,10 +358,10 @@ public class AceTree extends JPanel
 
     public boolean SNLockNucleiMgr(boolean lock){
         //Handles our semaphore for locking/unlocking NM
-        System.out.println("SN is Locking or unlocking NucleiMgr");
+        //System.out.println("SN is Locking or unlocking NucleiMgr");
         boolean success = false;
         if(lock){
-            System.out.println("SN Locking NM");
+            //System.out.println("SN Locking NM");
             if(!iSNNucleiMgrLock){
                 //NM is not locked, lock it and return 1
                 iSNNucleiMgrLock = true;
@@ -369,7 +369,7 @@ public class AceTree extends JPanel
             }
         }
         else{
-            System.out.println("SN Unlocking NM");
+            //System.out.println("SN Unlocking NM");
             //If NM is to be unlocked, just unlock it and return 1
             iSNNucleiMgrLock = false;
             success = true;
@@ -2843,6 +2843,11 @@ public class AceTree extends JPanel
                 iTree.makeVisible(tp);
 
                 this.treeValueChangedFromImageChange = true;
+
+                //if wormGUIDESWindow is up, update the selected cell to keep in sync
+                if (iAceMenuBar.view != null) {
+                    iAceMenuBar.view.updateSelectedCell(c.getName());
+                }
             } catch (NullPointerException npe) {
 
             }
