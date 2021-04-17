@@ -543,6 +543,9 @@ public class AceTree extends JPanel
 
             System.out.println("*** Starting Nuclei configuration including: building NucConfig, NucManager, processing nuclei and assigning names ***");
 
+            //reset currentcell
+            iCurrentCell = null;
+
 	        // check to see if the series is already in the hash (this is an optimization to support faster loading of multiple datasets in a single runtime)
 //	        String shortName = Config.getShortName(configFileName);
 //	        NucleiMgr nucMgr = iNucleiMgrHash.get(shortName);
@@ -924,17 +927,28 @@ public class AceTree extends JPanel
         // --- useful when tree rebuild is triggered externally
         // Set display back to current cell at the same time point
         Hashtable h = iAncesTree.getCellsByName();
-        Cell c = null;
-        int time = this.imageManager.getCurrImageTime();
+        Cell c = walkUpToAGoodCell();
+        int startUpTime = c.getTime() - 1;
+        int time = this.imageManager.getCurrImageTime() - 1;
         if (iCurrentCell != null) {
             c = (Cell)h.get(iCurrentCell.getName());
         }
-        setStartingCell(c, time);
+
         // if current cell cannot be found anymore deactivate active cell to avoid accidental change
         Vector nuclei = iNucleiMgr.getElementAt(time);
-        Nucleus n = NucUtils.getCurrentCellNucleus(nuclei, iCurrentCell);
-        if (c != null && n == null) {
-            iCurrentCell = null;
+        Nucleus n = NucUtils.getCurrentCellNucleus(nuclei, c);
+        if (n == null) {
+            //handle the cases where starting timepoint is not 1 on start up
+            nuclei = iNucleiMgr.getElementAt(startUpTime);
+            n = NucUtils.getCurrentCellNucleus(nuclei, c);
+            if (n == null) {
+                iCurrentCell = null;
+                System.out.println("icurrent cell is null");
+            } else {
+                iCurrentCell = c;
+            }
+        } else {
+            iCurrentCell = c;
         }
         updateDisplay();
         // ---
@@ -3254,6 +3268,9 @@ public class AceTree extends JPanel
     }
 
     public void killCell(int x) {
+        if (iCurrentCell == null) {
+            return;
+        }
         //semaphores  merge from shooting_star_both_as AceTree source code
         boolean SNLock = iAceTree.getSNLock();
         if(SNLock){
@@ -3280,8 +3297,16 @@ public class AceTree extends JPanel
     	//int currenttimeNuclei = this.imageManager.getCurrImageTime() + iTimeInc - 1;
         int currenttimeNuclei = this.imageManager.getCurrImageTime() - 1;
     	Vector nuclei = iNucleiMgr.getElementAt(currenttimeNuclei);
-    	
-    	String name = iCurrentCell.getName();
+        String name = iCurrentCell.getName();
+
+    	//record the predecessor of current cell
+        Cell currenCellSave = iCurrentCell;
+        Nucleus pred_n = null;
+        if (currenttimeNuclei > 0) {
+            Vector nuclei0 = iNucleiMgr.getElementAt(currenttimeNuclei - 1);
+            pred_n = NucUtils.getParent(nuclei0, nuclei, name);
+        }
+
     	System.out.println("Looking for cell: " + name + " to kill");
         Nucleus n = null;
         for (int j = 0; j < nuclei.size(); j++) {
@@ -3303,20 +3328,26 @@ public class AceTree extends JPanel
             iAceMenuBar.view.rebuildData();
         }
 
-        // add find self at previous time code from relink
-        AncesTree ances = getAncesTree();
-		Hashtable h = ances.getCellsByName();
+        //set the cell in previous time frame
+        this.imageManager.incrementImageTimeNumber(-1);
 
-		Cell c = (Cell)h.get(name);
-		
-		// set active cell to start time to aid review
-		if(c != null) {
-            //System.out.println("Setting starting cell c: " + c + " at time: " + currenttimeNuclei);
-			this.treeValueChangedFromEdit = true;
-            setStartingCell(c, currenttimeNuclei);
-		}
+        if (pred_n != null) {
+            iCurrentCell = (Cell)iAncesTree.getCellsByName().get(pred_n.identity);
 
-        prevImage();
+            if(currenCellSave != iCurrentCell) {
+                trackingActionsOnCurrentCellChange();
+                if (iImgWin != null)
+                    iImgWin.updateCurrentCellAnnotation(iCurrentCell, currenCellSave, imageManager.getCurrImageTime());
+            }
+            this.treeValueChangedFromEdit = true;
+            showTreeCell(iCurrentCell);
+        } else {
+            iTrackPosition = ImageWindow.NONE;
+            iCurrentCell = null;
+            showTreeCell(iRoot);
+        }
+
+        updateDisplay();
 
 		// System.gc();
 

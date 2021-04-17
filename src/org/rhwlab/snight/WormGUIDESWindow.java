@@ -66,7 +66,11 @@ public class WormGUIDESWindow extends MainApp {
         externallySetStartTime = this.imageManager.getCurrImageTime();
 
         //set WormGUIDES selected cell to current cell in AceTree
-		externallySetStartCell = this.aceTree.getCurrentCell().getName();
+		if (this.aceTree.getCurrentCell() == null) {
+			externallySetStartCell = null;
+		} else {
+			externallySetStartCell = this.aceTree.getCurrentCell().getName();
+		}
 
         timePropertyMainApp.addListener(((observable, oldValue, newValue) -> {
  			//System.out.println("Time property in WormGUIDES has changed and is now: " + newValue.intValue());
@@ -102,7 +106,7 @@ public class WormGUIDESWindow extends MainApp {
 
         seletedEntityLabelMainApp.addListener((observable, oldValue, newValue) -> {
         	if (!seletedEntityLabelMainApp.isEmpty().get() &&
-					!aceTree.getCurrentCell().getName().equals(newValue) &&
+					(aceTree.getCurrentCell() != null && !aceTree.getCurrentCell().getName().equals(newValue)) &&
 					!oldValue.equals(newValue)) {
 				aceTree.showSelectedCell(newValue);
 			}
