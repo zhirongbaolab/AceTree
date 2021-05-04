@@ -212,7 +212,7 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
 
 			// update WormGUIDES data if it's open
 			if (iAceTree.iAceMenuBar.view != null) {
-				iAceTree.iAceMenuBar.view.updateData(time);
+				iAceTree.iAceMenuBar.view.rebuildData();
 			}
     		
     		//find ref to what we just created now that its renamed
@@ -220,10 +220,10 @@ public class UnifiedNucRelinkDialog extends NucRelinkDialog{
 			//System.out.println("found nucleus"+itself);
 			Cell itselfcell = (Cell)(iAceTree.getAncesTree().getCellsByName().get(itself.identity));
 			//set it as active cell for actree
-			iAceTree.setStartingCell(itselfcell,time);
+			iAceTree.getImageManager().setCurrImageTime(time);
+			iAceTree.showSelectedCell(itselfcell,time);
 
 			// we need to call an update now
-			iAceTree.getImageManager().setCurrImageTime(time);
 			iAceTree.iImgWin.addAnnotation(x, y, true);
 
 			iAceTree.updateDisplay();

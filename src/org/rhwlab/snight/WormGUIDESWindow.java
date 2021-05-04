@@ -126,7 +126,7 @@ public class WormGUIDESWindow extends MainApp {
 		nucleiMgrAdapter.updateCellOccurencesAndPositions();
 
 		// shift the positions to the center
-		setOriginToZero(nucleiMgrAdapter, false);
+		//setOriginToZero(nucleiMgrAdapter, false);
 	}
 
 	public void updateData(int time) {
