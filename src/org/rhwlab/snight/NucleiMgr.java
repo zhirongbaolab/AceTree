@@ -629,10 +629,10 @@ public class NucleiMgr {
             nuclei_record.setSize(time);
             for (int i = getiLastNucleiFile()+1; i < time; i++)
                 nuclei_record.setElementAt(new Vector<Nucleus>(), i);
-            nuclei = nuclei_record.elementAt(time - 1);
+            nuclei = nuclei_record.elementAt(time);
         }
         else
-            nuclei = nuclei_record.elementAt(time - 1);
+            nuclei = nuclei_record.elementAt(time);
 
         Nucleus n = null;
         for (int j=0; j < nuclei.size(); j++) {

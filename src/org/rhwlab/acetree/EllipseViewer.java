@@ -55,12 +55,9 @@ public class EllipseViewer extends JDialog implements ActionListener {
         super(AceTree.getAceTree(null).getMainFrame(), false);
         iAceTree = AceTree.getAceTree(null);
         iNucleiMgr = iAceTree.getNucleiMgr();
-        iConfig = iNucleiMgr.getConfig();
+        iConfig = iAceTree.getConfig();
         iMeasureCSV = iNucleiMgr.getMeasureCSV();
-        String image = iConfig.iTypicalImage;
-        File f = new File(image);
-        image = f.getParent();
-        iImages = new File(image).getParent();
+        iImages = iConfig.getConfigFileName().replace(("/" + iConfig.getShortName()), "");
 
 
         iTime = Integer.parseInt(iMeasureCSV.get("time"));

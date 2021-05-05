@@ -338,7 +338,7 @@ public class AceTree extends JPanel
     //semaphores  merge from shooting_star_both_as AceTree source code
     public boolean ATLockNucleiMgr(boolean lock){
         //Handles our semaphore for locking/unlocking NM
-        System.out.println("AT is Locking or unlocking NucleiMgr");
+        //System.out.println("AT is Locking or unlocking NucleiMgr");
         boolean success = false;
         if(lock){
             if(!iATNucleiMgrLock){
@@ -358,10 +358,10 @@ public class AceTree extends JPanel
 
     public boolean SNLockNucleiMgr(boolean lock){
         //Handles our semaphore for locking/unlocking NM
-        System.out.println("SN is Locking or unlocking NucleiMgr");
+        //System.out.println("SN is Locking or unlocking NucleiMgr");
         boolean success = false;
         if(lock){
-            System.out.println("SN Locking NM");
+            //System.out.println("SN Locking NM");
             if(!iSNNucleiMgrLock){
                 //NM is not locked, lock it and return 1
                 iSNNucleiMgrLock = true;
@@ -369,7 +369,7 @@ public class AceTree extends JPanel
             }
         }
         else{
-            System.out.println("SN Unlocking NM");
+            //System.out.println("SN Unlocking NM");
             //If NM is to be unlocked, just unlock it and return 1
             iSNNucleiMgrLock = false;
             success = true;
@@ -542,6 +542,9 @@ public class AceTree extends JPanel
 	        //  System.gc();
 
             System.out.println("*** Starting Nuclei configuration including: building NucConfig, NucManager, processing nuclei and assigning names ***");
+
+            //reset currentcell
+            iCurrentCell = null;
 
 	        // check to see if the series is already in the hash (this is an optimization to support faster loading of multiple datasets in a single runtime)
 //	        String shortName = Config.getShortName(configFileName);
@@ -921,11 +924,36 @@ public class AceTree extends JPanel
         setTreeSelectionMode();
         setTreeSelectionListener();
 
-        // assume that P0 is the root, and look for the first child present in the nuclei
+        // --- useful when tree rebuild is triggered externally
+        // Set display back to current cell at the same time point
+        Hashtable h = iAncesTree.getCellsByName();
         Cell c = walkUpToAGoodCell();
+        int startUpTime = c.getTime() - 1;
+        int time = this.imageManager.getCurrImageTime() - 1;
+        if (iCurrentCell != null) {
+            c = (Cell)h.get(iCurrentCell.getName());
+        }
+
+        // if current cell cannot be found anymore deactivate active cell to avoid accidental change
+        Vector nuclei = iNucleiMgr.getElementAt(time);
+        Nucleus n = NucUtils.getCurrentCellNucleus(nuclei, c);
+        if (n == null) {
+            //handle the cases where starting timepoint is not 1 on start up
+            nuclei = iNucleiMgr.getElementAt(startUpTime);
+            n = NucUtils.getCurrentCellNucleus(nuclei, c);
+            if (n == null) {
+                iCurrentCell = null;
+                System.out.println("icurrent cell is null");
+            } else {
+                iCurrentCell = c;
+            }
+        } else {
+            iCurrentCell = c;
+        }
+        updateDisplay();
+        // ---
 
         this.treeValueChangedFromEdit = true;
-        setStartingCell(c, configManager.getNucleiConfig().getStartingIndex());
 
         // set up the UI properties for the tree shown in the main AceTree tab so that cells in the tree can be selected and trigger a change in the ImageWindow
         iTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
@@ -1182,7 +1210,7 @@ public class AceTree extends JPanel
                     int time = c.getTime();
                     setCurrentCell(c, time, LEFTCLICKONTREE); // just use LEFTCLICKONTREE because it accomplishes what is needed
                 } else {
-                    System.out.println("Tree item is null");
+                    //System.out.println("Tree item is null");
                 }
 
                 // turn off all flags in case they've somehow been turned on
@@ -1222,11 +1250,11 @@ public class AceTree extends JPanel
         JPanel textv = new JPanel();
         textv.setLayout(new BorderLayout());
         textv.setMaximumSize(new Dimension(Integer.MAX_VALUE,150));
-        textv.setPreferredSize(new Dimension(WIDTH,HEIGHT100)); 
+        textv.setPreferredSize(new Dimension(WIDTH,HEIGHT100 + HEIGHT30));
         iText = new JTextPane();
         iText.setEditable(false);
         JScrollPane textView = new JScrollPane(iText);
-        textView.setPreferredSize(new Dimension(WIDTH,HEIGHT100));
+        textView.setPreferredSize(new Dimension(WIDTH,HEIGHT100 + HEIGHT30));
         textv.add(textView);
         add(textv);
 
@@ -2026,6 +2054,10 @@ public class AceTree extends JPanel
         
         if(iAddOneDialog!=null)
         	iAddOneDialog.updateCellInfo();
+
+        if (iCurrentCell == null) {
+            iTree.clearSelection();
+        }
     }
 
     @SuppressWarnings("static-access")
@@ -2825,6 +2857,11 @@ public class AceTree extends JPanel
                 iTree.makeVisible(tp);
 
                 this.treeValueChangedFromImageChange = true;
+
+                //if wormGUIDESWindow is up, update the selected cell to keep in sync
+                if (iAceMenuBar.view != null) {
+                    iAceMenuBar.view.updateSelectedCell(c.getName());
+                }
             } catch (NullPointerException npe) {
 
             }
@@ -3231,6 +3268,9 @@ public class AceTree extends JPanel
     }
 
     public void killCell(int x) {
+        if (iCurrentCell == null) {
+            return;
+        }
         //semaphores  merge from shooting_star_both_as AceTree source code
         boolean SNLock = iAceTree.getSNLock();
         if(SNLock){
@@ -3257,8 +3297,16 @@ public class AceTree extends JPanel
     	//int currenttimeNuclei = this.imageManager.getCurrImageTime() + iTimeInc - 1;
         int currenttimeNuclei = this.imageManager.getCurrImageTime() - 1;
     	Vector nuclei = iNucleiMgr.getElementAt(currenttimeNuclei);
-    	
-    	String name = iCurrentCell.getName();
+        String name = iCurrentCell.getName();
+
+    	//record the predecessor of current cell
+        Cell currenCellSave = iCurrentCell;
+        Nucleus pred_n = null;
+        if (currenttimeNuclei > 0) {
+            Vector nuclei0 = iNucleiMgr.getElementAt(currenttimeNuclei - 1);
+            pred_n = NucUtils.getParent(nuclei0, nuclei, name);
+        }
+
     	System.out.println("Looking for cell: " + name + " to kill");
         Nucleus n = null;
         for (int j = 0; j < nuclei.size(); j++) {
@@ -3280,20 +3328,26 @@ public class AceTree extends JPanel
             iAceMenuBar.view.rebuildData();
         }
 
-        // add find self at previous time code from relink
-        AncesTree ances = getAncesTree();
-		Hashtable h = ances.getCellsByName();
+        //set the cell in previous time frame
+        this.imageManager.incrementImageTimeNumber(-1);
 
-		Cell c = (Cell)h.get(name);
-		
-		// set active cell to start time to aid review
-		if(c != null) {
-            //System.out.println("Setting starting cell c: " + c + " at time: " + currenttimeNuclei);
-			this.treeValueChangedFromEdit = true;
-            setStartingCell(c, currenttimeNuclei);
-		}
+        if (pred_n != null) {
+            iCurrentCell = (Cell)iAncesTree.getCellsByName().get(pred_n.identity);
 
-        prevImage();
+            if(currenCellSave != iCurrentCell) {
+                trackingActionsOnCurrentCellChange();
+                if (iImgWin != null)
+                    iImgWin.updateCurrentCellAnnotation(iCurrentCell, currenCellSave, imageManager.getCurrImageTime());
+            }
+            this.treeValueChangedFromEdit = true;
+            showTreeCell(iCurrentCell);
+        } else {
+            iTrackPosition = ImageWindow.NONE;
+            iCurrentCell = null;
+            showTreeCell(iRoot);
+        }
+
+        updateDisplay();
 
 		// System.gc();
 

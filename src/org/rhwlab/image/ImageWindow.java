@@ -637,7 +637,7 @@ public class  ImageWindow extends JFrame implements  KeyListener, Runnable {
             iImgPlus.setProcessor(imageName, ip.getProcessor());
         if (iIsMainImgWindow && iAceTree.isTracking()) {
             //System.out.println("In imagewindow, acetree is tracking so adding main annotation");
-            iAceTree.addMainAnnotation();
+            //iAceTree.addMainAnnotation();
         }
         if (iAceTree.getShowCentroids())
             showCentroids(inMaxProjectionMode);

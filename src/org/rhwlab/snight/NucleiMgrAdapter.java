@@ -21,6 +21,8 @@ public class NucleiMgrAdapter implements LineageData {
 	private int realTimePoints; /* NucleiMgr's ending index is past last time with cells present */
 	private boolean isSulston;
 	private double[] xyzScale;
+	private int exprMax;
+	private int exprMin;
 
 
 	public NucleiMgrAdapter(NucleiMgr nucleiMgr, Config config) {
@@ -35,6 +37,9 @@ public class NucleiMgrAdapter implements LineageData {
 		this.xyzScale = new double[3];
 		this.xyzScale[0] = this.xyzScale[1] = config.getNucleiConfig().getXyRes();
 		this.xyzScale[2] = config.getNucleiConfig().getZRes();
+		this.exprMax = 100;
+		this.exprMin = -100;
+		calculateExprMaxMin();
 	}
 
 	private void preprocessCellOccurrences() {
@@ -97,6 +102,29 @@ public class NucleiMgrAdapter implements LineageData {
 			allPositions.add(positions_at_time);
 		}
 		//System.out.println("Size of allPositions = " + allPositions.size());
+	}
+
+	private void calculateExprMaxMin() {
+		for (int i = 1; i <= realTimePoints; i++) {
+			//access vector of nuclei at given time frame
+			Vector<Nucleus> v = nucleiMgr.nuclei_record.get(i-1);
+
+			//iterate through the vector of nuclei
+			for (int m = 0; m < v.size(); ++m) {
+				Nucleus n = v.get(m);
+				if (n.status == 1) {
+					int rweight = (int) n.rweight;
+					//update expression max and min
+					if (rweight > exprMax) {
+						exprMax = rweight;
+					}
+					if (rweight < exprMin) {
+						exprMin = rweight;
+					}
+				}
+			}
+		}
+		System.out.println(exprMax + " " + exprMin);
 	}
 
 	public void updateCellOccurencesAndPositions() {
@@ -236,6 +264,40 @@ public class NucleiMgrAdapter implements LineageData {
 		}
 
 		return diameters;
+	}
+
+	@Override
+	public int[] getRweights(int time) {
+		ArrayList<Integer> rweightsAL = new ArrayList<>();
+
+		//access vector of nuclei at given time frame
+		Vector<Nucleus> v = nucleiMgr.nuclei_record.get(time-1);
+
+		for (int m = 0; m < v.size(); ++m) {
+			Nucleus n = v.get(m);
+			if (n.status == 1) {
+				rweightsAL.add((int)n.rweight);
+			}
+		}
+
+		//convert ArrayList to Integer[]
+		int size = rweightsAL.size();
+		int[] rweights = new int[size];
+		for (int i = 0; i < size; ++i) {
+			rweights[i] = rweightsAL.get(i);
+		}
+
+		return rweights;
+	}
+
+	@Override
+	public int getExprMax() {
+		return exprMax;
+	}
+
+	@Override
+	public int getExprMin() {
+		return exprMin;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

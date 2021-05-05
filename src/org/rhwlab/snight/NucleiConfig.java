@@ -139,7 +139,7 @@ public class NucleiConfig {
                 this.exprCorr = configData.get(s);
             } else if (s.toLowerCase().equals(polarSizeKey.toLowerCase())) {
                 this.polarSize = Integer.parseInt(configData.get(s));
-            } else if (s.toLowerCase().equals(axisGiven.toLowerCase())) {
+            } else if (s.toLowerCase().equals(axisGivenKey.toLowerCase())) {
                 this.axisGiven = configData.get(s);
             } else if (s.toLowerCase().equals(angleKey.toLowerCase())) {
                 this.angle = Double.parseDouble(configData.get(s));
